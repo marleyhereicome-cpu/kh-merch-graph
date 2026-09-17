@@ -2,3 +2,8 @@ line_id,pattern,message_en,source_url
 ,keyword:ノーブランド,Listing states no brand. Licensed character goods normally name the maker; treat as possible bootleg.,
 ,keyword:海外製,Listing says overseas-made. Compare maker and JAN with the catalog entry before buying.,
 ,new_price_below_msrp_ratio<0.4,New/sealed item priced far below MSRP is unusual for this category; verify authenticity.,
+,keyword:塗装が甘い,Listing mentions rough or uneven paint work on a figure. This is sometimes cited for unlicensed figures, but genuine factory seconds exist too; ask for close-up photos before ruling anything out.,
+,keyword:社名記載なし,Listing or base photo shows no visible maker name or logo. Licensed figures and kuji prizes are normally marked; treat this as a point worth checking rather than proof either way.,
+,keyword:印刷ズレ,Listing mentions print misalignment on acrylic art (acrylic stands/charms). This can be a sign of an unlicensed reproduction, but minor factory variance also occurs; compare against official product photos.,
+,keyword:縫製が甘い,Listing mentions loose or uneven stitching on a plush. Sometimes reported for unlicensed plush, but this can also reflect wear on a genuine item; ask for close-up photos of the seams.,
+,keyword:タグなし,Plush or apparel listed with no maker tag. Licensed KH plush is normally tagged, so a missing tag is worth asking about, though tags are also commonly removed or lost on genuine items.,

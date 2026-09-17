@@ -204,6 +204,29 @@ function main() {
     }
   }
 
+  // eval_listings.csv の expected_sku_id が catalog.csv に存在するか（NONE・空欄は対象外）
+  if (loaded["eval_listings.csv"] && loaded["catalog.csv"]) {
+    const validSkuIds = new Set(
+      loaded["catalog.csv"].records.map((r) => r.sku_id)
+    );
+    const orphans = loaded["eval_listings.csv"].records.filter(
+      (r) =>
+        r.expected_sku_id &&
+        r.expected_sku_id !== "NONE" &&
+        !validSkuIds.has(r.expected_sku_id)
+    );
+    if (orphans.length > 0) {
+      console.log("## eval_listings.csv ⇔ catalog.csv の整合性");
+      orphans.forEach((r) => {
+        console.log(
+          `  ✗ expected_sku_id="${r.expected_sku_id}" が catalog.csv にありません（listing_title: ${r.listing_title}）`
+        );
+      });
+      errorCount += orphans.length;
+      console.log("");
+    }
+  }
+
   console.log("---");
   console.log(`エラー: ${errorCount} 件 / 警告: ${warningCount} 件`);
   if (errorCount === 0 && warningCount === 0) {

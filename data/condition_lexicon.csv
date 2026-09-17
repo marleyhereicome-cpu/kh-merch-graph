@@ -14,3 +14,12 @@ term_ja,variants,term_en,meaning_en,price_effect,risk_flag
 ノーブランド,ノーブランド品,unbranded,No manufacturer stated. Strong bootleg indicator for character goods.,major_down,High bootleg risk
 セット,まとめ売り|まとめ|セット売り,bundle / lot,Multiple items sold together. Resolve each item separately if possible.,none,
 バラ売り不可,バラ不可,no splitting,Bundle only; cannot buy a single item from the lot.,none,
+箱のみ,箱only|外箱のみ,box only,Only the original packaging is offered; the figure or prize itself is not included. Value is limited to display or storage use.,major_down,Confirm the actual item is NOT included
+内袋未開封,内袋未開封品|インナー袋未開封,inner bag sealed,Outer box may be opened but the inner poly bag protecting the piece is still sealed. Near-mint condition for loose or blind-packed items.,none,
+タグ付き,下げ札付き|タグ付|ネームタグ付き,with tag,Original hang tag or fabric tag is still attached. Common quality marker for plush and apparel; missing tags can lower value.,none,
+初回限定版,初回限定|初回版|初回封入特典付き,first-run limited edition,The original production run, often bundled with a first-print bonus. Later reprints usually lack this bonus even if the main item is identical.,up,
+特典付き,予約特典付き|購入特典付き|特典あり,with bonus,Includes a store or preorder bonus item that is not part of the base product. Ask exactly which bonus is included and whether it is store-exclusive.,up,Ask seller exactly which bonus is included
+サントラ帯付き,帯付き|帯あり|OBI付き,with obi strip,Japanese CD/media obi (the promotional paper strip around the case) is present and intact. Collectors value complete-obi condition highly.,up,
+美品,美品|状態良好,seller-described good condition,Seller's subjective claim of good condition; not a standardized grade. Ask for photos to confirm.,none,Subjective claim; verify with photos
+台座付属,台座あり|台座付,stand included,The display stand or base that ships with the figure is included. Some secondhand listings separate the stand from the figure.,none,Confirm stand is the original one for this SKU
+動作確認済み,動作確認済|通電確認済み,function tested,Seller states an electronic or mechanical item (light-up parts, clocks, etc.) was tested and works.,none,
