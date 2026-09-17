@@ -16,9 +16,9 @@ const SCHEMAS = {
   ],
   "catalog.csv": [
     "sku_id", "line_id", "ip", "character", "character_en", "name_ja",
-    "name_en", "aliases", "variant", "msrp_jpy", "width_mm", "height_mm",
-    "depth_mm", "weight_g", "jan", "official", "rerelease_dates",
-    "source_url", "verified", "notes",
+    "name_en", "aliases", "variant", "design_variants", "msrp_jpy",
+    "price_basis", "width_mm", "height_mm", "depth_mm", "weight_g", "jan",
+    "official", "rerelease_dates", "source_url", "verified", "notes",
   ],
   "condition_lexicon.csv": [
     "term_ja", "variants", "term_en", "meaning_en", "price_effect", "risk_flag",

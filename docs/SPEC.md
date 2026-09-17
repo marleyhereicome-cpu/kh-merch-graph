@@ -31,7 +31,9 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | name_ja / name_en | 商品の正式名 |
 | aliases | 通称（`|` 区切り） |
 | variant | 版・カラバリ・等級（くじの「A賞」など） |
+| design_variants | 同じ行に複数デザインが含まれる場合の内訳（公式ページに記載がある範囲で `|` 区切り）。個別の記載がなければ空欄 |
 | msrp_jpy | 定価（税込、円）。くじは1回の価格 |
+| price_basis | `msrp_jpy` の性質。`msrp`（商品そのものの定価）／`draw_price`（くじ1回の抽選価格。個々の景品の定価ではない）／`none`（定価情報なし） |
 | width_mm / height_mm / depth_mm / weight_g | 寸法・重量（総額計算用、不明は空欄） |
 | jan | JANコード（あれば） |
 | official | `true`/`false` |
@@ -100,7 +102,10 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 2. `aliases`・`name_ja`・`character`・`variant` との一致スコアで候補SKUを上位3件（0〜1の信頼度）
 3. 状態語辞書に当たる語を抽出
 4. `bootleg_patterns` を評価して注意フラグ
-5. `msrp_jpy` があれば定価比を算出
+5. `msrp_jpy` があれば `price_basis` に応じて処理する
+   - `price_basis` が `draw_price`（くじの1回抽選価格）の場合は定価比を出さず、`price.note_en` に `"kuji prize: per-draw price ¥{msrp_jpy}; secondary market premium is normal"` を返す
+   - `price_basis` が `msrp` の場合は定価比（`ratio`）を算出する
+   - `price_basis` が `none` または空の場合は定価比を出さない
 出力（JSON）：
 ```json
 {
