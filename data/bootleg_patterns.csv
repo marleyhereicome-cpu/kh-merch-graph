@@ -1,0 +1,4 @@
+line_id,pattern,message_en,source_url
+,keyword:ノーブランド,Listing states no brand. Licensed character goods normally name the maker; treat as possible bootleg.,
+,keyword:海外製,Listing says overseas-made. Compare maker and JAN with the catalog entry before buying.,
+,new_price_below_msrp_ratio<0.4,New/sealed item priced far below MSRP is unusual for this category; verify authenticity.,

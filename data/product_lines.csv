@@ -1,0 +1,2 @@
+line_id,ip,name_ja,name_en,aliases,maker,line_type,release_date,source_url,notes
+example-line,kingdom-hearts,（例）一番くじ キングダム ハーツ 第N弾,(example) Ichiban Kuji Kingdom Hearts Vol.N,一番くじKH|KH kuji,BANDAI SPIRITS,kuji,2020-01,https://example.com/replace-me,この行は例。Step2で削除して実データに置き換える

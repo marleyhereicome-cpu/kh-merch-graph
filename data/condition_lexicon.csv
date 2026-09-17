@@ -1,0 +1,16 @@
+term_ja,variants,term_en,meaning_en,price_effect,risk_flag
+未開封,新品未開封|未開封品|シュリンク付き,sealed / unopened,Factory sealed. Highest collector grade for figures and kuji prizes.,none,
+開封済,開封済み|開封のみ|開封品,opened,Box was opened; item typically displayed or inspected. Usually still complete.,minor_down,
+箱なし,箱無し|外箱なし|本体のみ,no box,Original packaging missing. Fine for display; lowers resale value noticeably.,major_down,
+箱潰れ,箱に傷|箱ダメージ|箱イタミ,box damage,Packaging dented or scuffed; item itself usually unaffected.,minor_down,
+難あり,難有り|訳あり|ワケあり,flawed / with defects,Seller declares a defect. Ask what exactly is wrong before buying.,major_down,Ask seller for photos of the defect
+ジャンク,ジャンク品,junk / as-is,Sold without guarantee of function or completeness. Parts may be missing.,major_down,No returns expected; assume incomplete
+中古,中古品|USED,used,Generic secondhand label. Says nothing about grade by itself.,none,
+当時物,当時品,vintage original,Original release from the period rather than a re-release. Can raise value for older lines.,up,
+再販,再販品|再版,re-release,A later production run. Usually cheaper than original run; check which run the listing is.,minor_down,
+プライズ,プライズ品|クレーンゲーム景品,prize figure,Arcade/crane-game item. Lower MSRP tier than scale figures; not a defect.,none,
+正規品,正規|公式,official / licensed,Seller asserts authenticity. Not proof by itself.,none,Verify maker name and packaging text
+海外製,海外版|海外正規品,overseas-made,May be a legitimate regional release or a bootleg. Needs verification.,none,Check maker and JAN against catalog
+ノーブランド,ノーブランド品,unbranded,No manufacturer stated. Strong bootleg indicator for character goods.,major_down,High bootleg risk
+セット,まとめ売り|まとめ|セット売り,bundle / lot,Multiple items sold together. Resolve each item separately if possible.,none,
+バラ売り不可,バラ不可,no splitting,Bundle only; cannot buy a single item from the lot.,none,

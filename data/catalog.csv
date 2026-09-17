@@ -1,0 +1,2 @@
+sku_id,line_id,ip,character,character_en,name_ja,name_en,aliases,variant,msrp_jpy,width_mm,height_mm,depth_mm,weight_g,jan,official,rerelease_dates,source_url,verified,notes
+example-line-a,example-line,kingdom-hearts,ソラ,Sora,（例）A賞 ソラ フィギュア,(example) Prize A Sora Figure,A賞ソラ|Sora prize A,A賞,,,,,,,true,,https://example.com/replace-me,false,この行は例。Step2で削除
