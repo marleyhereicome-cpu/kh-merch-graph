@@ -1,0 +1,12 @@
+channel_name,channel_type,country,search_url_template,proxy_required,source_url
+mercari,secondhand,JP,https://jp.mercari.com/search?keyword={q},yes,https://jp.mercari.com/
+yahoo_auctions,secondhand,JP,https://auctions.yahoo.co.jp/search/search?p={q},yes,https://auctions.yahoo.co.jp/
+surugaya,secondhand,JP,https://www.suruga-ya.jp/search?category=&search_word={q},yes,https://www.suruga-ya.jp/
+mandarake,secondhand,JP,https://order.mandarake.co.jp/order/listPage/list?keyword={q},yes,https://order.mandarake.co.jp/
+amiami,new,JP,https://www.amiami.com/eng/search/list/?s_keywords={q},no,https://www.amiami.com/
+e-store,new,JP,https://store.jp.square-enix.com/estore/g/search/?keyword={q},no,https://store.jp.square-enix.com/
+tokyo_otaku_mode,western,US,https://otakumode.com/shop/search?q={q},no,https://otakumode.com/
+ebay,western,US,https://www.ebay.com/sch/i.html?_nkw={q},no,https://www.ebay.com/
+hot_topic,western,US,https://www.hottopic.com/search?query={q},no,https://www.hottopic.com/
+buyee,proxy,JP,https://buyee.jp/item/search/query/{q},no,https://buyee.jp/
+zenmarket,proxy,JP,https://zenmarket.jp/en/search?q={q},no,https://zenmarket.jp/

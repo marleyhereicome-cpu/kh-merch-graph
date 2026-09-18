@@ -1,0 +1,90 @@
+[
+  {
+    "channel_name": "mercari",
+    "channel_type": "secondhand",
+    "country": "JP",
+    "search_url_template": "https://jp.mercari.com/search?keyword={q}",
+    "proxy_required": "yes",
+    "source_url": "https://jp.mercari.com/"
+  },
+  {
+    "channel_name": "yahoo_auctions",
+    "channel_type": "secondhand",
+    "country": "JP",
+    "search_url_template": "https://auctions.yahoo.co.jp/search/search?p={q}",
+    "proxy_required": "yes",
+    "source_url": "https://auctions.yahoo.co.jp/"
+  },
+  {
+    "channel_name": "surugaya",
+    "channel_type": "secondhand",
+    "country": "JP",
+    "search_url_template": "https://www.suruga-ya.jp/search?category=&search_word={q}",
+    "proxy_required": "yes",
+    "source_url": "https://www.suruga-ya.jp/"
+  },
+  {
+    "channel_name": "mandarake",
+    "channel_type": "secondhand",
+    "country": "JP",
+    "search_url_template": "https://order.mandarake.co.jp/order/listPage/list?keyword={q}",
+    "proxy_required": "yes",
+    "source_url": "https://order.mandarake.co.jp/"
+  },
+  {
+    "channel_name": "amiami",
+    "channel_type": "new",
+    "country": "JP",
+    "search_url_template": "https://www.amiami.com/eng/search/list/?s_keywords={q}",
+    "proxy_required": "no",
+    "source_url": "https://www.amiami.com/"
+  },
+  {
+    "channel_name": "e-store",
+    "channel_type": "new",
+    "country": "JP",
+    "search_url_template": "https://store.jp.square-enix.com/estore/g/search/?keyword={q}",
+    "proxy_required": "no",
+    "source_url": "https://store.jp.square-enix.com/"
+  },
+  {
+    "channel_name": "tokyo_otaku_mode",
+    "channel_type": "western",
+    "country": "US",
+    "search_url_template": "https://otakumode.com/shop/search?q={q}",
+    "proxy_required": "no",
+    "source_url": "https://otakumode.com/"
+  },
+  {
+    "channel_name": "ebay",
+    "channel_type": "western",
+    "country": "US",
+    "search_url_template": "https://www.ebay.com/sch/i.html?_nkw={q}",
+    "proxy_required": "no",
+    "source_url": "https://www.ebay.com/"
+  },
+  {
+    "channel_name": "hot_topic",
+    "channel_type": "western",
+    "country": "US",
+    "search_url_template": "https://www.hottopic.com/search?query={q}",
+    "proxy_required": "no",
+    "source_url": "https://www.hottopic.com/"
+  },
+  {
+    "channel_name": "buyee",
+    "channel_type": "proxy",
+    "country": "JP",
+    "search_url_template": "https://buyee.jp/item/search/query/{q}",
+    "proxy_required": "no",
+    "source_url": "https://buyee.jp/"
+  },
+  {
+    "channel_name": "zenmarket",
+    "channel_type": "proxy",
+    "country": "JP",
+    "search_url_template": "https://zenmarket.jp/en/search?q={q}",
+    "proxy_required": "no",
+    "source_url": "https://zenmarket.jp/"
+  }
+]

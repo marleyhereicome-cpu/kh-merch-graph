@@ -2,6 +2,7 @@
 // LLMは使わず、正規化した文字列同士の部分一致のみで判定する（ルール＋辞書）。
 import { containsNormalized } from "./normalize.js";
 import { splitPipe, type CatalogSku, type OtherIpKeyword, type ProductLine } from "./types.js";
+import { withEnglishExpansion } from "./en-tokens.js";
 
 // 「キングダムハーツ作品である」ことを示す語。これが出品文に無いと、
 // 「A賞」「中古」のような作品横断語だけの一致では信頼度を頭打ちにする。
@@ -101,8 +102,12 @@ export function resolveCandidates(
     return { candidates: [], weak_matches: [] };
   }
 
+  // 英語だけの出品文にも対応するため、既知の英語トークン（kuji/prize A/last one 等）を
+  // 対応する日本語表記に変換してスコアリング用テキストに追加する（表示用の理由文には使わない）。
+  const scoringText = withEnglishExpansion(queryText);
+
   const anchorPresent = buildAnchorTerms(catalog).some((term) =>
-    containsNormalized(queryText, term)
+    containsNormalized(scoringText, term)
   );
 
   const lineById = new Map(lines.map((l) => [l.line_id, l]));
@@ -110,7 +115,7 @@ export function resolveCandidates(
   const scored = catalog
     .map((sku) => {
       const line = lineById.get(sku.line_id);
-      const { skuScore, lineScore, reasons } = scoreSku(queryText, sku, line);
+      const { skuScore, lineScore, reasons } = scoreSku(scoringText, sku, line);
       const isKuji = line?.line_type === "kuji";
       // くじで「賞の文字」等sku側だけ一致し、シリーズを示す語（line側）が無い＝弾を特定できない。
       const seriesAmbiguous = isKuji && skuScore > 0 && lineScore === 0;

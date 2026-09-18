@@ -18,6 +18,7 @@ export function buildLlmsTxt(baseUrl: string): string {
 - MCP endpoint (Streamable HTTP, no auth, JSON-RPC 2.0): \`${baseUrl}/mcp\`
 - Health check: \`${baseUrl}/health\`
 - Machine-readable reference of the same tool schemas below: \`${baseUrl}/openapi.json\` (documentation aid only — the real transport is MCP JSON-RPC over \`/mcp\`, not REST; call \`tools/list\` on \`/mcp\` for the authoritative, live schema)
+- Plain GET convenience endpoint for uptime/monitoring checks (same rate limit as \`/mcp\`, no usage logging): \`GET ${baseUrl}/v1/resolve?title=...\` returns the same JSON as calling \`resolve_listing\` — this is for automated health checks, not the primary way to use this server (use MCP \`/mcp\` for that)
 
 ## Tools
 

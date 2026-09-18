@@ -40,6 +40,19 @@ describe("resolveCandidates", () => {
     }
   });
 
+  it("英語だけのタイトルでも「Prize A」を「A賞」として一致させ、弾（シリーズ）も特定する", () => {
+    const title = "KH kuji 25th Anniversary Prize A figure";
+    const { candidates } = resolveCandidates(title, catalog, productLines, 3);
+    expect(candidates[0]?.sku_id).toBe("ichiban-kuji-kh-25th-anniversary-a");
+    expect(candidates[0]?.ambiguous_series).toBeUndefined();
+  });
+
+  it("英語の「last one」を「ラストワン賞」として一致させる", () => {
+    const title = "Kingdom Hearts Linking Hearts Last One Roxas Statue kuji";
+    const { candidates } = resolveCandidates(title, catalog, productLines, 3);
+    expect(candidates[0]?.sku_id).toBe("ichiban-kuji-kh-linking-hearts-lastone");
+  });
+
   it("信頼度0.3未満の一致は candidates ではなく weak_matches に入る", () => {
     // キャラ名(英語表記)のみの弱い一致 → confidence 0.15 (< 0.3) を想定
     const title = "ソラ";

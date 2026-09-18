@@ -15,6 +15,7 @@ export function buildOpenApiDocument(baseUrl: string): object {
         price_jpy: { type: "number", description: "出品価格（円、任意）" },
         platform: { type: "string", enum: ["mercari", "yahoo", "surugaya", "mandarake", "other"] },
         url: { type: "string", description: "出品URL（任意。サーバー側では保存しない）" },
+        src: { type: "string", description: "計測用の流入元タグ（任意）。src自体と日時のみ利用ログに残す" },
       },
     },
     explain_product: {
@@ -122,6 +123,27 @@ export function buildOpenApiDocument(baseUrl: string): object {
         get: {
           summary: "Health check",
           responses: { "200": { description: "\"ok\" if the server is up." } },
+        },
+      },
+      "/v1/resolve": {
+        get: {
+          summary: "GET convenience wrapper around resolve_listing, for external monitoring/testing",
+          description:
+            "Returns the same JSON result as calling the resolve_listing MCP tool. Shares the same rate limit " +
+            "as /mcp. Intended for uptime checks and automated tests, not as the primary integration path " +
+            "(use MCP tools/call on /mcp for that). Calls to this endpoint are not written to the usage log.",
+          parameters: [
+            { name: "title", in: "query", required: true, schema: { type: "string" } },
+            { name: "description", in: "query", required: false, schema: { type: "string" } },
+            { name: "price_jpy", in: "query", required: false, schema: { type: "number" } },
+            { name: "platform", in: "query", required: false, schema: { type: "string", enum: ["mercari", "yahoo", "surugaya", "mandarake", "other"] } },
+            { name: "src", in: "query", required: false, schema: { type: "string" }, description: "Attribution tag, not logged beyond src+timestamp" },
+          ],
+          responses: {
+            "200": { description: "Same JSON shape as resolve_listing's result." },
+            "400": { description: "Missing or invalid title/price_jpy." },
+            "429": { description: "Rate limited." },
+          },
         },
       },
     },

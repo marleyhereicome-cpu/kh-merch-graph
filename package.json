@@ -9,6 +9,7 @@
   },
   "scripts": {
     "build:data": "node scripts/build-data.mjs",
+    "coverage": "tsx scripts/coverage.mjs",
     "eval": "tsx scripts/eval.ts",
     "start": "tsx src/server.ts",
     "report:weekly": "node scripts/weekly-report.mjs",

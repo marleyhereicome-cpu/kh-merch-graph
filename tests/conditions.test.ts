@@ -22,4 +22,15 @@ describe("extractConditions", () => {
     const noBrand = matches.find((m) => m.term_ja === "ノーブランド");
     expect(noBrand?.risk_flag).toBe("High bootleg risk");
   });
+
+  it("英語の状態語（brand new / opened / no box / mint）も認識する", () => {
+    const matches = extractConditions(
+      "Kingdom Hearts kuji Prize A, brand new but no box, seller says mint condition",
+      conditionLexicon
+    );
+    const terms = matches.map((m) => m.term_ja);
+    expect(terms).toContain("未開封");
+    expect(terms).toContain("箱なし");
+    expect(terms).toContain("美品");
+  });
 });

@@ -17,6 +17,7 @@ const FILES = [
   "events.csv",
   "proxy_rates.csv",
   "other_ip_keywords.csv",
+  "channels.csv",
 ];
 
 function main() {

@@ -1,7 +1,7 @@
 term_ja,variants,term_en,meaning_en,price_effect,risk_flag
-未開封,新品未開封|未開封品|シュリンク付き,sealed / unopened,Factory sealed. Highest collector grade for figures and kuji prizes.,none,
-開封済,開封済み|開封のみ|開封品,opened,Box was opened; item typically displayed or inspected. Usually still complete.,minor_down,
-箱なし,箱無し|外箱なし|本体のみ,no box,Original packaging missing. Fine for display; lowers resale value noticeably.,major_down,
+未開封,新品未開封|未開封品|シュリンク付き|brand new|brand-new|nib|new in box,sealed / unopened,Factory sealed. Highest collector grade for figures and kuji prizes.,none,
+開封済,開封済み|開封のみ|開封品|opened|box opened,opened,Box was opened; item typically displayed or inspected. Usually still complete.,minor_down,
+箱なし,箱無し|外箱なし|本体のみ|no box|without box|box not included,no box,Original packaging missing. Fine for display; lowers resale value noticeably.,major_down,
 箱潰れ,箱に傷|箱ダメージ|箱イタミ,box damage,Packaging dented or scuffed; item itself usually unaffected.,minor_down,
 難あり,難有り|訳あり|ワケあり,flawed / with defects,Seller declares a defect. Ask what exactly is wrong before buying.,major_down,Ask seller for photos of the defect
 ジャンク,ジャンク品,junk / as-is,Sold without guarantee of function or completeness. Parts may be missing.,major_down,No returns expected; assume incomplete
@@ -20,6 +20,6 @@ term_ja,variants,term_en,meaning_en,price_effect,risk_flag
 初回限定版,初回限定|初回版|初回封入特典付き,first-run limited edition,The original production run, often bundled with a first-print bonus. Later reprints usually lack this bonus even if the main item is identical.,up,
 特典付き,予約特典付き|購入特典付き|特典あり,with bonus,Includes a store or preorder bonus item that is not part of the base product. Ask exactly which bonus is included and whether it is store-exclusive.,up,Ask seller exactly which bonus is included
 サントラ帯付き,帯付き|帯あり|OBI付き,with obi strip,Japanese CD/media obi (the promotional paper strip around the case) is present and intact. Collectors value complete-obi condition highly.,up,
-美品,美品|状態良好,seller-described good condition,Seller's subjective claim of good condition; not a standardized grade. Ask for photos to confirm.,none,Subjective claim; verify with photos
+美品,美品|状態良好|mint|near mint|mint condition,seller-described good condition,Seller's subjective claim of good condition; not a standardized grade. Ask for photos to confirm.,none,Subjective claim; verify with photos
 台座付属,台座あり|台座付,stand included,The display stand or base that ships with the figure is included. Some secondhand listings separate the stand from the figure.,none,Confirm stand is the original one for this SKU
 動作確認済み,動作確認済|通電確認済み,function tested,Seller states an electronic or mechanical item (light-up parts, clocks, etc.) was tested and works.,none,

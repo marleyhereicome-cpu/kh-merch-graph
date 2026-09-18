@@ -46,5 +46,11 @@
     "pattern": "keyword:タグなし",
     "message_en": "Plush or apparel listed with no maker tag. Licensed KH plush is normally tagged",
     "source_url": "so a missing tag is worth asking about"
+  },
+  {
+    "line_id": "",
+    "pattern": "keyword:authentic",
+    "message_en": "The word \"authentic\" in a listing is the seller's own claim, not proof. Ask for maker-mark/tag close-ups and compare against the catalog's source_url photos before trusting it.",
+    "source_url": ""
   }
 ]

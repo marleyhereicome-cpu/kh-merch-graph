@@ -7,6 +7,7 @@
     "aliases": "一番くじKH|一番くじキングダムハーツ|KH一番くじ|Ichiban Kuji Kingdom Hearts|KH Kuji 2018|セブンイレブン一番くじKH",
     "maker": "BANDAI SPIRITS",
     "line_type": "kuji",
+    "acquisition_type": "kuji",
     "release_date": "2018-12-01",
     "source_url": "https://1kuji.com/products/disney_kh",
     "notes": "セブン-イレブン店頭限定のくじ。キングダム ハーツⅢの新衣装スタチュー・ぬいぐるみが中心。公式ページに弾番号の記載はなく、当データでは便宜上「2018」を付けて区別している。ダブルチャンスキャンペーン(〜2019年02月末)でA賞相当が別途50個当選。"
@@ -19,6 +20,7 @@
     "aliases": "一番くじKHセカンドメモリー|一番くじKH2|KHセカメモ|Ichiban Kuji KH Second Memory|Second Memory一番くじ|一番くじキングダムハーツセカンドメモリー|Second Memory|セカンドメモリー",
     "maker": "BANDAI SPIRITS",
     "line_type": "kuji",
+    "acquisition_type": "kuji",
     "release_date": "2020-11-04",
     "source_url": "https://1kuji.com/products/disney_kh2",
     "notes": "セブン-イレブン・イトーヨーカドー店頭限定のくじ。前作「一番くじ KINGDOM HEARTS」(2018年、line_id: ichiban-kuji-kh-2018)の続編的位置づけだが、公式ページに「第2弾」等の表記はない。ダブルチャンスキャンペーン(〜2021年02月末)でA賞相当が別途50個当選。"
@@ -31,6 +33,7 @@
     "aliases": "一番くじKH20th|一番くじKH20周年|KH20周年一番くじ|Ichiban Kuji KH 20th Anniversary|KH20thくじ|一番くじキングダムハーツ20周年|20th Anniversary|20周年",
     "maker": "BANDAI SPIRITS",
     "line_type": "kuji",
+    "acquisition_type": "kuji",
     "release_date": "2022-07-16",
     "source_url": "https://1kuji.com/products/disney_kh3",
     "notes": "セブン-イレブン・イトーヨーカドー店頭限定のくじ。KH20周年記念。当初発売日は2022年6月25日の予定だったが、製造・物流の混乱により2022年7月16日に延期(公式ページに掲載の告知による)。ダブルチャンスキャンペーン(〜2022年10月末)はラストワン賞相当が対象(前2作のA賞対象とは異なる)。"
@@ -43,6 +46,7 @@
     "aliases": "一番くじKHリンキングハーツ|一番くじKHリンキング|KHリンキングハーツ|Ichiban Kuji KH Linking Hearts|Linking Hearts一番くじ|一番くじキングダムハーツリンキングハーツ|Linking Hearts|リンキングハーツ",
     "maker": "BANDAI SPIRITS",
     "line_type": "kuji",
+    "acquisition_type": "kuji",
     "release_date": "2024-05-31",
     "source_url": "https://1kuji.com/products/disney_kh4",
     "notes": "セブン-イレブン・イトーヨーカドー・ゆめタウン等店頭限定のくじ。KH20周年記念企画の一つ(野村哲也氏描き下ろしイラスト使用のB賞タオルなど)。セブンイレブンは店舗により2024年6月1日・2日以降発売の場合あり。ダブルチャンスキャンペーン(〜2024年08月末)はA賞相当が対象。オンライン販売なし(公式ページに明記)。"
@@ -55,6 +59,7 @@
     "aliases": "一番くじKH25th|一番くじKH25周年|KH25周年一番くじ|Ichiban Kuji KH 25th Anniversary|KH25thくじ|一番くじキングダムハーツ25周年|25th Anniversary|25周年",
     "maker": "BANDAI SPIRITS",
     "line_type": "kuji",
+    "acquisition_type": "kuji",
     "release_date": "2026-08-15",
     "source_url": "https://1kuji.com/products/disney_kh5",
     "notes": "セブン-イレブン・イトーヨーカドー・ゆめタウン等店頭限定のくじ。KH25周年記念。ダブルチャンスキャンペーン(〜2026年11月末)はラストワン賞相当が対象。オンライン販売なし(公式ページに明記)。"
@@ -67,6 +72,7 @@
     "aliases": "BbSサントラサイン入り|KH BbS 358/2 Daysサントラ|下村陽子サイン入りサントラ|SQEX-11140-2S|Signed BbS OST",
     "maker": "スクウェア・エニックス",
     "line_type": "music",
+    "acquisition_type": "retail",
     "release_date": "2026-10-10",
     "source_url": "https://store.jp.square-enix.com/estore/g/gSQEX-11140-2S/",
     "notes": "2011年発売の同内容サントラ(SQEX-10213-5、当データ未収録)に、作曲者・下村陽子氏のサイン入り。抽選販売(応募〜2026-09-22)、1人1点まで、サイン記入のため開封済み。"
@@ -79,6 +85,7 @@
     "aliases": "KH2フォルミズム|フォルミズムシリーズ|FORM-ISM|KH2 FORM-ISM",
     "maker": "スクウェア・エニックス",
     "line_type": "figure",
+    "acquisition_type": "retail",
     "release_date": "2026-05-30",
     "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09706/",
     "notes": "キャラクター別に個別発売される継続フィギュアシリーズ。release_dateは判明している中で最も早いロクサスの発売日。アクセル版のURLはhttps://store.jp.square-enix.com/estore/g/gMKH09712/ 。各キャラの発売日はcatalog.csvの各行のnotesを参照。"
@@ -91,6 +98,7 @@
     "aliases": "KHキルティングリュック|モノグラムリュック|MKH09709|KH Quilted Monogram Backpack",
     "maker": "スクウェア・エニックス",
     "line_type": "other",
+    "acquisition_type": "retail",
     "release_date": "2026-07-18",
     "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09709/",
     "notes": "特定キャラクター・タイトル限定ではないシリーズ全般向けグッズ。モノグラムのキルティングデザイン。"
@@ -103,6 +111,7 @@
     "aliases": "KHミニクリアポスター|ミニクリアポスターコレクション|MKH09700-BOX|KH Mini Clear Poster Box",
     "maker": "スクウェア・エニックス",
     "line_type": "other",
+    "acquisition_type": "retail",
     "release_date": "2026-02-28",
     "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09700-BOX/",
     "notes": "ブラインド仕様(外から中身が分からない)。1箱12個入りだが全12種類が必ず揃うとは限らないと公式に明記。個別キャラクターの内訳は公式ページに記載なし。"
@@ -115,6 +124,7 @@
     "aliases": "まどうしの杖|ドナルド杖レプリカ|MKH09671|KH Light-Up Wand",
     "maker": "スクウェア・エニックス",
     "line_type": "other",
+    "acquisition_type": "retail",
     "release_date": "2026-03-08",
     "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09671/",
     "notes": "ドナルドダックが所持する杖の手持ちサイズ復刻版(元となった過去商品については公式ページに記載なし)。ボタン押下で先端が発光。単4電池3本使用(別売)。"
@@ -127,6 +137,7 @@
     "aliases": "KHアクリルスタンド再販|KHアクリルスタンド追加生産|KH Acrylic Stand Reprint 2025-10",
     "maker": "スクウェア・エニックス",
     "line_type": "acrylic",
+    "acquisition_type": "retail",
     "release_date": "2025-10-04",
     "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09182-2/",
     "notes": "過去に発売または予約終了した複数タイトル(KH1/KHII/KHIII/Chain of Memories)のイラストを使ったアクリルスタンド計9種を、同日(2025-10-04)にまとめて追加生産・再販したもの。個別デザインはcatalog.csvの各行を参照。代表URLはMKH09182-2のもの。"
@@ -139,6 +150,7 @@
     "aliases": "ハロウィンタウンヘアクリップ|MKH09602-1|KH2 Halloween Town Hair Clip A",
     "maker": "スクウェア・エニックス",
     "line_type": "other",
+    "acquisition_type": "retail",
     "release_date": "2025-09-27",
     "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09602-1/",
     "notes": "ハロウィンタウンをモチーフにした2種1セットのヘアクリップ。追加生産分(再販)。似て非なる商品：型番末尾が「A」であり、別デザインの「B」セットが存在する可能性があるが本データには未収録(URL未確認)。"
@@ -151,6 +163,7 @@
     "aliases": "KH2ゲーミングマウスパッド|MKH09657|KH2 Gaming Mouse Pad",
     "maker": "スクウェア・エニックス",
     "line_type": "other",
+    "acquisition_type": "retail",
     "release_date": "2025-09-20",
     "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09657/",
     "notes": "デスク全面に敷ける大型マウスパッド(約W800×H400mm)。似て非なる商品：同日発売の「マウスパッドVol.6」(kh-mousepad-vol6-2025、円形・直径約200mmの小型)とはサイズも系統も別商品。"
@@ -163,6 +176,7 @@
     "aliases": "KHマウスパッドVol6|ステンドグラスマウスパッド|MKH09659|KH Mouse Pad Vol.6",
     "maker": "スクウェア・エニックス",
     "line_type": "other",
+    "acquisition_type": "retail",
     "release_date": "2025-09-20",
     "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09659/",
     "notes": "ステンドグラス調イラストの円形マウスパッド(直径約200mm)。「Vol.6」の表記から同シリーズにVol.1〜5等の他デザインが存在するとみられるが本データには未収録。似て非なる商品：同日発売の「ゲーミングマウスパッド」(kh2-gaming-mousepad-2025、大型・長方形)とは別商品。"
@@ -175,6 +189,7 @@
     "aliases": "KHぬいぐるみ再販|KH Plush Reprint 2025-11",
     "maker": "スクウェア・エニックス",
     "line_type": "plush",
+    "acquisition_type": "retail",
     "release_date": "2025-11-15",
     "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09310-1/",
     "notes": "KHIIソラの「おすわりぬいぐるみ」とハートレス「シャドウ」のぬいぐるみを、同日(2025-11-15)にまとめて追加生産・再販したもの。個別デザインはcatalog.csvの各行を参照。代表URLはMKH09310-1のもの。"
@@ -187,6 +202,7 @@
     "aliases": "KHペットウェアソラ|ドッグウェアソラ|MHK09662|KH PETs Sora Dog Wear",
     "maker": "スクウェア・エニックス",
     "line_type": "apparel",
+    "acquisition_type": "retail",
     "release_date": "2025-09-27",
     "source_url": "https://store.jp.square-enix.com/estore/g/gMHK09662/",
     "notes": "ペット(犬)用のソラ衣装モチーフウェア。『キングダム ハーツIII』のソラの衣装を再現。フード着脱可能、胸元テープ開閉式。"
@@ -199,6 +215,7 @@
     "aliases": "KHアイストレー|キングダムチェーン製氷皿|MKH09655|KH Silicon Ice Tray Kingdom Chain",
     "maker": "スクウェア・エニックス",
     "line_type": "other",
+    "acquisition_type": "retail",
     "release_date": "2025-07-19",
     "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09655/",
     "notes": "キーブレード「キングダムチェーン」の形を模したシリコン製氷皿、2個セット。追加生産分(再販)。"
@@ -211,6 +228,7 @@
     "aliases": "アルテマウェポンキーホルダー|KHキーブレードキーホルダー|MKH051229-3|KH Ultima Weapon Keychain",
     "maker": "スクウェア・エニックス",
     "line_type": "other",
+    "acquisition_type": "retail",
     "release_date": "2025-06-28",
     "source_url": "https://store.jp.square-enix.com/estore/g/gMKH051229-3/",
     "notes": "キーブレード「アルテマウェポン」を模したメタル製キーホルダー。追加生産分で、内容は初回版と同一と明記。"
@@ -223,6 +241,7 @@
     "aliases": "ハロウィンタウンパーカー|KHロングフーディー|V-MKH09617|KH Halloween Town Long Hoodie",
     "maker": "スクウェア・エニックス",
     "line_type": "apparel",
+    "acquisition_type": "retail",
     "release_date": "2025-02-01",
     "source_url": "https://store.jp.square-enix.com/estore/g/gV-MKH09617-M/",
     "notes": "背面にハロウィンタウン衣装のソラ・ドナルド・グーフィーをデザインしたブラックのロングパーカー。M/Lサイズ展開(このURLはMサイズのページ)。"
@@ -235,6 +254,7 @@
     "aliases": "KHFMアクリルスタンド|KH2FMアクリルスタンド|KH Final Mix Acrylic Stand 2024",
     "maker": "スクウェア・エニックス",
     "line_type": "acrylic",
+    "acquisition_type": "retail",
     "release_date": "2024-10-31",
     "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09604/",
     "notes": "『キングダム ハーツ -ファイナル ミックス-』と『キングダム ハーツII -ファイナル ミックス-』のイラストを使ったアクリルスタンド2種を同日発売。個別デザインはcatalog.csvの各行を参照。代表URLはMKH09604のもの。"

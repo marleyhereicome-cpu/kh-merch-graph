@@ -4,6 +4,7 @@
 // 正規化した形で抜き出す。一致しなかった語（セラー独自の言い回し等）は捨てる。
 import { normalize, containsNormalized } from "./normalize.js";
 import { splitPipe, type CatalogSku, type OtherIpKeyword, type ProductLine } from "./types.js";
+import { normalizedEnglishTokenHits } from "./en-tokens.js";
 
 // 「キングダムハーツ作品である」ことを示す語（resolve.ts の IP_ANCHOR_LITERALS と同じ発想）。
 const IP_WORK_TERMS = ["キングダムハーツ", "kingdom hearts", "kh"];
@@ -44,6 +45,9 @@ export function extractUnresolvedTokens(
 
   const prizeMatches = normalize(queryText).match(PRIZE_RE);
   if (prizeMatches) for (const m of prizeMatches) hits.add(m);
+
+  // 英語だけの出品文（kuji/prize A/last one 等）も、既知語彙として同じ集計に乗せる。
+  for (const hit of normalizedEnglishTokenHits(queryText)) hits.add(hit);
 
   return [...hits];
 }

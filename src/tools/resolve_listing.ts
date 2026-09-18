@@ -7,6 +7,7 @@ import { extractConditions, type ConditionMatch } from "../lib/conditions.js";
 import { evaluateFlags, type BootlegFlag } from "../lib/flags.js";
 import { buildUsageLogEntry, type UsageLogger } from "../lib/usage-log.js";
 import { extractUnresolvedTokens } from "../lib/unresolved.js";
+import { buildAcquisitionInfo, buildPriceInfo, buildVarietyInfo } from "../lib/acquisition.js";
 
 function buildNextChecks(
   candidates: ResolveCandidate[],
@@ -37,6 +38,72 @@ function buildNextChecks(
   return checks;
 }
 
+export interface ResolveListingInput {
+  title: string;
+  description?: string;
+  price_jpy?: number;
+  src?: string;
+}
+
+// MCPツール本体・公開版の /v1/resolve（GET、SPEC.md §5）の両方から呼べるよう、
+// ロジックをMCPの登録処理から独立させてある。
+export async function resolveListing(input: ResolveListingInput, onUsage?: UsageLogger) {
+  const { title, description, price_jpy, src } = input;
+  const queryText = `${title} ${description ?? ""}`;
+
+  const { candidates, weak_matches } = resolveCandidates(queryText, catalog, productLines, 3, otherIpKeywords);
+  const conditions = extractConditions(queryText, conditionLexicon);
+
+  const topSku =
+    candidates.length > 0 ? catalog.find((s) => s.sku_id === candidates[0].sku_id) : undefined;
+
+  const msrp = topSku?.msrp_jpy ? parseFloat(topSku.msrp_jpy) : NaN;
+
+  const flags = evaluateFlags(
+    {
+      queryText,
+      lineId: topSku?.line_id,
+      priceJpy: price_jpy,
+      msrpJpy: Number.isNaN(msrp) ? undefined : msrp,
+      priceBasis: topSku?.price_basis,
+    },
+    bootlegPatterns
+  );
+
+  const price = topSku ? buildPriceInfo(topSku, price_jpy) : null;
+  const acquisition = topSku ? buildAcquisitionInfo(topSku) : null;
+  const variety = topSku ? buildVarietyInfo(topSku) : null;
+
+  const result = {
+    candidates,
+    weak_matches,
+    conditions,
+    flags,
+    price,
+    acquisition,
+    variety,
+    next_checks_en: buildNextChecks(candidates, conditions, flags),
+  };
+
+  if (onUsage) {
+    const unresolvedTokens =
+      candidates.length === 0
+        ? extractUnresolvedTokens(queryText, catalog, productLines, otherIpKeywords)
+        : undefined;
+
+    await onUsage(
+      buildUsageLogEntry("resolve_listing", {
+        skuCandidates: candidates.map((c) => c.sku_id),
+        priceJpy: price_jpy,
+        unresolvedTokens,
+        src,
+      })
+    );
+  }
+
+  return result;
+}
+
 export function registerResolveListingTool(server: McpServer, onUsage?: UsageLogger): void {
   server.registerTool(
     "resolve_listing",
@@ -53,72 +120,14 @@ export function registerResolveListingTool(server: McpServer, onUsage?: UsageLog
           .optional()
           .describe("出品プラットフォーム（任意）"),
         url: z.string().optional().describe("出品URL（任意・サーバー側では保存しない）"),
+        src: z
+          .string()
+          .optional()
+          .describe("計測用の流入元タグ（任意）。Web版チェッカーのURLパラメータ?src=から渡される。src自体と日時のみ利用ログに残す"),
       },
     },
-    async ({ title, description, price_jpy }) => {
-      const queryText = `${title} ${description ?? ""}`;
-
-      const { candidates, weak_matches } = resolveCandidates(queryText, catalog, productLines, 3, otherIpKeywords);
-      const conditions = extractConditions(queryText, conditionLexicon);
-
-      const topSku =
-        candidates.length > 0
-          ? catalog.find((s) => s.sku_id === candidates[0].sku_id)
-          : undefined;
-
-      const msrp = topSku?.msrp_jpy ? parseFloat(topSku.msrp_jpy) : NaN;
-
-      const flags = evaluateFlags(
-        {
-          queryText,
-          lineId: topSku?.line_id,
-          priceJpy: price_jpy,
-          msrpJpy: Number.isNaN(msrp) ? undefined : msrp,
-          priceBasis: topSku?.price_basis,
-        },
-        bootlegPatterns
-      );
-
-      let price: { msrp_jpy: number; ratio?: number; note_en: string } | null = null;
-      if (topSku && !Number.isNaN(msrp)) {
-        if (topSku.price_basis === "draw_price") {
-          price = {
-            msrp_jpy: msrp,
-            note_en: `kuji prize: per-draw price ¥${msrp}; secondary market premium is normal`,
-          };
-        } else if (topSku.price_basis === "msrp") {
-          price =
-            price_jpy !== undefined
-              ? { msrp_jpy: msrp, ratio: Math.round((price_jpy / msrp) * 100) / 100, note_en: "estimate only" }
-              : { msrp_jpy: msrp, note_en: "estimate only (listing price not provided)" };
-        }
-        // price_basis が none/空の場合は price は null のまま
-      }
-
-      const result = {
-        candidates,
-        weak_matches,
-        conditions,
-        flags,
-        price,
-        next_checks_en: buildNextChecks(candidates, conditions, flags),
-      };
-
-      if (onUsage) {
-        const unresolvedTokens =
-          candidates.length === 0
-            ? extractUnresolvedTokens(queryText, catalog, productLines, otherIpKeywords)
-            : undefined;
-
-        await onUsage(
-          buildUsageLogEntry("resolve_listing", {
-            skuCandidates: candidates.map((c) => c.sku_id),
-            priceJpy: price_jpy,
-            unresolvedTokens,
-          })
-        );
-      }
-
+    async ({ title, description, price_jpy, src }) => {
+      const result = await resolveListing({ title, description, price_jpy, src }, onUsage);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
     }
   );

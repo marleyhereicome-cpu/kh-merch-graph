@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { extractUnresolvedTokens } from "../src/lib/unresolved.js";
+import { normalize } from "../src/lib/normalize.js";
 import { catalog, productLines, otherIpKeywords } from "../src/lib/store.js";
 
 describe("extractUnresolvedTokens", () => {
@@ -28,5 +29,16 @@ describe("extractUnresolvedTokens", () => {
   it("何も一致しなければ空配列を返す", () => {
     const tokens = extractUnresolvedTokens("謎の商品 詳細不明", catalog, productLines, otherIpKeywords);
     expect(tokens).toEqual([]);
+  });
+
+  it("英語だけのタイトルでも既知の英語トークン（kuji/prize/last one）を検出する", () => {
+    const tokens = extractUnresolvedTokens(
+      "Ichiban Kuji Kingdom Hearts Prize A Last One unknown item",
+      catalog,
+      productLines,
+      otherIpKeywords
+    );
+    expect(tokens).toContain("a賞");
+    expect(tokens).toContain(normalize("ラストワン賞"));
   });
 });

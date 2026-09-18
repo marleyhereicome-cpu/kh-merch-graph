@@ -16,6 +16,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | aliases | 通称・略称（`|` 区切り、日英混在可） | 一番くじKH2弾\|KH kuji vol2 |
 | maker | メーカー・主催 | BANDAI SPIRITS |
 | line_type | `figure` `prize` `kuji` `acrylic` `plush` `apparel` `book` `music` `game` `card` `other` | kuji |
+| acquisition_type | このラインの既定の入手経路。値は catalog.csv 2.2 の `acquisition_type` と同じ選択肢。catalog.csv 側の行で個別に上書きされる | kuji |
 | release_date | 発売日（YYYY-MM-DD、不明なら YYYY-MM） | 2023-03 |
 | source_url | 一次情報URL | https://... |
 | notes | 補足 | |
@@ -32,8 +33,15 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | aliases | 通称（`|` 区切り） |
 | variant | 版・カラバリ・等級（くじの「A賞」など） |
 | design_variants | 同じ行に複数デザインが含まれる場合の内訳（公式ページに記載がある範囲で `|` 区切り）。個別の記載がなければ空欄 |
-| msrp_jpy | 定価（税込、円）。くじは1回の価格 |
-| price_basis | `msrp_jpy` の性質。`msrp`（商品そのものの定価）／`draw_price`（くじ1回の抽選価格。個々の景品の定価ではない）／`none`（定価情報なし） |
+| msrp_jpy | 定価（税込、円）。くじは1回の価格。`price_basis` が `none` の場合は空欄 |
+| price_basis | `msrp_jpy` の性質。`msrp`（商品そのものの定価）／`draw_price`（くじ1回の抽選価格。個々の景品の定価ではない）／`capsule_price`（ガチャポン1回の価格）／`box_price`（ブラインドボックス1箱の価格）／`bundle_price`（まとめ売り・セットの価格）／`set_price`（公式セット商品の価格）／`none`（定価情報なし） |
+| acquisition_type | 入手経路。`retail`（通常小売）／`kuji`（一番くじ等の抽選くじ）／`prize`（アーケード・クレーンゲーム景品）／`capsule`（ガチャポン）／`blind`（ブラインドボックス・ブラインドバッグ）／`bonus`（購入特典。本体は別商品）／`furoku`（雑誌等の付録）／`event`（イベント限定販売）／`novelty`（ノベルティ・非売品）／`set`（複数商品のセット販売）／`western_license`（海外正規ライセンス商品） |
+| currency | `msrp_jpy` の通貨（既定 `JPY`） |
+| design_count | ブラインド・ガチャ等で中身が選べない場合の全種類数（数値）。個別デザインが判明していて選べる場合や非該当の場合は空欄 |
+| set_components | セット商品（`acquisition_type=set` 等）の内訳（`|` 区切り）。非該当なら空欄 |
+| bonus_of | `acquisition_type=bonus`／`furoku` の場合、本体となる商品の `sku_id` または `line_id`。非該当なら空欄 |
+| availability_hint | 現在の入手しやすさの目安。`jp_retail_new`（日本国内で新品小売中）／`jp_secondhand_only`（日本の中古市場のみ）／`western_official`（海外正規代理店で購入可）／`event_only`（イベント会場限定）／`unknown`（不明） |
+| typical_channels | 主な入手チャネル（`|` 区切り）。`data/channels.csv` の `channel_name` と対応させる |
 | width_mm / height_mm / depth_mm / weight_g | 寸法・重量（総額計算用、不明は空欄） |
 | jan | JANコード（あれば） |
 | official | `true`/`false` |
@@ -43,6 +51,10 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | notes | 「似て非なる商品」との違いなど |
 
 ### 2.3 `condition_lexicon.csv` — 状態語辞書
+`variants` 列には英語の状態語（`brand new`/`opened`/`no box`/`mint` 等）も含める。英語の出品文でも同じ仕組みで
+状態語を抽出できるようにするため。なお `"authentic"`（真正品）という表記は真贋の根拠にはならないため、
+状態語としてではなく `bootleg_patterns.csv` の注意フラグ（`keyword:authentic`）で扱う。
+
 | 列 | 説明 |
 |---|---|
 | term_ja | 出品でよく使われる語（開封済、箱なし、難あり…） |
@@ -99,12 +111,25 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | keyword | 出品に含まれていたら他作品の商品とみなし、`resolve_listing` の候補を出さない語（作品名・略称） |
 | notes | 補足 |
 
+### 2.9 `channels.csv` — 入手チャネル一覧
+| 列 | 説明 |
+|---|---|
+| channel_name | チャネル名（`catalog.csv` の `typical_channels` と対応、英小文字・アンダースコア） |
+| channel_type | `new`（新品販売）／`secondhand`（中古販売）／`proxy`（購入代行）／`western`（海外の正規販売元） |
+| country | 対象国（ISO2、複数国対応の場合は代表国） |
+| search_url_template | 検索URLテンプレート。`{q}` を検索語で置き換える。スクレイピング用ではなく、人・呼び出し側AIが自分でページを開いて確認するための参考リンク |
+| proxy_required | 海外から直接購入できず代行が必要なら `yes`、代行なしで買えるなら `no` |
+| source_url | チャネルの公式サイトURL（出典） |
+
 ## 3. MCPツール
 
 ### 3.1 `resolve_listing`
 入力：`title`(必須), `description`, `price_jpy`, `platform`(`mercari`/`yahoo`/`surugaya`/`mandarake`/`other`), `url`(任意・保存しない)
 処理：
-1. タイトル・説明文を正規化（全角半角、記号、スペース）
+1. タイトル・説明文を正規化（全角半角、記号、スペース）。英語だけの出品文にも対応するため、
+   `kuji`/`ichiban kuji`/`prize A`（→`A賞`）/`last one`（→`ラストワン賞`）/`acrylic stand`/`plush`/
+   `keychain`/`Japan import` 等の既知の英語トークンを対応する日本語表記に変換してスコアリング用テキストに追加する
+   （`src/lib/en-tokens.ts`。表示用の理由文には元の原文を使う）
 2. `aliases`・`name_ja`・`character`・`variant` との一致スコアで候補SKUを上位3件（0〜1の信頼度）
    - `other_ip_keywords.csv` の語（他作品名）が含まれる場合は候補を出さない（`candidates: []`, `weak_matches: []`）
    - キングダムハーツを示す語（`キングダムハーツ`/`KH`/`Kingdom Hearts`/主要キャラ名）が出品文に無い場合、「A賞」等の作品横断語だけの一致では信頼度を0.3以下に抑える
@@ -112,10 +137,13 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
    - `candidates`・`weak_matches` の各項目には、一次情報の出典 `source_url` を必ず含める（呼び出し側のAI・利用者が自分で検証できるように）
 3. 状態語辞書に当たる語を抽出
 4. `bootleg_patterns` を評価して注意フラグ
-5. `msrp_jpy` があれば `price_basis` に応じて処理する
-   - `price_basis` が `draw_price`（くじの1回抽選価格）の場合は定価比を出さず、`price.note_en` に `"kuji prize: per-draw price ¥{msrp_jpy}; secondary market premium is normal"` を返す
-   - `price_basis` が `msrp` の場合は定価比（`ratio`）を算出する
-   - `price_basis` が `none` または空の場合は定価比を出さない
+5. 上位候補（`candidates[0]`）の `price_basis`・`acquisition_type` に応じて `price` と `acquisition` を組み立てる（`src/lib/acquisition.ts`）
+   - `price_basis` が `none` または `msrp_jpy` が空の場合：`price.msrp_jpy` は `null`、`price.note_en` は必ず `"no maker price: ..."` で始まり、その入手経路（`acquisition_type` が `prize`/`bonus`/`furoku`/`novelty`/`event` のいずれか）を理由として明言する
+   - `price_basis` が `draw_price`（くじ）／`capsule_price`（ガチャポン）／`box_price`（ブラインドボックス）の場合：定価比は出さず、「1回・1箱あたりの価格であり個々の景品・デザインの定価ではない」旨を `price.note_en` に返す
+   - `price_basis` が `bundle_price`／`set_price` の場合：複数点まとめての価格である旨を返す
+   - `price_basis` が `msrp` の場合：定価比（`ratio`）を算出する
+   - `acquisition` には常に、入手経路の説明文（`acquisition.note_en`）を返す。`bonus`/`furoku` は `bonus_of`（本体商品）を、`set` は `set_components`（セット内訳）を説明文に含める
+   - `design_count` が設定されているSKU（ブラインド・ガチャ等で中身が選べないもの）は `variety.design_count` に全種類数を返す
 出力（JSON）：
 ```json
 {
@@ -123,10 +151,13 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
   "weak_matches": [{"sku_id":"...","name_en":"...","confidence":0.15,"why":"matched 'ソラ'","source_url":"https://..."}],
   "conditions": [{"term_ja":"開封済","term_en":"opened","meaning_en":"...","price_effect":"minor_down"}],
   "flags": [{"type":"bootleg_caution","message_en":"..."}],
-  "price": {"msrp_jpy":1200,"ratio":1.25,"note_en":"estimate only"},
+  "price": {"msrp_jpy":1200,"price_basis":"msrp","ratio":1.25,"note_en":"estimate only"},
+  "acquisition": {"type":"kuji","note_en":"Won as a prize in an ichiban-kuji lottery draw; not sold as a standalone product."},
+  "variety": {"design_count":7,"note_en":"This item comes in 7 different designs; ..."},
   "next_checks_en": ["Ask seller whether the box is included", "..."]
 }
 ```
+`price`・`acquisition`・`variety` は上位候補が無い場合は `null`。`variety` は `design_count` が無いSKUでも `null`。
 
 ### 3.2 `explain_product`
 入力：`sku_id` または `query`（自然文）
@@ -154,6 +185,9 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
   - `resolve_listing` で `candidates` が空だったとき：出品テキストの原文の代わりに、既知の語彙（作品語・ライン語・賞・キャラ）に一致した正規化トークンのみを `unresolved_tokens` として残す（`src/lib/unresolved.ts`）
   - `discover` でカタログに存在しない `ip` が指定されたとき：その `ip` 名を `requested_ip` として残す
   - どちらも「次にカタログへ足すべき商品・IP」を見つけるための集計用シグナルで、`scripts/weekly-report.mjs` が週次で上位20件を出す
+  - `resolve_listing` は任意の `src`（流入元タグ、例: `reddit`）を受け付け、利用ログに `src` と日時（`at`）としてのみ残す。出品テキストや利用者を識別する情報とは組み合わせない。Web版チェッカー（`web/index.html`）はURLパラメータ `?src=...` を読み取り、そのまま `resolve_listing` の `src` に渡す
+  - `scripts/weekly-report.mjs` は `src` 別に「resolve回数」「セッション数（活動があった日数の目安）」「7日以内に別日の利用があったか（再訪の目安）」を集計する。個々の利用者単位の再訪率は、識別情報を残さない方針上、引き続き計測しない
 - ヘルスチェック `/health`
 - `/llms.txt`：AIエージェントが人手を介さずこのサーバーを発見・理解できるようにする静的テキスト（https://llmstxt.org/ 形式）
 - `/openapi.json`：同じツール群をOpenAPI形式でも読めるようにする参考資料（権威ある定義は `/mcp` への `tools/list`）
+- `/v1/resolve`（GET）：外部の死活監視・テスト用に、`resolve_listing` と同じ処理結果をJSON形式で返す。クエリパラメータは `title`（必須）・`description`・`price_jpy`・`platform`・`src`（任意）。レート制限は `/mcp` と共有する

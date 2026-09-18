@@ -4,7 +4,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 
-import { registerResolveListingTool } from "./tools/resolve_listing.js";
+import { registerResolveListingTool, resolveListing } from "./tools/resolve_listing.js";
 import { registerExplainProductTool } from "./tools/explain_product.js";
 import { registerDiscoverTool } from "./tools/discover.js";
 import { registerEstimateLandedCostTool } from "./tools/estimate_landed_cost.js";
@@ -74,6 +74,49 @@ export default {
 
     if (url.pathname === "/health") {
       return new Response("ok", { status: 200 });
+    }
+
+    // 外部の死活監視・テスト用のGETエンドポイント（SPEC.md §5）。resolve_listing と同じ処理結果を
+    // JSONで返す。監視botの定期アクセスで利用ログ（KV）を汚さないよう、onUsageは渡さない
+    // （実際の利用者からの呼び出しは引き続き /mcp 経由でのみ集計する）。レート制限は /mcp と共有する。
+    if (url.pathname === "/v1/resolve" && request.method === "GET") {
+      const title = url.searchParams.get("title");
+      if (!title) {
+        return withCors(
+          new Response(JSON.stringify({ error: "title query parameter is required" }), {
+            status: 400,
+            headers: { "Content-Type": "application/json; charset=utf-8" },
+          })
+        );
+      }
+
+      const ip = request.headers.get("cf-connecting-ip") ?? "unknown";
+      const { success } = await env.RATE_LIMITER.limit({ key: ip });
+      if (!success) {
+        return new Response("Too Many Requests", { status: 429 });
+      }
+
+      const description = url.searchParams.get("description") ?? undefined;
+      const priceParam = url.searchParams.get("price_jpy");
+      const price_jpy = priceParam !== null ? Number(priceParam) : undefined;
+      const src = url.searchParams.get("src") ?? undefined;
+
+      if (priceParam !== null && Number.isNaN(price_jpy)) {
+        return withCors(
+          new Response(JSON.stringify({ error: "price_jpy must be a number" }), {
+            status: 400,
+            headers: { "Content-Type": "application/json; charset=utf-8" },
+          })
+        );
+      }
+
+      const result = await resolveListing({ title, description, price_jpy, src });
+      return withCors(
+        new Response(JSON.stringify(result, null, 2), {
+          status: 200,
+          headers: { "Content-Type": "application/json; charset=utf-8" },
+        })
+      );
     }
 
     // AIエージェントが自力でこのサーバーを見つけて使い方を理解できるようにするための静的な入口。

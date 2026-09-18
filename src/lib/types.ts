@@ -9,6 +9,8 @@ export interface ProductLine {
   aliases: string;
   maker: string;
   line_type: string;
+  // 商品ラインの既定の入手経路。catalog.csv 側で行ごとに上書きされていない場合の目安。
+  acquisition_type: string;
   release_date: string;
   source_url: string;
   notes: string;
@@ -27,6 +29,19 @@ export interface CatalogSku {
   design_variants: string;
   msrp_jpy: string;
   price_basis: string;
+  // 入手経路: retail/kuji/prize/capsule/blind/bonus/furoku/event/novelty/set/western_license
+  acquisition_type: string;
+  currency: string;
+  // ブラインド・ガチャ等で中身が選べない場合の全種類数（不明・非該当なら空欄）
+  design_count: string;
+  // セット商品の内訳（`|` 区切り、非該当なら空欄）
+  set_components: string;
+  // 特典・封入特典の場合、本体となる商品の sku_id または line_id（非該当なら空欄）
+  bonus_of: string;
+  // jp_retail_new/jp_secondhand_only/western_official/event_only/unknown
+  availability_hint: string;
+  // 主な入手チャネル（`|` 区切り、data/channels.csv の channel_name と対応）
+  typical_channels: string;
   width_mm: string;
   height_mm: string;
   depth_mm: string;
@@ -37,6 +52,15 @@ export interface CatalogSku {
   source_url: string;
   verified: string;
   notes: string;
+}
+
+export interface Channel {
+  channel_name: string;
+  channel_type: string;
+  country: string;
+  search_url_template: string;
+  proxy_required: string;
+  source_url: string;
 }
 
 export interface ConditionTerm {

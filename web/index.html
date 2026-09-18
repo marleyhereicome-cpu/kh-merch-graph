@@ -98,6 +98,9 @@
 // ← 公開後のMCPサーバーURLに書き換える（wrangler deploy が表示するURL + "/mcp"）。
 const MCP_URL = "https://kh-merch-graph.fandex.workers.dev/mcp";
 
+// 計測用の流入元タグ（例: ?src=reddit）。サーバー側には src と日時のみが記録される。
+const SRC = new URLSearchParams(location.search).get("src") || undefined;
+
 const els = {
   title: document.getElementById("title"),
   description: document.getElementById("description"),
@@ -188,9 +191,23 @@ function render(data) {
 
   if (data.price) {
     parts.push("<h2>Price</h2>");
-    parts.push(`<div class="card">MSRP: ¥${escapeHtml(data.price.msrp_jpy)}`);
+    parts.push(
+      `<div class="card">${data.price.msrp_jpy === null ? "No maker price" : `MSRP: ¥${escapeHtml(data.price.msrp_jpy)}`}`
+    );
     if (data.price.ratio !== undefined) parts.push(` — listing is ${data.price.ratio}× MSRP`);
     parts.push(`<div class="note">${escapeHtml(data.price.note_en)}</div></div>`);
+  }
+
+  if (data.acquisition) {
+    parts.push("<h2>How this is normally obtained</h2>");
+    parts.push(`<div class="card note">${escapeHtml(data.acquisition.note_en)}</div>`);
+  }
+
+  if (data.variety) {
+    parts.push("<h2>Comes in multiple designs</h2>");
+    parts.push(
+      `<div class="card note">${escapeHtml(data.variety.design_count)} designs total — ${escapeHtml(data.variety.note_en)}</div>`
+    );
   }
 
   if (data.next_checks_en?.length > 0) {
@@ -213,6 +230,7 @@ async function onSubmit() {
   if (els.description.value.trim()) args.description = els.description.value.trim();
   if (els.price.value) args.price_jpy = Number(els.price.value);
   if (els.platform.value) args.platform = els.platform.value;
+  if (SRC) args.src = SRC;
 
   els.submit.disabled = true;
   els.result.innerHTML = "<p>Checking…</p>";

@@ -13,12 +13,14 @@ const DATA_DIR = join(__dirname, "..", "data");
 const SCHEMAS = {
   "product_lines.csv": [
     "line_id", "ip", "name_ja", "name_en", "aliases", "maker",
-    "line_type", "release_date", "source_url", "notes",
+    "line_type", "acquisition_type", "release_date", "source_url", "notes",
   ],
   "catalog.csv": [
     "sku_id", "line_id", "ip", "character", "character_en", "name_ja",
     "name_en", "aliases", "variant", "design_variants", "msrp_jpy",
-    "price_basis", "width_mm", "height_mm", "depth_mm", "weight_g", "jan",
+    "price_basis", "acquisition_type", "currency", "design_count",
+    "set_components", "bonus_of", "availability_hint", "typical_channels",
+    "width_mm", "height_mm", "depth_mm", "weight_g", "jan",
     "official", "rerelease_dates", "source_url", "verified", "notes",
   ],
   "condition_lexicon.csv": [
@@ -38,7 +40,57 @@ const SCHEMAS = {
     "source_url",
   ],
   "other_ip_keywords.csv": ["keyword", "notes"],
+  "channels.csv": [
+    "channel_name", "channel_type", "country", "search_url_template",
+    "proxy_required", "source_url",
+  ],
+  "coverage_sample.csv": ["listing_title", "lang", "platform"],
 };
+
+// 列の値がSPEC.mdで定義された選択肢のいずれかであることを確認する。
+const ENUMS = {
+  "product_lines.csv": {
+    acquisition_type: [
+      "retail", "kuji", "prize", "capsule", "blind", "bonus", "furoku",
+      "event", "novelty", "set", "western_license",
+    ],
+  },
+  "catalog.csv": {
+    price_basis: [
+      "msrp", "draw_price", "capsule_price", "box_price", "bundle_price",
+      "set_price", "none", "",
+    ],
+    acquisition_type: [
+      "retail", "kuji", "prize", "capsule", "blind", "bonus", "furoku",
+      "event", "novelty", "set", "western_license", "",
+    ],
+    availability_hint: [
+      "jp_retail_new", "jp_secondhand_only", "western_official",
+      "event_only", "unknown", "",
+    ],
+  },
+  "channels.csv": {
+    channel_type: ["new", "secondhand", "proxy", "western"],
+    proxy_required: ["yes", "no"],
+  },
+};
+
+function checkEnums(filename, records) {
+  const errors = [];
+  const fields = ENUMS[filename];
+  if (!fields) return errors;
+  for (const [field, allowed] of Object.entries(fields)) {
+    for (const r of records) {
+      const v = r[field] ?? "";
+      if (!allowed.includes(v)) {
+        errors.push(
+          `  ✗ ${field}="${v}" は不正な値です（${r.sku_id || r.line_id || r.channel_name}）。許可値: ${allowed.filter(Boolean).join(", ")}`
+        );
+      }
+    }
+  }
+  return errors;
+}
 
 function loadCsv(filename) {
   return loadCsvShared(DATA_DIR, filename);
@@ -125,6 +177,12 @@ function main() {
     if (emptySource.length > 0) {
       console.log(`  ! source_url が空の行があります: ${emptySource.join(", ")}`);
       warningCount += emptySource.length;
+    }
+
+    const enumErrors = checkEnums(filename, records);
+    if (enumErrors.length > 0) {
+      enumErrors.forEach((e) => console.log(e));
+      errorCount += enumErrors.length;
     }
 
     console.log("");

@@ -1,7 +1,7 @@
 [
   {
     "term_ja": "未開封",
-    "variants": "新品未開封|未開封品|シュリンク付き",
+    "variants": "新品未開封|未開封品|シュリンク付き|brand new|brand-new|nib|new in box",
     "term_en": "sealed / unopened",
     "meaning_en": "Factory sealed. Highest collector grade for figures and kuji prizes.",
     "price_effect": "none",
@@ -9,7 +9,7 @@
   },
   {
     "term_ja": "開封済",
-    "variants": "開封済み|開封のみ|開封品",
+    "variants": "開封済み|開封のみ|開封品|opened|box opened",
     "term_en": "opened",
     "meaning_en": "Box was opened; item typically displayed or inspected. Usually still complete.",
     "price_effect": "minor_down",
@@ -17,7 +17,7 @@
   },
   {
     "term_ja": "箱なし",
-    "variants": "箱無し|外箱なし|本体のみ",
+    "variants": "箱無し|外箱なし|本体のみ|no box|without box|box not included",
     "term_en": "no box",
     "meaning_en": "Original packaging missing. Fine for display; lowers resale value noticeably.",
     "price_effect": "major_down",
@@ -169,7 +169,7 @@
   },
   {
     "term_ja": "美品",
-    "variants": "美品|状態良好",
+    "variants": "美品|状態良好|mint|near mint|mint condition",
     "term_en": "seller-described good condition",
     "meaning_en": "Seller's subjective claim of good condition; not a standardized grade. Ask for photos to confirm.",
     "price_effect": "none",
