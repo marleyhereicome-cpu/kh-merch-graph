@@ -121,6 +121,22 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | proxy_required | 海外から直接購入できず代行が必要なら `yes`、代行なしで買えるなら `no` |
 | source_url | チャネルの公式サイトURL（出典） |
 
+### 2.10 `coverage_sample.csv` — カバレッジ計測用の実サンプル
+| 列 | 説明 |
+|---|---|
+| listing_title | 実際に収集した出品タイトル（手で収集。出品者名・URLは入れない） |
+| lang | 出品文の言語（`ja`/`en`） |
+| platform | 収集元プラットフォーム（例: `mercari`/`ebay`） |
+| price | 収集時点の価格（通貨は `currency` 列を参照。集計スクリプトでは未使用） |
+| currency | `price` の通貨コード |
+| collected | 収集日（YYYY-MM-DD） |
+
+`eval_listings.csv`（2.6節、正解SKU付き）とは目的が異なり、こちらは正解データを付けず
+「そもそも候補を出せるか」だけを見る。`scripts/coverage.mjs`（`npm run coverage`）が
+`lang` 別に「信頼度≥0.8の候補あり／候補あり(0.8未満)／weak_matchesのみ／候補なし」の割合と、
+候補なしの出品の推定ラインを集計する。英語タイトルに紛れる定型ノイズ語（`Model Number`/`Lottery Prize`/
+年齢表記 `14+`/`Opens in a new window` 等）は集計前に除去する。
+
 ## 3. MCPツール
 
 ### 3.1 `resolve_listing`

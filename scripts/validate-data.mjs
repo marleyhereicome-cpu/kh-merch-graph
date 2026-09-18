@@ -44,7 +44,7 @@ const SCHEMAS = {
     "channel_name", "channel_type", "country", "search_url_template",
     "proxy_required", "source_url",
   ],
-  "coverage_sample.csv": ["listing_title", "lang", "platform"],
+  "coverage_sample.csv": ["listing_title", "lang", "platform", "price", "currency", "collected"],
 };
 
 // 列の値がSPEC.mdで定義された選択肢のいずれかであることを確認する。
