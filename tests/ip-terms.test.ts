@@ -136,3 +136,51 @@ describe("ゲームソフト行（タイトル×機種×版×地域）", () => {
     expect(cloud.notes).toMatch(/2026年6月9日に販売終了/);
   });
 });
+
+describe("Xbox・INTEGRUM MASTERPIECE・限定版本体の行", () => {
+  const top = (q: string) => resolveCandidates(q, catalog, productLines, 3, [], ipTerms).candidates[0]?.sku_id;
+
+  it("Xbox One は配信のみで、機種名だけでも一致する", () => {
+    expect(top("Xbox One キングダム ハーツIII")).toBe("kh3-xboxone-digital-jp");
+    expect(top("Kingdom Hearts Melody of Memory Xbox One")).toBe("khmom-xboxone-digital-jp");
+  });
+
+  it("Xbox Series X|S 版は Xbox One 版と別の行", () => {
+    expect(top("Xbox Series X キングダム ハーツ HD 1.5+2.5 リミックス")).toBe("khhd15-25-xboxseries-digital-jp");
+    const x = catalog.filter((s) => s.platform === "XboxOne" || s.platform === "XboxSeries");
+    expect(x.length).toBeGreaterThanOrEqual(8);
+    for (const s of x) expect(s.edition).toBe("digital");
+  });
+
+  it("『1.5 + 2.5』のように + の前後に空白があっても HD 1.5+2.5 に一致する", () => {
+    expect(top("Kingdom Hearts HD 1.5 + 2.5 ReMIX (PS4, 2017) - Tested & Working")).toBe("khhd15-25-ps4-collection-jp");
+  });
+
+  it("INTEGRUM MASTERPIECE の e-STORE 限定版（パッケージ）は限定版の語で特定でき、構成ソフトを持つ", () => {
+    expect(top("PS4 キングダムハーツ インテグラム マスターピース 限定版 美品")).toBe("integrum-masterpiece-ps4-limited-jp");
+    const s = catalog.find((c) => c.sku_id === "integrum-masterpiece-ps4-limited-jp")!;
+    expect(s.edition).toBe("limited");
+    expect(s.acquisition_type).toBe("set");
+    expect(s.set_components.split("|")).toEqual(
+      expect.arrayContaining(["kh3-ps4-standard-jp", "khhd15-25-ps4-collection-jp", "khhd28-ps4-collection-jp"])
+    );
+    expect(s.availability_hint).toBe("jp_secondhand_only");
+    expect(s.availability_confidence).toBe("confirmed");
+  });
+
+  it("PS4 Pro KINGDOM HEARTS III LIMITED EDITION は set で、同梱ソフトに kh3-ps4-standard-jp を持つ", () => {
+    expect(top("PlayStation4 Pro KINGDOM HEARTS III LIMITED EDITION CUHJ-10025")).toBe("ps4-pro-kh3-ps4-limited-jp");
+    const s = catalog.find((c) => c.sku_id === "ps4-pro-kh3-ps4-limited-jp")!;
+    expect(s.acquisition_type).toBe("set");
+    expect(s.set_components).toBe("kh3-ps4-standard-jp");
+    expect(s.line_id).toBe("kh-limited-console");
+    expect(s.catalog_number).toBe("CUHJ-10025");
+  });
+
+  it("set_components の参照先は全て存在する（validate と同じ検査）", () => {
+    const ids = new Set(catalog.map((s) => s.sku_id));
+    for (const s of catalog.filter((c) => c.set_components)) {
+      for (const c of s.set_components.split("|")) expect(ids.has(c)).toBe(true);
+    }
+  });
+});

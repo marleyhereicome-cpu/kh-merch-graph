@@ -74,8 +74,8 @@ const ENUMS = {
     availability_confidence: ["confirmed", "estimated", ""],
     region: ["JP", "NA", "EU", "ASIA", "GLOBAL"],
     platform: [
-      "PS2", "PS3", "PS4", "PS5", "Switch", "Switch2", "PC", "3DS", "DS", "PSP",
-      "GBA", "Mobile", "",
+      "PS2", "PS3", "PS4", "PS5", "Switch", "Switch2", "XboxOne", "XboxSeries", "PC",
+      "3DS", "DS", "PSP", "GBA", "Mobile", "",
     ],
     edition: ["standard", "limited", "collectors", "remix", "collection", "digital", ""],
   },
@@ -266,8 +266,8 @@ function main() {
       if (r.bonus_of && !skuIds.has(r.bonus_of) && !lineIds.has(r.bonus_of)) {
         problems.push(`${r.sku_id}: bonus_of="${r.bonus_of}" が sku_id / line_id にありません`);
       }
-      // set（限定版本体など）の set_components は同梱商品の sku_id
-      if (r.acquisition_type === "set" && r.set_components) {
+      // set_components（限定版本体・複数タイトルのセット）は同梱商品の sku_id
+      if (r.set_components) {
         for (const c of r.set_components.split("|").map((s) => s.trim()).filter(Boolean)) {
           if (!skuIds.has(c)) problems.push(`${r.sku_id}: set_components の "${c}" が sku_id にありません`);
         }
@@ -276,8 +276,8 @@ function main() {
       if (r.availability_confidence && (!r.availability_hint || r.availability_hint === "unknown")) {
         warns.push(`${r.sku_id}: availability_confidence があるのに availability_hint が未確定です`);
       }
-      // ゲームソフト行: <title>-<platform>-<edition>-<region>、platform/edition 必須
-      if (r.acquisition_type === "game") {
+      // ゲームソフト行・ゲーム機/ソフトのセット行: <title>-<platform>-<edition>-<region>、platform/edition 必須
+      if (r.acquisition_type === "game" || (r.acquisition_type === "set" && (r.platform || r.edition))) {
         if (!r.platform || !r.edition) {
           problems.push(`${r.sku_id}: ゲーム行には platform と edition が必要です`);
         } else {

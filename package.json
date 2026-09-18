@@ -16,7 +16,9 @@
     "test": "vitest run",
     "validate": "node scripts/validate-data.mjs",
     "worker:dev": "wrangler dev",
-    "worker:deploy": "wrangler deploy"
+    "worker:deploy": "wrangler deploy",
+    "check-urls": "node scripts/check-urls.mjs",
+    "sample-rows": "node scripts/sample-rows.mjs"
   },
   "keywords": [],
   "author": "",

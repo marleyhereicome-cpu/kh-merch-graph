@@ -44,7 +44,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | availability_confidence | `availability_hint` の確からしさ。`confirmed`（出典で確認済み）／`estimated`（推定。例: 公式ストアに取扱ページが無い・刊行から10年以上経過、という理由での絶版推定）／空欄（未評価）。`estimated` の `jp_secondhand_only` は `resolve_listing` が「Likely out of print (no current listing on the publisher's store); verify before assuming」と返す |
 | typical_channels | 主な入手チャネル（`|` 区切り）。`data/channels.csv` の `channel_name` と対応させる |
 | region | 発売地域。`JP`／`NA`／`EU`／`ASIA`／`GLOBAL`（既定 `JP`）。ゲームの海外版・書籍の英語版・海外公式品はこの列で表す。`resolve_listing` は「Region: JP release」の形で返す |
-| platform | ゲームソフト・ゲーム機の対応機種。`PS2`／`PS3`／`PS4`／`PS5`／`Switch`／`Switch2`／`PC`／`3DS`／`DS`／`PSP`／`GBA`／`Mobile`（非該当は空欄）。`acquisition_type=game` の行は必須 |
+| platform | ゲームソフト・ゲーム機の対応機種。`PS2`／`PS3`／`PS4`／`PS5`／`Switch`／`Switch2`／`XboxOne`／`XboxSeries`／`PC`／`3DS`／`DS`／`PSP`／`GBA`／`Mobile`（非該当は空欄）。`acquisition_type=game` の行は必須 |
 | edition | ゲームの版。`standard`／`limited`／`collectors`／`remix`／`collection`／`digital`（非該当は空欄）。`acquisition_type=game` の行は必須 |
 | width_mm / height_mm / depth_mm / weight_g | 寸法・重量（総額計算用、不明は空欄） |
 | jan | JANコード（あれば） |
@@ -59,7 +59,9 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 #### ゲームソフト行の設計（`acquisition_type=game`）
 - 1行 = **タイトル × プラットフォーム × 版 × 地域**。`sku_id` は `<title>-<platform>-<edition>-<region>`（すべて小文字、例: `kh3-ps4-standard-jp`）。`npm run validate` が末尾の形式を検査する。
 - ラインは作品（タイトル）単位に置き、機種・版・地域違いは catalog.csv の行で分ける。
-- 限定版本体（ゲーム機のキングダム ハーツ仕様モデル等）は `acquisition_type=set`、`set_components` に同梱ソフトの `sku_id`。
+- 限定版本体（ゲーム機のキングダム ハーツ仕様モデル等）は `acquisition_type=set`、`set_components` に同梱ソフトの `sku_id`（ライン `kh-limited-console`）。複数タイトルのセット（INTEGRUM MASTERPIECE）も `set` で、構成タイトルの `sku_id` を `set_components` に入れる。`platform`/`edition` を持つ `set` 行も `sku_id` は `<title>-<platform>-<edition>-<region>` の形式（validateが検査）。
+- `platform` は `XboxOne`（配信のみ。Series X|S でも起動可）と `XboxSeries`（sku_id 末尾は `-xboxone-`／`-xboxseries-`）を区別する。Xbox は配信のみなので、出品文に「ダウンロード版」の語が無くても機種名だけで名寄せする。
+- 出典が公式ポータル・公式ストア（e-STORE・PS Store・Xbox Store）以外（ニュースサイト等）になる価格は、`notes` に出典URLと換算（税率）を書く。
 - 海外版は `region`（`NA`/`EU`/`ASIA`/`GLOBAL`）と `availability_hint=western_official` などで表す。品番は `catalog_number` に入れる。
 
 ### 2.3 `condition_lexicon.csv` — 状態語辞書
@@ -149,6 +151,14 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 候補なしの出品の推定ラインを集計する。英語タイトルに紛れる定型ノイズ語（`Model Number`/`Lottery Prize`/
 年齢表記 `14+`/`Opens in a new window` 等）は集計前に除去する。
 
+#### 出典URLの死活確認（`scripts/check-urls.mjs`）
+`npm run check-urls` は catalog.csv と product_lines.csv の全 `source_url` に HEAD（拒否されたら GET）を送り、
+200 以外・別ページへのリダイレクト（`200` でも転送先が違えば `REDIRECT`）・接続エラーを一覧にする。
+`--match` を付けると、書籍（ISBN）とCD（品番）の行は本文にその識別子があるかも確認する（タイトルが
+別の書籍のページに転送されていないかを見るため）。同じホストへは1件ずつ、1.5秒あけて送り、403/429 が
+続いたらそのホストを打ち切って `BLOCKED`（未確認）と表示する。問題があれば終了コード1（BLOCKED だけなら0）。
+週次ジョブ（`.github/workflows/weekly.yml`）が `/coverage-eval`・`/assumption-check` とあわせて実行する。
+
 ### 2.11 `out_of_scope_keywords.csv` — 対象外判定の辞書
 | 列 | 説明 |
 |---|---|
@@ -180,7 +190,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 ### 3.1 `resolve_listing`
 入力：`title`(必須), `description`, `price_jpy`, `platform`(`mercari`/`yahoo`/`surugaya`/`mandarake`/`other`), `url`(任意・保存しない)
 処理：
-1. タイトル・説明文を正規化（全角半角、記号、スペース）。日本語に隣接する空白は除去し（「キングダム ハーツ」「ハーツ III」→ 同じ表記）、ローマ数字 `Ⅱ/II`・`Ⅲ/III`・`Ⅳ/IV`（および `KHIII`）を算用数字にそろえる（`src/lib/normalize.ts`。英単語どうしの空白は残す。単独の `I`/`V`/`X` は変換しない）。数字に挟まれたピリオド（`2.8` 等のバージョン表記）は残し、数字で始まる/終わる語は前後に数字が続く位置では一致させない（「…2 1」が「…2 10」に、`KH2.8` が「KH II 8巻」に一致しないようにするため）。英語だけの出品文にも対応するため、
+1. タイトル・説明文を正規化（全角半角、記号、スペース）。日本語に隣接する空白は除去し（「キングダム ハーツ」「ハーツ III」→ 同じ表記）、ローマ数字 `Ⅱ/II`・`Ⅲ/III`・`Ⅳ/IV`（および `KHIII`）を算用数字にそろえ、`+` の前後の空白（`1.5 + 2.5`／`1.5+2.5`）を詰める（`src/lib/normalize.ts`。英単語どうしの空白は残す。単独の `I`/`V`/`X` は変換しない）。数字に挟まれたピリオド（`2.8` 等のバージョン表記）は残し、数字で始まる/終わる語は前後に数字が続く位置では一致させない（「…2 1」が「…2 10」に、`KH2.8` が「KH II 8巻」に一致しないようにするため）。英語だけの出品文にも対応するため、
    `kuji`/`ichiban kuji`/`prize A`（→`A賞`）/`last one`（→`ラストワン賞`）/`acrylic stand`/`plush`/
    `keychain`/`Japan import` 等の既知の英語トークンを対応する日本語表記に変換してスコアリング用テキストに追加する
    （`src/lib/en-tokens.ts`。表示用の理由文には元の原文を使う）

@@ -260,19 +260,6 @@
     "notes": "『キングダム ハーツ -ファイナル ミックス-』と『キングダム ハーツII -ファイナル ミックス-』のイラストを使ったアクリルスタンド2種を同日発売。個別デザインはcatalog.csvの各行を参照。代表URLはMKH09604のもの。"
   },
   {
-    "line_id": "kh-limited-console-todo",
-    "ip": "kingdom-hearts",
-    "name_ja": "［プレースホルダー］KH限定版ゲーム機本体",
-    "name_en": "[Placeholder] KH Limited Edition Console Hardware",
-    "aliases": "",
-    "maker": "",
-    "line_type": "other",
-    "acquisition_type": "game",
-    "release_date": "",
-    "source_url": "",
-    "notes": "次セッションで公式ページを渡して確定する予定のプレースホルダー行。例: ニンテンドー3DS キングダムハーツエディション、PS4 Pro キングダムハーツIII リミテッドエディション等。ゲームソフト本体(kh-game-software-todo)とは別枠（本体・周辺機器のセット販売のため）。"
-  },
-  {
     "line_id": "kh-books",
     "ip": "kingdom-hearts",
     "name_ja": "キングダム ハーツ / 書籍・コミック・アルティマニア",
@@ -498,7 +485,7 @@
     "ip": "kingdom-hearts",
     "name_ja": "キングダム ハーツ HD 2.8 ファイナル チャプター プロローグ",
     "name_en": "KINGDOM HEARTS HD 2.8 Final Chapter Prologue",
-    "aliases": "キングダム ハーツ HD 2.8 ファイナル チャプター プロローグ|KINGDOM HEARTS HD 2.8 Final Chapter Prologue|KH HD2.8|KHHD2.8",
+    "aliases": "キングダム ハーツ HD 2.8 ファイナル チャプター プロローグ|KINGDOM HEARTS HD 2.8 Final Chapter Prologue|KH HD2.8|KHHD2.8|キングダムハーツ HD2.8|キングダム ハーツ HD 2.8|KINGDOM HEARTS HD 2.8",
     "maker": "スクウェア・エニックス",
     "line_type": "game",
     "acquisition_type": "game",
@@ -511,7 +498,7 @@
     "ip": "kingdom-hearts",
     "name_ja": "キングダム ハーツ -HD 1.5+2.5 リミックス-",
     "name_en": "KINGDOM HEARTS -HD 1.5+2.5 ReMIX-",
-    "aliases": "キングダム ハーツ -HD 1.5+2.5 リミックス-|KINGDOM HEARTS -HD 1.5+2.5 ReMIX-|KH HD1.5+2.5|KH1.5+2.5",
+    "aliases": "キングダム ハーツ -HD 1.5+2.5 リミックス-|KINGDOM HEARTS -HD 1.5+2.5 ReMIX-|KH HD1.5+2.5|KH1.5+2.5|キングダムハーツ HD1.5+2.5|キングダム ハーツ HD 1.5+2.5|KINGDOM HEARTS HD 1.5+2.5",
     "maker": "スクウェア・エニックス",
     "line_type": "game",
     "acquisition_type": "game",
@@ -557,6 +544,32 @@
     "release_date": "2026-10-08",
     "source_url": "https://www.jp.square-enix.com/kingdom/collection/",
     "notes": "ゲームソフト『キングダム ハーツ コレクション [I～III]』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。"
+  },
+  {
+    "line_id": "kh-game-integrum",
+    "ip": "kingdom-hearts",
+    "name_ja": "キングダム ハーツ インテグラム マスターピース",
+    "name_en": "KINGDOM HEARTS INTEGRUM MASTERPIECE",
+    "aliases": "キングダム ハーツ インテグラム マスターピース|KINGDOM HEARTS INTEGRUM MASTERPIECE|INTEGRUM MASTERPIECE|インテグラムマスターピース|KH INTEGRUM|KINGDOM HEARTS All-in-One Package|キングダムハーツ オールインワンパッケージ",
+    "maker": "スクウェア・エニックス",
+    "line_type": "game",
+    "acquisition_type": "game",
+    "release_date": "2019-01-25",
+    "source_url": "https://store.playstation.com/ja-jp/product/JP0082-CUSA11060_00-KH3AOP0000000000",
+    "notes": "『KH III』『HD 1.5+2.5 ReMIX』『HD 2.8 Final Chapter Prologue』の3タイトルセット。PS4ダウンロード版（PS Store）・e-STORE限定パッケージ版（限定予約、終了）・Steamダウンロード版がある。構成タイトルは set_components を参照。"
+  },
+  {
+    "line_id": "kh-limited-console",
+    "ip": "kingdom-hearts",
+    "name_ja": "KH限定版ゲーム機本体（同梱版）",
+    "name_en": "KH Limited Edition Console Bundles",
+    "aliases": "PlayStation4 Pro KINGDOM HEARTS III LIMITED EDITION|PlayStation4 Pro KINGDOM HEARTS III LIMITED EDITION|PS4 Pro KH3 LIMITED EDITION|PS4 Pro キングダムハーツIII リミテッドエディション|PS4 Pro キングダム ハーツIII 限定版|PS4 Pro キングダムハーツ限定版|PS4 Pro 1TB キングダムハーツ限定版|CUHJ-10025",
+    "maker": "スクウェア・エニックス",
+    "line_type": "console",
+    "acquisition_type": "set",
+    "release_date": "2019-01-25",
+    "source_url": "https://www.famitsu.com/news/201806/12158933.html",
+    "notes": "限定デザインのゲーム機本体とKHソフトの同梱セット。同梱ソフトは set_components の sku_id（catalog.csv内のソフト行）で表す。ニンテンドー3DS キングダムハーツエディション等は今後追加。"
   },
   {
     "line_id": "kh-game-khuc",

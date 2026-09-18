@@ -1,0 +1,61 @@
+# 毎週月曜 01:00 UTC（日本時間 月曜 10:00）に、カバレッジ・前提・出典URLの点検を Claude に実行させ、
+# 結果を Issue として投稿する。ファイルは変更しない（報告だけ）。
+name: Weekly
+
+on:
+  schedule:
+    - cron: "0 1 * * 1"
+  workflow_dispatch:
+
+jobs:
+  weekly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+      id-token: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build:data
+
+      - name: Today (UTC)
+        id: today
+        run: echo "date=$(date -u +%F)" >> "$GITHUB_OUTPUT"
+
+      - uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # prompt を渡すと automation mode（@claude のメンション無しで、この指示をそのまま実行）になる。
+          prompt: |
+            このリポジトリ（KH Merch Graph）の週次点検を行い、結果を1つの GitHub Issue にまとめて投稿してください。
+            日本語で、初心者が読める短い文で書いてください。ファイルの変更・コミット・ブランチ作成はしないでください（報告のみ）。
+
+            手順:
+            1. /coverage-eval を実行する（.claude/skills/coverage-eval/SKILL.md の手順。npm run coverage の結果から、
+               カタログに追加すべき商品・ラインの優先リストを作る）。
+            2. /assumption-check を実行する（.claude/skills/assumption-check/SKILL.md の手順。docs/assumptions.md の各前提を
+               再確認する。ただし docs/assumptions.md は書き換えず、「更新案」として Issue に書く）。
+            3. `npm run check-urls -- --markdown` を実行し、200 以外・リダイレクト・エラーの一覧を取る。
+               あわせて `npm run check-urls -- --match --markdown` も実行し、書籍・CDのISBN・品番の不一致を取る。
+               403/429 で BLOCKED と出たものは「未確認」と書く（失敗扱いにしない）。
+            4. 次の形式で Issue を1件作る（`gh issue create`）。
+               - タイトル: `Weekly: coverage, assumptions, urls ${{ steps.today.outputs.date }}`
+               - 本文: 「1. カバレッジ（日本語・英語の割合と、追加すべき商品の上位）」「2. 前提の確認結果と更新案」
+                 「3. 出典URLの点検結果（問題のURLと、該当する sku_id）」「4. 次にやるとよいこと（最大3つ）」
+
+            制約: 出品サイト（メルカリ・ヤフオク・eBay 等）にはアクセスしない。公式サイトへのアクセスは間隔をあけ、
+            403/429 が出たらやめる。
+          claude_args: >-
+            --model claude-sonnet-5 --max-turns 40
+            --allowedTools "Bash(npm run coverage),Bash(npm run eval),Bash(npm run check-urls:*),Bash(git log:*),Bash(git status:*),Bash(gh issue create:*),Bash(gh issue list:*),WebFetch,WebSearch"

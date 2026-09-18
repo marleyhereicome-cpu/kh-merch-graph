@@ -46,7 +46,7 @@ export interface CatalogSku {
   typical_channels: string;
   // 発売地域: JP/NA/EU/ASIA/GLOBAL（既定 JP）。海外版・英語版・海外公式品はこの列で表す
   region: string;
-  // ゲームソフト等のプラットフォーム: PS2/PS3/PS4/PS5/Switch/Switch2/PC/3DS/DS/PSP/GBA/Mobile（非該当は空欄）
+  // ゲームソフト等のプラットフォーム: PS2/PS3/PS4/PS5/Switch/Switch2/XboxOne/XboxSeries/PC/3DS/DS/PSP/GBA/Mobile（非該当は空欄）
   platform: string;
   // ゲームソフト等の版: standard/limited/collectors/remix/collection/digital（非該当は空欄）
   edition: string;

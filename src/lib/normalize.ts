@@ -32,6 +32,8 @@ export function normalize(text: string): string {
   // 数字に挟まれたピリオド（2.8, 1.5 など）はバージョン表記なので残す。それ以外は区切りとして空白にする。
   s = s.replace(/(?<!\d)\.|\.(?!\d)/g, " ");
   s = s.replace(/\s+/g, " ").trim();
+  // 「1.5 + 2.5」「1.5+2.5」のように + の前後の空白の有無は表記ゆれなので、空白を詰める。
+  s = s.replace(/ ?\+ ?/g, "+");
   s = s.replace(KH_ROMAN_RE, (_, r: string) => `kh${ROMAN_TO_ARABIC[r]}`);
   s = s.replace(ROMAN_RE, (r) => ROMAN_TO_ARABIC[r]);
   s = s.replace(CJK_ADJACENT_SPACE_RE, "");

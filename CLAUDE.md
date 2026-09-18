@@ -33,10 +33,26 @@ scripts/         CSV→JSON 変換、評価スクリプト
 src/             MCPサーバー本体（tools/ に1ツール1ファイル）
 src/lib/         名寄せ・辞書・総額計算のロジック
 tests/           vitest
-docs/            SPEC.md, GLOSSARY.md
+docs/            SPEC.md, GLOSSARY.md, PIPELINE.md（GitHub Actions の使い方）
 prompts/         各Stepの指示
+.github/workflows/  claude.yml（@claude）, deploy.yml（main へ push で本番デプロイ）, weekly.yml（週次点検）
 ```
 
 ## 各Stepの終わり方
 - そのStepで作った・変えたファイルを箇条書きで示し、次にユーザーが自分でやること（あれば）を1〜3行で書く。
 - `git add -A && git commit -m "stepN: ..."` を提案する。
+
+## Issue から起動されたときの作法
+GitHub の Issue・コメントに `@claude` と書かれて起動された（`.github/workflows/claude.yml`）ときは、次を必ず守る。
+- **必ずブランチを切って PR を作る。** `main` へ直接コミット・push しない。ブランチ名は `claude/issue-<番号>-<短い説明>`。
+- **PR本文（日本語）に次を書く。**
+  1. 変更ファイル（一覧）
+  2. 追加・変更した行の `sku_id` と `source_url`（一覧）
+  3. 無作為5行の照合リンク（`npm run sample-rows` の出力をそのまま貼る。人がこの5行を公式ページと突き合わせる）
+  4. 実行結果: `npm test` / `npm run validate` / `npm run eval` / `npm run coverage` / `npm run check-urls` の要約
+     （eval の top-1 とカバレッジは変更前後の数字を並べる。落ちたものは隠さずそのまま書く）
+- **`verified=true` は付けない。** 追加した行は必ず `verified=false`。人が PR で承認したあと、別コミットで人が付ける。
+- `source_url` は書く前に実際に取得して 200 が返り、ページのタイトル（書籍なら ISBN）が行と一致することを確かめる。
+  新しく足した URL は `npm run check-urls -- --only <ホスト名の一部>` で確認する。相手サイトへのアクセスは間隔をあけ、403/429 が出たらやめる。
+- 出品サイト（メルカリ・ヤフオク・eBay 等）にはアクセスしない。デプロイ（`wrangler deploy`）はしない（デプロイは `main` への push 後に `.github/workflows/deploy.yml` が行う）。
+- 不確かなこと（出典間の食い違い、推定した価格・発売日）は、PR本文の「要確認」の欄と行の `notes` に書く。

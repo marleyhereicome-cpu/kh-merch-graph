@@ -1,0 +1,56 @@
+# main に push（PRのマージを含む）されるたびに、テストとデータ検証を通してから Cloudflare に本番デプロイする。
+# 失敗した時点で止まるので、テストか validate が落ちたら公開版は更新されない。
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# 同時に2つのデプロイが走らないようにする（後から来たものは待つ）。
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build:data
+      - run: npm test
+      - run: npm run validate
+
+      # MCPサーバー（Cloudflare Worker: kh-merch-graph）
+      - name: Deploy MCP server
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
+
+      # Web版チェッカー（web/index.html。静的ファイルだけの Worker: kh-merch-graph-web）。
+      # docs/DISTRIBUTION.md の手順どおり、プロジェクトの wrangler.toml が混ざらないよう、
+      # リポジトリの外の空フォルダにコピーしてからデプロイする。
+      - name: Deploy web checker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          WRANGLER="$GITHUB_WORKSPACE/node_modules/.bin/wrangler"
+          COMPAT_DATE="$(grep -m1 '^compatibility_date' wrangler.toml | cut -d'"' -f2)"
+          SITE_DIR="$RUNNER_TEMP/web-site"
+          mkdir -p "$SITE_DIR/public"
+          cp web/index.html "$SITE_DIR/public/"
+          cd "$SITE_DIR"
+          "$WRANGLER" deploy --name kh-merch-graph-web --assets ./public --compatibility-date "$COMPAT_DATE"

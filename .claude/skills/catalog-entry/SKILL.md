@@ -36,12 +36,13 @@ description: 公式商品ページのURLから data/catalog.csv（必要なら d
      （`price_basis` も空欄なら出力は「未記録」になる。`none`＝定価が存在しない、とは区別する）。
    - `acquisition_type`：`retail`/`kuji`/`prize`/`capsule`/`blind`/`bonus`/`furoku`/`event`/`novelty`/`set`/
      `western_license`/`game`/`book`/`music`。
-     - ゲームソフト・ゲーム機 → `game`。**限定版ゲーム機本体は `set`**、`set_components` に同梱ソフトの `sku_id`
-       （同梱ソフトの行を先に作る。validateが存在を検査する）。
+     - ゲームソフト・ゲーム機 → `game`。**限定版ゲーム機本体・複数タイトルのセット（INTEGRUM MASTERPIECE 等）は `set`**、
+       `set_components` に同梱ソフト／構成タイトルの `sku_id`（それらの行を先に作る。validateが存在を検査する）。
+       `platform`/`edition` を付けた `set` 行の `sku_id` も `<title>-<platform>-<edition>-<region>` にする。
      - 書籍 → `book` + **`isbn`**（ISBN-13。チェックディジットで検証し、公式ページ同士で食い違えば
        検証が通る方を採用して `notes` に食い違いを書く）。
      - CD・レコード → `music` + **`catalog_number`**（品番）。
-   - `platform`（PS2/PS3/PS4/PS5/Switch/Switch2/PC/3DS/DS/PSP/GBA/Mobile）と `edition`
+   - `platform`（PS2/PS3/PS4/PS5/Switch/Switch2/XboxOne/XboxSeries/PC/3DS/DS/PSP/GBA/Mobile）と `edition`
      （standard/limited/collectors/remix/collection/digital）：`acquisition_type=game` の行は必須。
    - `region`：`JP`/`NA`/`EU`/`ASIA`/`GLOBAL`（既定 `JP`）。海外版・英語版・海外公式品はこの列で表す。
    - `design_count`／`set_components`／`bonus_of`：該当する場合のみ。`bonus_of` は `bonus`/`furoku`/`novelty` の本体を指す。
@@ -51,7 +52,9 @@ description: 公式商品ページのURLから data/catalog.csv（必要なら d
        根拠は `notes` に書く。他店の在庫表示は当てにならないことがある（実際に在庫ありの商品が「在庫なし」と出た）ので根拠にしない。
    - `typical_channels`：`data/channels.csv` の `channel_name` と一致させる。
    - `currency`：基本 `JPY`。海外正規品はその通貨コード。
-   - `source_url`：**必須**。一次情報のURL（`CLAUDE.md` の絶対ルール）。
+   - `source_url`：**必須**。一次情報のURL（`CLAUDE.md` の絶対ルール）。書き込む前に実際に取得して 200 で、
+     ページのタイトル（書籍ならISBN）が行と一致することを確かめる（`npm run check-urls -- --match`）。
+     ニュース記事など公式ページ以外を根拠にした価格・仕様は、`notes` に出典URLと換算方法を書く。
    - `verified`：AI が下書きしただけなら `false`。人間が明示的に確認済みと言った場合のみ `true`。
    - `notes`：似て非なる商品との違い、寸法表記、確認日、出典間の食い違いなど。
 

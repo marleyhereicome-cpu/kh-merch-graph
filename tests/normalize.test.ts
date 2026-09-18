@@ -88,3 +88,10 @@ describe("resolveCandidates: 空白・ローマ数字ゆれの実例", () => {
     expect(candidates[0]?.sku_id).toBe("kh3-ultimania-2019");
   });
 });
+
+describe("normalize: + の前後の空白", () => {
+  it("『1.5 + 2.5』と『1.5+2.5』を同じ表記にそろえる", () => {
+    expect(normalize("HD 1.5 + 2.5 ReMIX")).toBe(normalize("HD 1.5+2.5 ReMIX"));
+    expect(containsNormalized("Kingdom Hearts HD 1.5 + 2.5 ReMIX (PS4, 2017)", "KINGDOM HEARTS HD 1.5+2.5 ReMIX PS4")).toBe(true);
+  });
+});
