@@ -35,6 +35,8 @@ export interface ResolveCandidate {
 
 // この信頼度未満の一致は「候補」として提示せず、weak_matches（参考情報）に回す。
 const WEAK_MATCH_THRESHOLD = 0.3;
+// SKU固有の一致が無くライン側の一致だけの場合の上限（weak_matches に回る値）。
+const LINE_ONLY_CONFIDENCE_CAP = 0.29;
 
 export interface ResolveResult {
   candidates: ResolveCandidate[];
@@ -54,11 +56,35 @@ const WEIGHTS = {
   line_alias: 0.15,
 } as const;
 
+// 一番くじの各弾について、「他の弾の名称・別名の一部として含まれてしまう」汎用フレーズを求める。
+// 初弾（2018）は弾名を持たず「一番くじ KINGDOM HEARTS」だけなので、その名称・別名は
+// 全ての弾のタイトルに含まれてしまい、そのまま弾の根拠にすると誤って初弾に固定される。
+const genericPhraseCache = new WeakMap<ProductLine[], Map<string, Set<string>>>();
+
+function genericPhrasesByLine(lines: ProductLine[]): Map<string, Set<string>> {
+  const cached = genericPhraseCache.get(lines);
+  if (cached) return cached;
+
+  const kuji = lines.filter((l) => l.line_type === "kuji");
+  const phrasesOf = (l: ProductLine) =>
+    [l.name_ja, l.name_en, ...splitPipe(l.aliases)].map((p) => normalize(p)).filter(Boolean);
+
+  const result = new Map<string, Set<string>>();
+  for (const line of kuji) {
+    const others = kuji.filter((o) => o.line_id !== line.line_id).flatMap(phrasesOf);
+    const generic = new Set(phrasesOf(line).filter((p) => others.some((q) => q !== p && q.includes(p))));
+    result.set(line.line_id, generic);
+  }
+  genericPhraseCache.set(lines, result);
+  return result;
+}
+
 // SKU固有のスコア（賞の文字・キャラ名など）とライン固有のスコア（シリーズ名・周年）を分けて集計する。
 function scoreSku(
   queryText: string,
   sku: CatalogSku,
-  line: ProductLine | undefined
+  line: ProductLine | undefined,
+  genericPhrases?: Map<string, Set<string>>
 ): { skuScore: number; lineScore: number; reasons: string[] } {
   let skuScore = 0;
   let lineScore = 0;
@@ -102,9 +128,16 @@ function scoreSku(
   for (const c of splitPipe(sku.character_en)) tryMatch(c, WEIGHTS.character_en, "sku");
 
   if (line) {
-    tryMatch(line.name_ja, WEIGHTS.line_name, "line");
-    tryMatch(line.name_en, WEIGHTS.line_name_en, "line");
-    for (const a of splitPipe(line.aliases)) tryMatch(a, WEIGHTS.line_alias, "line");
+    // 他の弾の名称・別名に丸ごと含まれる汎用フレーズ（例:「一番くじキングダムハーツ」）は、
+    // どの弾のタイトルにも現れるため、弾を特定する根拠にしない。
+    const generic = genericPhrases?.get(line.line_id);
+    const tryLine = (value: string, weight: number) => {
+      if (generic?.has(normalize(value))) return;
+      tryMatch(value, weight, "line");
+    };
+    tryLine(line.name_ja, WEIGHTS.line_name);
+    tryLine(line.name_en, WEIGHTS.line_name_en);
+    for (const a of splitPipe(line.aliases)) tryLine(a, WEIGHTS.line_alias);
   }
 
   return { skuScore, lineScore, reasons };
@@ -132,11 +165,12 @@ export function resolveCandidates(
   );
 
   const lineById = new Map(lines.map((l) => [l.line_id, l]));
+  const genericPhrases = genericPhrasesByLine(lines);
 
   const scored = catalog
     .map((sku) => {
       const line = lineById.get(sku.line_id);
-      const { skuScore, lineScore, reasons } = scoreSku(scoringText, sku, line);
+      const { skuScore, lineScore, reasons } = scoreSku(scoringText, sku, line, genericPhrases);
       const isKuji = line?.line_type === "kuji";
       // くじで「賞の文字」等sku側だけ一致し、シリーズを示す語（line側）が無い＝弾を特定できない。
       const seriesAmbiguous = isKuji && skuScore > 0 && lineScore === 0;
@@ -145,6 +179,8 @@ export function resolveCandidates(
       const rawTotal = skuScore + lineScore;
       let confidence = seriesAmbiguous ? Math.min(rawTotal, KUJI_SERIES_AMBIGUOUS_CAP) : Math.min(rawTotal, 1);
       if (!anchorPresent) confidence = Math.min(confidence, NO_ANCHOR_CONFIDENCE_CAP);
+      // ライン名・弾名だけの一致（SKU固有の根拠なし）は、そのライン内の行を区別できないので候補にしない。
+      if (skuScore === 0) confidence = Math.min(confidence, LINE_ONLY_CONFIDENCE_CAP);
       return { sku, reasons, seriesAmbiguous, confidence, rawTotal, hasMatch: rawTotal > 0 };
     })
     .filter((c) => c.hasMatch)

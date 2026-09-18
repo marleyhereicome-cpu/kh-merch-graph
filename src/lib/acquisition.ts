@@ -32,7 +32,7 @@ export function buildAcquisitionInfo(sku: CatalogSku): AcquisitionInfo | null {
 
   let note = ACQUISITION_NOTES[type] ?? `Acquisition type: ${type}.`;
 
-  if ((type === "bonus" || type === "furoku") && sku.bonus_of) {
+  if ((type === "bonus" || type === "furoku" || type === "novelty") && sku.bonus_of) {
     note += ` Bundled with: ${sku.bonus_of}.`;
   }
   if (type === "set" && sku.set_components) {
@@ -54,6 +54,15 @@ export function buildPriceInfo(sku: CatalogSku, priceJpy: number | undefined): P
   const basis = sku.price_basis || "none";
   const msrp = sku.msrp_jpy ? parseFloat(sku.msrp_jpy) : NaN;
   const currency = sku.currency || "JPY";
+
+  // price_basis が空欄＝「定価が無い」のではなく「カタログに未記録」。none と区別して正直に返す。
+  if (!sku.price_basis && Number.isNaN(msrp)) {
+    return {
+      msrp_jpy: null,
+      price_basis: "",
+      note_en: "maker price not recorded in this catalog (unknown, not confirmed to be absent); check the source_url or secondary-market data",
+    };
+  }
 
   if (basis === "none" || Number.isNaN(msrp)) {
     const reason = NO_PRICE_ACQUISITIONS.has(sku.acquisition_type)

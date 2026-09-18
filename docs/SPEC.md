@@ -39,7 +39,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | currency | `msrp_jpy` の通貨（既定 `JPY`） |
 | design_count | ブラインド・ガチャ等で中身が選べない場合の全種類数（数値）。個別デザインが判明していて選べる場合や非該当の場合は空欄 |
 | set_components | セット商品（`acquisition_type=set` 等）の内訳（`|` 区切り）。非該当なら空欄 |
-| bonus_of | `acquisition_type=bonus`／`furoku` の場合、本体となる商品の `sku_id` または `line_id`。非該当なら空欄 |
+| bonus_of | `acquisition_type=bonus`／`furoku`／`novelty` の場合、本体となる商品の `sku_id` または `line_id`（例: サイン入り抽選版CDの本体は無印版CD）。非該当なら空欄 |
 | availability_hint | 現在の入手しやすさの目安。`jp_retail_new`（日本国内で新品小売中）／`jp_secondhand_only`（日本の中古市場のみ）／`western_official`（海外正規代理店で購入可）／`event_only`（イベント会場限定）／`unknown`（不明） |
 | typical_channels | 主な入手チャネル（`|` 区切り）。`data/channels.csv` の `channel_name` と対応させる |
 | width_mm / height_mm / depth_mm / weight_g | 寸法・重量（総額計算用、不明は空欄） |
@@ -156,7 +156,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 ### 3.1 `resolve_listing`
 入力：`title`(必須), `description`, `price_jpy`, `platform`(`mercari`/`yahoo`/`surugaya`/`mandarake`/`other`), `url`(任意・保存しない)
 処理：
-1. タイトル・説明文を正規化（全角半角、記号、スペース）。英語だけの出品文にも対応するため、
+1. タイトル・説明文を正規化（全角半角、記号、スペース）。日本語に隣接する空白は除去し（「キングダム ハーツ」「ハーツ III」→ 同じ表記）、ローマ数字 `Ⅱ/II`・`Ⅲ/III`・`Ⅳ/IV`（および `KHIII`）を算用数字にそろえる（`src/lib/normalize.ts`。英単語どうしの空白は残す。単独の `I`/`V`/`X` は変換しない）。数字に挟まれたピリオド（`2.8` 等のバージョン表記）は残し、数字で始まる/終わる語は前後に数字が続く位置では一致させない（「…2 1」が「…2 10」に、`KH2.8` が「KH II 8巻」に一致しないようにするため）。英語だけの出品文にも対応するため、
    `kuji`/`ichiban kuji`/`prize A`（→`A賞`）/`last one`（→`ラストワン賞`）/`acrylic stand`/`plush`/
    `keychain`/`Japan import` 等の既知の英語トークンを対応する日本語表記に変換してスコアリング用テキストに追加する
    （`src/lib/en-tokens.ts`。表示用の理由文には元の原文を使う）
@@ -165,13 +165,15 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
    - キングダムハーツを示す語（`キングダムハーツ`/`KH`/`Kingdom Hearts`/主要キャラ名）が出品文に無い場合、「A賞」等の作品横断語だけの一致では信頼度を0.3以下に抑える
    - 信頼度が0.3未満の一致は `candidates` に含めず、参考情報として `weak_matches` に分けて返す（呼び出し側のAIが「該当なしの可能性が高い」と判断できるように）
    - `candidates`・`weak_matches` の各項目には、一次情報の出典 `source_url` を必ず含める（呼び出し側のAI・利用者が自分で検証できるように）
+   - 一番くじで、他の弾の名称・別名に丸ごと含まれる汎用フレーズ（初弾の「一番くじキングダムハーツ」等）は弾を特定する根拠にしない。また、ライン名・弾名だけの一致（SKU固有の根拠なし）は信頼度0.29を上限とし、`weak_matches` に回す
    - 同じ語が複数の列（例: `character`と`variant`が両方「ソラ」）に重複して載っていても、二重に加点しない（`src/lib/resolve.ts` のスコアリングは正規化後の文字列単位で一致を1回だけ数える）
    - 一番くじで弾（シリーズ）を特定できない場合、同点の弾を行順で一つに絞らず、該当する弾を全て信頼度≤0.3の `candidates` として返す。この判定は丸め・キャップ前の生スコアで比較し、無関係な行の偶然の一致（例: 別ラインのキャラ名2つの一致）に負けて埋もれないようにする
 3. 状態語辞書に当たる語を抽出
 4. `bootleg_patterns` を評価して注意フラグ
 4.5. `out_of_scope_keywords.csv`（2.11節）・`other_ip_keywords.csv` を評価し、対象外の可能性を `out_of_scope` に理由付きで返す。`cosplay`／`unofficial`／`non_kh` の場合は `candidates`／`weak_matches` を空にする
 5. 上位候補（`candidates[0]`）の `price_basis`・`acquisition_type` に応じて `price` と `acquisition` を組み立てる（`src/lib/acquisition.ts`）
-   - `price_basis` が `none` または `msrp_jpy` が空の場合：`price.msrp_jpy` は `null`、`price.note_en` は必ず `"no maker price: ..."` で始まり、その入手経路（`acquisition_type` が `prize`/`bonus`/`furoku`/`novelty`/`event` のいずれか）を理由として明言する
+   - `price_basis` が `none`（または値があるのに `msrp_jpy` が空）の場合：`price.msrp_jpy` は `null`、`price.note_en` は必ず `"no maker price: ..."` で始まり、その入手経路（`acquisition_type` が `prize`/`bonus`/`furoku`/`novelty`/`event` のいずれか）を理由として明言する
+   - `price_basis` も `msrp_jpy` も空欄の場合は「定価が無い」ではなく「未記録」：`price.note_en` は `"maker price not recorded in this catalog ..."`（例: 当時価格を公式ページから取得できなかった旧版CD）
    - `price_basis` が `draw_price`（くじ）／`capsule_price`（ガチャポン）／`box_price`（ブラインドボックス）の場合：定価比は出さず、「1回・1箱あたりの価格であり個々の景品・デザインの定価ではない」旨を `price.note_en` に返す
    - `price_basis` が `bundle_price`／`set_price` の場合：複数点まとめての価格である旨を返す
    - `price_basis` が `msrp` の場合：定価比（`ratio`）を算出する

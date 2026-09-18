@@ -25,6 +25,14 @@ describe("buildPriceInfo", () => {
     expect(price?.note_en).toMatch(/kuji prize/);
   });
 
+  it("price_basis も msrp_jpy も空欄なら「定価なし」ではなく「未記録」と返す", () => {
+    const sku: CatalogSku = { ...findSku("ichiban-kuji-kh-2018-a"), price_basis: "", msrp_jpy: "" };
+    const price = buildPriceInfo(sku, 3000);
+    expect(price?.msrp_jpy).toBeNull();
+    expect(price?.note_en).toMatch(/not recorded/);
+    expect(price?.note_en).not.toMatch(/no maker price/);
+  });
+
   it("msrp は listing price との比率を返す", () => {
     const sku = findSku("kh2-form-ism-roxas");
     const price = buildPriceInfo(sku, 14960);
@@ -37,6 +45,12 @@ describe("buildAcquisitionInfo", () => {
     const info = buildAcquisitionInfo(findSku("ichiban-kuji-kh-2018-a"));
     expect(info?.type).toBe("kuji");
     expect(info?.note_en).toMatch(/lottery/);
+  });
+
+  it("サイン入り抽選版はnoveltyとして本体(bonus_of)を説明文に含める", () => {
+    const info = buildAcquisitionInfo(findSku("kh-bbs-358-ost-signed-lottery-2026-cd"));
+    expect(info?.type).toBe("novelty");
+    expect(info?.note_en).toMatch(/kh-ost-bbs-358-2024/);
   });
 
   it("bonus/furoku は bonus_of があれば本体の商品を説明文に含める", () => {
