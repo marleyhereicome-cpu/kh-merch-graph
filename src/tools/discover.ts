@@ -4,6 +4,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { catalog, productLines } from "../lib/store.js";
 import { containsNormalized } from "../lib/normalize.js";
 import { splitPipe } from "../lib/types.js";
+import { buildUsageLogEntry, type UsageLogger } from "../lib/usage-log.js";
 
 const PURPOSE_LINE_TYPES: Record<string, string[]> = {
   display: ["figure", "prize", "kuji", "acrylic", "plush", "other"],
@@ -16,7 +17,7 @@ function lineTypeFor(lineId: string): string | undefined {
   return productLines.find((l) => l.line_id === lineId)?.line_type;
 }
 
-export function registerDiscoverTool(server: McpServer): void {
+export function registerDiscoverTool(server: McpServer, onUsage?: UsageLogger): void {
   server.registerTool(
     "discover",
     {
@@ -35,6 +36,13 @@ export function registerDiscoverTool(server: McpServer): void {
       },
     },
     async ({ ip, character, budget_jpy, purpose, limit }) => {
+      // カタログに存在しないipが指定された場合、それが「次に対応すべきIP」の手がかりになる。
+      // タイトル等の出品テキストは関わらないため、ip名だけをそのままログに残す。
+      const ipIsKnown = productLines.some((l) => l.ip === ip);
+      if (!ipIsKnown && onUsage) {
+        await onUsage(buildUsageLogEntry("discover", { requestedIp: ip }));
+      }
+
       let results = catalog.filter((s) => s.ip === ip);
 
       if (character) {

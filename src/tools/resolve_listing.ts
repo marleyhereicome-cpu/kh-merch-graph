@@ -6,6 +6,7 @@ import { resolveCandidates, type ResolveCandidate } from "../lib/resolve.js";
 import { extractConditions, type ConditionMatch } from "../lib/conditions.js";
 import { evaluateFlags, type BootlegFlag } from "../lib/flags.js";
 import { buildUsageLogEntry, type UsageLogger } from "../lib/usage-log.js";
+import { extractUnresolvedTokens } from "../lib/unresolved.js";
 
 function buildNextChecks(
   candidates: ResolveCandidate[],
@@ -104,10 +105,16 @@ export function registerResolveListingTool(server: McpServer, onUsage?: UsageLog
       };
 
       if (onUsage) {
+        const unresolvedTokens =
+          candidates.length === 0
+            ? extractUnresolvedTokens(queryText, catalog, productLines, otherIpKeywords)
+            : undefined;
+
         await onUsage(
           buildUsageLogEntry("resolve_listing", {
             skuCandidates: candidates.map((c) => c.sku_id),
             priceJpy: price_jpy,
+            unresolvedTokens,
           })
         );
       }

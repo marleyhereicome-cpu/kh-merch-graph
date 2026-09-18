@@ -10,6 +10,7 @@ describe("resolveCandidates", () => {
     expect(candidates.length).toBeGreaterThan(0);
     expect(candidates[0].sku_id).toBe("ichiban-kuji-kh-25th-anniversary-a");
     expect(candidates[0].confidence).toBeGreaterThan(0.5);
+    expect(candidates[0].source_url).toBeTruthy();
   });
 
   it("KHと無関係なタイトルは候補を返さない", () => {

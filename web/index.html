@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KH Merch Graph — Listing Checker</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    max-width: 720px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    line-height: 1.5;
+  }
+  h1 { font-size: 1.3rem; margin-bottom: 0.2rem; }
+  p.sub { color: #666; margin-top: 0; font-size: 0.9rem; }
+  label { display: block; font-weight: 600; margin-top: 1rem; font-size: 0.9rem; }
+  textarea, input, select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.5rem;
+    font-size: 1rem;
+    margin-top: 0.25rem;
+  }
+  .row { display: flex; gap: 1rem; }
+  .row > div { flex: 1; }
+  button {
+    margin-top: 1.25rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  button:disabled { cursor: default; opacity: 0.6; }
+  #result { margin-top: 1.5rem; }
+  .card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+  }
+  .card h3 { margin: 0 0 0.3rem 0; font-size: 1rem; }
+  .confidence { font-weight: 600; }
+  .weak { opacity: 0.7; }
+  .flag { color: #a15c00; }
+  .note { color: #666; font-size: 0.85rem; }
+  ul { margin: 0.3rem 0; padding-left: 1.3rem; }
+  .error { color: #b00020; }
+  footer { margin-top: 2.5rem; font-size: 0.8rem; color: #888; }
+  footer a { color: inherit; }
+</style>
+</head>
+<body>
+
+<h1>KH Merch Graph — Listing Checker</h1>
+<p class="sub">
+  Paste a Japanese secondhand-listing title (Mercari, Yahoo! Auctions, Suruga-ya, Mandarake, …) for Kingdom Hearts
+  merchandise and get the likely official SKU, condition notes, and caution flags. This calls a public MCP server —
+  it does not look at the listing site itself; you paste the text you already have.
+</p>
+
+<label for="title">Listing title (required)</label>
+<textarea id="title" rows="2" placeholder="一番くじ KINGDOM HEARTS -25th Anniversary- A賞 ソラ スタチュー"></textarea>
+
+<label for="description">Description excerpt (optional)</label>
+<textarea id="description" rows="3" placeholder="開封済み、箱に少し傷みあり"></textarea>
+
+<div class="row">
+  <div>
+    <label for="price">Listing price in JPY (optional)</label>
+    <input id="price" type="number" min="0" placeholder="8000" />
+  </div>
+  <div>
+    <label for="platform">Platform (optional)</label>
+    <select id="platform">
+      <option value="">—</option>
+      <option value="mercari">Mercari</option>
+      <option value="yahoo">Yahoo! Auctions</option>
+      <option value="surugaya">Suruga-ya</option>
+      <option value="mandarake">Mandarake</option>
+      <option value="other">Other</option>
+    </select>
+  </div>
+</div>
+
+<button id="submit">Check listing</button>
+
+<div id="result"></div>
+
+<footer>
+  Catalog entries are checked by a human against a primary source (see each result's "source" link). When
+  confidence is low, this tool does not guess — it labels the match as weak instead of presenting it as a
+  candidate. This tool never scrapes marketplaces; it only reads the text you paste here.
+  Source &amp; corrections: <a href="https://github.com/REPLACE_WITH_YOUR_GITHUB/kh-merch-graph" target="_blank" rel="noopener">GitHub</a>.
+</footer>
+
+<script>
+// ← 公開後のMCPサーバーURLに書き換える（wrangler deploy が表示するURL + "/mcp"）。
+const MCP_URL = "https://kh-merch-graph.YOUR-SUBDOMAIN.workers.dev/mcp";
+
+const els = {
+  title: document.getElementById("title"),
+  description: document.getElementById("description"),
+  price: document.getElementById("price"),
+  platform: document.getElementById("platform"),
+  submit: document.getElementById("submit"),
+  result: document.getElementById("result"),
+};
+
+async function callResolveListing(args) {
+  const res = await fetch(MCP_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json, text/event-stream",
+    },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: Date.now(),
+      method: "tools/call",
+      params: { name: "resolve_listing", arguments: args },
+    }),
+  });
+
+  if (!res.ok) throw new Error(`Server returned ${res.status}`);
+
+  const body = await res.json();
+  if (body.error) throw new Error(body.error.message || "MCP error");
+
+  const text = body.result?.content?.[0]?.text;
+  if (!text) throw new Error("Unexpected response shape from server");
+  return JSON.parse(text);
+}
+
+function escapeHtml(s) {
+  return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  }[c]));
+}
+
+function sourceLink(sku) {
+  if (!sku.source_url) return "";
+  return ` — <a href="${escapeHtml(sku.source_url)}" target="_blank" rel="noopener">source</a>`;
+}
+
+function renderCandidateCard(sku, weak) {
+  return `
+    <div class="card${weak ? " weak" : ""}">
+      <h3>${escapeHtml(sku.name_en)} <span class="confidence">(${Math.round(sku.confidence * 100)}%)</span></h3>
+      <div>${escapeHtml(sku.sku_id)}${sourceLink(sku)}</div>
+      <div class="note">${escapeHtml(sku.why)}</div>
+    </div>
+  `;
+}
+
+function render(data) {
+  const parts = [];
+
+  if (data.candidates.length > 0) {
+    parts.push("<h2>Likely match</h2>");
+    parts.push(data.candidates.map((c) => renderCandidateCard(c, false)).join(""));
+  } else {
+    parts.push(
+      "<p><strong>No confident match.</strong> This is either not a Kingdom Hearts item in the catalog yet, or the title doesn't contain enough detail. See weak signals below, if any.</p>"
+    );
+  }
+
+  if (data.weak_matches.length > 0) {
+    parts.push("<h2>Weak signals (not confident enough to treat as a match)</h2>");
+    parts.push(data.weak_matches.map((c) => renderCandidateCard(c, true)).join(""));
+  }
+
+  if (data.conditions.length > 0) {
+    parts.push("<h2>Condition terms found</h2><ul>");
+    for (const c of data.conditions) {
+      parts.push(`<li><strong>${escapeHtml(c.term_ja)}</strong> (${escapeHtml(c.term_en)}) — ${escapeHtml(c.meaning_en)}</li>`);
+    }
+    parts.push("</ul>");
+  }
+
+  if (data.flags.length > 0) {
+    parts.push("<h2>Caution flags</h2><ul>");
+    for (const f of data.flags) {
+      parts.push(`<li class="flag">${escapeHtml(f.message_en)}</li>`);
+    }
+    parts.push("</ul>");
+  }
+
+  if (data.price) {
+    parts.push("<h2>Price</h2>");
+    parts.push(`<div class="card">MSRP: ¥${escapeHtml(data.price.msrp_jpy)}`);
+    if (data.price.ratio !== undefined) parts.push(` — listing is ${data.price.ratio}× MSRP`);
+    parts.push(`<div class="note">${escapeHtml(data.price.note_en)}</div></div>`);
+  }
+
+  if (data.next_checks_en?.length > 0) {
+    parts.push("<h2>Before you buy</h2><ul>");
+    for (const n of data.next_checks_en) parts.push(`<li>${escapeHtml(n)}</li>`);
+    parts.push("</ul>");
+  }
+
+  els.result.innerHTML = parts.join("\n");
+}
+
+async function onSubmit() {
+  const title = els.title.value.trim();
+  if (!title) {
+    els.result.innerHTML = `<p class="error">Please paste a listing title first.</p>`;
+    return;
+  }
+
+  const args = { title };
+  if (els.description.value.trim()) args.description = els.description.value.trim();
+  if (els.price.value) args.price_jpy = Number(els.price.value);
+  if (els.platform.value) args.platform = els.platform.value;
+
+  els.submit.disabled = true;
+  els.result.innerHTML = "<p>Checking…</p>";
+  try {
+    const data = await callResolveListing(args);
+    render(data);
+  } catch (err) {
+    els.result.innerHTML = `<p class="error">Could not reach the server: ${escapeHtml(err.message)}</p>`;
+  } finally {
+    els.submit.disabled = false;
+  }
+}
+
+els.submit.addEventListener("click", onSubmit);
+</script>
+</body>
+</html>

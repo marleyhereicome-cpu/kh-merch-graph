@@ -109,6 +109,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
    - `other_ip_keywords.csv` の語（他作品名）が含まれる場合は候補を出さない（`candidates: []`, `weak_matches: []`）
    - キングダムハーツを示す語（`キングダムハーツ`/`KH`/`Kingdom Hearts`/主要キャラ名）が出品文に無い場合、「A賞」等の作品横断語だけの一致では信頼度を0.3以下に抑える
    - 信頼度が0.3未満の一致は `candidates` に含めず、参考情報として `weak_matches` に分けて返す（呼び出し側のAIが「該当なしの可能性が高い」と判断できるように）
+   - `candidates`・`weak_matches` の各項目には、一次情報の出典 `source_url` を必ず含める（呼び出し側のAI・利用者が自分で検証できるように）
 3. 状態語辞書に当たる語を抽出
 4. `bootleg_patterns` を評価して注意フラグ
 5. `msrp_jpy` があれば `price_basis` に応じて処理する
@@ -118,8 +119,8 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 出力（JSON）：
 ```json
 {
-  "candidates": [{"sku_id":"...","name_en":"...","confidence":0.92,"why":"matched 'A賞' + 'ソラ' + line alias"}],
-  "weak_matches": [{"sku_id":"...","name_en":"...","confidence":0.15,"why":"matched 'ソラ'"}],
+  "candidates": [{"sku_id":"...","name_en":"...","confidence":0.92,"why":"matched 'A賞' + 'ソラ' + line alias","source_url":"https://..."}],
+  "weak_matches": [{"sku_id":"...","name_en":"...","confidence":0.15,"why":"matched 'ソラ'","source_url":"https://..."}],
   "conditions": [{"term_ja":"開封済","term_en":"opened","meaning_en":"...","price_effect":"minor_down"}],
   "flags": [{"type":"bootleg_caution","message_en":"..."}],
   "price": {"msrp_jpy":1200,"ratio":1.25,"note_en":"estimate only"},
@@ -147,7 +148,12 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 - 評価セット300件に対し、信頼度 ≥0.8 と出した回答の正解率 90%以上、全体（top-1）で 70%以上
 - 該当なし（`NONE`）を正しく `NONE` と返せる割合 80%以上
 
-## 5. 公開版（Step 6）の追加要件
+## 5. 公開版（Step 6・7）の追加要件
 - Streamable HTTP、認証なし（無料ティア）。1IPあたりのレート制限
 - 利用ログ：ツール名・SKU候補・価格・仕向国・日時のみ。タイトル原文とURLは保存しない
+  - `resolve_listing` で `candidates` が空だったとき：出品テキストの原文の代わりに、既知の語彙（作品語・ライン語・賞・キャラ）に一致した正規化トークンのみを `unresolved_tokens` として残す（`src/lib/unresolved.ts`）
+  - `discover` でカタログに存在しない `ip` が指定されたとき：その `ip` 名を `requested_ip` として残す
+  - どちらも「次にカタログへ足すべき商品・IP」を見つけるための集計用シグナルで、`scripts/weekly-report.mjs` が週次で上位20件を出す
 - ヘルスチェック `/health`
+- `/llms.txt`：AIエージェントが人手を介さずこのサーバーを発見・理解できるようにする静的テキスト（https://llmstxt.org/ 形式）
+- `/openapi.json`：同じツール群をOpenAPI形式でも読めるようにする参考資料（権威ある定義は `/mcp` への `tools/list`）

@@ -11,6 +11,7 @@
     "build:data": "node scripts/build-data.mjs",
     "eval": "tsx scripts/eval.ts",
     "start": "tsx src/server.ts",
+    "report:weekly": "node scripts/weekly-report.mjs",
     "test": "vitest run",
     "validate": "node scripts/validate-data.mjs",
     "worker:dev": "wrangler dev",

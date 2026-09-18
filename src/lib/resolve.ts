@@ -26,6 +26,8 @@ export interface ResolveCandidate {
   name_en: string;
   confidence: number;
   why: string;
+  // 一次情報の出典URL。呼び出し側のAIや利用者がこの候補を自分で検証できるようにするため必須で返す。
+  source_url: string;
   // 一番くじで「賞の文字」だけ一致し弾（シリーズ）を特定できていない場合に true。
   ambiguous_series?: boolean;
 }
@@ -131,6 +133,7 @@ export function resolveCandidates(
     name_en: sku.name_en,
     confidence: Math.round(confidence * 100) / 100,
     why: `matched ${reasons.slice(0, 3).join(" + ")}`,
+    source_url: sku.source_url,
     ...(seriesAmbiguous ? { ambiguous_series: true as const } : {}),
   }));
 

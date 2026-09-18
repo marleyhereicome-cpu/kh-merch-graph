@@ -11,6 +11,22 @@ import { registerEstimateLandedCostTool } from "./tools/estimate_landed_cost.js"
 import { registerReportCorrectionTool } from "./tools/report_correction.js";
 import { createKvCorrectionStore } from "./lib/correction-store.kv.js";
 import type { UsageLogEntry } from "./lib/usage-log.js";
+import { buildLlmsTxt } from "./lib/llms-txt.js";
+import { buildOpenApiDocument } from "./lib/openapi.js";
+
+// web/index.html など、Worker とは別ドメイン（Cloudflare Pages等）から fetch で呼ぶための最小限のCORS設定。
+// 認証を持たない読み取り専用の公開APIなので Origin を絞らずすべて許可する。
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+function withCors(response: Response): Response {
+  const headers = new Headers(response.headers);
+  for (const [k, v] of Object.entries(CORS_HEADERS)) headers.set(k, v);
+  return new Response(response.body, { status: response.status, headers });
+}
 
 // @cloudflare/workers-types を追加インストールしない代わりに、使う分だけ最小限の型を自前で書く。
 interface KVNamespace {
@@ -40,7 +56,7 @@ function buildServer(env: Env): McpServer {
 
   registerResolveListingTool(server, onUsage);
   registerExplainProductTool(server);
-  registerDiscoverTool(server);
+  registerDiscoverTool(server, onUsage);
   registerEstimateLandedCostTool(server, onUsage);
   registerReportCorrectionTool(server, createKvCorrectionStore(env.KH_KV));
 
@@ -50,9 +66,33 @@ function buildServer(env: Env): McpServer {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+    const baseUrl = url.origin;
+
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: CORS_HEADERS });
+    }
 
     if (url.pathname === "/health") {
       return new Response("ok", { status: 200 });
+    }
+
+    // AIエージェントが自力でこのサーバーを見つけて使い方を理解できるようにするための静的な入口。
+    if (url.pathname === "/llms.txt") {
+      return withCors(
+        new Response(buildLlmsTxt(baseUrl), {
+          status: 200,
+          headers: { "Content-Type": "text/plain; charset=utf-8" },
+        })
+      );
+    }
+
+    if (url.pathname === "/openapi.json") {
+      return withCors(
+        new Response(JSON.stringify(buildOpenApiDocument(baseUrl), null, 2), {
+          status: 200,
+          headers: { "Content-Type": "application/json; charset=utf-8" },
+        })
+      );
     }
 
     if (url.pathname !== "/mcp") {
@@ -74,6 +114,6 @@ export default {
     });
     await server.connect(transport);
 
-    return transport.handleRequest(request);
+    return withCors(await transport.handleRequest(request));
   },
 };
