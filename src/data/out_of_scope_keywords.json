@@ -1,0 +1,134 @@
+[
+  {
+    "keyword": "様専用",
+    "reason": "reserved_listing",
+    "message_en": "This listing is marked as reserved for a specific buyer; it may not be generally purchasable.",
+    "notes": "「〇〇様専用」の意"
+  },
+  {
+    "keyword": "専用ページ",
+    "reason": "reserved_listing",
+    "message_en": "This listing is marked as reserved for a specific buyer; it may not be generally purchasable.",
+    "notes": ""
+  },
+  {
+    "keyword": "専用出品",
+    "reason": "reserved_listing",
+    "message_en": "This listing is marked as reserved for a specific buyer; it may not be generally purchasable.",
+    "notes": ""
+  },
+  {
+    "keyword": "お取り置き",
+    "reason": "reserved_listing",
+    "message_en": "This listing is marked as held/reserved for a specific buyer; it may not be generally purchasable.",
+    "notes": ""
+  },
+  {
+    "keyword": "まとめ売り",
+    "reason": "bundle",
+    "message_en": "This listing bundles multiple items together; any single-SKU match below may reflect only one item in the lot.",
+    "notes": ""
+  },
+  {
+    "keyword": "おまとめ",
+    "reason": "bundle",
+    "message_en": "This listing bundles multiple items together; any single-SKU match below may reflect only one item in the lot.",
+    "notes": ""
+  },
+  {
+    "keyword": "まとめ",
+    "reason": "bundle",
+    "message_en": "This listing may bundle multiple items together; any single-SKU match below may reflect only one item in the lot.",
+    "notes": "「まとめ買い」等も含む広い語のため誤検知の可能性あり"
+  },
+  {
+    "keyword": "セット売り",
+    "reason": "bundle",
+    "message_en": "This listing bundles multiple items together; any single-SKU match below may reflect only one item in the lot.",
+    "notes": "公式セット商品(acquisition_type=set)とは異なり、出品者が任意に組んだ寄せ集めの可能性がある"
+  },
+  {
+    "keyword": "bundle",
+    "reason": "bundle",
+    "message_en": "This listing bundles multiple items together; any single-SKU match below may reflect only one item in the lot.",
+    "notes": ""
+  },
+  {
+    "keyword": "lot of",
+    "reason": "bundle",
+    "message_en": "This listing bundles multiple items together (eBay lot); any single-SKU match below may reflect only one item in the lot.",
+    "notes": ""
+  },
+  {
+    "keyword": "コスプレ",
+    "reason": "cosplay",
+    "message_en": "This is a cosplay item",
+    "notes": "not official licensed merchandise"
+  },
+  {
+    "keyword": "cosplay",
+    "reason": "cosplay",
+    "message_en": "This is a cosplay item",
+    "notes": "not official licensed merchandise"
+  },
+  {
+    "keyword": "ウィッグ",
+    "reason": "cosplay",
+    "message_en": "This is a wig (cosplay accessory)",
+    "notes": "not official licensed merchandise"
+  },
+  {
+    "keyword": "wig",
+    "reason": "cosplay",
+    "message_en": "This is a wig (cosplay accessory)",
+    "notes": "not official licensed merchandise"
+  },
+  {
+    "keyword": "ハンドメイド",
+    "reason": "unofficial",
+    "message_en": "This is a handmade/fan-made item",
+    "notes": "not official licensed merchandise"
+  },
+  {
+    "keyword": "手作り",
+    "reason": "unofficial",
+    "message_en": "This is a handmade/fan-made item",
+    "notes": "not official licensed merchandise"
+  },
+  {
+    "keyword": "同人",
+    "reason": "unofficial",
+    "message_en": "This is a fan-made (doujin) item",
+    "notes": "not official licensed merchandise"
+  },
+  {
+    "keyword": "レプリカ",
+    "reason": "unofficial",
+    "message_en": "Seller describes this as a replica",
+    "notes": "not an official licensed item"
+  },
+  {
+    "keyword": "fanmade",
+    "reason": "unofficial",
+    "message_en": "This is a fan-made item",
+    "notes": "not official licensed merchandise"
+  },
+  {
+    "keyword": "fan made",
+    "reason": "unofficial",
+    "message_en": "This is a fan-made item",
+    "notes": "not official licensed merchandise"
+  },
+  {
+    "keyword": "handmade",
+    "reason": "unofficial",
+    "message_en": "This is a handmade/fan-made item",
+    "notes": "not official licensed merchandise"
+  },
+  {
+    "keyword": "replica",
+    "reason": "unofficial",
+    "message_en": "Seller describes this as a replica",
+    "notes": "not an official licensed item"
+  }
+]

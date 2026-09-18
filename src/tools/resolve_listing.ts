@@ -1,13 +1,21 @@
 // SPEC 3.1 resolve_listing — 出品テキストをSKU候補・状態語・注意フラグ・価格目安に翻訳する。
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { catalog, productLines, conditionLexicon, bootlegPatterns, otherIpKeywords } from "../lib/store.js";
+import {
+  catalog,
+  productLines,
+  conditionLexicon,
+  bootlegPatterns,
+  otherIpKeywords,
+  outOfScopeKeywords,
+} from "../lib/store.js";
 import { resolveCandidates, type ResolveCandidate } from "../lib/resolve.js";
 import { extractConditions, type ConditionMatch } from "../lib/conditions.js";
 import { evaluateFlags, type BootlegFlag } from "../lib/flags.js";
 import { buildUsageLogEntry, type UsageLogger } from "../lib/usage-log.js";
 import { extractUnresolvedTokens } from "../lib/unresolved.js";
 import { buildAcquisitionInfo, buildPriceInfo, buildVarietyInfo } from "../lib/acquisition.js";
+import { detectOutOfScope, SUPPRESSING_REASONS } from "../lib/out-of-scope.js";
 
 function buildNextChecks(
   candidates: ResolveCandidate[],
@@ -51,7 +59,14 @@ export async function resolveListing(input: ResolveListingInput, onUsage?: Usage
   const { title, description, price_jpy, src } = input;
   const queryText = `${title} ${description ?? ""}`;
 
-  const { candidates, weak_matches } = resolveCandidates(queryText, catalog, productLines, 3, otherIpKeywords);
+  const outOfScope = detectOutOfScope(queryText, outOfScopeKeywords, otherIpKeywords);
+  const shouldSuppressCandidates = outOfScope.some((m) => SUPPRESSING_REASONS.has(m.reason));
+
+  let { candidates, weak_matches } = resolveCandidates(queryText, catalog, productLines, 3, otherIpKeywords);
+  if (shouldSuppressCandidates) {
+    candidates = [];
+    weak_matches = [];
+  }
   const conditions = extractConditions(queryText, conditionLexicon);
 
   const topSku =
@@ -82,6 +97,7 @@ export async function resolveListing(input: ResolveListingInput, onUsage?: Usage
     price,
     acquisition,
     variety,
+    out_of_scope: outOfScope.length > 0 ? outOfScope : null,
     next_checks_en: buildNextChecks(candidates, conditions, flags),
   };
 

@@ -10,7 +10,8 @@ import { loadCsv } from "./lib/csv.mjs";
 import { resolveCandidates } from "../src/lib/resolve.js";
 import { containsNormalized } from "../src/lib/normalize.js";
 import { splitPipe } from "../src/lib/types.js";
-import { catalog, productLines, otherIpKeywords } from "../src/lib/store.js";
+import { detectOutOfScope, SUPPRESSING_REASONS } from "../src/lib/out-of-scope.js";
+import { catalog, productLines, otherIpKeywords, outOfScopeKeywords } from "../src/lib/store.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, "..", "data");
@@ -55,18 +56,27 @@ function guessLine(cleanedTitle) {
 
 function classify(rawTitle) {
   const title = stripNoise(rawTitle);
-  const { candidates, weak_matches } = resolveCandidates(title, catalog, productLines, 3, otherIpKeywords);
+
+  // resolve_listing本体と同じ判定にする：cosplay/unofficial/non_kh の場合は候補自体を出さない。
+  const outOfScope = detectOutOfScope(title, outOfScopeKeywords, otherIpKeywords);
+  const suppress = outOfScope.some((m) => SUPPRESSING_REASONS.has(m.reason));
+
+  let { candidates, weak_matches } = resolveCandidates(title, catalog, productLines, 3, otherIpKeywords);
+  if (suppress) {
+    candidates = [];
+    weak_matches = [];
+  }
 
   if (candidates.length > 0 && candidates[0].confidence >= HIGH_CONFIDENCE_THRESHOLD) {
-    return { bucket: "high_confidence", candidates, weak_matches };
+    return { bucket: "high_confidence", candidates, weak_matches, outOfScope };
   }
   if (candidates.length > 0) {
-    return { bucket: "low_confidence_candidate", candidates, weak_matches };
+    return { bucket: "low_confidence_candidate", candidates, weak_matches, outOfScope };
   }
   if (weak_matches.length > 0) {
-    return { bucket: "weak_only", candidates, weak_matches };
+    return { bucket: "weak_only", candidates, weak_matches, outOfScope };
   }
-  return { bucket: "none", candidates, weak_matches };
+  return { bucket: "none", candidates, weak_matches, outOfScope };
 }
 
 function pct(n, d) {
@@ -93,8 +103,37 @@ function summarizeGroup(label, rows) {
   console.log(`weak_matchesのみ            : ${counts.weak_only} (${pct(counts.weak_only, total)})`);
   console.log(`候補なし（weak_matchesも無し）: ${counts.none} (${pct(counts.none, total)})`);
 
-  const noCandidateRows = results.filter((r) => r.bucket === "none");
-  console.log(`\n--- 候補なしの出品を推定ラインごとに集計（${noCandidateRows.length} 件） ---`);
+  // 「候補なし」「weak_matchesのみ」のうち、out_of_scope（cosplay/bundle/reserved_listing/non_kh/unofficial）が
+  // 立っているものは、名寄せの失敗ではなく正しい「対象外」判定として分けて数える。
+  const unresolvedRows = results.filter((r) => r.bucket === "none" || r.bucket === "weak_only");
+  const outOfScopeRows = unresolvedRows.filter((r) => r.outOfScope.length > 0);
+  const trueGapRows = unresolvedRows.filter((r) => r.outOfScope.length === 0);
+
+  console.log(
+    `\n候補なし/weak_matchesのみ 計${unresolvedRows.length}件のうち:` +
+      ` 正しく対象外と判定 ${outOfScopeRows.length}件 (${pct(outOfScopeRows.length, unresolvedRows.length)})` +
+      ` / 真のカバレッジ不足 ${trueGapRows.length}件 (${pct(trueGapRows.length, unresolvedRows.length)})`
+  );
+
+  console.log(`\n--- 正しく対象外と判定した内訳（理由別、${outOfScopeRows.length} 件） ---`);
+  if (outOfScopeRows.length === 0) {
+    console.log("  (該当なし)");
+  } else {
+    const byReason = new Map();
+    for (const r of outOfScopeRows) {
+      for (const reason of new Set(r.outOfScope.map((m) => m.reason))) {
+        if (!byReason.has(reason)) byReason.set(reason, []);
+        byReason.get(reason).push(r.row.listing_title);
+      }
+    }
+    for (const [reason, titles] of [...byReason.entries()].sort((a, b) => b[1].length - a[1].length)) {
+      console.log(`  ${String(titles.length).padStart(3)}  ${reason}`);
+      for (const t of titles) console.log(`        - ${t}`);
+    }
+  }
+
+  const noCandidateRows = trueGapRows.filter((r) => r.bucket === "none");
+  console.log(`\n--- 真のカバレッジ不足を推定ラインごとに集計（${noCandidateRows.length} 件） ---`);
   if (noCandidateRows.length === 0) {
     console.log("  (該当なし)");
     return;

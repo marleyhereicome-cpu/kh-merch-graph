@@ -35,7 +35,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | design_variants | 同じ行に複数デザインが含まれる場合の内訳（公式ページに記載がある範囲で `|` 区切り）。個別の記載がなければ空欄 |
 | msrp_jpy | 定価（税込、円）。くじは1回の価格。`price_basis` が `none` の場合は空欄 |
 | price_basis | `msrp_jpy` の性質。`msrp`（商品そのものの定価）／`draw_price`（くじ1回の抽選価格。個々の景品の定価ではない）／`capsule_price`（ガチャポン1回の価格）／`box_price`（ブラインドボックス1箱の価格）／`bundle_price`（まとめ売り・セットの価格）／`set_price`（公式セット商品の価格）／`none`（定価情報なし） |
-| acquisition_type | 入手経路。`retail`（通常小売）／`kuji`（一番くじ等の抽選くじ）／`prize`（アーケード・クレーンゲーム景品）／`capsule`（ガチャポン）／`blind`（ブラインドボックス・ブラインドバッグ）／`bonus`（購入特典。本体は別商品）／`furoku`（雑誌等の付録）／`event`（イベント限定販売）／`novelty`（ノベルティ・非売品）／`set`（複数商品のセット販売）／`western_license`（海外正規ライセンス商品） |
+| acquisition_type | 入手経路。`retail`（通常小売）／`kuji`（一番くじ等の抽選くじ）／`prize`（アーケード・クレーンゲーム景品）／`capsule`（ガチャポン）／`blind`（ブラインドボックス・ブラインドバッグ）／`bonus`（購入特典。本体は別商品）／`furoku`（雑誌等の付録）／`event`（イベント限定販売）／`novelty`（ノベルティ・非売品）／`set`（複数商品のセット販売）／`western_license`（海外正規ライセンス商品）／`game`（ゲームソフト・ゲーム機本体）／`book`（書籍：漫画・小説・攻略本等）／`music`（音楽CD等） |
 | currency | `msrp_jpy` の通貨（既定 `JPY`） |
 | design_count | ブラインド・ガチャ等で中身が選べない場合の全種類数（数値）。個別デザインが判明していて選べる場合や非該当の場合は空欄 |
 | set_components | セット商品（`acquisition_type=set` 等）の内訳（`|` 区切り）。非該当なら空欄 |
@@ -44,6 +44,8 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | typical_channels | 主な入手チャネル（`|` 区切り）。`data/channels.csv` の `channel_name` と対応させる |
 | width_mm / height_mm / depth_mm / weight_g | 寸法・重量（総額計算用、不明は空欄） |
 | jan | JANコード（あれば） |
+| isbn | ISBN（`line_type=book` の書籍。非該当なら空欄） |
+| catalog_number | 品番（音楽CD・ゲームソフト等。例: `SQEX-11140`。非該当なら空欄） |
 | official | `true`/`false` |
 | rerelease_dates | 再販日（`|` 区切り） |
 | source_url | 一次情報URL（必須） |
@@ -137,6 +139,18 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 候補なしの出品の推定ラインを集計する。英語タイトルに紛れる定型ノイズ語（`Model Number`/`Lottery Prize`/
 年齢表記 `14+`/`Opens in a new window` 等）は集計前に除去する。
 
+### 2.11 `out_of_scope_keywords.csv` — 対象外判定の辞書
+| 列 | 説明 |
+|---|---|
+| keyword | 出品文に含まれていたら対象外の可能性が高いとみなす語（日英混在） |
+| reason | `cosplay`（コスプレ用品）／`bundle`（寄せ集めのまとめ売り）／`reserved_listing`（特定の購入者向け専用出品）／`non_kh`（他作品）／`unofficial`（手作り・同人・レプリカ等の非公式品） |
+| message_en | 呼び出し側に返す注意文（英語） |
+| notes | 補足 |
+
+`non_kh` は `other_ip_keywords.csv`（2.8節）と重複させず、`src/lib/out-of-scope.ts` がその場で読み合わせて統合する。
+`cosplay`／`unofficial`／`non_kh` は「公式SKUと一致するはずがない」ため `resolve_listing` の `candidates`／`weak_matches` を
+空にする（`bundle`／`reserved_listing` は識別結果自体は残し、注意文だけ添える）。
+
 ## 3. MCPツール
 
 ### 3.1 `resolve_listing`
@@ -153,6 +167,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
    - `candidates`・`weak_matches` の各項目には、一次情報の出典 `source_url` を必ず含める（呼び出し側のAI・利用者が自分で検証できるように）
 3. 状態語辞書に当たる語を抽出
 4. `bootleg_patterns` を評価して注意フラグ
+4.5. `out_of_scope_keywords.csv`（2.11節）・`other_ip_keywords.csv` を評価し、対象外の可能性を `out_of_scope` に理由付きで返す。`cosplay`／`unofficial`／`non_kh` の場合は `candidates`／`weak_matches` を空にする
 5. 上位候補（`candidates[0]`）の `price_basis`・`acquisition_type` に応じて `price` と `acquisition` を組み立てる（`src/lib/acquisition.ts`）
    - `price_basis` が `none` または `msrp_jpy` が空の場合：`price.msrp_jpy` は `null`、`price.note_en` は必ず `"no maker price: ..."` で始まり、その入手経路（`acquisition_type` が `prize`/`bonus`/`furoku`/`novelty`/`event` のいずれか）を理由として明言する
    - `price_basis` が `draw_price`（くじ）／`capsule_price`（ガチャポン）／`box_price`（ブラインドボックス）の場合：定価比は出さず、「1回・1箱あたりの価格であり個々の景品・デザインの定価ではない」旨を `price.note_en` に返す
@@ -170,10 +185,12 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
   "price": {"msrp_jpy":1200,"price_basis":"msrp","ratio":1.25,"note_en":"estimate only"},
   "acquisition": {"type":"kuji","note_en":"Won as a prize in an ichiban-kuji lottery draw; not sold as a standalone product."},
   "variety": {"design_count":7,"note_en":"This item comes in 7 different designs; ..."},
+  "out_of_scope": [{"reason":"bundle","matched_keyword":"まとめ売り","message_en":"This listing bundles multiple items together; ..."}],
   "next_checks_en": ["Ask seller whether the box is included", "..."]
 }
 ```
 `price`・`acquisition`・`variety` は上位候補が無い場合は `null`。`variety` は `design_count` が無いSKUでも `null`。
+`out_of_scope` は該当する理由が一つも無ければ `null`（複数の理由が同時に立つこともある）。
 
 ### 3.2 `explain_product`
 入力：`sku_id` または `query`（自然文）

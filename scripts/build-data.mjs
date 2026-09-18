@@ -18,6 +18,7 @@ const FILES = [
   "proxy_rates.csv",
   "other_ip_keywords.csv",
   "channels.csv",
+  "out_of_scope_keywords.csv",
 ];
 
 function main() {

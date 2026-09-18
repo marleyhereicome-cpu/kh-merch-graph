@@ -1,0 +1,23 @@
+keyword,reason,message_en,notes
+様専用,reserved_listing,This listing is marked as reserved for a specific buyer; it may not be generally purchasable.,「〇〇様専用」の意
+専用ページ,reserved_listing,This listing is marked as reserved for a specific buyer; it may not be generally purchasable.,
+専用出品,reserved_listing,This listing is marked as reserved for a specific buyer; it may not be generally purchasable.,
+お取り置き,reserved_listing,This listing is marked as held/reserved for a specific buyer; it may not be generally purchasable.,
+まとめ売り,bundle,This listing bundles multiple items together; any single-SKU match below may reflect only one item in the lot.,
+おまとめ,bundle,This listing bundles multiple items together; any single-SKU match below may reflect only one item in the lot.,
+まとめ,bundle,This listing may bundle multiple items together; any single-SKU match below may reflect only one item in the lot.,「まとめ買い」等も含む広い語のため誤検知の可能性あり
+セット売り,bundle,This listing bundles multiple items together; any single-SKU match below may reflect only one item in the lot.,公式セット商品(acquisition_type=set)とは異なり、出品者が任意に組んだ寄せ集めの可能性がある
+bundle,bundle,This listing bundles multiple items together; any single-SKU match below may reflect only one item in the lot.,
+lot of,bundle,This listing bundles multiple items together (eBay "lot"); any single-SKU match below may reflect only one item in the lot.,
+コスプレ,cosplay,This is a cosplay item, not official licensed merchandise, so it will not match a catalog SKU.,
+cosplay,cosplay,This is a cosplay item, not official licensed merchandise, so it will not match a catalog SKU.,
+ウィッグ,cosplay,This is a wig (cosplay accessory), not official licensed merchandise, so it will not match a catalog SKU.,
+wig,cosplay,This is a wig (cosplay accessory), not official licensed merchandise, so it will not match a catalog SKU.,
+ハンドメイド,unofficial,This is a handmade/fan-made item, not official licensed merchandise, so it will not match a catalog SKU.,
+手作り,unofficial,This is a handmade/fan-made item, not official licensed merchandise, so it will not match a catalog SKU.,
+同人,unofficial,This is a fan-made (doujin) item, not official licensed merchandise, so it will not match a catalog SKU.,
+レプリカ,unofficial,Seller describes this as a replica, not an official licensed item, so it will not match a catalog SKU.,
+fanmade,unofficial,This is a fan-made item, not official licensed merchandise, so it will not match a catalog SKU.,
+fan made,unofficial,This is a fan-made item, not official licensed merchandise, so it will not match a catalog SKU.,
+handmade,unofficial,This is a handmade/fan-made item, not official licensed merchandise, so it will not match a catalog SKU.,
+replica,unofficial,Seller describes this as a replica, not an official licensed item, so it will not match a catalog SKU.,

@@ -20,7 +20,7 @@ const SCHEMAS = {
     "name_en", "aliases", "variant", "design_variants", "msrp_jpy",
     "price_basis", "acquisition_type", "currency", "design_count",
     "set_components", "bonus_of", "availability_hint", "typical_channels",
-    "width_mm", "height_mm", "depth_mm", "weight_g", "jan",
+    "width_mm", "height_mm", "depth_mm", "weight_g", "jan", "isbn", "catalog_number",
     "official", "rerelease_dates", "source_url", "verified", "notes",
   ],
   "condition_lexicon.csv": [
@@ -45,6 +45,7 @@ const SCHEMAS = {
     "proxy_required", "source_url",
   ],
   "coverage_sample.csv": ["listing_title", "lang", "platform", "price", "currency", "collected"],
+  "out_of_scope_keywords.csv": ["keyword", "reason", "message_en", "notes"],
 };
 
 // 列の値がSPEC.mdで定義された選択肢のいずれかであることを確認する。
@@ -52,7 +53,7 @@ const ENUMS = {
   "product_lines.csv": {
     acquisition_type: [
       "retail", "kuji", "prize", "capsule", "blind", "bonus", "furoku",
-      "event", "novelty", "set", "western_license",
+      "event", "novelty", "set", "western_license", "game", "book", "music",
     ],
   },
   "catalog.csv": {
@@ -62,7 +63,7 @@ const ENUMS = {
     ],
     acquisition_type: [
       "retail", "kuji", "prize", "capsule", "blind", "bonus", "furoku",
-      "event", "novelty", "set", "western_license", "",
+      "event", "novelty", "set", "western_license", "game", "book", "music", "",
     ],
     availability_hint: [
       "jp_retail_new", "jp_secondhand_only", "western_official",
@@ -72,6 +73,9 @@ const ENUMS = {
   "channels.csv": {
     channel_type: ["new", "secondhand", "proxy", "western"],
     proxy_required: ["yes", "no"],
+  },
+  "out_of_scope_keywords.csv": {
+    reason: ["cosplay", "bundle", "reserved_listing", "non_kh", "unofficial"],
   },
 };
 
@@ -84,7 +88,7 @@ function checkEnums(filename, records) {
       const v = r[field] ?? "";
       if (!allowed.includes(v)) {
         errors.push(
-          `  ✗ ${field}="${v}" は不正な値です（${r.sku_id || r.line_id || r.channel_name}）。許可値: ${allowed.filter(Boolean).join(", ")}`
+          `  ✗ ${field}="${v}" は不正な値です（${r.sku_id || r.line_id || r.channel_name || r.keyword}）。許可値: ${allowed.filter(Boolean).join(", ")}`
         );
       }
     }

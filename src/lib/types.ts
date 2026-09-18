@@ -47,10 +47,22 @@ export interface CatalogSku {
   depth_mm: string;
   weight_g: string;
   jan: string;
+  // 書籍（line_type=book）の識別番号。非該当なら空欄。
+  isbn: string;
+  // 音楽CD・ゲームソフト等の品番（例: SQEX-11140）。非該当なら空欄。
+  catalog_number: string;
   official: string;
   rerelease_dates: string;
   source_url: string;
   verified: string;
+  notes: string;
+}
+
+export interface OutOfScopeKeyword {
+  keyword: string;
+  // cosplay/bundle/reserved_listing/non_kh/unofficial
+  reason: string;
+  message_en: string;
   notes: string;
 }
 
