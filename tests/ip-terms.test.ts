@@ -98,3 +98,41 @@ describe("discover の terms 引数", () => {
     expect(r.items[0].region).toBe("JP");
   });
 });
+
+describe("ゲームソフト行（タイトル×機種×版×地域）", () => {
+  it("『PS4 キングダム ハーツIII』でPS4のパッケージ版に一致し、ダウンロード版とは区別する", () => {
+    const { candidates } = resolveCandidates("PS4 キングダム ハーツIII 通常版", catalog, productLines, 3, [], ipTerms);
+    expect(candidates[0]?.sku_id).toBe("kh3-ps4-standard-jp");
+    expect(candidates.some((c) => c.sku_id === "kh3-ps4-digital-jp")).toBe(false);
+  });
+
+  it("英語タイトルと機種名でも一致する（KINGDOM HEARTS Birth by Sleep PSP）", () => {
+    const { candidates } = resolveCandidates("KINGDOM HEARTS Birth by Sleep PSP", catalog, productLines, 3, [], ipTerms);
+    expect(candidates[0]?.sku_id).toBe("khbbs-psp-standard-jp");
+  });
+
+  it("アルティメット ヒッツ版は通常版より優先される", () => {
+    const { candidates } = resolveCandidates("キングダムハーツ PS2 アルティメット ヒッツ", catalog, productLines, 3, [], ipTerms);
+    expect(candidates[0]?.sku_id).toBe("kh1-ultimate-hits-ps2-standard-jp");
+  });
+
+  it("型番（SLPM-66122）から版を特定できる", () => {
+    const { candidates } = resolveCandidates("キングダムハーツ PS2 SLPM-66122 動作確認済み", catalog, productLines, 3, [], ipTerms);
+    expect(candidates[0]?.sku_id).toBe("kh1-ultimate-hits-ps2-standard-jp");
+  });
+
+  it("ゲーム行は platform/edition/region を持ち、sku_id が形式どおり", () => {
+    const games = catalog.filter((s) => s.acquisition_type === "game");
+    expect(games.length).toBeGreaterThan(30);
+    for (const g of games) {
+      expect(g.platform).not.toBe("");
+      expect(g.edition).not.toBe("");
+      expect(g.sku_id.endsWith(`-${g.platform.toLowerCase()}-${g.edition}-${g.region.toLowerCase()}`)).toBe(true);
+    }
+  });
+
+  it("クラウドバージョン（Switch）は販売終了を注記する", () => {
+    const cloud = catalog.find((s) => s.sku_id === "kh3-switch-digital-jp")!;
+    expect(cloud.notes).toMatch(/2026年6月9日に販売終了/);
+  });
+});

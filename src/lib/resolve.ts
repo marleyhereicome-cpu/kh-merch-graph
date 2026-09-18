@@ -53,18 +53,35 @@ const WEIGHTS = {
 // 全ての弾のタイトルに含まれてしまい、そのまま弾の根拠にすると誤って初弾に固定される。
 const genericPhraseCache = new WeakMap<ProductLine[], Map<string, Set<string>>>();
 
+// phrase が other の一部として現れるか。ただし数字で終わる語（「…ハーツ3」）が「…ハーツ3D」のように
+// 英数字に続く位置は別の名前なので除く（3D は III の続編名ではなく別作品）。
+function isPartOfOtherName(phrase: string, other: string): boolean {
+  const endsWithDigit = /\d$/.test(phrase);
+  let from = 0;
+  for (;;) {
+    const i = other.indexOf(phrase, from);
+    if (i < 0) return false;
+    const next = other[i + phrase.length];
+    if (!(endsWithDigit && next !== undefined && /[a-z0-9]/.test(next))) return true;
+    from = i + 1;
+  }
+}
+
 function genericPhrasesByLine(lines: ProductLine[]): Map<string, Set<string>> {
   const cached = genericPhraseCache.get(lines);
   if (cached) return cached;
 
-  const kuji = lines.filter((l) => l.line_type === "kuji");
   const phrasesOf = (l: ProductLine) =>
     [l.name_ja, l.name_en, ...splitPipe(l.aliases)].map((p) => normalize(p)).filter(Boolean);
 
+  // 同じ line_type のライン同士で比べる（くじの初弾、ゲームの初代『キングダム ハーツ』など、
+  // 作品名がそのまま他の作品名の一部になっているラインが対象）。
   const result = new Map<string, Set<string>>();
-  for (const line of kuji) {
-    const others = kuji.filter((o) => o.line_id !== line.line_id).flatMap(phrasesOf);
-    const generic = new Set(phrasesOf(line).filter((p) => others.some((q) => q !== p && q.includes(p))));
+  for (const line of lines) {
+    const others = lines
+      .filter((o) => o.line_id !== line.line_id && o.line_type === line.line_type)
+      .flatMap(phrasesOf);
+    const generic = new Set(phrasesOf(line).filter((p) => others.some((q) => q !== p && isPartOfOtherName(p, q))));
     result.set(line.line_id, generic);
   }
   genericPhraseCache.set(lines, result);
