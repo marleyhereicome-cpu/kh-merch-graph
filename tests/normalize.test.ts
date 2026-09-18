@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { normalize, containsNormalized } from "../src/lib/normalize.js";
 import { resolveCandidates } from "../src/lib/resolve.js";
-import { catalog, productLines } from "../src/lib/store.js";
+import { catalog, productLines, ipTerms } from "../src/lib/store.js";
 
 describe("normalize: 空白の表記ゆれ", () => {
   it("日本語に隣接する空白は除去する", () => {
@@ -64,14 +64,14 @@ describe("normalize: ローマ数字の表記ゆれ", () => {
 describe("resolveCandidates: 汎用フレーズ・ライン単独一致の扱い", () => {
   it("初弾の汎用名（一番くじキングダムハーツ）だけでは初弾に固定しない（スペースの有無に依存しない）", () => {
     for (const title of ["一番くじ キングダムハーツ G賞 チャーム", "一番くじキングダムハーツ G賞 チャーム"]) {
-      const { candidates } = resolveCandidates(title, catalog, productLines, 3);
+      const { candidates } = resolveCandidates(title, catalog, productLines, 3, [], ipTerms);
       expect(candidates.length).toBeGreaterThan(1);
       expect(candidates.every((c) => c.ambiguous_series)).toBe(true);
     }
   });
 
   it("弾名だけ（SKU固有の根拠なし）の一致は候補ではなくweak_matchesに回す", () => {
-    const { candidates, weak_matches } = resolveCandidates("一番くじ キングダムハーツ 25周年 まとめ売り", catalog, productLines, 3);
+    const { candidates, weak_matches } = resolveCandidates("一番くじ キングダムハーツ 25周年 まとめ売り", catalog, productLines, 3, [], ipTerms);
     expect(candidates).toEqual([]);
     expect(weak_matches.length).toBeGreaterThan(0);
   });
@@ -79,12 +79,12 @@ describe("resolveCandidates: 汎用フレーズ・ライン単独一致の扱い
 
 describe("resolveCandidates: 空白・ローマ数字ゆれの実例", () => {
   it("『キングダムハーツ III アルティマニア』でKH3アルティマニアに一致する", () => {
-    const { candidates } = resolveCandidates("キングダムハーツ III アルティマニア 中古", catalog, productLines, 3);
+    const { candidates } = resolveCandidates("キングダムハーツ III アルティマニア 中古", catalog, productLines, 3, [], ipTerms);
     expect(candidates[0]?.sku_id).toBe("kh3-ultimania-2019");
   });
 
   it("『キングダムハーツ3 アルティマニア』（算用数字）でも一致する", () => {
-    const { candidates } = resolveCandidates("キングダムハーツ3 アルティマニア", catalog, productLines, 3);
+    const { candidates } = resolveCandidates("キングダムハーツ3 アルティマニア", catalog, productLines, 3, [], ipTerms);
     expect(candidates[0]?.sku_id).toBe("kh3-ultimania-2019");
   });
 });

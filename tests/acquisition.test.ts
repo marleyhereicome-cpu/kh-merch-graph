@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { buildAcquisitionInfo, buildPriceInfo, buildVarietyInfo } from "../src/lib/acquisition.js";
+import {
+  buildAcquisitionInfo,
+  buildAvailabilityInfo,
+  buildPriceInfo,
+  buildRegionInfo,
+  buildVarietyInfo,
+} from "../src/lib/acquisition.js";
 import { catalog } from "../src/lib/store.js";
 import type { CatalogSku } from "../src/lib/types.js";
 
@@ -69,5 +75,40 @@ describe("buildVarietyInfo", () => {
   it("design_count が空なら null を返す", () => {
     const info = buildVarietyInfo(findSku("ichiban-kuji-kh-2018-a"));
     expect(info).toBeNull();
+  });
+});
+
+describe("buildAvailabilityInfo / buildRegionInfo", () => {
+  it("estimated の絶版は断定せず、確認を促す文言を返す", () => {
+    const info = buildAvailabilityInfo(findSku("kh2-manga-vol1-2006"));
+    expect(info?.hint).toBe("jp_secondhand_only");
+    expect(info?.confidence).toBe("estimated");
+    expect(info?.note_en).toBe(
+      "Likely out of print (no current listing on the publisher's store); verify before assuming"
+    );
+  });
+
+  it("confirmed の中古のみは推定表記を付けない", () => {
+    const sku: CatalogSku = { ...findSku("kh2-manga-vol1-2006"), availability_confidence: "confirmed" };
+    expect(buildAvailabilityInfo(sku)?.note_en).not.toMatch(/Likely/);
+  });
+
+  it("availability_hint が unknown / 空なら null", () => {
+    expect(buildAvailabilityInfo({ ...findSku("kh3-manga-vol2-2021"), availability_hint: "unknown" })).toBeNull();
+  });
+
+  it("region は既定 JP で「Region: JP release」を返す", () => {
+    expect(buildRegionInfo(findSku("ichiban-kuji-kh-2018-a")).note_en).toBe("Region: JP release");
+    expect(buildRegionInfo({ ...findSku("ichiban-kuji-kh-2018-a"), region: "NA" }).note_en).toBe("Region: NA release");
+  });
+
+  it("set の set_components は商品名つきで説明する", () => {
+    const sku: CatalogSku = {
+      ...findSku("ichiban-kuji-kh-2018-a"),
+      acquisition_type: "set",
+      set_components: "kh3-ultimania-2019",
+    };
+    const info = buildAcquisitionInfo(sku, catalog);
+    expect(info?.note_en).toMatch(/Kingdom Hearts III Ultimania \(kh3-ultimania-2019\)/);
   });
 });

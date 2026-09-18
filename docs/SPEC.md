@@ -26,22 +26,26 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 |---|---|
 | sku_id | 一意ID（`line_id` + 連番など） |
 | line_id | 所属する商品ライン |
-| ip | 作品ID |
+| ip | 作品ID（必須。所属ラインの `ip` と一致させる。空欄だと `discover` などから漏れる） |
 | character | キャラ名（`|` 区切りで複数可、日本語） |
 | character_en | キャラ英語名 |
 | name_ja / name_en | 商品の正式名 |
 | aliases | 通称（`|` 区切り） |
 | variant | 版・カラバリ・等級（くじの「A賞」など） |
 | design_variants | 同じ行に複数デザインが含まれる場合の内訳（公式ページに記載がある範囲で `|` 区切り）。個別の記載がなければ空欄 |
-| msrp_jpy | 定価（税込、円）。くじは1回の価格。`price_basis` が `none` の場合は空欄 |
+| msrp_jpy | 定価（税込、円）。くじは1回の価格。`price_basis` が `none` の場合は空欄。**書籍は出版社（ガンガンコミックス公式・GAME BOOKS ONLINE）の税込価格を正とし、e-STORE表示との差は `notes` に残す** |
 | price_basis | `msrp_jpy` の性質。`msrp`（商品そのものの定価）／`draw_price`（くじ1回の抽選価格。個々の景品の定価ではない）／`capsule_price`（ガチャポン1回の価格）／`box_price`（ブラインドボックス1箱の価格）／`bundle_price`（まとめ売り・セットの価格）／`set_price`（公式セット商品の価格）／`none`（定価情報なし） |
 | acquisition_type | 入手経路。`retail`（通常小売）／`kuji`（一番くじ等の抽選くじ）／`prize`（アーケード・クレーンゲーム景品）／`capsule`（ガチャポン）／`blind`（ブラインドボックス・ブラインドバッグ）／`bonus`（購入特典。本体は別商品）／`furoku`（雑誌等の付録）／`event`（イベント限定販売）／`novelty`（ノベルティ・非売品）／`set`（複数商品のセット販売）／`western_license`（海外正規ライセンス商品）／`game`（ゲームソフト・ゲーム機本体）／`book`（書籍：漫画・小説・攻略本等）／`music`（音楽CD等） |
 | currency | `msrp_jpy` の通貨（既定 `JPY`） |
 | design_count | ブラインド・ガチャ等で中身が選べない場合の全種類数（数値）。個別デザインが判明していて選べる場合や非該当の場合は空欄 |
-| set_components | セット商品（`acquisition_type=set` 等）の内訳（`|` 区切り）。非該当なら空欄 |
+| set_components | セット商品（`acquisition_type=set` 等）の内訳（`|` 区切り）。限定版ゲーム機本体などでは同梱ソフトの `sku_id`（`npm run validate` が存在を検査する）。非該当なら空欄 |
 | bonus_of | `acquisition_type=bonus`／`furoku`／`novelty` の場合、本体となる商品の `sku_id` または `line_id`（例: サイン入り抽選版CDの本体は無印版CD）。非該当なら空欄 |
 | availability_hint | 現在の入手しやすさの目安。`jp_retail_new`（日本国内で新品小売中）／`jp_secondhand_only`（日本の中古市場のみ）／`western_official`（海外正規代理店で購入可）／`event_only`（イベント会場限定）／`unknown`（不明） |
+| availability_confidence | `availability_hint` の確からしさ。`confirmed`（出典で確認済み）／`estimated`（推定。例: 公式ストアに取扱ページが無い・刊行から10年以上経過、という理由での絶版推定）／空欄（未評価）。`estimated` の `jp_secondhand_only` は `resolve_listing` が「Likely out of print (no current listing on the publisher's store); verify before assuming」と返す |
 | typical_channels | 主な入手チャネル（`|` 区切り）。`data/channels.csv` の `channel_name` と対応させる |
+| region | 発売地域。`JP`／`NA`／`EU`／`ASIA`／`GLOBAL`（既定 `JP`）。ゲームの海外版・書籍の英語版・海外公式品はこの列で表す。`resolve_listing` は「Region: JP release」の形で返す |
+| platform | ゲームソフト・ゲーム機の対応機種。`PS2`／`PS3`／`PS4`／`PS5`／`Switch`／`Switch2`／`PC`／`3DS`／`DS`／`PSP`／`GBA`／`Mobile`（非該当は空欄）。`acquisition_type=game` の行は必須 |
+| edition | ゲームの版。`standard`／`limited`／`collectors`／`remix`／`collection`／`digital`（非該当は空欄）。`acquisition_type=game` の行は必須 |
 | width_mm / height_mm / depth_mm / weight_g | 寸法・重量（総額計算用、不明は空欄） |
 | jan | JANコード（あれば） |
 | isbn | ISBN（`line_type=book` の書籍。非該当なら空欄） |
@@ -51,6 +55,12 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | source_url | 一次情報URL（必須） |
 | verified | 人が一次情報で確認したら `true` |
 | notes | 「似て非なる商品」との違いなど |
+
+#### ゲームソフト行の設計（`acquisition_type=game`）
+- 1行 = **タイトル × プラットフォーム × 版 × 地域**。`sku_id` は `<title>-<platform>-<edition>-<region>`（すべて小文字、例: `kh3-ps4-standard-jp`）。`npm run validate` が末尾の形式を検査する。
+- ラインは作品（タイトル）単位に置き、機種・版・地域違いは catalog.csv の行で分ける。
+- 限定版本体（ゲーム機のキングダム ハーツ仕様モデル等）は `acquisition_type=set`、`set_components` に同梱ソフトの `sku_id`。
+- 海外版は `region`（`NA`/`EU`/`ASIA`/`GLOBAL`）と `availability_hint=western_official` などで表す。品番は `catalog_number` に入れる。
 
 ### 2.3 `condition_lexicon.csv` — 状態語辞書
 `variants` 列には英語の状態語（`brand new`/`opened`/`no box`/`mint` 等）も含める。英語の出品文でも同じ仕組みで
@@ -151,6 +161,20 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 `cosplay`／`unofficial`／`non_kh` は「公式SKUと一致するはずがない」ため `resolve_listing` の `candidates`／`weak_matches` を
 空にする（`bundle`／`reserved_listing` は識別結果自体は残し、注意文だけ添える）。
 
+### 2.12 `ip_terms.csv` — IPごとの固有語辞書
+| 列 | 説明 |
+|---|---|
+| ip | 作品ID（`catalog.csv` の `ip` と対応） |
+| term_ja | 日本語の代表表記 |
+| variants | 表記ゆれ（`|` 区切り、日英混在可） |
+| term_en | 英語表記 |
+| term_type | `character`／`faction`／`world`／`item`／`keyblade`／`song`／`event`／`other`（作品名などは `other`） |
+| notes | 補足 |
+
+- **IPアンカー語**（出品文にあればそのIPの商品とみなす語）はコードに直書きせず、この辞書と `catalog.csv` の `character` 列の名前を重複なく統合して作る（`src/lib/ip-terms.ts`）。
+- **他IP対応の構造**：カタログに存在しないIPの `ip_terms` が出品文に含まれていれば `out_of_scope` に `non_kh` を返す（今は kingdom-hearts のみ登録。他IPの語を足すだけで有効になる）。
+- `discover` の `terms` 引数の照合にも使う。
+
 ## 3. MCPツール
 
 ### 3.1 `resolve_listing`
@@ -178,6 +202,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
    - `price_basis` が `bundle_price`／`set_price` の場合：複数点まとめての価格である旨を返す
    - `price_basis` が `msrp` の場合：定価比（`ratio`）を算出する
    - `acquisition` には常に、入手経路の説明文（`acquisition.note_en`）を返す。`bonus`/`furoku` は `bonus_of`（本体商品）を、`set` は `set_components`（セット内訳）を説明文に含める
+   - `availability`（入手しやすさ。`availability_confidence=estimated` の絶版は断定せず確認を促す文言）と `region`（「Region: JP release」）を返す
    - `design_count` が設定されているSKU（ブラインド・ガチャ等で中身が選べないもの）は `variety.design_count` に全種類数を返す
 出力（JSON）：
 ```json
@@ -188,12 +213,14 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
   "flags": [{"type":"bootleg_caution","message_en":"..."}],
   "price": {"msrp_jpy":1200,"price_basis":"msrp","ratio":1.25,"note_en":"estimate only"},
   "acquisition": {"type":"kuji","note_en":"Won as a prize in an ichiban-kuji lottery draw; not sold as a standalone product."},
+  "availability": {"hint":"jp_secondhand_only","confidence":"estimated","note_en":"Likely out of print (no current listing on the publisher's store); verify before assuming"},
+  "region": {"code":"JP","note_en":"Region: JP release"},
   "variety": {"design_count":7,"note_en":"This item comes in 7 different designs; ..."},
   "out_of_scope": [{"reason":"bundle","matched_keyword":"まとめ売り","message_en":"This listing bundles multiple items together; ..."}],
   "next_checks_en": ["Ask seller whether the box is included", "..."]
 }
 ```
-`price`・`acquisition`・`variety` は上位候補が無い場合は `null`。`variety` は `design_count` が無いSKUでも `null`。
+`price`・`acquisition`・`availability`・`region`・`variety` は上位候補が無い場合は `null`（`availability` は `availability_hint` が未確定でも `null`）。`variety` は `design_count` が無いSKUでも `null`。
 `out_of_scope` は該当する理由が一つも無ければ `null`（複数の理由が同時に立つこともある）。
 
 ### 3.2 `explain_product`
@@ -201,7 +228,8 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 出力：ライン・弾・キャラ・特徴・寸法・再販履歴・「似て非なる商品」・出典URL
 
 ### 3.3 `discover`
-入力：`ip`, `character`(任意), `budget_jpy`(任意), `purpose`(`display`/`wear`/`read`/`play`/`any`), `limit`
+入力：`ip`, `character`(任意), `budget_jpy`(任意), `purpose`(`display`/`wear`/`read`/`play`/`any`), `limit`, `terms`(任意: `{types?: term_type[], names?: string[]}`)
+`terms` を指定すると、`ip_terms.csv` の該当する固有語（例: `types:["faction"]`、`names:["XIII機関"]`）が商品の名称・別名・キャラ・備考に含まれるものだけに絞り、該当した語を `matched_terms` で返す。辞書に該当する語が無い場合は空で `terms_note_en` を返す。各項目に `region`・`platform`・`edition` も含む
 出力：カタログからの候補SKUリスト（出品の有無は保証しない旨を含める）
 
 ### 3.4 `estimate_landed_cost`

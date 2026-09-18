@@ -1,0 +1,27 @@
+ip,term_ja,variants,term_en,term_type,notes
+kingdom-hearts,キングダム ハーツ,キングダムハーツ|KH|KINGDOM HEARTS,Kingdom Hearts,other,作品名。IPアンカー語（出品文にこれがあればキングダム ハーツ関連とみなす）
+kingdom-hearts,XIII機関,13機関|Organization XIII|Organization 13,Organization XIII,faction,黒コートを着た組織
+kingdom-hearts,黒コート,,Black Coat,item,XIII機関の制服
+kingdom-hearts,キーブレード,,Keyblade,keyblade,シリーズを象徴する武器
+kingdom-hearts,ハートレス,,Heartless,faction,心を失った敵
+kingdom-hearts,ノーバディ,,Nobody,faction,心を失った者の抜け殻
+kingdom-hearts,シーソルトアイス,シーソルトアイスクリーム|Sea Salt Ice Cream,Sea-Salt Ice Cream,item,トワイライトタウンの名物アイス
+kingdom-hearts,トワイライトタウン,,Twilight Town,world,
+kingdom-hearts,デスティニーアイランド,デスティニーアイランズ,Destiny Islands,world,ソラたちの故郷の島
+kingdom-hearts,ディズニーキャッスル,,Disney Castle,world,王様ミッキーの城
+kingdom-hearts,ソラ,,Sora,character,主人公
+kingdom-hearts,リク,,Riku,character,
+kingdom-hearts,カイリ,,Kairi,character,
+kingdom-hearts,ロクサス,,Roxas,character,
+kingdom-hearts,アクセル,リア,Axel,character,本名リア（Lea）
+kingdom-hearts,シオン,,Xion,character,
+kingdom-hearts,ナミネ,,Namine,character,
+kingdom-hearts,ゼムナス,,Xemnas,character,
+kingdom-hearts,アンセム,,Ansem,character,
+kingdom-hearts,テラ,,Terra,character,
+kingdom-hearts,アクア,,Aqua,character,
+kingdom-hearts,ヴェントゥス,ベントゥス,Ventus,character,
+kingdom-hearts,王様,ミッキー|ミッキーマウス|King Mickey|Mickey,King Mickey,character,「王様」単独は一般語でもあるため、他のKH関連語との併用が前提
+kingdom-hearts,ドナルド,ドナルドダック,Donald Duck,character,
+kingdom-hearts,グーフィー,,Goofy,character,
+kingdom-hearts,シャドウ,,Shadow,character,ハートレスの一種（catalog.csvのcharacter列由来）

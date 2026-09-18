@@ -8,14 +8,22 @@ import {
   bootlegPatterns,
   otherIpKeywords,
   outOfScopeKeywords,
+  ipTerms,
 } from "../lib/store.js";
 import { resolveCandidates, type ResolveCandidate } from "../lib/resolve.js";
 import { extractConditions, type ConditionMatch } from "../lib/conditions.js";
 import { evaluateFlags, type BootlegFlag } from "../lib/flags.js";
 import { buildUsageLogEntry, type UsageLogger } from "../lib/usage-log.js";
 import { extractUnresolvedTokens } from "../lib/unresolved.js";
-import { buildAcquisitionInfo, buildPriceInfo, buildVarietyInfo } from "../lib/acquisition.js";
+import {
+  buildAcquisitionInfo,
+  buildAvailabilityInfo,
+  buildPriceInfo,
+  buildRegionInfo,
+  buildVarietyInfo,
+} from "../lib/acquisition.js";
 import { detectOutOfScope, SUPPRESSING_REASONS } from "../lib/out-of-scope.js";
+import { catalogIps } from "../lib/ip-terms.js";
 
 function buildNextChecks(
   candidates: ResolveCandidate[],
@@ -59,10 +67,10 @@ export async function resolveListing(input: ResolveListingInput, onUsage?: Usage
   const { title, description, price_jpy, src } = input;
   const queryText = `${title} ${description ?? ""}`;
 
-  const outOfScope = detectOutOfScope(queryText, outOfScopeKeywords, otherIpKeywords);
+  const outOfScope = detectOutOfScope(queryText, outOfScopeKeywords, otherIpKeywords, ipTerms, catalogIps(catalog));
   const shouldSuppressCandidates = outOfScope.some((m) => SUPPRESSING_REASONS.has(m.reason));
 
-  let { candidates, weak_matches } = resolveCandidates(queryText, catalog, productLines, 3, otherIpKeywords);
+  let { candidates, weak_matches } = resolveCandidates(queryText, catalog, productLines, 3, otherIpKeywords, ipTerms);
   if (shouldSuppressCandidates) {
     candidates = [];
     weak_matches = [];
@@ -86,7 +94,9 @@ export async function resolveListing(input: ResolveListingInput, onUsage?: Usage
   );
 
   const price = topSku ? buildPriceInfo(topSku, price_jpy) : null;
-  const acquisition = topSku ? buildAcquisitionInfo(topSku) : null;
+  const acquisition = topSku ? buildAcquisitionInfo(topSku, catalog) : null;
+  const availability = topSku ? buildAvailabilityInfo(topSku) : null;
+  const region = topSku ? buildRegionInfo(topSku) : null;
   const variety = topSku ? buildVarietyInfo(topSku) : null;
 
   const result = {
@@ -96,6 +106,8 @@ export async function resolveListing(input: ResolveListingInput, onUsage?: Usage
     flags,
     price,
     acquisition,
+    availability,
+    region,
     variety,
     out_of_scope: outOfScope.length > 0 ? outOfScope : null,
     next_checks_en: buildNextChecks(candidates, conditions, flags),
@@ -104,7 +116,7 @@ export async function resolveListing(input: ResolveListingInput, onUsage?: Usage
   if (onUsage) {
     const unresolvedTokens =
       candidates.length === 0
-        ? extractUnresolvedTokens(queryText, catalog, productLines, otherIpKeywords)
+        ? extractUnresolvedTokens(queryText, catalog, productLines, otherIpKeywords, ipTerms)
         : undefined;
 
     await onUsage(

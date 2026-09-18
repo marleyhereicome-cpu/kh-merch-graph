@@ -1,7 +1,8 @@
 // SPEC 3.2 explain_product — sku_id または自然文クエリから商品の詳細を返す。
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { catalog, productLines } from "../lib/store.js";
+import { catalog, productLines, ipTerms } from "../lib/store.js";
+import { buildAvailabilityInfo, buildRegionInfo } from "../lib/acquisition.js";
 import { resolveCandidates } from "../lib/resolve.js";
 import { splitPipe } from "../lib/types.js";
 
@@ -27,7 +28,7 @@ export function registerExplainProductTool(server: McpServer): void {
       let sku = sku_id ? catalog.find((s) => s.sku_id === sku_id) : undefined;
 
       if (!sku && query) {
-        const { candidates } = resolveCandidates(query, catalog, productLines, 1);
+        const { candidates } = resolveCandidates(query, catalog, productLines, 1, [], ipTerms);
         if (candidates.length > 0) {
           sku = catalog.find((s) => s.sku_id === candidates[0].sku_id);
         }
@@ -77,6 +78,14 @@ export function registerExplainProductTool(server: McpServer): void {
         weight_g: numOrNull(sku.weight_g),
         msrp_jpy: numOrNull(sku.msrp_jpy),
         price_basis: sku.price_basis,
+        acquisition_type: sku.acquisition_type,
+        region: buildRegionInfo(sku),
+        platform: sku.platform || null,
+        edition: sku.edition || null,
+        set_components: splitPipe(sku.set_components),
+        isbn: sku.isbn || null,
+        catalog_number: sku.catalog_number || null,
+        availability: buildAvailabilityInfo(sku),
         rerelease_dates: splitPipe(sku.rerelease_dates),
         official: sku.official === "true",
         verified: sku.verified === "true",

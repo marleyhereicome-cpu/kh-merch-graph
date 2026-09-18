@@ -1,0 +1,210 @@
+[
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "キングダム ハーツ",
+    "variants": "キングダムハーツ|KH|KINGDOM HEARTS",
+    "term_en": "Kingdom Hearts",
+    "term_type": "other",
+    "notes": "作品名。IPアンカー語（出品文にこれがあればキングダム ハーツ関連とみなす）"
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "XIII機関",
+    "variants": "13機関|Organization XIII|Organization 13",
+    "term_en": "Organization XIII",
+    "term_type": "faction",
+    "notes": "黒コートを着た組織"
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "黒コート",
+    "variants": "",
+    "term_en": "Black Coat",
+    "term_type": "item",
+    "notes": "XIII機関の制服"
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "キーブレード",
+    "variants": "",
+    "term_en": "Keyblade",
+    "term_type": "keyblade",
+    "notes": "シリーズを象徴する武器"
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "ハートレス",
+    "variants": "",
+    "term_en": "Heartless",
+    "term_type": "faction",
+    "notes": "心を失った敵"
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "ノーバディ",
+    "variants": "",
+    "term_en": "Nobody",
+    "term_type": "faction",
+    "notes": "心を失った者の抜け殻"
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "シーソルトアイス",
+    "variants": "シーソルトアイスクリーム|Sea Salt Ice Cream",
+    "term_en": "Sea-Salt Ice Cream",
+    "term_type": "item",
+    "notes": "トワイライトタウンの名物アイス"
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "トワイライトタウン",
+    "variants": "",
+    "term_en": "Twilight Town",
+    "term_type": "world",
+    "notes": ""
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "デスティニーアイランド",
+    "variants": "デスティニーアイランズ",
+    "term_en": "Destiny Islands",
+    "term_type": "world",
+    "notes": "ソラたちの故郷の島"
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "ディズニーキャッスル",
+    "variants": "",
+    "term_en": "Disney Castle",
+    "term_type": "world",
+    "notes": "王様ミッキーの城"
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "ソラ",
+    "variants": "",
+    "term_en": "Sora",
+    "term_type": "character",
+    "notes": "主人公"
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "リク",
+    "variants": "",
+    "term_en": "Riku",
+    "term_type": "character",
+    "notes": ""
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "カイリ",
+    "variants": "",
+    "term_en": "Kairi",
+    "term_type": "character",
+    "notes": ""
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "ロクサス",
+    "variants": "",
+    "term_en": "Roxas",
+    "term_type": "character",
+    "notes": ""
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "アクセル",
+    "variants": "リア",
+    "term_en": "Axel",
+    "term_type": "character",
+    "notes": "本名リア（Lea）"
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "シオン",
+    "variants": "",
+    "term_en": "Xion",
+    "term_type": "character",
+    "notes": ""
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "ナミネ",
+    "variants": "",
+    "term_en": "Namine",
+    "term_type": "character",
+    "notes": ""
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "ゼムナス",
+    "variants": "",
+    "term_en": "Xemnas",
+    "term_type": "character",
+    "notes": ""
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "アンセム",
+    "variants": "",
+    "term_en": "Ansem",
+    "term_type": "character",
+    "notes": ""
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "テラ",
+    "variants": "",
+    "term_en": "Terra",
+    "term_type": "character",
+    "notes": ""
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "アクア",
+    "variants": "",
+    "term_en": "Aqua",
+    "term_type": "character",
+    "notes": ""
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "ヴェントゥス",
+    "variants": "ベントゥス",
+    "term_en": "Ventus",
+    "term_type": "character",
+    "notes": ""
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "王様",
+    "variants": "ミッキー|ミッキーマウス|King Mickey|Mickey",
+    "term_en": "King Mickey",
+    "term_type": "character",
+    "notes": "「王様」単独は一般語でもあるため、他のKH関連語との併用が前提"
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "ドナルド",
+    "variants": "ドナルドダック",
+    "term_en": "Donald Duck",
+    "term_type": "character",
+    "notes": ""
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "グーフィー",
+    "variants": "",
+    "term_en": "Goofy",
+    "term_type": "character",
+    "notes": ""
+  },
+  {
+    "ip": "kingdom-hearts",
+    "term_ja": "シャドウ",
+    "variants": "",
+    "term_en": "Shadow",
+    "term_type": "character",
+    "notes": "ハートレスの一種（catalog.csvのcharacter列由来）"
+  }
+]

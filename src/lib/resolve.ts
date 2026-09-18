@@ -1,26 +1,18 @@
 // SPEC 3.1: 出品テキストを正規SKUの候補に結びつける名寄せスコアリング。
 // LLMは使わず、正規化した文字列同士の部分一致のみで判定する（ルール＋辞書）。
 import { containsNormalized, normalize } from "./normalize.js";
-import { splitPipe, type CatalogSku, type OtherIpKeyword, type ProductLine } from "./types.js";
+import { splitPipe, type CatalogSku, type IpTerm, type OtherIpKeyword, type ProductLine } from "./types.js";
+import { buildAnchorTerms } from "./ip-terms.js";
 import { withEnglishExpansion } from "./en-tokens.js";
 
-// 「キングダムハーツ作品である」ことを示す語。これが出品文に無いと、
+// 「そのIP（キングダムハーツ）の商品である」ことを示す語（IPアンカー語）は data/ip_terms.csv と
+// catalog.csv の character 列から作る（src/lib/ip-terms.ts）。出品文にこれが1つも無いと、
 // 「A賞」「中古」のような作品横断語だけの一致では信頼度を頭打ちにする。
-const IP_ANCHOR_LITERALS = ["キングダムハーツ", "kingdom hearts", "kh"];
 const NO_ANCHOR_CONFIDENCE_CAP = 0.3;
 
 // 一番くじは「弾を示す語」（シリーズ名・周年・年、line側の一致）と「賞の文字」（sku側の一致）の
 // 両方が一致したときだけ高信頼度にする。賞の文字だけでは弾を跨いで同じ表記が使われるため。
 const KUJI_SERIES_AMBIGUOUS_CAP = 0.3;
-
-function buildAnchorTerms(catalog: CatalogSku[]): string[] {
-  const terms = new Set<string>(IP_ANCHOR_LITERALS);
-  for (const sku of catalog) {
-    for (const c of splitPipe(sku.character)) terms.add(c);
-    for (const c of splitPipe(sku.character_en)) terms.add(c);
-  }
-  return [...terms];
-}
 
 export interface ResolveCandidate {
   sku_id: string;
@@ -149,7 +141,8 @@ export function resolveCandidates(
   catalog: CatalogSku[],
   lines: ProductLine[],
   limit = 3,
-  otherIpKeywords: OtherIpKeyword[] = []
+  otherIpKeywords: OtherIpKeyword[] = [],
+  ipTerms: IpTerm[] = []
 ): ResolveResult {
   // 他作品名が出品文に含まれていれば、キングダムハーツ商品ではないとみなし候補を出さない。
   if (otherIpKeywords.some((k) => containsNormalized(queryText, k.keyword))) {
@@ -160,7 +153,7 @@ export function resolveCandidates(
   // 対応する日本語表記に変換してスコアリング用テキストに追加する（表示用の理由文には使わない）。
   const scoringText = withEnglishExpansion(queryText);
 
-  const anchorPresent = buildAnchorTerms(catalog).some((term) =>
+  const anchorPresent = buildAnchorTerms(catalog, ipTerms).some((term) =>
     containsNormalized(scoringText, term)
   );
 

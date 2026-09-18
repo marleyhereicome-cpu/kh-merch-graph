@@ -5,7 +5,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadCsv } from "./lib/csv.mjs";
 import { resolveCandidates } from "../src/lib/resolve.js";
-import { catalog, productLines, otherIpKeywords } from "../src/lib/store.js";
+import { catalog, productLines, otherIpKeywords, ipTerms } from "../src/lib/store.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, "..", "data");
@@ -31,7 +31,7 @@ function main() {
 
   const results: EvalResult[] = rows.map((row) => {
     const queryText = `${row.listing_title} ${row.listing_desc ?? ""}`.trim();
-    const { candidates } = resolveCandidates(queryText, catalog, productLines, 3, otherIpKeywords);
+    const { candidates } = resolveCandidates(queryText, catalog, productLines, 3, otherIpKeywords, ipTerms);
     const top = candidates[0]; // weak_matches のみの場合 candidates は空 → NONE 扱い
     const predicted = top ? top.sku_id : "NONE";
     const expected = row.expected_sku_id || "NONE";

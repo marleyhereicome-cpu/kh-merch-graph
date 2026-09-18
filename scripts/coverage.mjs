@@ -11,7 +11,8 @@ import { resolveCandidates } from "../src/lib/resolve.js";
 import { containsNormalized } from "../src/lib/normalize.js";
 import { splitPipe } from "../src/lib/types.js";
 import { detectOutOfScope, SUPPRESSING_REASONS } from "../src/lib/out-of-scope.js";
-import { catalog, productLines, otherIpKeywords, outOfScopeKeywords } from "../src/lib/store.js";
+import { catalogIps } from "../src/lib/ip-terms.js";
+import { catalog, productLines, otherIpKeywords, outOfScopeKeywords, ipTerms } from "../src/lib/store.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, "..", "data");
@@ -58,10 +59,10 @@ function classify(rawTitle) {
   const title = stripNoise(rawTitle);
 
   // resolve_listing本体と同じ判定にする：cosplay/unofficial/non_kh の場合は候補自体を出さない。
-  const outOfScope = detectOutOfScope(title, outOfScopeKeywords, otherIpKeywords);
+  const outOfScope = detectOutOfScope(title, outOfScopeKeywords, otherIpKeywords, ipTerms, catalogIps(catalog));
   const suppress = outOfScope.some((m) => SUPPRESSING_REASONS.has(m.reason));
 
-  let { candidates, weak_matches } = resolveCandidates(title, catalog, productLines, 3, otherIpKeywords);
+  let { candidates, weak_matches } = resolveCandidates(title, catalog, productLines, 3, otherIpKeywords, ipTerms);
   if (suppress) {
     candidates = [];
     weak_matches = [];

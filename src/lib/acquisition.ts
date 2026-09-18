@@ -16,6 +16,9 @@ const ACQUISITION_NOTES: Record<string, string> = {
   novelty: "A promotional novelty; typically given away rather than sold, so no maker-set price exists.",
   set: "Sold only as part of an official multi-item set, not as an individual item.",
   western_license: "An officially licensed Western (non-Japanese) release, sold through licensed Western retailers.",
+  game: "Video game software (or a console bundle); the platform, edition and region matter for compatibility.",
+  book: "A published book (manga, novel, guide book or art book); identified by ISBN.",
+  music: "A music CD/record; identified by its catalog number.",
 };
 
 // 定価そのものが存在しない入手経路（price_basis=none のときに理由として添える）。
@@ -26,7 +29,8 @@ export interface AcquisitionInfo {
   note_en: string;
 }
 
-export function buildAcquisitionInfo(sku: CatalogSku): AcquisitionInfo | null {
+// catalog を渡すと、セット内訳（sku_id）を商品名つきで説明する（限定版本体に同梱のゲームソフト等）。
+export function buildAcquisitionInfo(sku: CatalogSku, catalog?: CatalogSku[]): AcquisitionInfo | null {
   const type = sku.acquisition_type;
   if (!type) return null;
 
@@ -36,7 +40,11 @@ export function buildAcquisitionInfo(sku: CatalogSku): AcquisitionInfo | null {
     note += ` Bundled with: ${sku.bonus_of}.`;
   }
   if (type === "set" && sku.set_components) {
-    note += ` Set includes: ${splitPipe(sku.set_components).join(", ")}.`;
+    const names = splitPipe(sku.set_components).map((id) => {
+      const c = catalog?.find((s) => s.sku_id === id);
+      return c ? `${c.name_en} (${id})` : id;
+    });
+    note += ` Set includes: ${names.join("; ")}.`;
   }
 
   return { type, note_en: note };
@@ -130,4 +138,45 @@ export function buildVarietyInfo(sku: CatalogSku): VarietyInfo | null {
       `This item comes in ${count} different designs and the specific one is not chosen by the buyer; ` +
       "the listing photo shows only the design that particular seller has.",
   };
+}
+
+export interface AvailabilityInfo {
+  hint: string;
+  confidence: string;
+  note_en: string;
+}
+
+// availability_hint（入手しやすさの目安）と、その確からしさ（confirmed/estimated）を返す。
+// estimated の絶版は断定せず「たぶん絶版、確認してから」と返す。
+export function buildAvailabilityInfo(sku: CatalogSku): AvailabilityInfo | null {
+  const hint = sku.availability_hint;
+  if (!hint || hint === "unknown") return null;
+  const confidence = sku.availability_confidence || "";
+
+  let note: string;
+  if (hint === "jp_secondhand_only") {
+    note =
+      confidence === "estimated"
+        ? "Likely out of print (no current listing on the publisher's store); verify before assuming"
+        : "Secondhand market only (no longer sold new)";
+  } else if (hint === "jp_retail_new") {
+    note = "Sold new at Japanese retail (stock may vary)";
+  } else if (hint === "western_official") {
+    note = "Available new through official Western retailers";
+  } else {
+    note = "Sold only at events or special venues";
+  }
+  if (confidence === "estimated" && hint !== "jp_secondhand_only") note += " (estimated; verify)";
+
+  return { hint, confidence, note_en: note };
+}
+
+export interface RegionInfo {
+  code: string;
+  note_en: string;
+}
+
+export function buildRegionInfo(sku: CatalogSku): RegionInfo {
+  const code = sku.region || "JP";
+  return { code, note_en: `Region: ${code} release` };
 }

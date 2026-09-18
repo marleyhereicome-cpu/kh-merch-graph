@@ -19,6 +19,7 @@ const FILES = [
   "other_ip_keywords.csv",
   "channels.csv",
   "out_of_scope_keywords.csv",
+  "ip_terms.csv",
 ];
 
 function main() {

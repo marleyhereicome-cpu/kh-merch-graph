@@ -52,3 +52,20 @@ describe("resolveListing との統合", () => {
     expect(result.out_of_scope).toBeNull();
   });
 });
+
+describe("resolveListing: availability / region の出力", () => {
+  it("推定の絶版は断定しない文言と Region を返す", async () => {
+    const result = await resolveListing({ title: "【初版】キングダムハーツⅡ 1巻 天野シロ ガンガンコミックス" });
+    expect(result.candidates[0]?.sku_id).toBe("kh2-manga-vol1-2006");
+    expect(result.availability?.note_en).toBe(
+      "Likely out of print (no current listing on the publisher's store); verify before assuming"
+    );
+    expect(result.region?.note_en).toBe("Region: JP release");
+  });
+
+  it("候補が無ければ availability / region は null", async () => {
+    const result = await resolveListing({ title: "ポケモン ぬいぐるみ" });
+    expect(result.availability).toBeNull();
+    expect(result.region).toBeNull();
+  });
+});

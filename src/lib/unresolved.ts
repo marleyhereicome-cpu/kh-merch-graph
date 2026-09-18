@@ -3,11 +3,9 @@
 // ここでは既知の語彙（作品語・商品ライン名・一番くじの賞・キャラ名）に一致した部分だけを
 // 正規化した形で抜き出す。一致しなかった語（セラー独自の言い回し等）は捨てる。
 import { normalize, containsNormalized } from "./normalize.js";
-import { splitPipe, type CatalogSku, type OtherIpKeyword, type ProductLine } from "./types.js";
+import { splitPipe, type CatalogSku, type IpTerm, type OtherIpKeyword, type ProductLine } from "./types.js";
+import { surfaceForms, catalogIps } from "./ip-terms.js";
 import { normalizedEnglishTokenHits } from "./en-tokens.js";
-
-// 「キングダムハーツ作品である」ことを示す語（resolve.ts の IP_ANCHOR_LITERALS と同じ発想）。
-const IP_WORK_TERMS = ["キングダムハーツ", "kingdom hearts", "kh"];
 
 // 一番くじの賞（A賞・B賞…）を示す表記。
 const PRIZE_RE = /[a-z]賞/g;
@@ -16,12 +14,18 @@ export function extractUnresolvedTokens(
   queryText: string,
   catalog: CatalogSku[],
   productLines: ProductLine[],
-  otherIpKeywords: OtherIpKeyword[]
+  otherIpKeywords: OtherIpKeyword[],
+  ipTerms: IpTerm[] = []
 ): string[] {
   const hits = new Set<string>();
 
-  for (const term of IP_WORK_TERMS) {
-    if (containsNormalized(queryText, term)) hits.add(normalize(term));
+  // 作品語・固有語（data/ip_terms.csv）。一致した表記だけを正規化して残す。
+  const ips = catalogIps(catalog);
+  for (const t of ipTerms) {
+    if (!ips.has(t.ip)) continue;
+    for (const form of surfaceForms(t)) {
+      if (containsNormalized(queryText, form)) hits.add(normalize(form));
+    }
   }
 
   // 他作品名も「次にどのIPを足すべきか」のヒントになるため残す。

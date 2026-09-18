@@ -40,8 +40,16 @@ export interface CatalogSku {
   bonus_of: string;
   // jp_retail_new/jp_secondhand_only/western_official/event_only/unknown
   availability_hint: string;
+  // availability_hint の確からしさ: confirmed（出典で確認）/ estimated（推定）/ 空欄（未評価）
+  availability_confidence: string;
   // 主な入手チャネル（`|` 区切り、data/channels.csv の channel_name と対応）
   typical_channels: string;
+  // 発売地域: JP/NA/EU/ASIA/GLOBAL（既定 JP）。海外版・英語版・海外公式品はこの列で表す
+  region: string;
+  // ゲームソフト等のプラットフォーム: PS2/PS3/PS4/PS5/Switch/Switch2/PC/3DS/DS/PSP/GBA/Mobile（非該当は空欄）
+  platform: string;
+  // ゲームソフト等の版: standard/limited/collectors/remix/collection/digital（非該当は空欄）
+  edition: string;
   width_mm: string;
   height_mm: string;
   depth_mm: string;
@@ -63,6 +71,16 @@ export interface OutOfScopeKeyword {
   // cosplay/bundle/reserved_listing/non_kh/unofficial
   reason: string;
   message_en: string;
+  notes: string;
+}
+
+export interface IpTerm {
+  ip: string;
+  term_ja: string;
+  variants: string;
+  term_en: string;
+  // character/faction/world/item/keyblade/song/event/other
+  term_type: string;
   notes: string;
 }
 

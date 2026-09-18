@@ -2,7 +2,8 @@
 // 「候補が見つからない」ことと「そもそも識別対象の公式商品ではない」ことを区別できるようにする。
 // coverage.mjs はこれを使って、候補なしのうち「正しく対象外」と判定できた件数を分けて数える。
 import { containsNormalized } from "./normalize.js";
-import type { OtherIpKeyword, OutOfScopeKeyword } from "./types.js";
+import type { IpTerm, OtherIpKeyword, OutOfScopeKeyword } from "./types.js";
+import { findOtherIpTerms } from "./ip-terms.js";
 
 export type OutOfScopeReason = "cosplay" | "bundle" | "reserved_listing" | "non_kh" | "unofficial";
 
@@ -19,7 +20,9 @@ export const SUPPRESSING_REASONS: ReadonlySet<OutOfScopeReason> = new Set(["cosp
 export function detectOutOfScope(
   queryText: string,
   outOfScopeKeywords: OutOfScopeKeyword[],
-  otherIpKeywords: OtherIpKeyword[] = []
+  otherIpKeywords: OtherIpKeyword[] = [],
+  ipTerms: IpTerm[] = [],
+  currentIps: Set<string> = new Set(["kingdom-hearts"])
 ): OutOfScopeMatch[] {
   const matches: OutOfScopeMatch[] = [];
 
@@ -31,6 +34,15 @@ export function detectOutOfScope(
         message_en: "This listing mentions another franchise, not Kingdom Hearts.",
       });
     }
+  }
+
+  // 将来の他IP対応: 現在のカタログに無いIPの ip_terms が出品文にあれば non_kh とする（今は kingdom-hearts のみ登録）。
+  for (const hit of findOtherIpTerms(queryText, ipTerms, currentIps)) {
+    matches.push({
+      reason: "non_kh",
+      matched_keyword: hit.term,
+      message_en: `This listing mentions a term from another franchise (${hit.ip}), not Kingdom Hearts.`,
+    });
   }
 
   for (const k of outOfScopeKeywords) {

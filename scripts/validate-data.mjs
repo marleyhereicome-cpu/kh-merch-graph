@@ -19,7 +19,8 @@ const SCHEMAS = {
     "sku_id", "line_id", "ip", "character", "character_en", "name_ja",
     "name_en", "aliases", "variant", "design_variants", "msrp_jpy",
     "price_basis", "acquisition_type", "currency", "design_count",
-    "set_components", "bonus_of", "availability_hint", "typical_channels",
+    "set_components", "bonus_of", "availability_hint", "availability_confidence",
+    "typical_channels", "region", "platform", "edition",
     "width_mm", "height_mm", "depth_mm", "weight_g", "jan", "isbn", "catalog_number",
     "official", "rerelease_dates", "source_url", "verified", "notes",
   ],
@@ -46,6 +47,7 @@ const SCHEMAS = {
   ],
   "coverage_sample.csv": ["listing_title", "lang", "platform", "price", "currency", "collected"],
   "out_of_scope_keywords.csv": ["keyword", "reason", "message_en", "notes"],
+  "ip_terms.csv": ["ip", "term_ja", "variants", "term_en", "term_type", "notes"],
 };
 
 // 列の値がSPEC.mdで定義された選択肢のいずれかであることを確認する。
@@ -69,6 +71,13 @@ const ENUMS = {
       "jp_retail_new", "jp_secondhand_only", "western_official",
       "event_only", "unknown", "",
     ],
+    availability_confidence: ["confirmed", "estimated", ""],
+    region: ["JP", "NA", "EU", "ASIA", "GLOBAL"],
+    platform: [
+      "PS2", "PS3", "PS4", "PS5", "Switch", "Switch2", "PC", "3DS", "DS", "PSP",
+      "GBA", "Mobile", "",
+    ],
+    edition: ["standard", "limited", "collectors", "remix", "collection", "digital", ""],
   },
   "channels.csv": {
     channel_type: ["new", "secondhand", "proxy", "western"],
@@ -76,6 +85,9 @@ const ENUMS = {
   },
   "out_of_scope_keywords.csv": {
     reason: ["cosplay", "bundle", "reserved_listing", "non_kh", "unofficial"],
+  },
+  "ip_terms.csv": {
+    term_type: ["character", "faction", "world", "item", "keyblade", "song", "event", "other"],
   },
 };
 
@@ -231,6 +243,76 @@ function main() {
         );
       });
       errorCount += orphans.length;
+      console.log("");
+    }
+  }
+
+  // catalog.csv 内の参照・ゲーム行の設計ルール
+  if (loaded["catalog.csv"]) {
+    const rows = loaded["catalog.csv"].records;
+    const skuIds = new Set(rows.map((r) => r.sku_id));
+    const lineIds = new Set((loaded["product_lines.csv"]?.records ?? []).map((r) => r.line_id));
+    const problems = [];
+    const warns = [];
+
+    const lineIpById = new Map((loaded["product_lines.csv"]?.records ?? []).map((r) => [r.line_id, r.ip]));
+    for (const r of rows) {
+      // ip は必須で、所属ラインの ip と一致させる（空欄だと discover / IPアンカー判定から漏れる）
+      if (!r.ip) problems.push(`${r.sku_id}: ip が空欄です`);
+      else if (lineIpById.get(r.line_id) && lineIpById.get(r.line_id) !== r.ip) {
+        problems.push(`${r.sku_id}: ip="${r.ip}" が所属ライン(${r.line_id})の ip="${lineIpById.get(r.line_id)}" と異なります`);
+      }
+      // bonus_of は sku_id か line_id を指す
+      if (r.bonus_of && !skuIds.has(r.bonus_of) && !lineIds.has(r.bonus_of)) {
+        problems.push(`${r.sku_id}: bonus_of="${r.bonus_of}" が sku_id / line_id にありません`);
+      }
+      // set（限定版本体など）の set_components は同梱商品の sku_id
+      if (r.acquisition_type === "set" && r.set_components) {
+        for (const c of r.set_components.split("|").map((s) => s.trim()).filter(Boolean)) {
+          if (!skuIds.has(c)) problems.push(`${r.sku_id}: set_components の "${c}" が sku_id にありません`);
+        }
+      }
+      // availability_confidence は availability_hint が決まっているときだけ意味を持つ
+      if (r.availability_confidence && (!r.availability_hint || r.availability_hint === "unknown")) {
+        warns.push(`${r.sku_id}: availability_confidence があるのに availability_hint が未確定です`);
+      }
+      // ゲームソフト行: <title>-<platform>-<edition>-<region>、platform/edition 必須
+      if (r.acquisition_type === "game") {
+        if (!r.platform || !r.edition) {
+          problems.push(`${r.sku_id}: ゲーム行には platform と edition が必要です`);
+        } else {
+          const suffix = `-${r.platform.toLowerCase()}-${r.edition}-${(r.region || "JP").toLowerCase()}`;
+          if (!r.sku_id.endsWith(suffix)) {
+            problems.push(`${r.sku_id}: sku_id は <title>${suffix} の形式にしてください`);
+          }
+        }
+      } else if (r.platform || r.edition) {
+        if (r.acquisition_type !== "set") warns.push(`${r.sku_id}: platform/edition があるのに acquisition_type が game/set ではありません`);
+      }
+    }
+    if (problems.length > 0 || warns.length > 0) {
+      console.log("## catalog.csv の参照・ゲーム行ルール");
+      problems.forEach((p) => console.log(`  ✗ ${p}`));
+      warns.forEach((w) => console.log(`  ! ${w}`));
+      errorCount += problems.length;
+      warningCount += warns.length;
+      console.log("");
+    }
+  }
+
+  // ip_terms.csv: (ip, term_ja) の重複
+  if (loaded["ip_terms.csv"]) {
+    const seen = new Set();
+    const dups = [];
+    for (const r of loaded["ip_terms.csv"].records) {
+      const k = `${r.ip} ${r.term_ja}`;
+      if (seen.has(k)) dups.push(`${r.ip}/${r.term_ja}`);
+      seen.add(k);
+    }
+    if (dups.length > 0) {
+      console.log("## ip_terms.csv");
+      dups.forEach((d) => console.log(`  ✗ (ip, term_ja) が重複しています: ${d}`));
+      errorCount += dups.length;
       console.log("");
     }
   }
