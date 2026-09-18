@@ -5,11 +5,11 @@ a demo video). Everything up to "publish the code and deploy" is already done by
 just gives you the exact info to paste into each form and the URLs to go paste it into. Nothing here gets
 submitted automatically — you click through each one yourself.
 
-Before starting any of this, make sure you have:
-- [ ] Pushed this repo to a **public** GitHub repository (none of the directories below can index a private repo, and several ask for a GitHub URL directly)
-- [ ] Run `wrangler deploy` and have your real public URL — replace `<your-subdomain>` (README.md) / `YOUR-SUBDOMAIN` (web/index.html) everywhere below with it
-- [ ] Updated `MCP_URL` in [`web/index.html`](../web/index.html) to that real URL and deployed the page (see the Cloudflare Pages steps Claude Code already gave you)
-- [ ] Replaced the placeholder GitHub link in `web/index.html` (`REPLACE_WITH_YOUR_GITHUB`) with your actual repo URL
+Prerequisites — all done as of 2026-09-18:
+- [x] Public GitHub repo: `https://github.com/marleyhereicome-cpu/kh-merch-graph`
+- [x] Deployed MCP server: `https://kh-merch-graph.fandex.workers.dev/mcp`
+- [x] `README.md` / `web/index.html` placeholders replaced with the real URLs above
+- [x] `web/index.html` published on Cloudflare Pages (URL below, filled in once deployed)
 
 ## The info packet (reuse this everywhere)
 
@@ -21,8 +21,9 @@ Keep these values handy — every form below asks for some subset of them.
 | One-line description | Identifies Kingdom Hearts merch from a Japanese listing title, explains condition terms, flags bootleg risk, and estimates landed cost. Bring Your Own Listing — no marketplace scraping. |
 | Longer description | See the "Why this is different" section of `README.md` — verified catalog with source links, no confident-sounding guesses, never scrapes listings. |
 | Category | Shopping / Collectibles (fall back to "E-commerce" or "Hobbies & Games" if a directory's taxonomy doesn't have that) |
-| Repo URL | `https://github.com/<you>/kh-merch-graph` |
-| Server / MCP URL | `https://kh-merch-graph.<your-subdomain>.workers.dev/mcp` |
+| Repo URL | `https://github.com/marleyhereicome-cpu/kh-merch-graph` |
+| Server / MCP URL | `https://kh-merch-graph.fandex.workers.dev/mcp` |
+| Web checker URL | See top of this doc / `README.md` once Cloudflare Pages is deployed |
 | Icon | Not required — skip it |
 | License | ISC |
 | Maintainer contact | Whichever email or GitHub handle you're comfortable making public — most directories treat this as optional |
@@ -36,7 +37,7 @@ instructions instead.
 ### 1. Official MCP Registry — registry.modelcontextprotocol.io
 The registry maintained by the Model Context Protocol project itself. Submission is done through a `server.json`
 file and the `mcp-publisher` CLI (or a GitHub-based flow), using a reverse-DNS name tied to your GitHub account
-(e.g. `io.github.<you>/kh-merch-graph`).
+(e.g. `io.github.marleyhereicome-cpu/kh-merch-graph`).
 - Publishing guide: https://github.com/modelcontextprotocol/registry/tree/main/docs
 - What you'll need: the repo URL, the deployed MCP URL, and a GitHub account you control (ownership is verified through it).
 
