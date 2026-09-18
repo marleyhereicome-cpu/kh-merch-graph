@@ -3,8 +3,9 @@ import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { catalog, proxyRates } from "../lib/store.js";
 import { estimateLandedCost } from "../lib/landed.js";
+import { buildUsageLogEntry, type UsageLogger } from "../lib/usage-log.js";
 
-export function registerEstimateLandedCostTool(server: McpServer): void {
+export function registerEstimateLandedCostTool(server: McpServer, onUsage?: UsageLogger): void {
   server.registerTool(
     "estimate_landed_cost",
     {
@@ -33,6 +34,16 @@ export function registerEstimateLandedCostTool(server: McpServer): void {
         { priceJpy: price_jpy, weightG: weight, destCountry: dest_country, proxy },
         proxyRates
       );
+
+      if (onUsage) {
+        await onUsage(
+          buildUsageLogEntry("estimate_landed_cost", {
+            skuCandidates: sku_id ? [sku_id] : [],
+            priceJpy: price_jpy,
+            destCountry: dest_country,
+          })
+        );
+      }
 
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
     }

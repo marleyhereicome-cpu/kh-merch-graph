@@ -106,8 +106,9 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 処理：
 1. タイトル・説明文を正規化（全角半角、記号、スペース）
 2. `aliases`・`name_ja`・`character`・`variant` との一致スコアで候補SKUを上位3件（0〜1の信頼度）
-   - `other_ip_keywords.csv` の語（他作品名）が含まれる場合は候補を出さない（`candidates: []`）
+   - `other_ip_keywords.csv` の語（他作品名）が含まれる場合は候補を出さない（`candidates: []`, `weak_matches: []`）
    - キングダムハーツを示す語（`キングダムハーツ`/`KH`/`Kingdom Hearts`/主要キャラ名）が出品文に無い場合、「A賞」等の作品横断語だけの一致では信頼度を0.3以下に抑える
+   - 信頼度が0.3未満の一致は `candidates` に含めず、参考情報として `weak_matches` に分けて返す（呼び出し側のAIが「該当なしの可能性が高い」と判断できるように）
 3. 状態語辞書に当たる語を抽出
 4. `bootleg_patterns` を評価して注意フラグ
 5. `msrp_jpy` があれば `price_basis` に応じて処理する
@@ -118,6 +119,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 ```json
 {
   "candidates": [{"sku_id":"...","name_en":"...","confidence":0.92,"why":"matched 'A賞' + 'ソラ' + line alias"}],
+  "weak_matches": [{"sku_id":"...","name_en":"...","confidence":0.15,"why":"matched 'ソラ'"}],
   "conditions": [{"term_ja":"開封済","term_en":"opened","meaning_en":"...","price_effect":"minor_down"}],
   "flags": [{"type":"bootleg_caution","message_en":"..."}],
   "price": {"msrp_jpy":1200,"ratio":1.25,"note_en":"estimate only"},

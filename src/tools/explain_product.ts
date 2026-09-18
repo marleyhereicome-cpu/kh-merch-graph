@@ -27,7 +27,7 @@ export function registerExplainProductTool(server: McpServer): void {
       let sku = sku_id ? catalog.find((s) => s.sku_id === sku_id) : undefined;
 
       if (!sku && query) {
-        const candidates = resolveCandidates(query, catalog, productLines, 1);
+        const { candidates } = resolveCandidates(query, catalog, productLines, 1);
         if (candidates.length > 0) {
           sku = catalog.find((s) => s.sku_id === candidates[0].sku_id);
         }

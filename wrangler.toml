@@ -1,0 +1,15 @@
+name = "kh-merch-graph"
+main = "src/worker.ts"
+compatibility_date = "2026-09-18"
+
+# 利用ログ・report_correction の保存先。
+# `wrangler kv namespace create KH_KV` を実行して出てきた id に書き換えてから deploy すること。
+[[kv_namespaces]]
+binding = "KH_KV"
+id = "fda1f8f2d57a491fa516d8a6e4826d59"
+
+# 簡易レート制限（IPごとに60秒で30回まで）。namespace_id はこのアカウント内で自分が決める通し番号。
+[[ratelimits]]
+name = "RATE_LIMITER"
+namespace_id = "1001"
+simple = { limit = 30, period = 60 }

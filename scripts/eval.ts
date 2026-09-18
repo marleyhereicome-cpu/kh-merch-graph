@@ -31,8 +31,8 @@ function main() {
 
   const results: EvalResult[] = rows.map((row) => {
     const queryText = `${row.listing_title} ${row.listing_desc ?? ""}`.trim();
-    const candidates = resolveCandidates(queryText, catalog, productLines, 3, otherIpKeywords);
-    const top = candidates[0];
+    const { candidates } = resolveCandidates(queryText, catalog, productLines, 3, otherIpKeywords);
+    const top = candidates[0]; // weak_matches のみの場合 candidates は空 → NONE 扱い
     const predicted = top ? top.sku_id : "NONE";
     const expected = row.expected_sku_id || "NONE";
     return {

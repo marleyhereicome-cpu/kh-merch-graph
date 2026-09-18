@@ -1,24 +1,19 @@
-// SPEC 3.5 report_correction — カタログ修正の提案を受け付ける。ローカル版はファイルに追記する。
-import { appendFileSync } from "node:fs";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+// SPEC 3.5 report_correction — カタログ修正の提案を受け付ける。
+// 保存先は CorrectionStore として注入する（ローカル版=ファイル、公開版=KV）。
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const CORRECTIONS_FILE = join(__dirname, "..", "..", "data", "corrections.jsonl");
+import type { CorrectionStore } from "../lib/correction-store.js";
 
 function generateCorrectionId(): string {
   return `corr-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-export function registerReportCorrectionTool(server: McpServer): void {
+export function registerReportCorrectionTool(server: McpServer, store: CorrectionStore): void {
   server.registerTool(
     "report_correction",
     {
       title: "Report correction",
-      description:
-        "カタログの誤り・不足を報告する。ローカル版は data/corrections.jsonl に追記し、受付IDを返す。",
+      description: "カタログの誤り・不足を報告する。受付IDを返す。",
       inputSchema: {
         sku_id: z.string().optional().describe("対象SKU_ID（任意。新規商品の提案なら空でよい）"),
         field: z.string().describe("修正したい列名（例: msrp_jpy, name_en）"),
@@ -39,7 +34,7 @@ export function registerReportCorrectionTool(server: McpServer): void {
         received_at: new Date().toISOString(),
       };
 
-      appendFileSync(CORRECTIONS_FILE, JSON.stringify(record) + "\n", "utf8");
+      await store.append(record);
 
       const result = { accepted: true, correction_id: id };
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };

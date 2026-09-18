@@ -12,7 +12,9 @@
     "eval": "tsx scripts/eval.ts",
     "start": "tsx src/server.ts",
     "test": "vitest run",
-    "validate": "node scripts/validate-data.mjs"
+    "validate": "node scripts/validate-data.mjs",
+    "worker:dev": "wrangler dev",
+    "worker:deploy": "wrangler deploy"
   },
   "keywords": [],
   "author": "",
@@ -22,9 +24,16 @@
     "zod": "^3.24.0"
   },
   "devDependencies": {
-    "typescript": "^5.7.0",
+    "@types/node": "^22.10.0",
     "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
     "vitest": "^2.1.0",
-    "@types/node": "^22.10.0"
+    "wrangler": "^4.134.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "esbuild@0.21.5": true,
+    "esbuild@0.28.1": true,
+    "workerd@1.20260917.1": true
   }
 }

@@ -5,6 +5,7 @@ import { catalog, productLines, conditionLexicon, bootlegPatterns, otherIpKeywor
 import { resolveCandidates, type ResolveCandidate } from "../lib/resolve.js";
 import { extractConditions, type ConditionMatch } from "../lib/conditions.js";
 import { evaluateFlags, type BootlegFlag } from "../lib/flags.js";
+import { buildUsageLogEntry, type UsageLogger } from "../lib/usage-log.js";
 
 function buildNextChecks(
   candidates: ResolveCandidate[],
@@ -35,7 +36,7 @@ function buildNextChecks(
   return checks;
 }
 
-export function registerResolveListingTool(server: McpServer): void {
+export function registerResolveListingTool(server: McpServer, onUsage?: UsageLogger): void {
   server.registerTool(
     "resolve_listing",
     {
@@ -56,7 +57,7 @@ export function registerResolveListingTool(server: McpServer): void {
     async ({ title, description, price_jpy }) => {
       const queryText = `${title} ${description ?? ""}`;
 
-      const candidates = resolveCandidates(queryText, catalog, productLines, 3, otherIpKeywords);
+      const { candidates, weak_matches } = resolveCandidates(queryText, catalog, productLines, 3, otherIpKeywords);
       const conditions = extractConditions(queryText, conditionLexicon);
 
       const topSku =
@@ -95,11 +96,21 @@ export function registerResolveListingTool(server: McpServer): void {
 
       const result = {
         candidates,
+        weak_matches,
         conditions,
         flags,
         price,
         next_checks_en: buildNextChecks(candidates, conditions, flags),
       };
+
+      if (onUsage) {
+        await onUsage(
+          buildUsageLogEntry("resolve_listing", {
+            skuCandidates: candidates.map((c) => c.sku_id),
+            priceJpy: price_jpy,
+          })
+        );
+      }
 
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
     }

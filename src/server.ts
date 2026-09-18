@@ -8,6 +8,7 @@ import { registerExplainProductTool } from "./tools/explain_product.js";
 import { registerDiscoverTool } from "./tools/discover.js";
 import { registerEstimateLandedCostTool } from "./tools/estimate_landed_cost.js";
 import { registerReportCorrectionTool } from "./tools/report_correction.js";
+import { fileCorrectionStore } from "./lib/correction-store.node.js";
 
 const server = new McpServer({
   name: "kh-merch-graph",
@@ -18,7 +19,7 @@ registerResolveListingTool(server);
 registerExplainProductTool(server);
 registerDiscoverTool(server);
 registerEstimateLandedCostTool(server);
-registerReportCorrectionTool(server);
+registerReportCorrectionTool(server, fileCorrectionStore);
 
 const transport = new StdioServerTransport();
 await server.connect(transport);

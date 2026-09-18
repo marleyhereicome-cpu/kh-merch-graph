@@ -30,6 +30,14 @@ export interface ResolveCandidate {
   ambiguous_series?: boolean;
 }
 
+// この信頼度未満の一致は「候補」として提示せず、weak_matches（参考情報）に回す。
+const WEAK_MATCH_THRESHOLD = 0.3;
+
+export interface ResolveResult {
+  candidates: ResolveCandidate[];
+  weak_matches: ResolveCandidate[];
+}
+
 // 一致した項目の種類ごとの重み。複数一致すると加算され、最大1.0に丸める。
 const WEIGHTS = {
   sku_name: 0.4,
@@ -85,10 +93,10 @@ export function resolveCandidates(
   lines: ProductLine[],
   limit = 3,
   otherIpKeywords: OtherIpKeyword[] = []
-): ResolveCandidate[] {
+): ResolveResult {
   // 他作品名が出品文に含まれていれば、キングダムハーツ商品ではないとみなし候補を出さない。
   if (otherIpKeywords.some((k) => containsNormalized(queryText, k.keyword))) {
-    return [];
+    return { candidates: [], weak_matches: [] };
   }
 
   const anchorPresent = buildAnchorTerms(catalog).some((term) =>
@@ -118,11 +126,17 @@ export function resolveCandidates(
   const top = scored[0];
   const selected = top?.seriesAmbiguous ? scored.filter((c) => c.seriesAmbiguous) : scored.slice(0, limit);
 
-  return selected.map(({ sku, reasons, seriesAmbiguous, confidence }) => ({
+  const mapped = selected.map(({ sku, reasons, seriesAmbiguous, confidence }) => ({
     sku_id: sku.sku_id,
     name_en: sku.name_en,
     confidence: Math.round(confidence * 100) / 100,
     why: `matched ${reasons.slice(0, 3).join(" + ")}`,
     ...(seriesAmbiguous ? { ambiguous_series: true as const } : {}),
   }));
+
+  // 信頼度が閾値未満のものは candidates ではなく weak_matches（参考情報）として分ける。
+  return {
+    candidates: mapped.filter((c) => c.confidence >= WEAK_MATCH_THRESHOLD),
+    weak_matches: mapped.filter((c) => c.confidence < WEAK_MATCH_THRESHOLD),
+  };
 }
