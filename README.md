@@ -5,6 +5,8 @@ merchandise (Mercari, Yahoo! Auctions, Suruga-ya, Mandarake, …) into: the like
 condition wording actually means, bootleg-caution flags, a price-to-MSRP ratio, and a landed-cost estimate to
 your country. Point any MCP-capable AI agent at it and hand it listing text — it does the rest.
 
+**Try it in your browser (no AI agent needed):** https://kh-merch-graph-web.fandex.workers.dev
+
 ## Why this is different
 
 1. **Verified catalog, not scraped or guessed.** Every SKU in the catalog was checked by a human against a

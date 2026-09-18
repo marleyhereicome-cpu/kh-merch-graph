@@ -9,7 +9,15 @@ Prerequisites — all done as of 2026-09-18:
 - [x] Public GitHub repo: `https://github.com/marleyhereicome-cpu/kh-merch-graph`
 - [x] Deployed MCP server: `https://kh-merch-graph.fandex.workers.dev/mcp`
 - [x] `README.md` / `web/index.html` placeholders replaced with the real URLs above
-- [x] `web/index.html` published on Cloudflare Pages (URL below, filled in once deployed)
+- [x] `web/index.html` published: `https://kh-merch-graph-web.fandex.workers.dev` (Cloudflare's Workers-static-assets successor to Pages — see note below)
+
+> **Note on the web checker's hosting:** as of this wrangler version, `wrangler pages deploy` auto-redirects to
+> Cloudflare's newer "Workers static assets" system, so the page is served from its own Worker
+> (`kh-merch-graph-web`) rather than a classic `*.pages.dev` project — same result (a free, static URL), just a
+> different underlying product name. To redeploy `web/index.html` after an edit, copy it alone into an empty
+> folder outside this repo and run `wrangler deploy --name kh-merch-graph-web --assets <that folder> --compatibility-date <today>`
+> from there (keeping it outside the repo avoids this project's own `wrangler.toml`/`.wrangler` cache getting
+> swept into the upload).
 
 ## The info packet (reuse this everywhere)
 
@@ -23,7 +31,7 @@ Keep these values handy — every form below asks for some subset of them.
 | Category | Shopping / Collectibles (fall back to "E-commerce" or "Hobbies & Games" if a directory's taxonomy doesn't have that) |
 | Repo URL | `https://github.com/marleyhereicome-cpu/kh-merch-graph` |
 | Server / MCP URL | `https://kh-merch-graph.fandex.workers.dev/mcp` |
-| Web checker URL | See top of this doc / `README.md` once Cloudflare Pages is deployed |
+| Web checker URL | `https://kh-merch-graph-web.fandex.workers.dev` |
 | Icon | Not required — skip it |
 | License | ISC |
 | Maintainer contact | Whichever email or GitHub handle you're comfortable making public — most directories treat this as optional |
