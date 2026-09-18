@@ -286,30 +286,30 @@
     "notes": "次セッションで公式ページを渡して確定する予定のプレースホルダー行。例: ニンテンドー3DS キングダムハーツエディション、PS4 Pro キングダムハーツIII リミテッドエディション等。ゲームソフト本体(kh-game-software-todo)とは別枠（本体・周辺機器のセット販売のため）。"
   },
   {
-    "line_id": "kh-book-todo",
+    "line_id": "kh-books",
     "ip": "kingdom-hearts",
-    "name_ja": "［プレースホルダー］KH書籍（漫画・小説・アルティマニア）",
-    "name_en": "[Placeholder] KH Books (manga/novels/Ultimania guides)",
-    "aliases": "",
+    "name_ja": "キングダム ハーツ / 書籍・コミック・アルティマニア",
+    "name_en": "Kingdom Hearts Books, Manga & Ultimania Guides",
+    "aliases": "KH書籍|KH本|キングダムハーツ書籍|Kingdom Hearts books|Kingdom Hearts manga|Kingdom Hearts Ultimania|キングダム ハーツ ブック・コミック",
     "maker": "スクウェア・エニックス",
     "line_type": "book",
     "acquisition_type": "book",
-    "release_date": "",
-    "source_url": "",
-    "notes": "次セッションで公式ページ（またはISBN経由の書誌情報）を渡して確定する予定のプレースホルダー行。例: 天野シロ氏の漫画各巻、Short Stories等の小説、アルティマニア（攻略本）シリーズ。catalog.csv には巻数・版を区別するためのisbn列を追加済み。"
+    "release_date": "2004-12-17",
+    "source_url": "https://store.jp.square-enix.com/estore/e/ekingdom-book/",
+    "notes": "スクウェア・エニックス e-STORE「キングダム ハーツ ブック・コミック」掲載の11点（コミック2・ゲームノベル4・アルティマニア2・ファンブック等3）に加え、SQUARE ENIX GAME BOOKS ONLINE（アルティマニア9冊・GAME NOVELS系小説20冊）とガンガンコミックス公式ページ（天野シロ漫画: FINAL MIX 3・チェイン オブ メモリーズ 2・KHII 10・358/2 Days 5・KHIII 2・3）の51点を追加。release_dateは登録商品で最も早いアルティマニア2冊（2004-12-17）の発売日。個別の発売日・価格・ISBNはcatalog.csvの各行を参照。GAME BOOKS ONLINE掲載のうちキャラクターズレポート・ポストカードブック・天野シロ ART WORKSは未収録。絶版判定（availability_hint）は公式e-STOREに取扱ページが無いことに基づく推定で、出版社の絶版表記ではない。"
   },
   {
-    "line_id": "kh-soundtrack-todo",
+    "line_id": "kh-soundtrack",
     "ip": "kingdom-hearts",
-    "name_ja": "［プレースホルダー］KHサウンドトラックCD",
-    "name_en": "[Placeholder] KH Soundtrack CDs",
-    "aliases": "",
+    "name_ja": "キングダム ハーツ / サウンドトラックCD・楽曲アルバム",
+    "name_en": "Kingdom Hearts Soundtrack CDs & Music Albums",
+    "aliases": "KHサウンドトラック|KHサントラ|キングダムハーツサントラ|Kingdom Hearts OST|Kingdom Hearts Soundtrack|SQUARE ENIX MUSIC キングダム ハーツ",
     "maker": "スクウェア・エニックス",
     "line_type": "music",
     "acquisition_type": "music",
-    "release_date": "",
-    "source_url": "",
-    "notes": "次セッションで公式ページを渡して確定する予定のプレースホルダー行。例: Piano Collections KINGDOM HEARTS、KINGDOM HEARTS Orchestra -World of Tres-、KINGDOM HEARTS -FINAL MIX- Additional Tracks等。catalog.csv には品番(catalog_number)を記録する列を追加済み（例: SQEX-11140）。"
+    "release_date": "2009-05-27",
+    "source_url": "https://www.jp.square-enix.com/music/lineup/series/KINGDOM_HEARTS/",
+    "notes": "SQUARE ENIX MUSIC公式ラインナップページ（KINGDOM HEARTSシリーズ）に掲載されている楽曲商品群。release_dateは判明している中で最も早い商品（Piano Collections KINGDOM HEARTS, 2009年）の発売日。個別商品の発売日・価格・品番はcatalog.csvの各行を参照。ページ上に掲載の全13タイトルをcatalog.csvへ下書き済み（本ラインナップページ経由での購入可否のみ確認。ストリーミング配信の詳細は別途確認が必要）。"
   },
   {
     "line_id": "kh-collab-u-treasure-todo",
