@@ -2,16 +2,29 @@
   "name": "kh-merch-graph",
   "version": "1.0.0",
   "description": "これは「日本のIPグッズを理解する層」をMCPサーバーとして作るプロジェクトの、最初の一作品（Kingdom Hearts）用スターターキットです。 このフォルダをそのままClaude Codeで開き、`prompts/` の中のプロンプトを **番号順に1つずつ** 貼れば進みます。",
-  "main": "index.js",
+  "main": "src/server.ts",
+  "type": "module",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:data": "node scripts/build-data.mjs",
+    "eval": "tsx scripts/eval.ts",
+    "start": "tsx src/server.ts",
+    "test": "vitest run",
     "validate": "node scripts/validate-data.mjs"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "tsx": "^4.19.0",
+    "vitest": "^2.1.0",
+    "@types/node": "^22.10.0"
+  }
 }

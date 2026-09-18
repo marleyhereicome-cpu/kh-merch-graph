@@ -1,0 +1,194 @@
+[
+  {
+    "term_ja": "未開封",
+    "variants": "新品未開封|未開封品|シュリンク付き",
+    "term_en": "sealed / unopened",
+    "meaning_en": "Factory sealed. Highest collector grade for figures and kuji prizes.",
+    "price_effect": "none",
+    "risk_flag": ""
+  },
+  {
+    "term_ja": "開封済",
+    "variants": "開封済み|開封のみ|開封品",
+    "term_en": "opened",
+    "meaning_en": "Box was opened; item typically displayed or inspected. Usually still complete.",
+    "price_effect": "minor_down",
+    "risk_flag": ""
+  },
+  {
+    "term_ja": "箱なし",
+    "variants": "箱無し|外箱なし|本体のみ",
+    "term_en": "no box",
+    "meaning_en": "Original packaging missing. Fine for display; lowers resale value noticeably.",
+    "price_effect": "major_down",
+    "risk_flag": ""
+  },
+  {
+    "term_ja": "箱潰れ",
+    "variants": "箱に傷|箱ダメージ|箱イタミ",
+    "term_en": "box damage",
+    "meaning_en": "Packaging dented or scuffed; item itself usually unaffected.",
+    "price_effect": "minor_down",
+    "risk_flag": ""
+  },
+  {
+    "term_ja": "難あり",
+    "variants": "難有り|訳あり|ワケあり",
+    "term_en": "flawed / with defects",
+    "meaning_en": "Seller declares a defect. Ask what exactly is wrong before buying.",
+    "price_effect": "major_down",
+    "risk_flag": "Ask seller for photos of the defect"
+  },
+  {
+    "term_ja": "ジャンク",
+    "variants": "ジャンク品",
+    "term_en": "junk / as-is",
+    "meaning_en": "Sold without guarantee of function or completeness. Parts may be missing.",
+    "price_effect": "major_down",
+    "risk_flag": "No returns expected; assume incomplete"
+  },
+  {
+    "term_ja": "中古",
+    "variants": "中古品|USED",
+    "term_en": "used",
+    "meaning_en": "Generic secondhand label. Says nothing about grade by itself.",
+    "price_effect": "none",
+    "risk_flag": ""
+  },
+  {
+    "term_ja": "当時物",
+    "variants": "当時品",
+    "term_en": "vintage original",
+    "meaning_en": "Original release from the period rather than a re-release. Can raise value for older lines.",
+    "price_effect": "up",
+    "risk_flag": ""
+  },
+  {
+    "term_ja": "再販",
+    "variants": "再販品|再版",
+    "term_en": "re-release",
+    "meaning_en": "A later production run. Usually cheaper than original run; check which run the listing is.",
+    "price_effect": "minor_down",
+    "risk_flag": ""
+  },
+  {
+    "term_ja": "プライズ",
+    "variants": "プライズ品|クレーンゲーム景品",
+    "term_en": "prize figure",
+    "meaning_en": "Arcade/crane-game item. Lower MSRP tier than scale figures; not a defect.",
+    "price_effect": "none",
+    "risk_flag": ""
+  },
+  {
+    "term_ja": "正規品",
+    "variants": "正規|公式",
+    "term_en": "official / licensed",
+    "meaning_en": "Seller asserts authenticity. Not proof by itself.",
+    "price_effect": "none",
+    "risk_flag": "Verify maker name and packaging text"
+  },
+  {
+    "term_ja": "海外製",
+    "variants": "海外版|海外正規品",
+    "term_en": "overseas-made",
+    "meaning_en": "May be a legitimate regional release or a bootleg. Needs verification.",
+    "price_effect": "none",
+    "risk_flag": "Check maker and JAN against catalog"
+  },
+  {
+    "term_ja": "ノーブランド",
+    "variants": "ノーブランド品",
+    "term_en": "unbranded",
+    "meaning_en": "No manufacturer stated. Strong bootleg indicator for character goods.",
+    "price_effect": "major_down",
+    "risk_flag": "High bootleg risk"
+  },
+  {
+    "term_ja": "セット",
+    "variants": "まとめ売り|まとめ|セット売り",
+    "term_en": "bundle / lot",
+    "meaning_en": "Multiple items sold together. Resolve each item separately if possible.",
+    "price_effect": "none",
+    "risk_flag": ""
+  },
+  {
+    "term_ja": "バラ売り不可",
+    "variants": "バラ不可",
+    "term_en": "no splitting",
+    "meaning_en": "Bundle only; cannot buy a single item from the lot.",
+    "price_effect": "none",
+    "risk_flag": ""
+  },
+  {
+    "term_ja": "箱のみ",
+    "variants": "箱only|外箱のみ",
+    "term_en": "box only",
+    "meaning_en": "Only the original packaging is offered; the figure or prize itself is not included. Value is limited to display or storage use.",
+    "price_effect": "major_down",
+    "risk_flag": "Confirm the actual item is NOT included"
+  },
+  {
+    "term_ja": "内袋未開封",
+    "variants": "内袋未開封品|インナー袋未開封",
+    "term_en": "inner bag sealed",
+    "meaning_en": "Outer box may be opened but the inner poly bag protecting the piece is still sealed. Near-mint condition for loose or blind-packed items.",
+    "price_effect": "none",
+    "risk_flag": ""
+  },
+  {
+    "term_ja": "タグ付き",
+    "variants": "下げ札付き|タグ付|ネームタグ付き",
+    "term_en": "with tag",
+    "meaning_en": "Original hang tag or fabric tag is still attached. Common quality marker for plush and apparel; missing tags can lower value.",
+    "price_effect": "none",
+    "risk_flag": ""
+  },
+  {
+    "term_ja": "初回限定版",
+    "variants": "初回限定|初回版|初回封入特典付き",
+    "term_en": "first-run limited edition",
+    "meaning_en": "The original production run",
+    "price_effect": "often bundled with a first-print bonus. Later reprints usually lack this bonus even if the main item is identical.",
+    "risk_flag": "up"
+  },
+  {
+    "term_ja": "特典付き",
+    "variants": "予約特典付き|購入特典付き|特典あり",
+    "term_en": "with bonus",
+    "meaning_en": "Includes a store or preorder bonus item that is not part of the base product. Ask exactly which bonus is included and whether it is store-exclusive.",
+    "price_effect": "up",
+    "risk_flag": "Ask seller exactly which bonus is included"
+  },
+  {
+    "term_ja": "サントラ帯付き",
+    "variants": "帯付き|帯あり|OBI付き",
+    "term_en": "with obi strip",
+    "meaning_en": "Japanese CD/media obi (the promotional paper strip around the case) is present and intact. Collectors value complete-obi condition highly.",
+    "price_effect": "up",
+    "risk_flag": ""
+  },
+  {
+    "term_ja": "美品",
+    "variants": "美品|状態良好",
+    "term_en": "seller-described good condition",
+    "meaning_en": "Seller's subjective claim of good condition; not a standardized grade. Ask for photos to confirm.",
+    "price_effect": "none",
+    "risk_flag": "Subjective claim; verify with photos"
+  },
+  {
+    "term_ja": "台座付属",
+    "variants": "台座あり|台座付",
+    "term_en": "stand included",
+    "meaning_en": "The display stand or base that ships with the figure is included. Some secondhand listings separate the stand from the figure.",
+    "price_effect": "none",
+    "risk_flag": "Confirm stand is the original one for this SKU"
+  },
+  {
+    "term_ja": "動作確認済み",
+    "variants": "動作確認済|通電確認済み",
+    "term_en": "function tested",
+    "meaning_en": "Seller states an electronic or mechanical item (light-up parts",
+    "price_effect": "clocks",
+    "risk_flag": "etc.) was tested and works."
+  }
+]

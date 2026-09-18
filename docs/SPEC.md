@@ -93,6 +93,12 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | updated | 確認日 |
 | source_url | 出典 |
 
+### 2.8 `other_ip_keywords.csv` — 他作品名（cross-IP除外用）
+| 列 | 説明 |
+|---|---|
+| keyword | 出品に含まれていたら他作品の商品とみなし、`resolve_listing` の候補を出さない語（作品名・略称） |
+| notes | 補足 |
+
 ## 3. MCPツール
 
 ### 3.1 `resolve_listing`
@@ -100,6 +106,8 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 処理：
 1. タイトル・説明文を正規化（全角半角、記号、スペース）
 2. `aliases`・`name_ja`・`character`・`variant` との一致スコアで候補SKUを上位3件（0〜1の信頼度）
+   - `other_ip_keywords.csv` の語（他作品名）が含まれる場合は候補を出さない（`candidates: []`）
+   - キングダムハーツを示す語（`キングダムハーツ`/`KH`/`Kingdom Hearts`/主要キャラ名）が出品文に無い場合、「A賞」等の作品横断語だけの一致では信頼度を0.3以下に抑える
 3. 状態語辞書に当たる語を抽出
 4. `bootleg_patterns` を評価して注意フラグ
 5. `msrp_jpy` があれば `price_basis` に応じて処理する
