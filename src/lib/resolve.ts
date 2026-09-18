@@ -1,6 +1,6 @@
 // SPEC 3.1: 出品テキストを正規SKUの候補に結びつける名寄せスコアリング。
 // LLMは使わず、正規化した文字列同士の部分一致のみで判定する（ルール＋辞書）。
-import { containsNormalized } from "./normalize.js";
+import { containsNormalized, normalize } from "./normalize.js";
 import { splitPipe, type CatalogSku, type OtherIpKeyword, type ProductLine } from "./types.js";
 import { withEnglishExpansion } from "./en-tokens.js";
 
@@ -64,13 +64,34 @@ function scoreSku(
   let lineScore = 0;
   const reasons: string[] = [];
 
+  // 同じ語（正規化後に同一文字列）が複数の列（例: variantとaliasの両方に「A賞」）に
+  // 重複して載っている場合、二重に加点しない。最も重みの大きい一致だけを採用する
+  // （例: kh-acrylic-stand-sora は character も variant も「ソラ」で、素の一致1回分のはずが
+  // 2回分加点されてしまっていた）。
+  const creditedSku = new Map<string, number>();
+  const creditedLine = new Map<string, number>();
+
   const tryMatch = (value: string, weight: number, target: "sku" | "line") => {
     if (!value) return;
-    if (containsNormalized(queryText, value)) {
-      if (target === "sku") skuScore += weight;
-      else lineScore += weight;
-      reasons.push(`'${value}'`);
+    if (!containsNormalized(queryText, value)) return;
+
+    const key = normalize(value);
+    const credited = target === "sku" ? creditedSku : creditedLine;
+    const prevWeight = credited.get(key);
+
+    if (prevWeight !== undefined) {
+      if (weight <= prevWeight) return; // 既に同等以上の重みで加点済み
+      const delta = weight - prevWeight;
+      if (target === "sku") skuScore += delta;
+      else lineScore += delta;
+      credited.set(key, weight);
+      return; // reasons には既に同じ語が入っているので追加しない
     }
+
+    credited.set(key, weight);
+    if (target === "sku") skuScore += weight;
+    else lineScore += weight;
+    reasons.push(`'${value}'`);
   };
 
   tryMatch(sku.name_ja, WEIGHTS.sku_name, "sku");
@@ -124,14 +145,25 @@ export function resolveCandidates(
       const rawTotal = skuScore + lineScore;
       let confidence = seriesAmbiguous ? Math.min(rawTotal, KUJI_SERIES_AMBIGUOUS_CAP) : Math.min(rawTotal, 1);
       if (!anchorPresent) confidence = Math.min(confidence, NO_ANCHOR_CONFIDENCE_CAP);
-      return { sku, reasons, seriesAmbiguous, confidence, hasMatch: rawTotal > 0 };
+      return { sku, reasons, seriesAmbiguous, confidence, rawTotal, hasMatch: rawTotal > 0 };
     })
     .filter((c) => c.hasMatch)
     .sort((a, b) => b.confidence - a.confidence);
 
-  // 最上位候補が「弾を特定できない」一致なら、同じ状態の候補を全て返す（3件に絞らない）。
-  const top = scored[0];
-  const selected = top?.seriesAmbiguous ? scored.filter((c) => c.seriesAmbiguous) : scored.slice(0, limit);
+  // 「弾を特定できない」候補（seriesAmbiguous）の生スコア（丸め・キャップ前）が、
+  // それ以外の候補の生スコア以上なら、行順で一つに絞らず、同じ生スコアを持つ弾を全て候補として返す。
+  // 生スコアで比較するのは、丸め後のconfidence（≤0.3にキャップ済み）で比べると、無関係な行の
+  // 偶然の一致（例: 別ラインのキャラ名2つの一致）に負けて、本来は同点で並ぶべき弾が
+  // 埋もれてしまうため（catalog.csvの行順に依存させない）。
+  const round4 = (n: number) => Math.round(n * 10000) / 10000;
+  const ambiguousScored = scored.filter((c) => c.seriesAmbiguous);
+  const maxAmbiguousRaw = ambiguousScored.length > 0 ? Math.max(...ambiguousScored.map((c) => c.rawTotal)) : -1;
+  const maxOtherRaw = Math.max(0, ...scored.filter((c) => !c.seriesAmbiguous).map((c) => c.rawTotal));
+
+  const selected =
+    maxAmbiguousRaw >= 0 && round4(maxAmbiguousRaw) >= round4(maxOtherRaw)
+      ? ambiguousScored.filter((c) => round4(c.rawTotal) === round4(maxAmbiguousRaw))
+      : scored.slice(0, limit);
 
   const mapped = selected.map(({ sku, reasons, seriesAmbiguous, confidence }) => ({
     sku_id: sku.sku_id,

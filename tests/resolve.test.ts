@@ -53,6 +53,34 @@ describe("resolveCandidates", () => {
     expect(candidates[0]?.sku_id).toBe("ichiban-kuji-kh-linking-hearts-lastone");
   });
 
+  it("弾の短縮形（25th/20th）だけでも弾を特定できる", () => {
+    const { candidates } = resolveCandidates(
+      "キングダムハーツ 一番くじ 25th ラストワン賞 リク スタチュー フィギュア",
+      catalog,
+      productLines,
+      3
+    );
+    expect(candidates[0]?.sku_id).toBe("ichiban-kuji-kh-25th-anniversary-lastone");
+    expect(candidates[0]?.ambiguous_series).toBeUndefined();
+  });
+
+  it("characterとvariantが同じ文字列のSKU（例:アクリルスタンド）は二重加点されず、無関係な弾不明くじ候補を押しのけない", () => {
+    const { candidates } = resolveCandidates(
+      "キングダムハーツ 一番くじ A賞 ソラ＆王様ミッキー スタチュー",
+      catalog,
+      productLines,
+      3
+    );
+    expect(candidates.some((c) => c.sku_id === "kh-acrylic-stand-sora")).toBe(false);
+    expect(candidates[0]?.sku_id).toBe("ichiban-kuji-kh-2018-a");
+  });
+
+  it("弾を特定できない場合、同点の弾を行順で一つに絞らず全て返す", () => {
+    const { candidates } = resolveCandidates("一番くじ キングダムハーツ D賞", catalog, productLines, 3);
+    expect(candidates.length).toBeGreaterThan(3);
+    expect(candidates.every((c) => c.ambiguous_series)).toBe(true);
+  });
+
   it("信頼度0.3未満の一致は candidates ではなく weak_matches に入る", () => {
     // キャラ名(英語表記)のみの弱い一致 → confidence 0.15 (< 0.3) を想定
     const title = "ソラ";
