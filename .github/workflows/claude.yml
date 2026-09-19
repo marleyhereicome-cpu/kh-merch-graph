@@ -42,6 +42,6 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           # --allowedTools: Claude が使ってよいコマンド。この範囲（npm の検証スクリプト、git、gh、Web閲覧）に
           # 限っている。デプロイ（worker:deploy / wrangler）は含めていない。
-          claude_args: >-
+                             claude_args: >-
             --model claude-sonnet-5 --max-turns 60
-            --allowedTools "Bash(npm ci),Bash(npm test),Bash(npm run build:data),Bash(npm run validate),Bash(npm run eval),Bash(npm run coverage),Bash(npm run check-urls:*),Bash(npm run sample-rows:*),Bash(npx tsc --noEmit),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git switch:*),Bash(git push:*),Bash(gh pr:*),Bash(gh issue:*),WebFetch,WebSearch"
+            --allowedTools "Edit,Write,Bash(npm ci),Bash(npm test),Bash(npm run build:data),Bash(npm run validate),Bash(npm run eval),Bash(npm run coverage),Bash(npm run check-urls:*),Bash(npm run sample-rows:*),Bash(npx tsc --noEmit),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git switch:*),Bash(git push:*),Bash(gh pr:*),Bash(gh issue:*),WebFetch,WebSearch"
