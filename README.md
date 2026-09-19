@@ -110,3 +110,5 @@ your proposed value, and — importantly — a `source_url` backing it up. You c
 This repo is also a step-by-step teaching kit for building an MCP server like this one from scratch. See
 [`docs/GETTING_STARTED_JA.md`](docs/GETTING_STARTED_JA.md) (Japanese) and [`docs/SPEC.md`](docs/SPEC.md) for the
 full design. License: ISC (see `package.json`).
+
+Pipeline: active
