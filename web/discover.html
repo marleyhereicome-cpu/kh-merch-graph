@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>fandex — Kingdom Hearts merch, discovered</title>
+<title>Kingdom Hearts merch, discovered</title>
 <meta name="description" content="Browse real Kingdom Hearts merchandise the world outside Japan usually never sees — with an honest note on whether it ships to you." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
@@ -85,6 +85,21 @@
   }
   .search-form button:hover { background: #3D4A73; }
   .search-note { font-size: 12px; color: #8A806B; margin-top: 12px; }
+
+  .about-ip {
+    max-width: 700px;
+    margin: 0 auto 32px;
+    padding: 0 24px;
+    text-align: center;
+  }
+  .about-ip summary {
+    cursor: pointer;
+    font-size: 13px;
+    color: #3D4A73;
+    display: inline-block;
+  }
+  .about-ip summary:hover { color: #C9A227; }
+  .about-ip p { font-size: 13px; line-height: 1.7; color: #5A5646; margin: 10px 0 0; text-align: left; }
 
   .status-bar {
     max-width: 1100px;
@@ -247,21 +262,23 @@
 <body>
 
 <header>
-  <div class="wordmark">fandex</div>
-  <div style="display:flex; gap:10px; flex-wrap:wrap;">
-    <span class="chip">Kingdom Hearts</span>
-  </div>
+  <div class="wordmark">Kingdom Hearts</div>
 </header>
 
 <div class="hero">
-  <h1>Every Kingdom Hearts item Japan has ever made, found by someone as obsessed as you are.</h1>
+  <h1>A shelf of Kingdom Hearts merch, checked one piece at a time — official releases and the fan-made pieces Square Enix never got around to.</h1>
   <form class="search-form" id="searchForm">
     <input id="character" type="text" placeholder="character (e.g. Riku, Sora, Aqua) — optional" autocomplete="off" />
     <input id="budget" type="text" inputmode="decimal" placeholder="budget, any currency — e.g. $50 or ¥5000" autocomplete="off" />
     <button type="submit">Discover</button>
   </form>
-  <div class="search-note">Hand-checked against the original Japanese source, one SKU at a time. I don't sell anything here, so I've got no reason to hide the annoying parts — like when something's Japan-only. (Budget converts roughly to JPY — not a live rate, just enough to narrow the list.)</div>
+  <div class="search-note">Search by character or set a rough budget to narrow the list. Each card links to where it was checked, and flags plainly when something needs a shipping proxy to reach you — that's rarer than you'd think. (Budget converts roughly to JPY, just to filter — not a live rate.)</div>
 </div>
+
+<details class="about-ip">
+  <summary>What is Kingdom Hearts?</summary>
+  <p>Kingdom Hearts is a long-running action RPG series from Square Enix and Disney, weaving Disney's worlds and characters together with an original cast (and the occasional Final Fantasy face). It's been running since 2002 across more than a dozen games, and it's the reason this much merch exists in the first place. <a href="https://en.wikipedia.org/wiki/Kingdom_Hearts" target="_blank" rel="noopener">More on Wikipedia ↗</a></p>
+</details>
 
 <div class="status-bar">
   <span id="statusText">Loading the catalog…</span>
