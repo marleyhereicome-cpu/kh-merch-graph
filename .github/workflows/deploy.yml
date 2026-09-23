@@ -39,7 +39,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
 
-      # Web版チェッカー（web/index.html。静的ファイルだけの Worker: kh-merch-graph-web）。
+      # Web版（web/ 以下の静的ファイル一式。静的ファイルだけの Worker: kh-merch-graph-web）。
       # docs/DISTRIBUTION.md の手順どおり、プロジェクトの wrangler.toml が混ざらないよう、
       # リポジトリの外の空フォルダにコピーしてからデプロイする。
       - name: Deploy web checker
@@ -51,6 +51,6 @@ jobs:
           COMPAT_DATE="$(grep -m1 '^compatibility_date' wrangler.toml | cut -d'"' -f2)"
           SITE_DIR="$RUNNER_TEMP/web-site"
           mkdir -p "$SITE_DIR/public"
-          cp web/index.html "$SITE_DIR/public/"
+          cp web/*.html "$SITE_DIR/public/"
           cd "$SITE_DIR"
           "$WRANGLER" deploy --name kh-merch-graph-web --assets ./public --compatibility-date "$COMPAT_DATE"
