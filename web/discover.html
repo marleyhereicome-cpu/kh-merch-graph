@@ -231,6 +231,20 @@
   .badge.unofficial .dot { background: #7A5FBF; }
   .badge-row { display: flex; flex-wrap: wrap; gap: 6px; }
   .card-links { display: flex; gap: 10px; font-size: 12px; margin-top: 4px; }
+  .find-it { margin-top: 2px; }
+  .find-it .find-it-label { font-size: 10px; color: #8A806B; margin-bottom: 4px; }
+  .find-it .find-it-links { display: flex; flex-wrap: wrap; gap: 6px; }
+  .find-it .find-it-links a {
+    font-size: 11px;
+    background: #FAF8F3;
+    border: 1px solid #E4DCC8;
+    border-radius: 999px;
+    padding: 4px 10px;
+    color: #3D4A73;
+  }
+  .find-it .find-it-links a:hover { border-color: #C9A227; color: #C9A227; }
+  .find-it .proxy-note { font-size: 10px; color: #8A806B; margin-top: 4px; line-height: 1.5; }
+  .find-it .proxy-note a { color: #3D4A73; }
 
   .state-msg {
     grid-column: 1 / -1;
@@ -303,12 +317,17 @@
     <input id="budget" type="text" inputmode="decimal" placeholder="budget — e.g. $50" autocomplete="off" />
     <button type="submit">Discover</button>
   </form>
-  <div class="search-note">Search by character or set a rough budget to narrow the list. Each card links to where it was checked, and flags plainly when something needs a shipping proxy to reach you — that's rarer than you'd think. (Budget converts roughly to JPY, just to filter — not a live rate.)</div>
+  <div class="search-note">Search by character or set a rough budget to narrow the list. Most of this only ships within Japan at the source — each card says so plainly, and for secondhand finds, links straight to a live search so you're not stuck at a dead end. (Budget converts roughly to JPY, just to filter — not a live rate.)</div>
 </div>
 
 <details class="about-ip">
   <summary>What is Kingdom Hearts?</summary>
   <p>Kingdom Hearts is a long-running action RPG series from Square Enix and Disney, weaving Disney's worlds and characters together with an original cast (and the occasional Final Fantasy face). It's been running since 2002 across more than a dozen games, and it's the reason this much merch exists in the first place. <a href="https://en.wikipedia.org/wiki/Kingdom_Hearts" target="_blank" rel="noopener">More on Wikipedia ↗</a></p>
+</details>
+
+<details class="about-ip">
+  <summary>What's a shipping proxy?</summary>
+  <p>Most Japanese shops and marketplaces (Mercari, Yahoo Auctions, the Square Enix store) only ship inside Japan. A shipping proxy is a paid service — <a href="https://buyee.jp/" target="_blank" rel="noopener">Buyee</a> and <a href="https://zenmarket.jp/en/" target="_blank" rel="noopener">ZenMarket</a> are two well-known ones — that buys the item on your behalf with a Japanese address, then forwards it to you. They add a service fee plus international shipping on top of the item's price. We're not affiliated with either — they're just the two most commonly used. This isn't something we do ourselves; we just point you to where an item shows up and let you take it from there.</p>
 </details>
 
 <div class="status-bar">
@@ -423,12 +442,51 @@ function borderColorFor(seed) {
 function badgeFor(hint) {
   const map = {
     jp_retail_new: { cls: 'warn', label: 'Japan-only checkout' },
-    jp_secondhand_only: { cls: 'good', label: 'Secondhand · worldwide-reachable' },
+    jp_secondhand_only: { cls: 'warn', label: 'Secondhand (Japan) · needs a shipping proxy' },
     western_official: { cls: 'good', label: 'Official · ships worldwide' },
     event_only: { cls: 'warn', label: 'Event-exclusive · hard to find' },
     unknown: { cls: 'unknown', label: 'Availability unconfirmed' },
   };
   return map[hint] || map.unknown;
+}
+
+// Mirrors data/channels.csv — where each typical_channels value actually goes,
+// and whether it needs a shipping proxy to reach outside Japan. Small and
+// stable enough to keep in sync by hand; if channels.csv changes, update here too.
+const CHANNELS = {
+  mercari: { label: 'Mercari', template: 'https://jp.mercari.com/search?keyword={q}', proxy: true },
+  yahoo_auctions: { label: 'Yahoo Auctions', template: 'https://auctions.yahoo.co.jp/search/search?p={q}', proxy: true },
+  surugaya: { label: 'Suruga-ya', template: 'https://www.suruga-ya.jp/search?category=&search_word={q}', proxy: true },
+  mandarake: { label: 'Mandarake', template: 'https://order.mandarake.co.jp/order/listPage/list?keyword={q}', proxy: true },
+  amiami: { label: 'AmiAmi', template: 'https://www.amiami.com/eng/search/list/?s_keywords={q}', proxy: false },
+  'e-store': { label: 'Square Enix e-STORE', template: 'https://store.jp.square-enix.com/estore/g/search/?keyword={q}', proxy: false },
+  tokyo_otaku_mode: { label: 'Tokyo Otaku Mode', template: 'https://otakumode.com/shop/search?q={q}', proxy: false },
+  ebay: { label: 'eBay', template: 'https://www.ebay.com/sch/i.html?_nkw={q}', proxy: false },
+  hot_topic: { label: 'Hot Topic', template: 'https://www.hottopic.com/search?query={q}', proxy: false },
+  buyee: { label: 'Buyee', template: 'https://buyee.jp/item/search/query/{q}', proxy: false },
+  zenmarket: { label: 'ZenMarket', template: 'https://zenmarket.jp/en/search?q={q}', proxy: false },
+};
+
+// Builds "Find it: Mercari · Yahoo Auctions" links (a live search on each
+// channel, not a specific listing — we never scrape or host listing data
+// ourselves) plus a one-line proxy-shipping note when any channel needs one.
+function findItBlock(detail, item) {
+  const channelKeys = detail?.typical_channels || [];
+  if (!channelKeys.length) return '';
+  const q = encodeURIComponent(item.name_ja || item.name_en);
+  const links = channelKeys
+    .map((key) => CHANNELS[key])
+    .filter(Boolean)
+    .map((ch) => `<a href="${ch.template.replace('{q}', q)}" target="_blank" rel="noopener">${escapeHtml(ch.label)}</a>`);
+  if (!links.length) return '';
+  const needsProxy = channelKeys.some((key) => CHANNELS[key]?.proxy);
+  return `
+    <div class="find-it">
+      <div class="find-it-label">Find it:</div>
+      <div class="find-it-links">${links.join('')}</div>
+      ${needsProxy ? `<div class="proxy-note">These ship within Japan only — a shipping proxy like <a href="https://buyee.jp/" target="_blank" rel="noopener">Buyee</a> or <a href="https://zenmarket.jp/en/" target="_blank" rel="noopener">ZenMarket</a> forwards it to you.</div>` : ''}
+    </div>
+  `;
 }
 
 // Rough, static conversion — not a live rate. Just enough to filter a wishlist by budget.
@@ -481,6 +539,7 @@ function renderCard(item, detail, imageMap) {
             <div class="badge ${badge.cls}"><span class="dot"></span>${badge.label}</div>
             ${isUnofficial ? '<div class="badge unofficial"><span class="dot"></span>Fan-made · unofficial</div>' : ''}
           </div>
+          ${hint === 'jp_secondhand_only' ? findItBlock(detail, item) : ''}
           <div class="card-links">
             ${sourceUrl ? `<a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener">Source ↗</a>` : ''}
           </div>
