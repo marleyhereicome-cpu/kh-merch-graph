@@ -86,6 +86,9 @@ export function registerExplainProductTool(server: McpServer): void {
         isbn: sku.isbn || null,
         catalog_number: sku.catalog_number || null,
         availability: buildAvailabilityInfo(sku),
+        // 主な入手チャネル（data/channels.csv の channel_name と対応）。
+        // discover.html 側でこれを使い、実際に検索できるリンクを組み立てる。
+        typical_channels: splitPipe(sku.typical_channels),
         rerelease_dates: splitPipe(sku.rerelease_dates),
         official: sku.official === "true",
         verified: sku.verified === "true",
