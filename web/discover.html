@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>fandex — Kingdom Hearts merch, discovered</title>
+<meta name="description" content="Browse real Kingdom Hearts merchandise the world outside Japan usually never sees — with an honest note on whether it ships to you." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Zen Kaku Gothic New', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #F7F3EC;
+    color: #1C1B29;
+  }
+  a { color: #3D4A73; }
+  a:hover { color: #C9A227; }
+  h1, h2 { font-family: 'Shippori Mincho', serif; font-weight: 500; margin: 0; }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 24px;
+    border-bottom: 1px solid #E4DCC8;
+    flex-wrap: wrap;
+  }
+  .wordmark { font-family: 'Shippori Mincho', serif; font-size: 22px; font-weight: 700; }
+  .chip {
+    display: inline-block;
+    background: #1C1B29;
+    color: #F7F3EC;
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 13px;
+  }
+  .chip.ghost {
+    background: transparent;
+    border: 1px dashed #C9BBA0;
+    color: #8A806B;
+  }
+
+  .hero {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 24px 24px;
+    text-align: center;
+  }
+  .hero h1 { font-size: 28px; line-height: 1.5; margin-bottom: 24px; }
+  .search-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    align-items: stretch;
+    background: #FFFFFF;
+    border: 1px solid #E4DCC8;
+    border-radius: 20px;
+    padding: 14px;
+  }
+  .search-form input {
+    font-family: inherit;
+    font-size: 15px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid #E4DCC8;
+    background: #FAF8F3;
+  }
+  #character { flex: 2 1 220px; }
+  #budget { flex: 1 1 130px; }
+  .search-form button {
+    flex: 0 0 auto;
+    font-family: inherit;
+    font-size: 14px;
+    background: #1C1B29;
+    color: #F7F3EC;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 22px;
+    cursor: pointer;
+  }
+  .search-form button:hover { background: #3D4A73; }
+  .search-note { font-size: 12px; color: #8A806B; margin-top: 12px; }
+
+  .status-bar {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+    font-size: 13px;
+    color: #8A806B;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .status-bar button.surprise {
+    font-family: inherit;
+    font-size: 13px;
+    background: #3D4A73;
+    color: #F7F3EC;
+    border: none;
+    border-radius: 999px;
+    padding: 9px 18px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .status-bar button.surprise:hover { background: #1C1B29; }
+
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+  #grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 22px;
+  }
+
+  .card {
+    background: #FFFFFF;
+    border: 1px solid #E4DCC8;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-art {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: #EFE6D8;
+    flex-shrink: 0;
+  }
+  .card-art svg.pattern { position: absolute; inset: 0; opacity: 0.16; width: 100%; height: 100%; }
+  .card-art .icon-wrap {
+    position: absolute; inset: 18%;
+    background: #FFFFFF;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    mix-blend-mode: multiply;
+  }
+  .card-art .placeholder-tag {
+    position: absolute; top: 10px; left: 10px;
+    background: rgba(255,255,255,0.88);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 10px;
+    color: #3D4A73;
+  }
+  .card-body {
+    padding: 14px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-grow: 1;
+  }
+  .card-eyebrow { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #3D4A73; }
+  .card-title { font-family: 'Shippori Mincho', serif; font-size: 15px; line-height: 1.4; color: #1C1B29; }
+  .card-spacer { flex-grow: 1; }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 11px;
+    width: fit-content;
+  }
+  .badge .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .badge.good { background: #EAF1EC; color: #2E5A3F; }
+  .badge.good .dot { background: #3D6B4F; }
+  .badge.warn { background: #F6E9E0; color: #8A4220; }
+  .badge.warn .dot { background: #B4562B; }
+  .badge.unknown { background: #EFEAE0; color: #6B6350; }
+  .badge.unknown .dot { background: #A79A7B; }
+  .card-links { display: flex; gap: 10px; font-size: 12px; margin-top: 4px; }
+
+  .state-msg {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 48px 16px;
+    color: #8A806B;
+    font-size: 14px;
+  }
+
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(28,27,41,0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 10;
+  }
+  .overlay.open { display: flex; }
+  .reveal {
+    background: #1C1B29;
+    border-radius: 20px;
+    padding: 32px;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+  .reveal .eyebrow { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #C9A227; }
+  .reveal .card { width: 100%; text-align: left; }
+  .reveal-actions { display: flex; gap: 10px; margin-top: 4px; }
+  .reveal-actions button, .reveal-actions a {
+    font-family: inherit;
+    font-size: 13px;
+    border-radius: 999px;
+    padding: 10px 18px;
+    cursor: pointer;
+    text-decoration: none;
+    border: 1px solid #4A4760;
+    color: #F7F3EC;
+    background: transparent;
+  }
+  .reveal-actions a.primary { background: #C9A227; color: #1C1B29; border-color: #C9A227; }
+  .reveal-close { align-self: flex-end; background: none; border: none; color: #C9BBA0; cursor: pointer; font-size: 13px; margin: -8px -8px 0 0; }
+
+  footer {
+    max-width: 1100px;
+    margin: 32px auto 0;
+    padding: 20px 24px 40px;
+    font-size: 12px;
+    color: #8A806B;
+    border-top: 1px solid #E4DCC8;
+  }
+  footer a { color: inherit; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark">fandex</div>
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <span class="chip">Kingdom Hearts</span>
+    <span class="chip ghost">+ more worlds soon</span>
+  </div>
+</header>
+
+<div class="hero">
+  <h1>Tell me who you love, and I'll show you what you didn't know existed.</h1>
+  <form class="search-form" id="searchForm">
+    <input id="character" type="text" placeholder="character (e.g. Riku, Sora, Aqua) — optional" autocomplete="off" />
+    <input id="budget" type="number" min="0" placeholder="budget in ¥ — optional" autocomplete="off" />
+    <button type="submit">Discover</button>
+  </form>
+  <div class="search-note">Real catalog, checked by hand against a primary source. This does not confirm anything is currently listed for sale anywhere — it tells you what officially exists.</div>
+</div>
+
+<div class="status-bar">
+  <span id="statusText">Loading the catalog…</span>
+  <button class="surprise" id="surpriseBtn" type="button">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="#F7F3EC" stroke-width="2"/><circle cx="8" cy="8" r="1.3" fill="#F7F3EC"/><circle cx="16" cy="8" r="1.3" fill="#F7F3EC"/><circle cx="8" cy="16" r="1.3" fill="#F7F3EC"/><circle cx="16" cy="16" r="1.3" fill="#F7F3EC"/><circle cx="12" cy="12" r="1.3" fill="#F7F3EC"/></svg>
+    Surprise me
+  </button>
+</div>
+
+<main>
+  <div id="grid"><div class="state-msg">Loading the catalog…</div></div>
+</main>
+
+<footer>
+  Catalog entries are checked by a human against a primary source (each card links to it). fandex doesn't sell anything and doesn't take a cut of any sale you make elsewhere — that's why it can tell you plainly when something only ships within Japan.
+  Product art shown here is a placeholder illustration, not a photo — real photos are a fast-follow.
+  Source &amp; corrections: <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph" target="_blank" rel="noopener">GitHub</a> · Prefer to check a listing you already found? <a href="./index.html">Try the listing checker</a>.
+</footer>
+
+<div class="overlay" id="overlay">
+  <div class="reveal">
+    <button class="reveal-close" id="revealClose" type="button">close ✕</button>
+    <div class="eyebrow">Surprise me</div>
+    <div id="revealCard"></div>
+    <div class="reveal-actions">
+      <button type="button" id="revealAgain">Roll again</button>
+      <a href="#" id="revealSource" class="primary" target="_blank" rel="noopener">View source</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const MCP_URL = "https://kh-merch-graph.fandex.workers.dev/mcp";
+const IP = "kingdom-hearts";
+const GRID_LIMIT = 16;
+
+const els = {
+  form: document.getElementById('searchForm'),
+  character: document.getElementById('character'),
+  budget: document.getElementById('budget'),
+  grid: document.getElementById('grid'),
+  status: document.getElementById('statusText'),
+  surpriseBtn: document.getElementById('surpriseBtn'),
+  overlay: document.getElementById('overlay'),
+  revealCard: document.getElementById('revealCard'),
+  revealSource: document.getElementById('revealSource'),
+  revealAgain: document.getElementById('revealAgain'),
+  revealClose: document.getElementById('revealClose'),
+};
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]));
+}
+
+let rpcId = 1;
+async function callTool(name, args) {
+  const res = await fetch(MCP_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream' },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: rpcId++,
+      method: 'tools/call',
+      params: { name, arguments: args },
+    }),
+  });
+  if (!res.ok) throw new Error(`Server returned ${res.status}`);
+  const body = await res.json();
+  if (body.error) throw new Error(body.error.message || 'MCP error');
+  const text = body.result?.content?.[0]?.text;
+  if (!text) throw new Error('Unexpected response shape from server');
+  return JSON.parse(text);
+}
+
+const discover = (args) => callTool('discover', { ip: IP, ...args });
+const explainProduct = (sku_id) => callTool('explain_product', { sku_id });
+
+const ICONS = {
+  plush: '<svg width="72" height="72" viewBox="0 0 96 96" fill="none"><circle cx="48" cy="36" r="24" stroke="#1C1B29" stroke-width="3"/><circle cx="30" cy="16" r="9" stroke="#1C1B29" stroke-width="3"/><circle cx="66" cy="16" r="9" stroke="#1C1B29" stroke-width="3"/><path d="M28 78c0-14 9-22 20-22s20 8 20 22" stroke="#1C1B29" stroke-width="3"/></svg>',
+  figure: '<svg width="60" height="76" viewBox="0 0 80 100" fill="none"><circle cx="40" cy="18" r="14" stroke="#1C1B29" stroke-width="3"/><path d="M40 32v34M20 50h40M40 66l-16 30M40 66l16 30" stroke="#1C1B29" stroke-width="3"/></svg>',
+  kuji: '<svg width="64" height="64" viewBox="0 0 64 64" fill="none"><rect x="8" y="14" width="48" height="36" rx="4" stroke="#1C1B29" stroke-width="3"/><path d="M8 26h48" stroke="#1C1B29" stroke-width="3"/><circle cx="32" cy="38" r="6" stroke="#1C1B29" stroke-width="3"/></svg>',
+  default: '<svg width="60" height="60" viewBox="0 0 60 60" fill="none"><path d="M30 4l6 12 12 6-12 6-6 12-6-12-12-6 12-6z" stroke="#1C1B29" stroke-width="3" stroke-linejoin="round"/></svg>',
+};
+const TINTS = ['#EFE6D8', '#E4EAEF', '#EAF0E6', '#EFE0E6', '#E9E3EF', '#F1E8D2'];
+function iconFor(lineType) {
+  if (lineType === 'plush') return ICONS.plush;
+  if (lineType === 'figure' || lineType === 'statue') return ICONS.figure;
+  if (lineType === 'kuji') return ICONS.kuji;
+  return ICONS.default;
+}
+function tintFor(seed) {
+  let h = 0;
+  for (const c of String(seed)) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return TINTS[h % TINTS.length];
+}
+function diamondPattern() {
+  let d = '';
+  for (let i = 0; i < 8; i++) {
+    const x = (i * 47) % 100, y = (i * 67) % 100;
+    d += `<path d="M${x} ${y} l4 -6 l4 6 l-4 6 z" fill="#1C1B29"/>`;
+  }
+  return `<svg class="pattern" viewBox="0 0 100 100" preserveAspectRatio="none">${d}</svg>`;
+}
+
+function badgeFor(hint) {
+  const map = {
+    jp_retail_new: { cls: 'warn', label: 'Japan-only checkout' },
+    jp_secondhand_only: { cls: 'good', label: 'Secondhand · worldwide-reachable' },
+    western_official: { cls: 'good', label: 'Official · ships worldwide' },
+    event_only: { cls: 'warn', label: 'Event-exclusive · hard to find' },
+    unknown: { cls: 'unknown', label: 'Availability unconfirmed' },
+  };
+  return map[hint] || map.unknown;
+}
+
+function renderCard(item, detail) {
+  const hint = detail?.availability?.hint || 'unknown';
+  const badge = badgeFor(hint);
+  const character = (item.character_en || []).join(' / ') || '—';
+  const sourceUrl = detail?.source_url || item.source_url || '';
+  const tint = tintFor(item.sku_id);
+  return `
+    <div class="card">
+      <div class="card-art" style="background:${tint}">
+        ${diamondPattern()}
+        <div class="icon-wrap">${iconFor(item.line_type)}</div>
+        <div class="placeholder-tag">illustration, not a photo</div>
+      </div>
+      <div class="card-body">
+        <div class="card-eyebrow">${escapeHtml(character)}</div>
+        <div class="card-title">${escapeHtml(item.name_en)}</div>
+        <div class="card-spacer"></div>
+        <div class="badge ${badge.cls}"><span class="dot"></span>${badge.label}</div>
+        <div class="card-links">
+          ${sourceUrl ? `<a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener">Source ↗</a>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function enrich(items) {
+  const details = await Promise.all(
+    items.map((item) => explainProduct(item.sku_id).catch(() => null))
+  );
+  return items.map((item, i) => ({ item, detail: details[i] }));
+}
+
+async function runSearch(args) {
+  els.status.textContent = 'Looking…';
+  els.grid.innerHTML = '<div class="state-msg">Looking…</div>';
+  try {
+    const result = await discover({ ...args, limit: GRID_LIMIT });
+    if (!result.items.length) {
+      els.grid.innerHTML = '<div class="state-msg">Nothing matched that. Try a different character, or clear the search to see everything.</div>';
+      els.status.textContent = 'No matches';
+      return;
+    }
+    const enriched = await enrich(result.items);
+    els.grid.innerHTML = enriched.map(({ item, detail }) => renderCard(item, detail)).join('');
+    els.status.textContent = `Showing ${result.items.length} of ${result.total_matches} known Kingdom Hearts SKUs`;
+  } catch (err) {
+    els.grid.innerHTML = `<div class="state-msg">Couldn't reach the catalog right now (${escapeHtml(err.message)}). Try reloading in a moment.</div>`;
+    els.status.textContent = 'Connection error';
+  }
+}
+
+els.form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const args = {};
+  const character = els.character.value.trim();
+  const budget = els.budget.value.trim();
+  if (character) args.character = character;
+  if (budget) args.budget_jpy = Number(budget);
+  runSearch(args);
+});
+
+els.surpriseBtn.addEventListener('click', async () => {
+  els.overlay.classList.add('open');
+  els.revealCard.innerHTML = '<div class="state-msg" style="color:#C9BBA0;">Rolling…</div>';
+  try {
+    const pool = await discover({ limit: 60 });
+    if (!pool.items.length) throw new Error('empty catalog');
+    const pick = pool.items[Math.floor(Math.random() * pool.items.length)];
+    const detail = await explainProduct(pick.sku_id).catch(() => null);
+    els.revealCard.innerHTML = renderCard(pick, detail);
+    els.revealSource.href = detail?.source_url || pick.source_url || '#';
+  } catch (err) {
+    els.revealCard.innerHTML = `<div class="state-msg" style="color:#C9BBA0;">Couldn't roll right now (${escapeHtml(err.message)}).</div>`;
+  }
+});
+els.revealAgain.addEventListener('click', () => els.surpriseBtn.click());
+els.revealClose.addEventListener('click', () => els.overlay.classList.remove('open'));
+els.overlay.addEventListener('click', (e) => { if (e.target === els.overlay) els.overlay.classList.remove('open'); });
+
+runSearch({});
+</script>
+</body>
+</html>
