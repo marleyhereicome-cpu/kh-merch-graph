@@ -139,32 +139,45 @@
     gap: 22px;
   }
 
-  /* The crown shape is drawn twice at the same size: this outer layer is
-     filled with the border color and padded by 3px, and .card-inner
-     (filled white) sits on top clipped to the same shape — so the 3px ring
-     that peeks out all the way around, including the zigzag top, becomes
-     the card's colored outline. */
-  .card {
+  /* The crown "cap" is its own small, fixed-height piece, kept separate from
+     the rectangle below it. That's deliberate: the zigzag depth is always
+     relative to the cap's own ~52px, never to the whole card's height, so a
+     long product title can never drag the notch down into the photo. The
+     cap is drawn twice at the same size — an outer layer filled with the
+     accent color and padded by 3px, with a white copy on top clipped to the
+     same shape — so a uniform 3px ring shows all the way around, including
+     the diagonal edges. The rectangle below uses an ordinary CSS border of
+     the same 3px/color, so the two pieces read as one continuous outline. */
+  .card { display: flex; flex-direction: column; }
+  .card-crown {
     position: relative;
-    padding: 3px;
-    background: #B23A48;
-    clip-path: polygon(0% 0%, 25% 38%, 50% 0%, 75% 38%, 100% 0%, 100% 96%, 96% 100%, 4% 100%, 0% 96%);
-    display: flex;
-    flex-direction: column;
+    height: 52px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    padding: 3px 3px 0 3px;
+    background: var(--accent);
+    clip-path: polygon(0% 0%, 22% 58%, 50% 0%, 78% 58%, 100% 0%, 100% 100%, 0% 100%);
   }
-  .card-inner {
+  .card-crown-fill {
+    width: 100%;
+    height: 100%;
     background: #FFFFFF;
-    clip-path: polygon(0% 0%, 25% 38%, 50% 0%, 75% 38%, 100% 0%, 100% 96%, 96% 100%, 4% 100%, 0% 96%);
+    clip-path: polygon(0% 0%, 22% 58%, 50% 0%, 78% 58%, 100% 0%, 100% 100%, 0% 100%);
+  }
+  .card-rect {
+    border: 3px solid var(--accent);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    background: #FFFFFF;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
   }
-  .card-crown-space { height: 44px; flex-shrink: 0; }
   .card-art {
     position: relative;
     width: 74%;
-    margin: 0 auto;
+    margin: 14px auto 0;
     aspect-ratio: 1 / 1;
     flex-shrink: 0;
     display: flex;
@@ -450,9 +463,9 @@ function renderCard(item, detail, imageMap) {
   const photoUrl = (imageMap || {})[item.sku_id] || '';
   const errorHandler = "const art=this.closest('.card'); const img=art.querySelector('.photo'); if(img) img.style.display='none'; const iw=art.querySelector('.icon-wrap'); if(iw) iw.style.display='flex'; const credit=art.querySelector('.photo-credit'); if(credit) credit.textContent='illustration, not a photo';";
   return `
-    <div class="card" style="background:${borderColor}">
-      <div class="card-inner">
-        <div class="card-crown-space"></div>
+    <div class="card" style="--accent:${borderColor}">
+      <div class="card-crown"><div class="card-crown-fill"></div></div>
+      <div class="card-rect">
         <div class="card-art">
           ${photoUrl ? `<img class="photo" src="${escapeHtml(photoUrl)}" alt="${escapeHtml(item.name_en)}" loading="lazy" onerror="${escapeHtml(errorHandler)}">` : ''}
           <div class="icon-wrap" style="${photoUrl ? 'display:none;' : ''}">${iconFor(item.line_type)}</div>
