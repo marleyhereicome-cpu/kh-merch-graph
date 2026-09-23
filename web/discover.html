@@ -69,9 +69,11 @@
     border-radius: 12px;
     border: 1px solid #E4DCC8;
     background: #FAF8F3;
+    min-width: 0;
   }
+  .search-form input::placeholder { font-size: 13px; color: #A79A7B; }
   #character { flex: 2 1 220px; }
-  #budget { flex: 1 1 130px; }
+  #budget { flex: 1 1 160px; }
   .search-form button {
     flex: 0 0 auto;
     font-family: inherit;
@@ -298,7 +300,7 @@
   <h1>A shelf of Kingdom Hearts merch, checked one piece at a time — official releases and the fan-made pieces Square Enix never got around to.</h1>
   <form class="search-form" id="searchForm">
     <input id="character" type="text" placeholder="character (e.g. Riku, Sora, Aqua) — optional" autocomplete="off" />
-    <input id="budget" type="text" inputmode="decimal" placeholder="budget, any currency — e.g. $50 or ¥5000" autocomplete="off" />
+    <input id="budget" type="text" inputmode="decimal" placeholder="budget — e.g. $50" autocomplete="off" />
     <button type="submit">Discover</button>
   </form>
   <div class="search-note">Search by character or set a rough budget to narrow the list. Each card links to where it was checked, and flags plainly when something needs a shipping proxy to reach you — that's rarer than you'd think. (Budget converts roughly to JPY, just to filter — not a live rate.)</div>
