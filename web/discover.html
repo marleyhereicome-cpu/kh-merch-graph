@@ -139,42 +139,52 @@
     gap: 22px;
   }
 
+  /* The crown shape is drawn twice at the same size: this outer layer is
+     filled with the border color and padded by 3px, and .card-inner
+     (filled white) sits on top clipped to the same shape — so the 3px ring
+     that peeks out all the way around, including the zigzag top, becomes
+     the card's colored outline. */
   .card {
-    background: #FFFFFF;
-    border: 1px solid #E4DCC8;
-    border-radius: 16px;
-    overflow: hidden;
+    position: relative;
+    padding: 3px;
+    background: #B23A48;
+    clip-path: polygon(0% 0%, 25% 38%, 50% 0%, 75% 38%, 100% 0%, 100% 96%, 96% 100%, 4% 100%, 0% 96%);
     display: flex;
     flex-direction: column;
   }
+  .card-inner {
+    background: #FFFFFF;
+    clip-path: polygon(0% 0%, 25% 38%, 50% 0%, 75% 38%, 100% 0%, 100% 96%, 96% 100%, 4% 100%, 0% 96%);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+  .card-crown-space { height: 44px; flex-shrink: 0; }
   .card-art {
     position: relative;
-    width: 100%;
-    aspect-ratio: 4 / 3;
-    background: #EFE6D8;
+    width: 74%;
+    margin: 0 auto;
+    aspect-ratio: 1 / 1;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  .card-art svg.pattern { position: absolute; inset: 0; opacity: 0.16; width: 100%; height: 100%; }
   .card-art .icon-wrap {
-    position: absolute; inset: 18%;
-    background: #FFFFFF;
-    border-radius: 12px;
+    width: 100%; height: 100%;
     display: flex; align-items: center; justify-content: center;
-    mix-blend-mode: multiply;
   }
   .card-art .photo {
-    position: absolute; inset: 10%;
-    width: 80%; height: 80%;
+    width: 100%; height: 100%;
     object-fit: contain;
     mix-blend-mode: multiply;
   }
-  .card-art .placeholder-tag {
-    position: absolute; top: 10px; left: 10px;
-    background: rgba(255,255,255,0.88);
-    border-radius: 999px;
-    padding: 3px 10px;
+  .photo-credit {
+    text-align: center;
     font-size: 10px;
-    color: #3D4A73;
+    color: #8A806B;
+    margin-top: 6px;
   }
   .card-body {
     padding: 14px 16px 16px;
@@ -380,25 +390,19 @@ const ICONS = {
   kuji: '<svg width="64" height="64" viewBox="0 0 64 64" fill="none"><rect x="8" y="14" width="48" height="36" rx="4" stroke="#1C1B29" stroke-width="3"/><path d="M8 26h48" stroke="#1C1B29" stroke-width="3"/><circle cx="32" cy="38" r="6" stroke="#1C1B29" stroke-width="3"/></svg>',
   default: '<svg width="60" height="60" viewBox="0 0 60 60" fill="none"><path d="M30 4l6 12 12 6-12 6-6 12-6-12-12-6 12-6z" stroke="#1C1B29" stroke-width="3" stroke-linejoin="round"/></svg>',
 };
-const TINTS = ['#EFE6D8', '#E4EAEF', '#EAF0E6', '#EFE0E6', '#E9E3EF', '#F1E8D2'];
 function iconFor(lineType) {
   if (lineType === 'plush') return ICONS.plush;
   if (lineType === 'figure' || lineType === 'statue') return ICONS.figure;
   if (lineType === 'kuji') return ICONS.kuji;
   return ICONS.default;
 }
-function tintFor(seed) {
+// Crown-card outline color — cycles red / blue / green, picked per SKU so a
+// given item looks the same across reloads instead of flickering on re-search.
+const BORDER_COLORS = ['#B23A48', '#3D5A80', '#4C7A5E'];
+function borderColorFor(seed) {
   let h = 0;
   for (const c of String(seed)) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  return TINTS[h % TINTS.length];
-}
-function diamondPattern() {
-  let d = '';
-  for (let i = 0; i < 8; i++) {
-    const x = (i * 47) % 100, y = (i * 67) % 100;
-    d += `<path d="M${x} ${y} l4 -6 l4 6 l-4 6 z" fill="#1C1B29"/>`;
-  }
-  return `<svg class="pattern" viewBox="0 0 100 100" preserveAspectRatio="none">${d}</svg>`;
+  return BORDER_COLORS[h % BORDER_COLORS.length];
 }
 
 function badgeFor(hint) {
@@ -441,28 +445,30 @@ function renderCard(item, detail, imageMap) {
   const badge = badgeFor(hint);
   const character = (item.character_en || []).join(' / ') || '—';
   const sourceUrl = detail?.source_url || item.source_url || '';
-  const tint = tintFor(item.sku_id);
+  const borderColor = borderColorFor(item.sku_id);
   const isUnofficial = detail && detail.official === false;
   const photoUrl = (imageMap || {})[item.sku_id] || '';
-  const errorHandler = "const art=this.closest('.card-art'); this.style.display='none'; art.querySelector('.icon-wrap').style.display='flex'; art.querySelector('.placeholder-tag').textContent='illustration, not a photo';";
+  const errorHandler = "const art=this.closest('.card'); const img=art.querySelector('.photo'); if(img) img.style.display='none'; const iw=art.querySelector('.icon-wrap'); if(iw) iw.style.display='flex'; const credit=art.querySelector('.photo-credit'); if(credit) credit.textContent='illustration, not a photo';";
   return `
-    <div class="card">
-      <div class="card-art" style="background:${tint}">
-        ${diamondPattern()}
-        ${photoUrl ? `<img class="photo" src="${escapeHtml(photoUrl)}" alt="${escapeHtml(item.name_en)}" loading="lazy" onerror="${escapeHtml(errorHandler)}">` : ''}
-        <div class="icon-wrap" style="${photoUrl ? 'display:none;' : ''}">${iconFor(item.line_type)}</div>
-        <div class="placeholder-tag">${photoUrl ? `photo: ${escapeHtml(creditFor(photoUrl))}` : 'illustration, not a photo'}</div>
-      </div>
-      <div class="card-body">
-        <div class="card-eyebrow">${escapeHtml(character)}</div>
-        <div class="card-title">${escapeHtml(item.name_en)}</div>
-        <div class="card-spacer"></div>
-        <div class="badge-row">
-          <div class="badge ${badge.cls}"><span class="dot"></span>${badge.label}</div>
-          ${isUnofficial ? '<div class="badge unofficial"><span class="dot"></span>Fan-made · unofficial</div>' : ''}
+    <div class="card" style="background:${borderColor}">
+      <div class="card-inner">
+        <div class="card-crown-space"></div>
+        <div class="card-art">
+          ${photoUrl ? `<img class="photo" src="${escapeHtml(photoUrl)}" alt="${escapeHtml(item.name_en)}" loading="lazy" onerror="${escapeHtml(errorHandler)}">` : ''}
+          <div class="icon-wrap" style="${photoUrl ? 'display:none;' : ''}">${iconFor(item.line_type)}</div>
         </div>
-        <div class="card-links">
-          ${sourceUrl ? `<a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener">Source ↗</a>` : ''}
+        <div class="photo-credit">${photoUrl ? `photo: ${escapeHtml(creditFor(photoUrl))}` : 'illustration, not a photo'}</div>
+        <div class="card-body">
+          <div class="card-eyebrow">${escapeHtml(character)}</div>
+          <div class="card-title">${escapeHtml(item.name_en)}</div>
+          <div class="card-spacer"></div>
+          <div class="badge-row">
+            <div class="badge ${badge.cls}"><span class="dot"></span>${badge.label}</div>
+            ${isUnofficial ? '<div class="badge unofficial"><span class="dot"></span>Fan-made · unofficial</div>' : ''}
+          </div>
+          <div class="card-links">
+            ${sourceUrl ? `<a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener">Source ↗</a>` : ''}
+          </div>
         </div>
       </div>
     </div>
