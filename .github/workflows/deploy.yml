@@ -51,6 +51,6 @@ jobs:
           COMPAT_DATE="$(grep -m1 '^compatibility_date' wrangler.toml | cut -d'"' -f2)"
           SITE_DIR="$RUNNER_TEMP/web-site"
           mkdir -p "$SITE_DIR/public"
-          cp web/*.html "$SITE_DIR/public/"
+          cp -r web/. "$SITE_DIR/public/"
           cd "$SITE_DIR"
           "$WRANGLER" deploy --name kh-merch-graph-web --assets ./public --compatibility-date "$COMPAT_DATE"
