@@ -181,6 +181,9 @@
   .badge.warn .dot { background: #B4562B; }
   .badge.unknown { background: #EFEAE0; color: #6B6350; }
   .badge.unknown .dot { background: #A79A7B; }
+  .badge.unofficial { background: #EFEAF6; color: #4A3B73; }
+  .badge.unofficial .dot { background: #7A5FBF; }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 6px; }
   .card-links { display: flex; gap: 10px; font-size: 12px; margin-top: 4px; }
 
   .state-msg {
@@ -247,18 +250,17 @@
   <div class="wordmark">fandex</div>
   <div style="display:flex; gap:10px; flex-wrap:wrap;">
     <span class="chip">Kingdom Hearts</span>
-    <span class="chip ghost">+ more worlds soon</span>
   </div>
 </header>
 
 <div class="hero">
-  <h1>Tell me who you love, and I'll show you what you didn't know existed.</h1>
+  <h1>Every Kingdom Hearts item Japan has ever made, found by someone as obsessed as you are.</h1>
   <form class="search-form" id="searchForm">
     <input id="character" type="text" placeholder="character (e.g. Riku, Sora, Aqua) — optional" autocomplete="off" />
-    <input id="budget" type="number" min="0" placeholder="budget in ¥ — optional" autocomplete="off" />
+    <input id="budget" type="text" inputmode="decimal" placeholder="budget, any currency — e.g. $50 or ¥5000" autocomplete="off" />
     <button type="submit">Discover</button>
   </form>
-  <div class="search-note">Real catalog, checked by hand against a primary source. This does not confirm anything is currently listed for sale anywhere — it tells you what officially exists.</div>
+  <div class="search-note">Hand-checked against the original Japanese source, one SKU at a time. I don't sell anything here, so I've got no reason to hide the annoying parts — like when something's Japan-only. (Budget converts roughly to JPY — not a live rate, just enough to narrow the list.)</div>
 </div>
 
 <div class="status-bar">
@@ -274,8 +276,7 @@
 </main>
 
 <footer>
-  Catalog entries are checked by a human against a primary source (each card links to it). fandex doesn't sell anything and doesn't take a cut of any sale you make elsewhere — that's why it can tell you plainly when something only ships within Japan.
-  Product art shown here is a placeholder illustration, not a photo — real photos are a fast-follow.
+  Every card links to where I checked it, so you can check it too. Product art shown here is a placeholder illustration, not a photo — real photos are a fast-follow. "Fan-made · unofficial" items are doujin/fan works, clearly separated from official releases.
   Source &amp; corrections: <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph" target="_blank" rel="noopener">GitHub</a> · Prefer to check a listing you already found? <a href="./index.html">Try the listing checker</a>.
 </footer>
 
@@ -377,12 +378,37 @@ function badgeFor(hint) {
   return map[hint] || map.unknown;
 }
 
+// Rough, static conversion — not a live rate. Just enough to filter a wishlist by budget.
+const FX_TO_JPY = { USD: 155, EUR: 165, GBP: 195, JPY: 1 };
+const FX_SYMBOLS = { '$': 'USD', '€': 'EUR', '£': 'GBP', '¥': 'JPY' };
+function parseBudgetToJpy(raw) {
+  const s = String(raw || '').trim();
+  if (!s) return null;
+  let currency = null;
+  let numPart = s;
+  if (FX_SYMBOLS[s[0]]) {
+    currency = FX_SYMBOLS[s[0]];
+    numPart = s.slice(1);
+  } else {
+    const leadCode = s.match(/^([A-Za-z]{3})\s*([\d.,]+)$/);
+    const trailCode = s.match(/^([\d.,]+)\s*([A-Za-z]{3})$/);
+    if (leadCode) { currency = leadCode[1].toUpperCase(); numPart = leadCode[2]; }
+    else if (trailCode) { currency = trailCode[2].toUpperCase(); numPart = trailCode[1]; }
+  }
+  numPart = numPart.replace(/,/g, '').trim();
+  const num = parseFloat(numPart);
+  if (!isFinite(num) || num <= 0) return null;
+  if (!currency || !FX_TO_JPY[currency]) currency = 'USD'; // no symbol given — assume USD
+  return Math.round(num * FX_TO_JPY[currency]);
+}
+
 function renderCard(item, detail) {
   const hint = detail?.availability?.hint || 'unknown';
   const badge = badgeFor(hint);
   const character = (item.character_en || []).join(' / ') || '—';
   const sourceUrl = detail?.source_url || item.source_url || '';
   const tint = tintFor(item.sku_id);
+  const isUnofficial = detail && detail.official === false;
   return `
     <div class="card">
       <div class="card-art" style="background:${tint}">
@@ -394,7 +420,10 @@ function renderCard(item, detail) {
         <div class="card-eyebrow">${escapeHtml(character)}</div>
         <div class="card-title">${escapeHtml(item.name_en)}</div>
         <div class="card-spacer"></div>
-        <div class="badge ${badge.cls}"><span class="dot"></span>${badge.label}</div>
+        <div class="badge-row">
+          <div class="badge ${badge.cls}"><span class="dot"></span>${badge.label}</div>
+          ${isUnofficial ? '<div class="badge unofficial"><span class="dot"></span>Fan-made · unofficial</div>' : ''}
+        </div>
         <div class="card-links">
           ${sourceUrl ? `<a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener">Source ↗</a>` : ''}
         </div>
@@ -433,9 +462,9 @@ els.form.addEventListener('submit', (e) => {
   e.preventDefault();
   const args = {};
   const character = els.character.value.trim();
-  const budget = els.budget.value.trim();
+  const budgetJpy = parseBudgetToJpy(els.budget.value);
   if (character) args.character = character;
-  if (budget) args.budget_jpy = Number(budget);
+  if (budgetJpy) args.budget_jpy = budgetJpy;
   runSearch(args);
 });
 
