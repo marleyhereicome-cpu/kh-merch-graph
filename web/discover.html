@@ -531,6 +531,10 @@ function renderCard(item, detail, imageMap) {
   const badge = badgeFor(hint, worldwideCheckout);
   const character = (item.character_en || []).join(' / ') || '—';
   const sourceUrl = detail?.source_url || item.source_url || '';
+  // Show the maker/brand instead of a generic "Source" label when we have
+  // one (graniph, スクウェア・エニックス, etc.) — tells you where you're
+  // headed before you click, without adding an extra line to the card.
+  const sourceLabel = (detail?.line?.maker || 'Source') + ' ↗';
   const borderColor = borderColorFor(item.sku_id);
   const isUnofficial = detail && detail.official === false;
   const photoUrl = (imageMap || {})[item.sku_id] || '';
@@ -554,7 +558,7 @@ function renderCard(item, detail, imageMap) {
           </div>
           ${hint === 'jp_secondhand_only' ? findItBlock(detail, item) : ''}
           <div class="card-links">
-            ${sourceUrl ? `<a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener">Source ↗</a>` : ''}
+            ${sourceUrl ? `<a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(sourceLabel)}</a>` : ''}
           </div>
         </div>
       </div>
