@@ -439,7 +439,13 @@ function borderColorFor(seed) {
   return BORDER_COLORS[h % BORDER_COLORS.length];
 }
 
-function badgeFor(hint) {
+function badgeFor(hint, worldwideCheckout) {
+  // Some official JP retailers (graniph, via WorldShopping BIZ) let overseas
+  // fans check out directly in their own currency — no shipping proxy needed.
+  // That's meaningfully different from a plain Japan-only checkout, so we say so.
+  if (hint === 'jp_retail_new' && worldwideCheckout) {
+    return { cls: 'good', label: 'Japan retail · ships worldwide (checkout widget)' };
+  }
   const map = {
     jp_retail_new: { cls: 'warn', label: 'Japan-only checkout' },
     jp_secondhand_only: { cls: 'warn', label: 'Secondhand (Japan) · needs a shipping proxy' },
@@ -465,6 +471,9 @@ const CHANNELS = {
   hot_topic: { label: 'Hot Topic', template: 'https://www.hottopic.com/search?query={q}', proxy: false },
   buyee: { label: 'Buyee', template: 'https://buyee.jp/item/search/query/{q}', proxy: false },
   zenmarket: { label: 'ZenMarket', template: 'https://zenmarket.jp/en/search?q={q}', proxy: false },
+  // graniph runs WorldShopping BIZ, a checkout widget that lets overseas
+  // fans pay in their own currency and ship worldwide directly — no proxy.
+  graniph: { label: 'graniph', template: 'https://www.graniph.com/item?keyword={q}', proxy: false, worldwideCheckout: true },
 };
 
 // Builds "Find it: Mercari · Yahoo Auctions" links (a live search on each
@@ -473,7 +482,9 @@ const CHANNELS = {
 function findItBlock(detail, item) {
   const channelKeys = detail?.typical_channels || [];
   if (!channelKeys.length) return '';
-  const q = encodeURIComponent(item.name_ja || item.name_en);
+  // Prefer the Japanese name for these Japanese-market searches — sellers list
+  // in Japanese, so a JP query matches far better than the English title.
+  const q = encodeURIComponent(detail?.name_ja || item.name_ja || item.name_en);
   const links = channelKeys
     .map((key) => CHANNELS[key])
     .filter(Boolean)
@@ -515,7 +526,9 @@ function parseBudgetToJpy(raw) {
 
 function renderCard(item, detail, imageMap) {
   const hint = detail?.availability?.hint || 'unknown';
-  const badge = badgeFor(hint);
+  const channelKeys = detail?.typical_channels || [];
+  const worldwideCheckout = channelKeys.some((key) => CHANNELS[key]?.worldwideCheckout);
+  const badge = badgeFor(hint, worldwideCheckout);
   const character = (item.character_en || []).join(' / ') || '—';
   const sourceUrl = detail?.source_url || item.source_url || '';
   const borderColor = borderColorFor(item.sku_id);
