@@ -10,3 +10,4 @@ ebay,western,US,https://www.ebay.com/sch/i.html?_nkw={q},no,https://www.ebay.com
 hot_topic,western,US,https://www.hottopic.com/search?query={q},no,https://www.hottopic.com/
 buyee,proxy,JP,https://buyee.jp/item/search/query/{q},no,https://buyee.jp/
 zenmarket,proxy,JP,https://zenmarket.jp/en/search?q={q},no,https://zenmarket.jp/
+graniph,new,JP,https://www.graniph.com/item?keyword={q},no,https://www.graniph.com/other/global-shipping-guidance-en
