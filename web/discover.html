@@ -177,15 +177,6 @@
     gap: 22px;
   }
 
-  /* The crown "cap" is its own small, fixed-height piece, kept separate from
-     the rectangle below it. That's deliberate: the zigzag depth is always
-     relative to the cap's own ~52px, never to the whole card's height, so a
-     long product title can never drag the notch down into the photo. The
-     cap is drawn twice at the same size — an outer layer filled with the
-     accent color and padded by 3px, with a white copy on top clipped to the
-     same shape — so a uniform 3px ring shows all the way around, including
-     the diagonal edges. The rectangle below uses an ordinary CSS border of
-     the same 3px/color, so the two pieces read as one continuous outline. */
   .card { display: flex; flex-direction: column; }
   .card-crown {
     position: relative;
@@ -347,21 +338,24 @@
 </header>
 
 <div class="hero">
-  <h1>Find Kingdom Hearts merch you never knew existed, and know exactly what you're looking at before you go chasing it.</h1>
+  <h1>A shelf of Kingdom Hearts merch, checked one piece at a time — official releases and the fan-made pieces Square Enix never got around to.</h1>
   <form class="search-form" id="searchForm">
-    <input id="character" type="text" placeholder="character (e.g. Riku, Sora, Aqua) — optional" autocomplete="off" />
+    <input id="character" type="text" placeholder="character or keyword (e.g. Riku, soundtrack, hoodie) — optional" autocomplete="off" />
     <input id="budget" type="text" inputmode="decimal" placeholder="budget — e.g. $50" autocomplete="off" />
     <button type="submit">Discover</button>
   </form>
-  <div class="search-note">Search by character or set a rough budget to narrow things down. Every item says plainly whether it's officially licensed and how you'd actually get your hands on it, direct order or secondhand hunt. (Budget converts roughly to JPY, not a live rate.)</div>
+  <div class="search-note">Search by character or set a rough budget to narrow the list. Most of this only ships within Japan at the source — each card says so plainly, and for secondhand finds, links straight to a live search so you're not stuck at a dead end. (Budget converts roughly to JPY, just to filter — not a live rate.)</div>
   <div class="category-row" id="categoryRow">
-    <button type="button" class="category-chip active" data-purpose="any">Everything</button>
-    <button type="button" class="category-chip" data-purpose="play">Games</button>
-    <button type="button" class="category-chip" data-purpose="read">Books</button>
-    <button type="button" class="category-chip" data-purpose="display">Figures &amp; display</button>
-    <button type="button" class="category-chip" data-purpose="wear">Apparel</button>
+    <button type="button" class="category-chip active" data-cat="any">Everything</button>
+    <button type="button" class="category-chip" data-cat="game">Games</button>
+    <button type="button" class="category-chip" data-cat="book">Books</button>
+    <button type="button" class="category-chip" data-cat="music">Music</button>
+    <button type="button" class="category-chip" data-cat="kuji">Ichiban Kuji</button>
+    <button type="button" class="category-chip" data-cat="wear">Apparel &amp; bags</button>
+    <button type="button" class="category-chip" data-cat="display">Figures &amp; plush</button>
+    <button type="button" class="category-chip" data-cat="other">Accessories &amp; stationery</button>
   </div>
-  <div class="search-note">Not sure what you're looking for yet? Pick a category above instead of typing a character name — new arrivals (soundtracks, lottery prizes, apparel collabs) don't belong to one character, so a character search alone won't surface them.</div>
+  <div class="search-note">Not sure what you're looking for yet? Pick a category above instead of typing a character name — new arrivals (soundtracks, lottery prizes, apparel collabs) don't belong to one character, so a character search alone won't surface them. You can also type any product word (e.g. "soundtrack", "hoodie", "mug") — not just a character name.</div>
 </div>
 
 <details class="about-ip">
@@ -371,7 +365,7 @@
 
 <details class="about-ip">
   <summary>What's a shipping proxy?</summary>
-  <p>Most Japanese shops and marketplaces (Mercari, Yahoo Auctions, the Square Enix store) only ship inside Japan. A shipping proxy is a paid service (<a href="https://buyee.jp/" target="_blank" rel="noopener">Buyee</a> and <a href="https://zenmarket.jp/en/" target="_blank" rel="noopener">ZenMarket</a> are two well-known ones) that buys the item on your behalf with a Japanese address, then forwards it to you. They add a service fee plus international shipping on top of the item's price. We're NOT affiliated with either. This isn't something we do ourselves; we just point you to where an item shows up and let you take it from there.</p>
+  <p>Most Japanese shops and marketplaces (Mercari, Yahoo Auctions, the Square Enix store) only ship inside Japan. A shipping proxy is a paid service — <a href="https://buyee.jp/" target="_blank" rel="noopener">Buyee</a> and <a href="https://zenmarket.jp/en/" target="_blank" rel="noopener">ZenMarket</a> are two well-known ones — that buys the item on your behalf with a Japanese address, then forwards it to you. They add a service fee plus international shipping on top of the item's price. We're not affiliated with either — they're just the two most commonly used. This isn't something we do ourselves; we just point you to where an item shows up and let you take it from there.</p>
 </details>
 
 <div class="status-bar">
@@ -388,7 +382,7 @@
 </main>
 
 <footer>
-  Every card links to where I checked it, so you can check it too. Some cards show a real photo, credited to where it's from. The rest use a placeholder illustration until I get to them. "Fan-made · unofficial" items are doujin/fan works, clearly separated from official releases.
+  Every card links to where I checked it, so you can check it too. Some cards show a real photo, credited to where it's from — the rest use a placeholder illustration until I get to them. "Fan-made · unofficial" items are doujin/fan works, clearly separated from official releases.
   Source &amp; corrections: <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph" target="_blank" rel="noopener">GitHub</a> · Prefer to check a listing you already found? <a href="./index.html">Try the listing checker</a>.
 </footer>
 
@@ -455,8 +449,6 @@ async function callTool(name, args) {
 const discover = (args) => callTool('discover', { ip: IP, ...args });
 const explainProduct = (sku_id) => callTool('explain_product', { sku_id });
 
-// A small, hand-collected sku_id → image URL map. Not every SKU has one yet —
-// items without an entry fall back to the placeholder icon.
 const imageMapPromise = fetch('./images.json')
   .then((r) => (r.ok ? r.json() : {}))
   .catch(() => ({}));
@@ -478,8 +470,6 @@ function iconFor(lineType) {
   if (lineType === 'kuji') return ICONS.kuji;
   return ICONS.default;
 }
-// Crown-card outline color — cycles red / blue / green, picked per SKU so a
-// given item looks the same across reloads instead of flickering on re-search.
 const BORDER_COLORS = ['#B23A48', '#3D5A80', '#4C7A5E'];
 function borderColorFor(seed) {
   let h = 0;
@@ -488,9 +478,6 @@ function borderColorFor(seed) {
 }
 
 function badgeFor(hint, worldwideCheckout) {
-  // Some official JP retailers (graniph, via WorldShopping BIZ) let overseas
-  // fans check out directly in their own currency — no shipping proxy needed.
-  // That's meaningfully different from a plain Japan-only checkout, so we say so.
   if (hint === 'jp_retail_new' && worldwideCheckout) {
     return { cls: 'good', label: 'Japan retail · ships worldwide (checkout widget)' };
   }
@@ -504,9 +491,6 @@ function badgeFor(hint, worldwideCheckout) {
   return map[hint] || map.unknown;
 }
 
-// Mirrors data/channels.csv — where each typical_channels value actually goes,
-// and whether it needs a shipping proxy to reach outside Japan. Small and
-// stable enough to keep in sync by hand; if channels.csv changes, update here too.
 const CHANNELS = {
   mercari: { label: 'Mercari', template: 'https://jp.mercari.com/search?keyword={q}', proxy: true },
   yahoo_auctions: { label: 'Yahoo Auctions', template: 'https://auctions.yahoo.co.jp/search/search?p={q}', proxy: true },
@@ -519,19 +503,12 @@ const CHANNELS = {
   hot_topic: { label: 'Hot Topic', template: 'https://www.hottopic.com/search?query={q}', proxy: false },
   buyee: { label: 'Buyee', template: 'https://buyee.jp/item/search/query/{q}', proxy: false },
   zenmarket: { label: 'ZenMarket', template: 'https://zenmarket.jp/en/search?q={q}', proxy: false },
-  // graniph runs WorldShopping BIZ, a checkout widget that lets overseas
-  // fans pay in their own currency and ship worldwide directly — no proxy.
   graniph: { label: 'graniph', template: 'https://www.graniph.com/item?keyword={q}', proxy: false, worldwideCheckout: true },
 };
 
-// Builds "Find it: Mercari · Yahoo Auctions" links (a live search on each
-// channel, not a specific listing — we never scrape or host listing data
-// ourselves) plus a one-line proxy-shipping note when any channel needs one.
 function findItBlock(detail, item) {
   const channelKeys = detail?.typical_channels || [];
   if (!channelKeys.length) return '';
-  // Prefer the Japanese name for these Japanese-market searches — sellers list
-  // in Japanese, so a JP query matches far better than the English title.
   const q = encodeURIComponent(detail?.name_ja || item.name_ja || item.name_en);
   const links = channelKeys
     .map((key) => CHANNELS[key])
@@ -548,7 +525,6 @@ function findItBlock(detail, item) {
   `;
 }
 
-// Rough, static conversion — not a live rate. Just enough to filter a wishlist by budget.
 const FX_TO_JPY = { USD: 155, EUR: 165, GBP: 195, JPY: 1 };
 const FX_SYMBOLS = { '$': 'USD', '€': 'EUR', '£': 'GBP', '¥': 'JPY' };
 function parseBudgetToJpy(raw) {
@@ -568,7 +544,7 @@ function parseBudgetToJpy(raw) {
   numPart = numPart.replace(/,/g, '').trim();
   const num = parseFloat(numPart);
   if (!isFinite(num) || num <= 0) return null;
-  if (!currency || !FX_TO_JPY[currency]) currency = 'USD'; // no symbol given — assume USD
+  if (!currency || !FX_TO_JPY[currency]) currency = 'USD';
   return Math.round(num * FX_TO_JPY[currency]);
 }
 
@@ -579,9 +555,6 @@ function renderCard(item, detail, imageMap) {
   const badge = badgeFor(hint, worldwideCheckout);
   const character = (item.character_en || []).join(' / ') || '—';
   const sourceUrl = detail?.source_url || item.source_url || '';
-  // Show the maker/brand instead of a generic "Source" label when we have
-  // one (graniph, スクウェア・エニックス, etc.) — tells you where you're
-  // headed before you click, without adding an extra line to the card.
   const sourceLabel = (detail?.line?.maker || 'Source') + ' ↗';
   const borderColor = borderColorFor(item.sku_id);
   const isUnofficial = detail && detail.official === false;
@@ -621,67 +594,110 @@ async function enrich(items) {
   return items.map((item, i) => ({ item, detail: details[i] }));
 }
 
-// Current filters + how many cards we've asked the server for so far.
-// The discover tool has no page/offset — "Show more" just re-asks for a
-// bigger limit and re-renders the (larger) result from the top.
-let currentArgs = {};
-let currentLimit = GRID_LIMIT;
+let allItemsPromise = null;
+function loadAllItems() {
+  if (!allItemsPromise) allItemsPromise = discover({ limit: 500 }).then((r) => r.items);
+  return allItemsPromise;
+}
 
-async function runSearch(args, limit) {
-  currentArgs = args;
-  currentLimit = limit || GRID_LIMIT;
+const CATEGORY_GROUPS = {
+  game: ['game', 'console'],
+  book: ['book'],
+  music: ['music'],
+  kuji: ['kuji'],
+  wear: ['apparel', 'bag'],
+  display: ['figure', 'plush'],
+  other: ['accessory', 'stationery', 'acrylic', 'novelty', 'other'],
+};
+
+function matchesCategory(item, cat) {
+  if (!cat || cat === 'any') return true;
+  const group = CATEGORY_GROUPS[cat];
+  return group ? group.includes(item.line_type) : true;
+}
+
+function matchesKeyword(item, kw) {
+  if (!kw) return true;
+  const haystack = [
+    item.name_en, item.sku_id, ...(item.character_en || []),
+  ].join(' ').toLowerCase();
+  return haystack.includes(kw);
+}
+
+function matchesBudget(item, budgetJpy) {
+  if (!budgetJpy) return true;
+  return typeof item.msrp_jpy === 'number' && item.msrp_jpy > 0 && item.msrp_jpy <= budgetJpy;
+}
+
+function currentFilters() {
+  const activeChip = els.categoryRow.querySelector('.category-chip.active');
+  return {
+    keyword: els.character.value.trim().toLowerCase(),
+    budgetJpy: parseBudgetToJpy(els.budget.value),
+    category: activeChip ? activeChip.dataset.cat : 'any',
+  };
+}
+
+let filteredItems = [];
+let renderedCount = 0;
+
+async function applyFilters() {
   els.status.textContent = 'Looking…';
   els.grid.innerHTML = '<div class="state-msg">Looking…</div>';
   els.loadMoreRow.classList.add('hidden');
   try {
-    const [result, imageMap] = await Promise.all([
-      discover({ ...currentArgs, limit: currentLimit }),
-      imageMapPromise,
-    ]);
-    if (!result.items.length) {
-      els.grid.innerHTML = '<div class="state-msg">Nothing matched that. Try a different character or category, or clear the search to see everything.</div>';
+    const [allItems, imageMap] = await Promise.all([loadAllItems(), imageMapPromise]);
+    const { keyword, budgetJpy, category } = currentFilters();
+    filteredItems = allItems.filter((item) => (
+      matchesKeyword(item, keyword) && matchesBudget(item, budgetJpy) && matchesCategory(item, category)
+    ));
+    renderedCount = 0;
+    if (!filteredItems.length) {
+      els.grid.innerHTML = '<div class="state-msg">Nothing matched that. Try a different word or category, or clear the search to see everything.</div>';
       els.status.textContent = 'No matches';
       return;
     }
-    const enriched = await enrich(result.items);
-    els.grid.innerHTML = enriched.map(({ item, detail }) => renderCard(item, detail, imageMap)).join('');
-    els.status.textContent = `Showing ${result.items.length} of ${result.total_matches} known Kingdom Hearts SKUs`;
-    if (result.items.length < result.total_matches) {
-      els.loadMoreRow.classList.remove('hidden');
-      els.loadMoreBtn.disabled = false;
-      els.loadMoreBtn.textContent = 'Show more';
-    }
+    els.grid.innerHTML = '';
+    await renderMore(imageMap);
   } catch (err) {
     els.grid.innerHTML = `<div class="state-msg">Couldn't reach the catalog right now (${escapeHtml(err.message)}). Try reloading in a moment.</div>`;
     els.status.textContent = 'Connection error';
   }
 }
 
+async function renderMore(imageMap) {
+  const nextSlice = filteredItems.slice(renderedCount, renderedCount + GRID_LIMIT);
+  const enriched = await enrich(nextSlice);
+  const html = enriched.map(({ item, detail }) => renderCard(item, detail, imageMap)).join('');
+  els.grid.insertAdjacentHTML('beforeend', html);
+  renderedCount += nextSlice.length;
+  els.status.textContent = `Showing ${renderedCount} of ${filteredItems.length} matching Kingdom Hearts SKUs`;
+  if (renderedCount < filteredItems.length) {
+    els.loadMoreRow.classList.remove('hidden');
+    els.loadMoreBtn.disabled = false;
+    els.loadMoreBtn.textContent = 'Show more';
+  } else {
+    els.loadMoreRow.classList.add('hidden');
+  }
+}
+
 els.form.addEventListener('submit', (e) => {
   e.preventDefault();
-  const args = {};
-  const character = els.character.value.trim();
-  const budgetJpy = parseBudgetToJpy(els.budget.value);
-  const activeChip = els.categoryRow.querySelector('.category-chip.active');
-  const purpose = activeChip ? activeChip.dataset.purpose : 'any';
-  if (character) args.character = character;
-  if (budgetJpy) args.budget_jpy = budgetJpy;
-  if (purpose && purpose !== 'any') args.purpose = purpose;
-  runSearch(args, GRID_LIMIT);
+  applyFilters();
 });
 
 els.categoryRow.addEventListener('click', (e) => {
   const btn = e.target.closest('.category-chip');
   if (!btn) return;
   els.categoryRow.querySelectorAll('.category-chip').forEach((c) => c.classList.toggle('active', c === btn));
-  // Re-run with the current character/budget text plus the newly picked category.
-  els.form.dispatchEvent(new Event('submit', { cancelable: true }));
+  applyFilters();
 });
 
-els.loadMoreBtn.addEventListener('click', () => {
+els.loadMoreBtn.addEventListener('click', async () => {
   els.loadMoreBtn.disabled = true;
   els.loadMoreBtn.textContent = 'Loading…';
-  runSearch(currentArgs, currentLimit + GRID_LIMIT);
+  const imageMap = await imageMapPromise;
+  renderMore(imageMap);
 });
 
 els.surpriseBtn.addEventListener('click', async () => {
@@ -702,7 +718,7 @@ els.revealAgain.addEventListener('click', () => els.surpriseBtn.click());
 els.revealClose.addEventListener('click', () => els.overlay.classList.remove('open'));
 els.overlay.addEventListener('click', (e) => { if (e.target === els.overlay) els.overlay.classList.remove('open'); });
 
-runSearch({}, GRID_LIMIT);
+applyFilters();
 </script>
 </body>
 </html>
