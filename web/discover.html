@@ -89,6 +89,41 @@
   .search-form button:hover { background: #3D4A73; }
   .search-note { font-size: 12px; color: #8A806B; margin-top: 12px; }
 
+  .category-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 14px;
+  }
+  .category-chip {
+    font-family: inherit;
+    font-size: 13px;
+    background: #FAF8F3;
+    color: #1C1B29;
+    border: 1px solid #E4DCC8;
+    border-radius: 999px;
+    padding: 7px 16px;
+    cursor: pointer;
+  }
+  .category-chip:hover { border-color: #3D4A73; }
+  .category-chip.active { background: #1C1B29; color: #F7F3EC; border-color: #1C1B29; }
+
+  .load-more-row { display: flex; justify-content: center; padding: 8px 24px 40px; }
+  .load-more-row button {
+    font-family: inherit;
+    font-size: 14px;
+    background: #FFFFFF;
+    color: #1C1B29;
+    border: 1px solid #C9BBA0;
+    border-radius: 999px;
+    padding: 10px 26px;
+    cursor: pointer;
+  }
+  .load-more-row button:hover { border-color: #3D4A73; color: #3D4A73; }
+  .load-more-row button:disabled { opacity: 0.5; cursor: default; }
+  .load-more-row.hidden { display: none; }
+
   .about-ip {
     max-width: 700px;
     margin: 0 auto 32px;
@@ -319,6 +354,14 @@
     <button type="submit">Discover</button>
   </form>
   <div class="search-note">Search by character or set a rough budget to narrow things down. Every item says plainly whether it's officially licensed and how you'd actually get your hands on it, direct order or secondhand hunt. (Budget converts roughly to JPY, not a live rate.)</div>
+  <div class="category-row" id="categoryRow">
+    <button type="button" class="category-chip active" data-purpose="any">Everything</button>
+    <button type="button" class="category-chip" data-purpose="play">Games</button>
+    <button type="button" class="category-chip" data-purpose="read">Books</button>
+    <button type="button" class="category-chip" data-purpose="display">Figures &amp; display</button>
+    <button type="button" class="category-chip" data-purpose="wear">Apparel</button>
+  </div>
+  <div class="search-note">Not sure what you're looking for yet? Pick a category above instead of typing a character name — new arrivals (soundtracks, lottery prizes, apparel collabs) don't belong to one character, so a character search alone won't surface them.</div>
 </div>
 
 <details class="about-ip">
@@ -328,7 +371,7 @@
 
 <details class="about-ip">
   <summary>What's a shipping proxy?</summary>
-  <p>Most Japanese shops and marketplaces (Mercari, Yahoo Auctions, the Square Enix store) only ship inside Japan. A shipping proxy is a paid service — <a href="https://buyee.jp/" target="_blank" rel="noopener">Buyee</a> and <a href="https://zenmarket.jp/en/" target="_blank" rel="noopener">ZenMarket</a> are two well-known ones — that buys the item on your behalf with a Japanese address, then forwards it to you. They add a service fee plus international shipping on top of the item's price. We're not affiliated with either — they're just the two most commonly used. This isn't something we do ourselves; we just point you to where an item shows up and let you take it from there.</p>
+  <p>Most Japanese shops and marketplaces (Mercari, Yahoo Auctions, the Square Enix store) only ship inside Japan. A shipping proxy is a paid service (<a href="https://buyee.jp/" target="_blank" rel="noopener">Buyee</a> and <a href="https://zenmarket.jp/en/" target="_blank" rel="noopener">ZenMarket</a> are two well-known ones) that buys the item on your behalf with a Japanese address, then forwards it to you. They add a service fee plus international shipping on top of the item's price. We're NOT affiliated with either. This isn't something we do ourselves; we just point you to where an item shows up and let you take it from there.</p>
 </details>
 
 <div class="status-bar">
@@ -341,10 +384,11 @@
 
 <main>
   <div id="grid"><div class="state-msg">Loading the catalog…</div></div>
+  <div class="load-more-row" id="loadMoreRow"><button type="button" id="loadMoreBtn">Show more</button></div>
 </main>
 
 <footer>
-  Every card links to where I checked it, so you can check it too. Some cards show a real photo, credited to where it's from — the rest use a placeholder illustration until I get to them. "Fan-made · unofficial" items are doujin/fan works, clearly separated from official releases.
+  Every card links to where I checked it, so you can check it too. Some cards show a real photo, credited to where it's from. The rest use a placeholder illustration until I get to them. "Fan-made · unofficial" items are doujin/fan works, clearly separated from official releases.
   Source &amp; corrections: <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph" target="_blank" rel="noopener">GitHub</a> · Prefer to check a listing you already found? <a href="./index.html">Try the listing checker</a>.
 </footer>
 
@@ -377,6 +421,9 @@ const els = {
   revealSource: document.getElementById('revealSource'),
   revealAgain: document.getElementById('revealAgain'),
   revealClose: document.getElementById('revealClose'),
+  categoryRow: document.getElementById('categoryRow'),
+  loadMoreRow: document.getElementById('loadMoreRow'),
+  loadMoreBtn: document.getElementById('loadMoreBtn'),
 };
 
 function escapeHtml(s) {
@@ -574,22 +621,36 @@ async function enrich(items) {
   return items.map((item, i) => ({ item, detail: details[i] }));
 }
 
-async function runSearch(args) {
+// Current filters + how many cards we've asked the server for so far.
+// The discover tool has no page/offset — "Show more" just re-asks for a
+// bigger limit and re-renders the (larger) result from the top.
+let currentArgs = {};
+let currentLimit = GRID_LIMIT;
+
+async function runSearch(args, limit) {
+  currentArgs = args;
+  currentLimit = limit || GRID_LIMIT;
   els.status.textContent = 'Looking…';
   els.grid.innerHTML = '<div class="state-msg">Looking…</div>';
+  els.loadMoreRow.classList.add('hidden');
   try {
     const [result, imageMap] = await Promise.all([
-      discover({ ...args, limit: GRID_LIMIT }),
+      discover({ ...currentArgs, limit: currentLimit }),
       imageMapPromise,
     ]);
     if (!result.items.length) {
-      els.grid.innerHTML = '<div class="state-msg">Nothing matched that. Try a different character, or clear the search to see everything.</div>';
+      els.grid.innerHTML = '<div class="state-msg">Nothing matched that. Try a different character or category, or clear the search to see everything.</div>';
       els.status.textContent = 'No matches';
       return;
     }
     const enriched = await enrich(result.items);
     els.grid.innerHTML = enriched.map(({ item, detail }) => renderCard(item, detail, imageMap)).join('');
     els.status.textContent = `Showing ${result.items.length} of ${result.total_matches} known Kingdom Hearts SKUs`;
+    if (result.items.length < result.total_matches) {
+      els.loadMoreRow.classList.remove('hidden');
+      els.loadMoreBtn.disabled = false;
+      els.loadMoreBtn.textContent = 'Show more';
+    }
   } catch (err) {
     els.grid.innerHTML = `<div class="state-msg">Couldn't reach the catalog right now (${escapeHtml(err.message)}). Try reloading in a moment.</div>`;
     els.status.textContent = 'Connection error';
@@ -601,9 +662,26 @@ els.form.addEventListener('submit', (e) => {
   const args = {};
   const character = els.character.value.trim();
   const budgetJpy = parseBudgetToJpy(els.budget.value);
+  const activeChip = els.categoryRow.querySelector('.category-chip.active');
+  const purpose = activeChip ? activeChip.dataset.purpose : 'any';
   if (character) args.character = character;
   if (budgetJpy) args.budget_jpy = budgetJpy;
-  runSearch(args);
+  if (purpose && purpose !== 'any') args.purpose = purpose;
+  runSearch(args, GRID_LIMIT);
+});
+
+els.categoryRow.addEventListener('click', (e) => {
+  const btn = e.target.closest('.category-chip');
+  if (!btn) return;
+  els.categoryRow.querySelectorAll('.category-chip').forEach((c) => c.classList.toggle('active', c === btn));
+  // Re-run with the current character/budget text plus the newly picked category.
+  els.form.dispatchEvent(new Event('submit', { cancelable: true }));
+});
+
+els.loadMoreBtn.addEventListener('click', () => {
+  els.loadMoreBtn.disabled = true;
+  els.loadMoreBtn.textContent = 'Loading…';
+  runSearch(currentArgs, currentLimit + GRID_LIMIT);
 });
 
 els.surpriseBtn.addEventListener('click', async () => {
@@ -624,7 +702,7 @@ els.revealAgain.addEventListener('click', () => els.surpriseBtn.click());
 els.revealClose.addEventListener('click', () => els.overlay.classList.remove('open'));
 els.overlay.addEventListener('click', (e) => { if (e.target === els.overlay) els.overlay.classList.remove('open'); });
 
-runSearch({});
+runSearch({}, GRID_LIMIT);
 </script>
 </body>
 </html>
