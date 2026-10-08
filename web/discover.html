@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Kingdom Hearts merch, discovered</title>
-<meta name="description" content="Browse real Kingdom Hearts merchandise the world outside Japan usually never sees — with an honest note on whether it ships to you." />
+<meta name="description" content="Browse real Kingdom Hearts merchandise across the world and where you could get them." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
 <style>
@@ -338,13 +338,13 @@
 </header>
 
 <div class="hero">
-  <h1>A shelf of Kingdom Hearts merch, checked one piece at a time — official releases and the fan-made pieces Square Enix never got around to.</h1>
+  <h1>Find Kingdom Hearts merch you never knew existed, and know exactly what you're looking at before you go chasing it.</h1>
   <form class="search-form" id="searchForm">
-    <input id="character" type="text" placeholder="character or keyword (e.g. Riku, soundtrack, hoodie) — optional" autocomplete="off" />
-    <input id="budget" type="text" inputmode="decimal" placeholder="budget — e.g. $50" autocomplete="off" />
+    <input id="character" type="text" placeholder="character or keyword (optional)" autocomplete="off" />
+    <input id="budget" type="text" inputmode="decimal" placeholder="budget: $50 (optional)" autocomplete="off" />
     <button type="submit">Discover</button>
   </form>
-  <div class="search-note">Search by character or set a rough budget to narrow the list. Most of this only ships within Japan at the source — each card says so plainly, and for secondhand finds, links straight to a live search so you're not stuck at a dead end. (Budget converts roughly to JPY, just to filter — not a live rate.)</div>
+  <div class="search-note">Search by character or set a rough budget to narrow things down. Every item says plainly whether it's officially licensed and how you'd actually get your hands on it, direct order or secondhand hunt. (Budget converts roughly to JPY, not a live rate.)</div>
   <div class="category-row" id="categoryRow">
     <button type="button" class="category-chip active" data-cat="any">Everything</button>
     <button type="button" class="category-chip" data-cat="game">Games</button>
@@ -355,7 +355,7 @@
     <button type="button" class="category-chip" data-cat="display">Figures &amp; plush</button>
     <button type="button" class="category-chip" data-cat="other">Accessories &amp; stationery</button>
   </div>
-  <div class="search-note">Not sure what you're looking for yet? Pick a category above instead of typing a character name — new arrivals (soundtracks, lottery prizes, apparel collabs) don't belong to one character, so a character search alone won't surface them. You can also type any product word (e.g. "soundtrack", "hoodie", "mug") — not just a character name.</div>
+  <div class="search-note">Not sure what you're looking for yet? Pick a category above instead of typing a character name — new arrivals (soundtracks, lottery prizes, apparel collabs) don't belong to one character, so a character search alone won't surface them.</div>
 </div>
 
 <details class="about-ip">
@@ -365,7 +365,7 @@
 
 <details class="about-ip">
   <summary>What's a shipping proxy?</summary>
-  <p>Most Japanese shops and marketplaces (Mercari, Yahoo Auctions, the Square Enix store) only ship inside Japan. A shipping proxy is a paid service — <a href="https://buyee.jp/" target="_blank" rel="noopener">Buyee</a> and <a href="https://zenmarket.jp/en/" target="_blank" rel="noopener">ZenMarket</a> are two well-known ones — that buys the item on your behalf with a Japanese address, then forwards it to you. They add a service fee plus international shipping on top of the item's price. We're not affiliated with either — they're just the two most commonly used. This isn't something we do ourselves; we just point you to where an item shows up and let you take it from there.</p>
+  <p>Most Japanese shops and marketplaces (Mercari, Yahoo Auctions, the Square Enix store) only ship inside Japan. A shipping proxy is a paid service (<a href="https://buyee.jp/" target="_blank" rel="noopener">Buyee</a> and <a href="https://zenmarket.jp/en/" target="_blank" rel="noopener">ZenMarket</a> are two well-known ones) that buys the item on your behalf with a Japanese address, then forwards it to you. They add a service fee plus international shipping on top of the item's price. We're NOT affiliated with either. This isn't something we do ourselves; we just point you to where an item shows up and let you take it from there.</p>
 </details>
 
 <div class="status-bar">
@@ -382,7 +382,7 @@
 </main>
 
 <footer>
-  Every card links to where I checked it, so you can check it too. Some cards show a real photo, credited to where it's from — the rest use a placeholder illustration until I get to them. "Fan-made · unofficial" items are doujin/fan works, clearly separated from official releases.
+  Every card links to where I checked it, so you can check it too. Some cards show a real photo, credited to where it's from. The rest use a placeholder illustration until I get to them. "Fan-made · unofficial" items are doujin/fan works, clearly separated from official releases.
   Source &amp; corrections: <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph" target="_blank" rel="noopener">GitHub</a> · Prefer to check a listing you already found? <a href="./index.html">Try the listing checker</a>.
 </footer>
 
@@ -653,7 +653,7 @@ async function applyFilters() {
     ));
     renderedCount = 0;
     if (!filteredItems.length) {
-      els.grid.innerHTML = '<div class="state-msg">Nothing matched that. Try a different word or category, or clear the search to see everything.</div>';
+      els.grid.innerHTML = '<div class="state-msg">Nothing matched that. Try a different character or category, or clear the search to see everything.</div>';
       els.status.textContent = 'No matches';
       return;
     }
