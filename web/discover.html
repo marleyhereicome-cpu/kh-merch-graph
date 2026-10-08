@@ -280,6 +280,18 @@
     color: #8A806B;
     font-size: 14px;
   }
+  .suggest-chip {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    background: none;
+    color: #3D4A73;
+    border: none;
+    border-bottom: 1px solid #3D4A73;
+    padding: 0 1px;
+    cursor: pointer;
+  }
+  .suggest-chip:hover { color: #C9A227; border-color: #C9A227; }
 
   .overlay {
     position: fixed; inset: 0;
@@ -610,6 +622,25 @@ const CATEGORY_GROUPS = {
   other: ['accessory', 'stationery', 'acrylic', 'novelty', 'other'],
 };
 
+// Some characters don't have solo merch yet, but turn up fine under a broader
+// group search. When a search comes back empty, offer that broader term
+// instead of just saying "nothing here."
+const NO_RESULT_SUGGESTIONS = [
+  {
+    triggers: ['xemnas', 'xigbar', 'xaldin', 'saix', 'saïx', 'demyx', 'luxord', 'ゼムナス', 'シグバール', 'ザルディン', 'サイクス', 'デミックス', 'ルクソード'],
+    suggestKeyword: 'organization xiii',
+    suggestLabel: 'Organization XIII',
+  },
+];
+
+function findSuggestion(keyword) {
+  if (!keyword) return null;
+  for (const entry of NO_RESULT_SUGGESTIONS) {
+    if (entry.triggers.some((t) => keyword.includes(t))) return entry;
+  }
+  return null;
+}
+
 function matchesCategory(item, cat) {
   if (!cat || cat === 'any') return true;
   const group = CATEGORY_GROUPS[cat];
@@ -653,7 +684,10 @@ async function applyFilters() {
     ));
     renderedCount = 0;
     if (!filteredItems.length) {
-      els.grid.innerHTML = '<div class="state-msg">Nothing matched that. Try a different character or category, or clear the search to see everything.</div>';
+      const suggestion = findSuggestion(keyword);
+      els.grid.innerHTML = suggestion
+        ? `<div class="state-msg">No solo merch for that one yet. Try <button type="button" class="suggest-chip" data-kw="${escapeHtml(suggestion.suggestKeyword)}">${escapeHtml(suggestion.suggestLabel)}</button> instead — items featuring the whole group do exist.</div>`
+        : '<div class="state-msg">Nothing matched that. Try a different character or category, or clear the search to see everything.</div>';
       els.status.textContent = 'No matches';
       return;
     }
@@ -683,6 +717,13 @@ async function renderMore(imageMap) {
 
 els.form.addEventListener('submit', (e) => {
   e.preventDefault();
+  applyFilters();
+});
+
+els.grid.addEventListener('click', (e) => {
+  const chip = e.target.closest('.suggest-chip');
+  if (!chip) return;
+  els.character.value = chip.dataset.kw;
   applyFilters();
 });
 
