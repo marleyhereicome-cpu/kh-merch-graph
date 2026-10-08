@@ -623,20 +623,41 @@ const CATEGORY_GROUPS = {
 };
 
 // Some characters don't have solo merch yet, but turn up fine under a broader
-// group search. When a search comes back empty, offer that broader term
-// instead of just saying "nothing here."
-const NO_RESULT_SUGGESTIONS = [
-  {
-    triggers: ['xemnas', 'xigbar', 'xaldin', 'saix', 'saïx', 'demyx', 'luxord', 'ゼムナス', 'シグバール', 'ザルディン', 'サイクス', 'デミックス', 'ルクソード'],
+// group search (e.g. a full-team shirt that shows everyone, with no solo
+// item for any single member). When a search comes back empty, offer that
+// broader term instead of just saying "nothing here."
+//
+// This table is data, not logic: adding a new IP or a new thin-coverage
+// character means adding one entry below (or, once data/ip_terms.csv's
+// character_group column is wired up server-side, generating this table
+// from that CSV) — no change to findSuggestion() or applyFilters() is
+// needed. See project doc 運用体制_スキルとエージェント自動化_2026-09.md §5
+// for the onboarding checklist that produces each entry's member list.
+const CHARACTER_GROUPS = {
+  organization_xiii: {
     suggestKeyword: 'organization xiii',
     suggestLabel: 'Organization XIII',
+    // Full 13-member roster (EN + JA), not just the currently-thin ones:
+    // a member with solo hits today never reaches findSuggestion() anyway
+    // (it's only called on a zero-result search), and keeping the whole
+    // roster here means a member who loses solo coverage later is already
+    // covered without a code edit.
+    members: [
+      'xemnas', 'xigbar', 'xaldin', 'vexen', 'lexaeus', 'zexion', 'saix', 'saïx',
+      'axel', 'demyx', 'luxord', 'marluxia', 'larxene', 'roxas', 'xion',
+      'ゼムナス', 'シグバール', 'ザルディン', 'ベクセン', 'レクセウス', 'ゼクシオン',
+      'サイクス', 'アクセル', 'デミックス', 'ルクソード', 'マールシア', 'ラーゼンバーグ', 'ラクシーヌ',
+    ],
   },
-];
+};
 
 function findSuggestion(keyword) {
   if (!keyword) return null;
-  for (const entry of NO_RESULT_SUGGESTIONS) {
-    if (entry.triggers.some((t) => keyword.includes(t))) return entry;
+  const lower = keyword.toLowerCase();
+  for (const group of Object.values(CHARACTER_GROUPS)) {
+    if (group.members.some((m) => lower.includes(m.toLowerCase()))) {
+      return { suggestKeyword: group.suggestKeyword, suggestLabel: group.suggestLabel };
+    }
   }
   return null;
 }
