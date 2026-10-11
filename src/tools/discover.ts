@@ -18,6 +18,42 @@ function lineTypeFor(lineId: string): string | undefined {
   return productLines.find((l) => l.line_id === lineId)?.line_type;
 }
 
+// ゼロ件誘導機能：単独グッズがまだ無いキャラ名で検索された場合、グループ名（例:
+// 「XIII機関」）での再検索を提案する。web/discover.html の CHARACTER_GROUPS /
+// findSuggestion() と同じデータ・同じロジックをサーバー側に複製したもの。
+// 新しいIPやキャラを追加するときは、ここと discover.html の両方を更新すること
+// （将来的には data/ip_terms.csv の character_group 列から自動生成する案あり。
+// claude/運用体制_スキルとエージェント自動化_2026-09.md §5参照）。
+interface CharacterGroup {
+  suggestKeyword: string;
+  suggestLabel: string;
+  members: string[];
+}
+
+const CHARACTER_GROUPS: Record<string, CharacterGroup> = {
+  organization_xiii: {
+    suggestKeyword: "organization xiii",
+    suggestLabel: "Organization XIII",
+    members: [
+      "xemnas", "xigbar", "xaldin", "vexen", "lexaeus", "zexion", "saix", "saïx",
+      "axel", "demyx", "luxord", "marluxia", "larxene", "roxas", "xion",
+      "ゼムナス", "シグバール", "ザルディン", "ベクセン", "レクセウス", "ゼクシオン",
+      "サイクス", "アクセル", "デミックス", "ルクソード", "マールシア", "ラーゼンバーグ", "ラクシーヌ",
+    ],
+  },
+};
+
+function findCharacterGroupSuggestion(character?: string): { suggest_keyword: string; suggest_label: string } | null {
+  if (!character) return null;
+  const lower = character.toLowerCase();
+  for (const group of Object.values(CHARACTER_GROUPS)) {
+    if (group.members.some((m) => lower.includes(m.toLowerCase()))) {
+      return { suggest_keyword: group.suggestKeyword, suggest_label: group.suggestLabel };
+    }
+  }
+  return null;
+}
+
 export interface DiscoverInput {
   ip: string;
   character?: string;
@@ -84,10 +120,21 @@ export function discoverCatalog({ ip, character, budget_jpy, purpose, limit, ter
     source_url: s.source_url,
   }));
 
+  // ゼロ件かつキャラ名指定ありの場合のみ、グループ名での再検索を提案する
+  // （予算・用途・terms で絞り込みすぎて0件になったケースは対象外 —
+  // その場合はキャラ自体は見つかっているはずなので誤誘導になるため）。
+  const suggestion = results.length === 0 ? findCharacterGroupSuggestion(character) : null;
+
   const result = {
     items,
     total_matches: results.length,
     ...(termsNote ? { terms_note_en: termsNote } : {}),
+    ...(suggestion
+      ? {
+          suggested_character_group: suggestion,
+          suggestion_note_en: `No solo merch found for "${character}" yet. Try searching character="${suggestion.suggest_label}" instead — items featuring the whole group do exist.`,
+        }
+      : {}),
     note_en:
       "This lists catalog SKUs only. It does not confirm that any item is currently listed for sale anywhere.",
   };
