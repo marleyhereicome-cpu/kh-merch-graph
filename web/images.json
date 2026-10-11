@@ -162,12 +162,9 @@
   "kh-film-sticky-note-set-traverse-town": "https://store.jp.square-enix.com/img/goods/L/MKH09569_001.jpg",
   "kh-flat-pen-case-black": "https://store.jp.square-enix.com/img/goods/L/MKH09684_001.jpg",
   "kh-flat-pen-case-white": "https://store.jp.square-enix.com/img/goods/L/MKH09685_001.jpg",
-  "kh-furyu-prize-plush-vol2-aqua": "https://www.aitaikuji.com/media/catalog/product/cache/36f82b01c5fbed8ea6bff8d5f5c47011/1/5/15458_p_thu.jpg",
   "kh-furyu-prize-plush-vol2-kairi": "https://www.aitaikuji.com/media/catalog/product/cache/36f82b01c5fbed8ea6bff8d5f5c47011/1/5/15458_p_thu.jpg",
   "kh-furyu-prize-plush-vol2-riku": "https://www.aitaikuji.com/media/catalog/product/cache/36f82b01c5fbed8ea6bff8d5f5c47011/1/5/15458_p_thu.jpg",
   "kh-furyu-prize-plush-vol2-sora": "https://www.aitaikuji.com/media/catalog/product/cache/36f82b01c5fbed8ea6bff8d5f5c47011/1/5/15458_p_thu.jpg",
-  "kh-furyu-prize-plush-vol2-terra": "https://www.aitaikuji.com/media/catalog/product/cache/36f82b01c5fbed8ea6bff8d5f5c47011/1/5/15458_p_thu.jpg",
-  "kh-furyu-prize-plush-vol2-ventus": "https://www.aitaikuji.com/media/catalog/product/cache/36f82b01c5fbed8ea6bff8d5f5c47011/1/5/15458_p_thu.jpg",
   "kh-glass-magnet-boxed": "https://store.jp.square-enix.com/img/goods/L/MKH09198-BOX-1_001.jpg",
   "kh-graniph-bag-king-mickey-tote": "https://cf.graniph.com/images/item/product_image/301000293.100.-_1.jpg",
   "kh-graniph-pants-organization-xiii": "https://cf.graniph.com/images/item/product_image/028000458.100.-_1.jpg",
@@ -753,5 +750,10 @@
   "dst-select-kh-s2-5-sora-driveform-walgreens-2019": "https://raw.githubusercontent.com/marleyhereicome-cpu/kh-merch-graph/main/web/kh-fallback-logo.png",
   "kh-graniph-outer-blouson-2023": "https://raw.githubusercontent.com/marleyhereicome-cpu/kh-merch-graph/main/web/kh-fallback-logo.png",
   "freaksstore-kh-tee-roxas-2026": "https://raw.githubusercontent.com/marleyhereicome-cpu/kh-merch-graph/main/web/kh-fallback-logo.png",
-  "kh-estore-necklace-crown-2022": "https://raw.githubusercontent.com/marleyhereicome-cpu/kh-merch-graph/main/web/kh-fallback-logo.png"
+  "kh-estore-necklace-crown-2022": "https://raw.githubusercontent.com/marleyhereicome-cpu/kh-merch-graph/main/web/kh-fallback-logo.png",
+  "kh-furyu-prize-plush-vol3-terra": "https://raw.githubusercontent.com/marleyhereicome-cpu/kh-merch-graph/main/web/kh-fallback-logo.png",
+  "kh-furyu-prize-plush-vol3-aqua": "https://raw.githubusercontent.com/marleyhereicome-cpu/kh-merch-graph/main/web/kh-fallback-logo.png",
+  "kh-furyu-prize-plush-vol3-ventus": "https://raw.githubusercontent.com/marleyhereicome-cpu/kh-merch-graph/main/web/kh-fallback-logo.png",
+  "kh-x-tamagotchi-dark-mode": "https://raw.githubusercontent.com/marleyhereicome-cpu/kh-merch-graph/main/web/kh-fallback-logo.png",
+  "kh-x-tamagotchi-light-mode": "https://raw.githubusercontent.com/marleyhereicome-cpu/kh-merch-graph/main/web/kh-fallback-logo.png"
 }
