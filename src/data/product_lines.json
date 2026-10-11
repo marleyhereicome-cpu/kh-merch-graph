@@ -1,587 +1,111 @@
-[
-  {
-    "line_id": "ichiban-kuji-kh-2018",
-    "ip": "kingdom-hearts",
-    "name_ja": "一番くじ KINGDOM HEARTS",
-    "name_en": "Ichiban Kuji Kingdom Hearts (2018)",
-    "aliases": "一番くじKH|一番くじキングダムハーツ|KH一番くじ|Ichiban Kuji Kingdom Hearts|KH Kuji 2018|セブンイレブン一番くじKH",
-    "maker": "BANDAI SPIRITS",
-    "line_type": "kuji",
-    "acquisition_type": "kuji",
-    "release_date": "2018-12-01",
-    "source_url": "https://1kuji.com/products/disney_kh",
-    "notes": "セブン-イレブン店頭限定のくじ。キングダム ハーツⅢの新衣装スタチュー・ぬいぐるみが中心。公式ページに弾番号の記載はなく、当データでは便宜上「2018」を付けて区別している。ダブルチャンスキャンペーン(〜2019年02月末)でA賞相当が別途50個当選。"
-  },
-  {
-    "line_id": "ichiban-kuji-kh-second-memory",
-    "ip": "kingdom-hearts",
-    "name_ja": "一番くじ KINGDOM HEARTS～Second Memory～",
-    "name_en": "Ichiban Kuji Kingdom Hearts -Second Memory-",
-    "aliases": "一番くじKHセカンドメモリー|一番くじKH2|KHセカメモ|Ichiban Kuji KH Second Memory|Second Memory一番くじ|一番くじキングダムハーツセカンドメモリー|Second Memory|セカンドメモリー",
-    "maker": "BANDAI SPIRITS",
-    "line_type": "kuji",
-    "acquisition_type": "kuji",
-    "release_date": "2020-11-04",
-    "source_url": "https://1kuji.com/products/disney_kh2",
-    "notes": "セブン-イレブン・イトーヨーカドー店頭限定のくじ。前作「一番くじ KINGDOM HEARTS」(2018年、line_id: ichiban-kuji-kh-2018)の続編的位置づけだが、公式ページに「第2弾」等の表記はない。ダブルチャンスキャンペーン(〜2021年02月末)でA賞相当が別途50個当選。"
-  },
-  {
-    "line_id": "ichiban-kuji-kh-20th-anniversary",
-    "ip": "kingdom-hearts",
-    "name_ja": "一番くじ KINGDOM HEARTS～20th Anniversary～",
-    "name_en": "Ichiban Kuji Kingdom Hearts -20th Anniversary-",
-    "aliases": "一番くじKH20th|一番くじKH20周年|KH20周年一番くじ|Ichiban Kuji KH 20th Anniversary|KH20thくじ|一番くじキングダムハーツ20周年|20th Anniversary|20周年|20th Anniv|20th",
-    "maker": "BANDAI SPIRITS",
-    "line_type": "kuji",
-    "acquisition_type": "kuji",
-    "release_date": "2022-07-16",
-    "source_url": "https://1kuji.com/products/disney_kh3",
-    "notes": "セブン-イレブン・イトーヨーカドー店頭限定のくじ。KH20周年記念。当初発売日は2022年6月25日の予定だったが、製造・物流の混乱により2022年7月16日に延期(公式ページに掲載の告知による)。ダブルチャンスキャンペーン(〜2022年10月末)はラストワン賞相当が対象(前2作のA賞対象とは異なる)。"
-  },
-  {
-    "line_id": "ichiban-kuji-kh-linking-hearts",
-    "ip": "kingdom-hearts",
-    "name_ja": "一番くじ KINGDOM HEARTS -Linking Hearts-",
-    "name_en": "Ichiban Kuji Kingdom Hearts -Linking Hearts-",
-    "aliases": "一番くじKHリンキングハーツ|一番くじKHリンキング|KHリンキングハーツ|Ichiban Kuji KH Linking Hearts|Linking Hearts一番くじ|一番くじキングダムハーツリンキングハーツ|Linking Hearts|リンキングハーツ",
-    "maker": "BANDAI SPIRITS",
-    "line_type": "kuji",
-    "acquisition_type": "kuji",
-    "release_date": "2024-05-31",
-    "source_url": "https://1kuji.com/products/disney_kh4",
-    "notes": "セブン-イレブン・イトーヨーカドー・ゆめタウン等店頭限定のくじ。KH20周年記念企画の一つ(野村哲也氏描き下ろしイラスト使用のB賞タオルなど)。セブンイレブンは店舗により2024年6月1日・2日以降発売の場合あり。ダブルチャンスキャンペーン(〜2024年08月末)はA賞相当が対象。オンライン販売なし(公式ページに明記)。"
-  },
-  {
-    "line_id": "ichiban-kuji-kh-25th-anniversary",
-    "ip": "kingdom-hearts",
-    "name_ja": "一番くじ KINGDOM HEARTS -25th Anniversary-",
-    "name_en": "Ichiban Kuji Kingdom Hearts -25th Anniversary-",
-    "aliases": "一番くじKH25th|一番くじKH25周年|KH25周年一番くじ|Ichiban Kuji KH 25th Anniversary|KH25thくじ|一番くじキングダムハーツ25周年|25th Anniversary|25周年|25th Anniv|25th",
-    "maker": "BANDAI SPIRITS",
-    "line_type": "kuji",
-    "acquisition_type": "kuji",
-    "release_date": "2026-08-15",
-    "source_url": "https://1kuji.com/products/disney_kh5",
-    "notes": "セブン-イレブン・イトーヨーカドー・ゆめタウン等店頭限定のくじ。KH25周年記念。ダブルチャンスキャンペーン(〜2026年11月末)はラストワン賞相当が対象。オンライン販売なし(公式ページに明記)。"
-  },
-  {
-    "line_id": "kh-bbs-358-ost-signed-lottery-2026",
-    "ip": "kingdom-hearts",
-    "name_ja": "【抽選応募】【サイン入り商品】KINGDOM HEARTS Birth by Sleep & 358/2 Days Original Soundtrack",
-    "name_en": "[Lottery][Signed] Kingdom Hearts Birth by Sleep & 358/2 Days Original Soundtrack",
-    "aliases": "BbSサントラサイン入り|KH BbS 358/2 Daysサントラ|下村陽子サイン入りサントラ|SQEX-11140-2S|Signed BbS OST",
-    "maker": "スクウェア・エニックス",
-    "line_type": "music",
-    "acquisition_type": "retail",
-    "release_date": "2026-10-10",
-    "source_url": "https://store.jp.square-enix.com/estore/g/gSQEX-11140-2S/",
-    "notes": "2011年発売の同内容サントラ(SQEX-10213-5、当データ未収録)に、作曲者・下村陽子氏のサイン入り。抽選販売(応募〜2026-09-22)、1人1点まで、サイン記入のため開封済み。"
-  },
-  {
-    "line_id": "kh2-form-ism",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツII フォルミズム",
-    "name_en": "Kingdom Hearts II FORM-ISM",
-    "aliases": "KH2フォルミズム|フォルミズムシリーズ|FORM-ISM|KH2 FORM-ISM",
-    "maker": "スクウェア・エニックス",
-    "line_type": "figure",
-    "acquisition_type": "retail",
-    "release_date": "2026-05-30",
-    "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09706/",
-    "notes": "キャラクター別に個別発売される継続フィギュアシリーズ。release_dateは判明している中で最も早いロクサスの発売日。アクセル版のURLはhttps://store.jp.square-enix.com/estore/g/gMKH09712/ 。各キャラの発売日はcatalog.csvの各行のnotesを参照。"
-  },
-  {
-    "line_id": "kh-quilted-backpack-2026",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ / キルティングリュック",
-    "name_en": "Kingdom Hearts Quilted Backpack",
-    "aliases": "KHキルティングリュック|モノグラムリュック|MKH09709|KH Quilted Monogram Backpack",
-    "maker": "スクウェア・エニックス",
-    "line_type": "other",
-    "acquisition_type": "retail",
-    "release_date": "2026-07-18",
-    "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09709/",
-    "notes": "特定キャラクター・タイトル限定ではないシリーズ全般向けグッズ。モノグラムのキルティングデザイン。"
-  },
-  {
-    "line_id": "kh-mini-clear-poster-box-2026",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ / ミニクリアポスターコレクション 12個入りBOX",
-    "name_en": "Kingdom Hearts Mini Clear Poster Collection (Box of 12)",
-    "aliases": "KHミニクリアポスター|ミニクリアポスターコレクション|MKH09700-BOX|KH Mini Clear Poster Box",
-    "maker": "スクウェア・エニックス",
-    "line_type": "other",
-    "acquisition_type": "retail",
-    "release_date": "2026-02-28",
-    "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09700-BOX/",
-    "notes": "ブラインド仕様(外から中身が分からない)。1箱12個入りだが全12種類が必ず揃うとは限らないと公式に明記。個別キャラクターの内訳は公式ページに記載なし。"
-  },
-  {
-    "line_id": "kh-donald-wand-replica-2026",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ / ライトアップ まどうしの杖",
-    "name_en": "Kingdom Hearts Light-Up Sorcerer's Wand (Donald)",
-    "aliases": "まどうしの杖|ドナルド杖レプリカ|MKH09671|KH Light-Up Wand",
-    "maker": "スクウェア・エニックス",
-    "line_type": "other",
-    "acquisition_type": "retail",
-    "release_date": "2026-03-08",
-    "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09671/",
-    "notes": "ドナルドダックが所持する杖の手持ちサイズ復刻版(元となった過去商品については公式ページに記載なし)。ボタン押下で先端が発光。単4電池3本使用(別売)。"
-  },
-  {
-    "line_id": "kh-acrylic-stand-reprint-2025-10",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ / アクリルスタンド 追加生産分（2025年10月）",
-    "name_en": "Kingdom Hearts Acrylic Stand Reprint Wave (Oct 2025)",
-    "aliases": "KHアクリルスタンド再販|KHアクリルスタンド追加生産|KH Acrylic Stand Reprint 2025-10",
-    "maker": "スクウェア・エニックス",
-    "line_type": "acrylic",
-    "acquisition_type": "retail",
-    "release_date": "2025-10-04",
-    "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09182-2/",
-    "notes": "過去に発売または予約終了した複数タイトル(KH1/KHII/KHIII/Chain of Memories)のイラストを使ったアクリルスタンド計9種を、同日(2025-10-04)にまとめて追加生産・再販したもの。個別デザインはcatalog.csvの各行を参照。代表URLはMKH09182-2のもの。"
-  },
-  {
-    "line_id": "kh-hairclip-halloweentown-a-2025",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツII ヘアクリップセット ハロウィンタウンA",
-    "name_en": "Kingdom Hearts II Hair Clip Set Halloween Town A",
-    "aliases": "ハロウィンタウンヘアクリップ|MKH09602-1|KH2 Halloween Town Hair Clip A",
-    "maker": "スクウェア・エニックス",
-    "line_type": "other",
-    "acquisition_type": "retail",
-    "release_date": "2025-09-27",
-    "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09602-1/",
-    "notes": "ハロウィンタウンをモチーフにした2種1セットのヘアクリップ。追加生産分(再販)。似て非なる商品：型番末尾が「A」であり、別デザインの「B」セットが存在する可能性があるが本データには未収録(URL未確認)。"
-  },
-  {
-    "line_id": "kh2-gaming-mousepad-2025",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツII / ゲーミングマウスパッド",
-    "name_en": "Kingdom Hearts II Gaming Mouse Pad",
-    "aliases": "KH2ゲーミングマウスパッド|MKH09657|KH2 Gaming Mouse Pad",
-    "maker": "スクウェア・エニックス",
-    "line_type": "other",
-    "acquisition_type": "retail",
-    "release_date": "2025-09-20",
-    "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09657/",
-    "notes": "デスク全面に敷ける大型マウスパッド(約W800×H400mm)。似て非なる商品：同日発売の「マウスパッドVol.6」(kh-mousepad-vol6-2025、円形・直径約200mmの小型)とはサイズも系統も別商品。"
-  },
-  {
-    "line_id": "kh-mousepad-vol6-2025",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ / マウスパッド Vol.6",
-    "name_en": "Kingdom Hearts Mouse Pad Vol.6",
-    "aliases": "KHマウスパッドVol6|ステンドグラスマウスパッド|MKH09659|KH Mouse Pad Vol.6",
-    "maker": "スクウェア・エニックス",
-    "line_type": "other",
-    "acquisition_type": "retail",
-    "release_date": "2025-09-20",
-    "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09659/",
-    "notes": "ステンドグラス調イラストの円形マウスパッド(直径約200mm)。「Vol.6」の表記から同シリーズにVol.1〜5等の他デザインが存在するとみられるが本データには未収録。似て非なる商品：同日発売の「ゲーミングマウスパッド」(kh2-gaming-mousepad-2025、大型・長方形)とは別商品。"
-  },
-  {
-    "line_id": "kh-plush-reprint-2025-11",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ シリーズ ぬいぐるみ 追加生産分（2025年11月）",
-    "name_en": "Kingdom Hearts Plush Reprint Wave (Nov 2025)",
-    "aliases": "KHぬいぐるみ再販|KH Plush Reprint 2025-11",
-    "maker": "スクウェア・エニックス",
-    "line_type": "plush",
-    "acquisition_type": "retail",
-    "release_date": "2025-11-15",
-    "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09310-1/",
-    "notes": "KHIIソラの「おすわりぬいぐるみ」とハートレス「シャドウ」のぬいぐるみを、同日(2025-11-15)にまとめて追加生産・再販したもの。個別デザインはcatalog.csvの各行を参照。代表URLはMKH09310-1のもの。"
-  },
-  {
-    "line_id": "kh3-pets-dogwear-sora-2025",
-    "ip": "kingdom-hearts",
-    "name_ja": "KINGDOM HEARTS PETs ドッグウェア ソラ",
-    "name_en": "Kingdom Hearts PETs Dog Wear (Sora)",
-    "aliases": "KHペットウェアソラ|ドッグウェアソラ|MHK09662|KH PETs Sora Dog Wear",
-    "maker": "スクウェア・エニックス",
-    "line_type": "apparel",
-    "acquisition_type": "retail",
-    "release_date": "2025-09-27",
-    "source_url": "https://store.jp.square-enix.com/estore/g/gMHK09662/",
-    "notes": "ペット(犬)用のソラ衣装モチーフウェア。『キングダム ハーツIII』のソラの衣装を再現。フード着脱可能、胸元テープ開閉式。"
-  },
-  {
-    "line_id": "kh-silicon-ice-tray-kingdomchain-2025",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ / シリコンアイストレー ＜キングダムチェーン＞",
-    "name_en": "Kingdom Hearts Silicone Ice Tray (Kingdom Chain)",
-    "aliases": "KHアイストレー|キングダムチェーン製氷皿|MKH09655|KH Silicon Ice Tray Kingdom Chain",
-    "maker": "スクウェア・エニックス",
-    "line_type": "other",
-    "acquisition_type": "retail",
-    "release_date": "2025-07-19",
-    "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09655/",
-    "notes": "キーブレード「キングダムチェーン」の形を模したシリコン製氷皿、2個セット。追加生産分(再販)。"
-  },
-  {
-    "line_id": "kh-keyblade-keyholder-ultima-2025",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ / キーブレードキーホルダー ＜アルテマウェポン＞",
-    "name_en": "Kingdom Hearts Keyblade Keychain (Ultima Weapon)",
-    "aliases": "アルテマウェポンキーホルダー|KHキーブレードキーホルダー|MKH051229-3|KH Ultima Weapon Keychain",
-    "maker": "スクウェア・エニックス",
-    "line_type": "other",
-    "acquisition_type": "retail",
-    "release_date": "2025-06-28",
-    "source_url": "https://store.jp.square-enix.com/estore/g/gMKH051229-3/",
-    "notes": "キーブレード「アルテマウェポン」を模したメタル製キーホルダー。追加生産分で、内容は初回版と同一と明記。"
-  },
-  {
-    "line_id": "kh-long-hoodie-halloweentown-2025",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ / ロングフーディー ハロウィンタウン",
-    "name_en": "Kingdom Hearts Long Hoodie Halloween Town",
-    "aliases": "ハロウィンタウンパーカー|KHロングフーディー|V-MKH09617|KH Halloween Town Long Hoodie",
-    "maker": "スクウェア・エニックス",
-    "line_type": "apparel",
-    "acquisition_type": "retail",
-    "release_date": "2025-02-01",
-    "source_url": "https://store.jp.square-enix.com/estore/g/gV-MKH09617-M/",
-    "notes": "背面にハロウィンタウン衣装のソラ・ドナルド・グーフィーをデザインしたブラックのロングパーカー。M/Lサイズ展開(このURLはMサイズのページ)。"
-  },
-  {
-    "line_id": "kh-acrylic-stand-2024-10",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ -ファイナル ミックス- / アクリルスタンド（2024年10月発売）",
-    "name_en": "Kingdom Hearts -Final Mix- Acrylic Stand (Oct 2024 release)",
-    "aliases": "KHFMアクリルスタンド|KH2FMアクリルスタンド|KH Final Mix Acrylic Stand 2024",
-    "maker": "スクウェア・エニックス",
-    "line_type": "acrylic",
-    "acquisition_type": "retail",
-    "release_date": "2024-10-31",
-    "source_url": "https://store.jp.square-enix.com/estore/g/gMKH09604/",
-    "notes": "『キングダム ハーツ -ファイナル ミックス-』と『キングダム ハーツII -ファイナル ミックス-』のイラストを使ったアクリルスタンド2種を同日発売。個別デザインはcatalog.csvの各行を参照。代表URLはMKH09604のもの。"
-  },
-  {
-    "line_id": "kh-books",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ / 書籍・コミック・アルティマニア",
-    "name_en": "Kingdom Hearts Books, Manga & Ultimania Guides",
-    "aliases": "KH書籍|KH本|キングダムハーツ書籍|Kingdom Hearts books|Kingdom Hearts manga|Kingdom Hearts Ultimania|キングダム ハーツ ブック・コミック",
-    "maker": "スクウェア・エニックス",
-    "line_type": "book",
-    "acquisition_type": "book",
-    "release_date": "2004-12-17",
-    "source_url": "https://store.jp.square-enix.com/estore/e/ekingdom-book/",
-    "notes": "スクウェア・エニックス e-STORE「キングダム ハーツ ブック・コミック」掲載の11点（コミック2・ゲームノベル4・アルティマニア2・ファンブック等3）に加え、SQUARE ENIX GAME BOOKS ONLINE（アルティマニア9冊・GAME NOVELS系小説20冊）とガンガンコミックス公式ページ（天野シロ漫画: FINAL MIX 3・チェイン オブ メモリーズ 2・KHII 10・358/2 Days 5・KHIII 2・3）の51点を追加。release_dateは登録商品で最も早いアルティマニア2冊（2004-12-17）の発売日。個別の発売日・価格・ISBNはcatalog.csvの各行を参照。GAME BOOKS ONLINE掲載のうちキャラクターズレポート・ポストカードブック・天野シロ ART WORKSは未収録。絶版判定（availability_hint）は公式e-STOREに取扱ページが無いことに基づく推定で、出版社の絶版表記ではない。"
-  },
-  {
-    "line_id": "kh-soundtrack",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ / サウンドトラックCD・楽曲アルバム",
-    "name_en": "Kingdom Hearts Soundtrack CDs & Music Albums",
-    "aliases": "KHサウンドトラック|KHサントラ|キングダムハーツサントラ|Kingdom Hearts OST|Kingdom Hearts Soundtrack|SQUARE ENIX MUSIC キングダム ハーツ",
-    "maker": "スクウェア・エニックス",
-    "line_type": "music",
-    "acquisition_type": "music",
-    "release_date": "2009-05-27",
-    "source_url": "https://www.jp.square-enix.com/music/lineup/series/KINGDOM_HEARTS/",
-    "notes": "SQUARE ENIX MUSIC公式ラインナップページ（KINGDOM HEARTSシリーズ）に掲載されている楽曲商品群。release_dateは判明している中で最も早い商品（Piano Collections KINGDOM HEARTS, 2009年）の発売日。個別商品の発売日・価格・品番はcatalog.csvの各行を参照。ページ上に掲載の全13タイトルをcatalog.csvへ下書き済み（本ラインナップページ経由での購入可否のみ確認。ストリーミング配信の詳細は別途確認が必要）。"
-  },
-  {
-    "line_id": "kh-collab-u-treasure-todo",
-    "ip": "kingdom-hearts",
-    "name_ja": "［プレースホルダー］KH × U-TREASURE コラボジュエリー",
-    "name_en": "[Placeholder] KH x U-TREASURE Collab Jewelry",
-    "aliases": "",
-    "maker": "U-TREASURE",
-    "line_type": "other",
-    "acquisition_type": "retail",
-    "release_date": "",
-    "source_url": "",
-    "notes": "次セッションで公式ページを渡して確定する予定のプレースホルダー行。例: クラウン ネックレス等。"
-  },
-  {
-    "line_id": "kh-collab-supergroupies-todo",
-    "ip": "kingdom-hearts",
-    "name_ja": "［プレースホルダー］KH × SuperGroupies コラボ雑貨",
-    "name_en": "[Placeholder] KH x SuperGroupies Collab Goods",
-    "aliases": "",
-    "maker": "SuperGroupies",
-    "line_type": "other",
-    "acquisition_type": "retail",
-    "release_date": "",
-    "source_url": "",
-    "notes": "次セッションで公式ページを渡して確定する予定のプレースホルダー行。例: リクモデルブーツ、ロクサスバックパック等。"
-  },
-  {
-    "line_id": "kh-collab-graniph-todo",
-    "ip": "kingdom-hearts",
-    "name_ja": "［プレースホルダー］KH × graniph コラボアパレル",
-    "name_en": "[Placeholder] KH x graniph Collab Apparel",
-    "aliases": "",
-    "maker": "graniph",
-    "line_type": "apparel",
-    "acquisition_type": "retail",
-    "release_date": "",
-    "source_url": "",
-    "notes": "次セッションで公式ページを渡して確定する予定のプレースホルダー行。例: グラフィックTシャツ等。"
-  },
-  {
-    "line_id": "kh-game-kh1",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ",
-    "name_en": "KINGDOM HEARTS",
-    "aliases": "キングダム ハーツ|KINGDOM HEARTS|KH1",
-    "maker": "スクウェア・エニックス",
-    "line_type": "game",
-    "acquisition_type": "game",
-    "release_date": "2002-03-28",
-    "source_url": "https://www.jp.square-enix.com/game/detail/kh/",
-    "notes": "ゲームソフト『キングダム ハーツ』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。"
-  },
-  {
-    "line_id": "kh-game-khfm",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ -ファイナル ミックス-",
-    "name_en": "KINGDOM HEARTS -FINAL MIX-",
-    "aliases": "キングダム ハーツ -ファイナル ミックス-|KINGDOM HEARTS -FINAL MIX-|KHFM|KH FM|KH1FM",
-    "maker": "スクウェア・エニックス",
-    "line_type": "game",
-    "acquisition_type": "game",
-    "release_date": "2002-12-26",
-    "source_url": "https://www.jp.square-enix.com/game/detail/khfm/",
-    "notes": "ゲームソフト『キングダム ハーツ -ファイナル ミックス-』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。"
-  },
-  {
-    "line_id": "kh-game-khcom",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ チェイン オブ メモリーズ",
-    "name_en": "KINGDOM HEARTS Chain of Memories",
-    "aliases": "キングダム ハーツ チェイン オブ メモリーズ|KINGDOM HEARTS Chain of Memories|KHCoM|KH CoM",
-    "maker": "スクウェア・エニックス",
-    "line_type": "game",
-    "acquisition_type": "game",
-    "release_date": "2004-11-11",
-    "source_url": "https://www.jp.square-enix.com/game/detail/khcom/",
-    "notes": "ゲームソフト『キングダム ハーツ チェイン オブ メモリーズ』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。"
-  },
-  {
-    "line_id": "kh-game-kh2",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツII",
-    "name_en": "KINGDOM HEARTS II",
-    "aliases": "キングダム ハーツII|KINGDOM HEARTS II|KH2|KHII",
-    "maker": "スクウェア・エニックス",
-    "line_type": "game",
-    "acquisition_type": "game",
-    "release_date": "2005-12-22",
-    "source_url": "https://www.jp.square-enix.com/game/detail/kh2/",
-    "notes": "ゲームソフト『キングダム ハーツII』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。"
-  },
-  {
-    "line_id": "kh-game-kh2fm",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツII ファイナル ミックス+",
-    "name_en": "KINGDOM HEARTS II FINAL MIX+",
-    "aliases": "キングダム ハーツII ファイナル ミックス+|KINGDOM HEARTS II FINAL MIX+|KH2FM|KH2 FM|KHIIFM",
-    "maker": "スクウェア・エニックス",
-    "line_type": "game",
-    "acquisition_type": "game",
-    "release_date": "2007-03-29",
-    "source_url": "https://www.jp.square-enix.com/game/detail/kh2fm/",
-    "notes": "ゲームソフト『キングダム ハーツII ファイナル ミックス+』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。"
-  },
-  {
-    "line_id": "kh-game-khdays",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ 358/2 Days",
-    "name_en": "KINGDOM HEARTS 358/2 Days",
-    "aliases": "キングダム ハーツ 358/2 Days|KINGDOM HEARTS 358/2 Days|KH358/2|KH Days",
-    "maker": "スクウェア・エニックス",
-    "line_type": "game",
-    "acquisition_type": "game",
-    "release_date": "2009-05-30",
-    "source_url": "https://www.jp.square-enix.com/game/detail/khdays/",
-    "notes": "ゲームソフト『キングダム ハーツ 358/2 Days』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。"
-  },
-  {
-    "line_id": "kh-game-khbbs",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ バース バイ スリープ",
-    "name_en": "KINGDOM HEARTS Birth by Sleep",
-    "aliases": "キングダム ハーツ バース バイ スリープ|KINGDOM HEARTS Birth by Sleep|KHBbS|KH BbS",
-    "maker": "スクウェア・エニックス",
-    "line_type": "game",
-    "acquisition_type": "game",
-    "release_date": "2010-01-09",
-    "source_url": "https://www.jp.square-enix.com/game/detail/khbbs/",
-    "notes": "ゲームソフト『キングダム ハーツ バース バイ スリープ』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。"
-  },
-  {
-    "line_id": "kh-game-khbbsfm",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ バース バイ スリープ ファイナル ミックス",
-    "name_en": "KINGDOM HEARTS Birth by Sleep FINAL MIX",
-    "aliases": "キングダム ハーツ バース バイ スリープ ファイナル ミックス|KINGDOM HEARTS Birth by Sleep FINAL MIX|KHBbSFM|BbS FM",
-    "maker": "スクウェア・エニックス",
-    "line_type": "game",
-    "acquisition_type": "game",
-    "release_date": "2011-01-20",
-    "source_url": "https://www.jp.square-enix.com/game/detail/khbbsfm/",
-    "notes": "ゲームソフト『キングダム ハーツ バース バイ スリープ ファイナル ミックス』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。"
-  },
-  {
-    "line_id": "kh-game-kh3d",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ 3D [ドリーム ドロップ ディスタンス]",
-    "name_en": "KINGDOM HEARTS 3D [Dream Drop Distance]",
-    "aliases": "キングダム ハーツ 3D [ドリーム ドロップ ディスタンス]|KINGDOM HEARTS 3D [Dream Drop Distance]|KH3D|KHDDD",
-    "maker": "スクウェア・エニックス",
-    "line_type": "game",
-    "acquisition_type": "game",
-    "release_date": "2012-03-29",
-    "source_url": "https://www.jp.square-enix.com/game/detail/kh3d/",
-    "notes": "ゲームソフト『キングダム ハーツ 3D [ドリーム ドロップ ディスタンス]』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。"
-  },
-  {
-    "line_id": "kh-game-khrecoded",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ Re:コーデッド",
-    "name_en": "KINGDOM HEARTS Re:coded",
-    "aliases": "キングダム ハーツ Re:コーデッド|KINGDOM HEARTS Re:coded|KH Re:coded|KHRe:coded",
-    "maker": "スクウェア・エニックス",
-    "line_type": "game",
-    "acquisition_type": "game",
-    "release_date": "2010-10-07",
-    "source_url": "http://www.square-enix.co.jp/kingdom/recoded/",
-    "notes": "ゲームソフト『キングダム ハーツ Re:コーデッド』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。"
-  },
-  {
-    "line_id": "kh-game-khhd15",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ -HD 1.5 リミックス-",
-    "name_en": "KINGDOM HEARTS -HD 1.5 ReMIX-",
-    "aliases": "キングダム ハーツ -HD 1.5 リミックス-|KINGDOM HEARTS -HD 1.5 ReMIX-|KH HD1.5|KHHD1.5",
-    "maker": "スクウェア・エニックス",
-    "line_type": "game",
-    "acquisition_type": "game",
-    "release_date": "2013-03-14",
-    "source_url": "https://www.jp.square-enix.com/kingdom/khhd/",
-    "notes": "ゲームソフト『キングダム ハーツ -HD 1.5 リミックス-』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。"
-  },
-  {
-    "line_id": "kh-game-khhd25",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ -HD 2.5 リミックス-",
-    "name_en": "KINGDOM HEARTS -HD 2.5 ReMIX-",
-    "aliases": "キングダム ハーツ -HD 2.5 リミックス-|KINGDOM HEARTS -HD 2.5 ReMIX-|KH HD2.5|KHHD2.5",
-    "maker": "スクウェア・エニックス",
-    "line_type": "game",
-    "acquisition_type": "game",
-    "release_date": "2014-10-02",
-    "source_url": "https://www.jp.square-enix.com/kingdom/khhd2/",
-    "notes": "ゲームソフト『キングダム ハーツ -HD 2.5 リミックス-』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。"
-  },
-  {
-    "line_id": "kh-game-khhd28",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ HD 2.8 ファイナル チャプター プロローグ",
-    "name_en": "KINGDOM HEARTS HD 2.8 Final Chapter Prologue",
-    "aliases": "キングダム ハーツ HD 2.8 ファイナル チャプター プロローグ|KINGDOM HEARTS HD 2.8 Final Chapter Prologue|KH HD2.8|KHHD2.8|キングダムハーツ HD2.8|キングダム ハーツ HD 2.8|KINGDOM HEARTS HD 2.8",
-    "maker": "スクウェア・エニックス",
-    "line_type": "game",
-    "acquisition_type": "game",
-    "release_date": "2017-01-12",
-    "source_url": "https://www.jp.square-enix.com/kingdom/khhd_fcp/",
-    "notes": "ゲームソフト『キングダム ハーツ HD 2.8 ファイナル チャプター プロローグ』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。"
-  },
-  {
-    "line_id": "kh-game-khhd1525",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ -HD 1.5+2.5 リミックス-",
-    "name_en": "KINGDOM HEARTS -HD 1.5+2.5 ReMIX-",
-    "aliases": "キングダム ハーツ -HD 1.5+2.5 リミックス-|KINGDOM HEARTS -HD 1.5+2.5 ReMIX-|KH HD1.5+2.5|KH1.5+2.5|キングダムハーツ HD1.5+2.5|キングダム ハーツ HD 1.5+2.5|KINGDOM HEARTS HD 1.5+2.5",
-    "maker": "スクウェア・エニックス",
-    "line_type": "game",
-    "acquisition_type": "game",
-    "release_date": "2017-03-09",
-    "source_url": "https://www.jp.square-enix.com/kingdom/khhd1_2/",
-    "notes": "ゲームソフト『キングダム ハーツ -HD 1.5+2.5 リミックス-』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。"
-  },
-  {
-    "line_id": "kh-game-kh3",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツIII",
-    "name_en": "KINGDOM HEARTS III",
-    "aliases": "キングダム ハーツIII|KINGDOM HEARTS III|KH3|KHIII",
-    "maker": "スクウェア・エニックス",
-    "line_type": "game",
-    "acquisition_type": "game",
-    "release_date": "2019-01-25",
-    "source_url": "https://www.jp.square-enix.com/kingdom/kh3/",
-    "notes": "ゲームソフト『キングダム ハーツIII』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。"
-  },
-  {
-    "line_id": "kh-game-khmom",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ メロディ オブ メモリー",
-    "name_en": "KINGDOM HEARTS Melody of Memory",
-    "aliases": "キングダム ハーツ メロディ オブ メモリー|KINGDOM HEARTS Melody of Memory|KH MoM|KHMoM|メロディーオブメモリー",
-    "maker": "スクウェア・エニックス",
-    "line_type": "game",
-    "acquisition_type": "game",
-    "release_date": "2020-11-11",
-    "source_url": "https://www.jp.square-enix.com/kingdom/kh_mom/",
-    "notes": "ゲームソフト『キングダム ハーツ メロディ オブ メモリー』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。"
-  },
-  {
-    "line_id": "kh-game-collection",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ コレクション [I～III]",
-    "name_en": "KINGDOM HEARTS Collection [I-III]",
-    "aliases": "キングダム ハーツ コレクション [I～III]|KINGDOM HEARTS Collection [I-III]|KH Collection|KHコレクション",
-    "maker": "スクウェア・エニックス",
-    "line_type": "game",
-    "acquisition_type": "game",
-    "release_date": "2026-10-08",
-    "source_url": "https://www.jp.square-enix.com/kingdom/collection/",
-    "notes": "ゲームソフト『キングダム ハーツ コレクション [I～III]』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。"
-  },
-  {
-    "line_id": "kh-game-integrum",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ インテグラム マスターピース",
-    "name_en": "KINGDOM HEARTS INTEGRUM MASTERPIECE",
-    "aliases": "キングダム ハーツ インテグラム マスターピース|KINGDOM HEARTS INTEGRUM MASTERPIECE|INTEGRUM MASTERPIECE|インテグラムマスターピース|KH INTEGRUM|KINGDOM HEARTS All-in-One Package|キングダムハーツ オールインワンパッケージ",
-    "maker": "スクウェア・エニックス",
-    "line_type": "game",
-    "acquisition_type": "game",
-    "release_date": "2019-01-25",
-    "source_url": "https://store.playstation.com/ja-jp/product/JP0082-CUSA11060_00-KH3AOP0000000000",
-    "notes": "『KH III』『HD 1.5+2.5 ReMIX』『HD 2.8 Final Chapter Prologue』の3タイトルセット。PS4ダウンロード版（PS Store）・e-STORE限定パッケージ版（限定予約、終了）・Steamダウンロード版がある。構成タイトルは set_components を参照。"
-  },
-  {
-    "line_id": "kh-limited-console",
-    "ip": "kingdom-hearts",
-    "name_ja": "KH限定版ゲーム機本体（同梱版）",
-    "name_en": "KH Limited Edition Console Bundles",
-    "aliases": "PlayStation4 Pro KINGDOM HEARTS III LIMITED EDITION|PlayStation4 Pro KINGDOM HEARTS III LIMITED EDITION|PS4 Pro KH3 LIMITED EDITION|PS4 Pro キングダムハーツIII リミテッドエディション|PS4 Pro キングダム ハーツIII 限定版|PS4 Pro キングダムハーツ限定版|PS4 Pro 1TB キングダムハーツ限定版|CUHJ-10025",
-    "maker": "スクウェア・エニックス",
-    "line_type": "console",
-    "acquisition_type": "set",
-    "release_date": "2019-01-25",
-    "source_url": "https://www.famitsu.com/news/201806/12158933.html",
-    "notes": "限定デザインのゲーム機本体とKHソフトの同梱セット。同梱ソフトは set_components の sku_id（catalog.csv内のソフト行）で表す。ニンテンドー3DS キングダムハーツエディション等は今後追加。"
-  },
-  {
-    "line_id": "kh-game-khuc",
-    "ip": "kingdom-hearts",
-    "name_ja": "キングダム ハーツ ユニオン クロス ダーク ロード",
-    "name_en": "KINGDOM HEARTS Union χ [Cross] Dark Road",
-    "aliases": "キングダム ハーツ ユニオン クロス ダーク ロード|KINGDOM HEARTS Union χ [Cross] Dark Road|KH UX|KH Union X|KHユニオンクロス",
-    "maker": "スクウェア・エニックス",
-    "line_type": "game",
-    "acquisition_type": "game",
-    "release_date": "2015-09-03",
-    "source_url": "https://www.jp.square-enix.com/kingdom/archives/index.html",
-    "notes": "ゲームソフト『キングダム ハーツ ユニオン クロス ダーク ロード』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。"
-  }
-]
+line_id,ip,name_ja,name_en,aliases,maker,line_type,acquisition_type,release_date,source_url,notes
+ichiban-kuji-kh-2018,kingdom-hearts,一番くじ KINGDOM HEARTS,Ichiban Kuji Kingdom Hearts (2018),一番くじKH|一番くじキングダムハーツ|KH一番くじ|Ichiban Kuji Kingdom Hearts|KH Kuji 2018|セブンイレブン一番くじKH,BANDAI SPIRITS,kuji,kuji,2018-12-01,https://1kuji.com/products/disney_kh,セブン-イレブン店頭限定のくじ。キングダム ハーツⅢの新衣装スタチュー・ぬいぐるみが中心。公式ページに弾番号の記載はなく、当データでは便宜上「2018」を付けて区別している。ダブルチャンスキャンペーン(〜2019年02月末)でA賞相当が別途50個当選。
+ichiban-kuji-kh-second-memory,kingdom-hearts,一番くじ KINGDOM HEARTS～Second Memory～,Ichiban Kuji Kingdom Hearts -Second Memory-,一番くじKHセカンドメモリー|一番くじKH2|KHセカメモ|Ichiban Kuji KH Second Memory|Second Memory一番くじ|一番くじキングダムハーツセカンドメモリー|Second Memory|セカンドメモリー,BANDAI SPIRITS,kuji,kuji,2020-11-04,https://1kuji.com/products/disney_kh2,セブン-イレブン・イトーヨーカドー店頭限定のくじ。前作「一番くじ KINGDOM HEARTS」(2018年、line_id: ichiban-kuji-kh-2018)の続編的位置づけだが、公式ページに「第2弾」等の表記はない。ダブルチャンスキャンペーン(〜2021年02月末)でA賞相当が別途50個当選。
+ichiban-kuji-kh-20th-anniversary,kingdom-hearts,一番くじ KINGDOM HEARTS～20th Anniversary～,Ichiban Kuji Kingdom Hearts -20th Anniversary-,一番くじKH20th|一番くじKH20周年|KH20周年一番くじ|Ichiban Kuji KH 20th Anniversary|KH20thくじ|一番くじキングダムハーツ20周年|20th Anniversary|20周年|20th Anniv|20th,BANDAI SPIRITS,kuji,kuji,2022-07-16,https://1kuji.com/products/disney_kh3,セブン-イレブン・イトーヨーカドー店頭限定のくじ。KH20周年記念。当初発売日は2022年6月25日の予定だったが、製造・物流の混乱により2022年7月16日に延期(公式ページに掲載の告知による)。ダブルチャンスキャンペーン(〜2022年10月末)はラストワン賞相当が対象(前2作のA賞対象とは異なる)。
+ichiban-kuji-kh-linking-hearts,kingdom-hearts,一番くじ KINGDOM HEARTS -Linking Hearts-,Ichiban Kuji Kingdom Hearts -Linking Hearts-,一番くじKHリンキングハーツ|一番くじKHリンキング|KHリンキングハーツ|Ichiban Kuji KH Linking Hearts|Linking Hearts一番くじ|一番くじキングダムハーツリンキングハーツ|Linking Hearts|リンキングハーツ,BANDAI SPIRITS,kuji,kuji,2024-05-31,https://1kuji.com/products/disney_kh4,セブン-イレブン・イトーヨーカドー・ゆめタウン等店頭限定のくじ。KH20周年記念企画の一つ(野村哲也氏描き下ろしイラスト使用のB賞タオルなど)。セブンイレブンは店舗により2024年6月1日・2日以降発売の場合あり。ダブルチャンスキャンペーン(〜2024年08月末)はA賞相当が対象。オンライン販売なし(公式ページに明記)。
+ichiban-kuji-kh-25th-anniversary,kingdom-hearts,一番くじ KINGDOM HEARTS -25th Anniversary-,Ichiban Kuji Kingdom Hearts -25th Anniversary-,一番くじKH25th|一番くじKH25周年|KH25周年一番くじ|Ichiban Kuji KH 25th Anniversary|KH25thくじ|一番くじキングダムハーツ25周年|25th Anniversary|25周年|25th Anniv|25th,BANDAI SPIRITS,kuji,kuji,2026-08-15,https://1kuji.com/products/disney_kh5,セブン-イレブン・イトーヨーカドー・ゆめタウン等店頭限定のくじ。KH25周年記念。ダブルチャンスキャンペーン(〜2026年11月末)はラストワン賞相当が対象。オンライン販売なし(公式ページに明記)。
+kh-bbs-358-ost-signed-lottery-2026,kingdom-hearts,【抽選応募】【サイン入り商品】KINGDOM HEARTS Birth by Sleep & 358/2 Days Original Soundtrack,[Lottery][Signed] Kingdom Hearts Birth by Sleep & 358/2 Days Original Soundtrack,BbSサントラサイン入り|KH BbS 358/2 Daysサントラ|下村陽子サイン入りサントラ|SQEX-11140-2S|Signed BbS OST,スクウェア・エニックス,music,retail,2026-10-10,https://store.jp.square-enix.com/estore/g/gSQEX-11140-2S/,2011年発売の同内容サントラ(SQEX-10213-5、当データ未収録)に、作曲者・下村陽子氏のサイン入り。抽選販売(応募〜2026-09-22)、1人1点まで、サイン記入のため開封済み。
+kh2-form-ism,kingdom-hearts,キングダム ハーツII フォルミズム,Kingdom Hearts II FORM-ISM,KH2フォルミズム|フォルミズムシリーズ|FORM-ISM|KH2 FORM-ISM,スクウェア・エニックス,figure,retail,2026-05-30,https://store.jp.square-enix.com/estore/g/gMKH09706/,キャラクター別に個別発売される継続フィギュアシリーズ。release_dateは判明している中で最も早いロクサスの発売日。アクセル版のURLはhttps://store.jp.square-enix.com/estore/g/gMKH09712/ 。各キャラの発売日はcatalog.csvの各行のnotesを参照。
+kh-quilted-backpack-2026,kingdom-hearts,キングダム ハーツ / キルティングリュック,Kingdom Hearts Quilted Backpack,KHキルティングリュック|モノグラムリュック|MKH09709|KH Quilted Monogram Backpack,スクウェア・エニックス,other,retail,2026-07-18,https://store.jp.square-enix.com/estore/g/gMKH09709/,特定キャラクター・タイトル限定ではないシリーズ全般向けグッズ。モノグラムのキルティングデザイン。
+kh-mini-clear-poster-box-2026,kingdom-hearts,キングダム ハーツ / ミニクリアポスターコレクション 12個入りBOX,Kingdom Hearts Mini Clear Poster Collection (Box of 12),KHミニクリアポスター|ミニクリアポスターコレクション|MKH09700-BOX|KH Mini Clear Poster Box,スクウェア・エニックス,other,retail,2026-02-28,https://store.jp.square-enix.com/estore/g/gMKH09700-BOX/,ブラインド仕様(外から中身が分からない)。1箱12個入りだが全12種類が必ず揃うとは限らないと公式に明記。個別キャラクターの内訳は公式ページに記載なし。
+kh-donald-wand-replica-2026,kingdom-hearts,キングダム ハーツ / ライトアップ まどうしの杖,Kingdom Hearts Light-Up Sorcerer's Wand (Donald),まどうしの杖|ドナルド杖レプリカ|MKH09671|KH Light-Up Wand,スクウェア・エニックス,other,retail,2026-03-08,https://store.jp.square-enix.com/estore/g/gMKH09671/,ドナルドダックが所持する杖の手持ちサイズ復刻版(元となった過去商品については公式ページに記載なし)。ボタン押下で先端が発光。単4電池3本使用(別売)。
+kh-acrylic-stand-reprint-2025-10,kingdom-hearts,キングダム ハーツ / アクリルスタンド 追加生産分（2025年10月）,Kingdom Hearts Acrylic Stand Reprint Wave (Oct 2025),KHアクリルスタンド再販|KHアクリルスタンド追加生産|KH Acrylic Stand Reprint 2025-10,スクウェア・エニックス,acrylic,retail,2025-10-04,https://store.jp.square-enix.com/estore/g/gMKH09182-2/,過去に発売または予約終了した複数タイトル(KH1/KHII/KHIII/Chain of Memories)のイラストを使ったアクリルスタンド計9種を、同日(2025-10-04)にまとめて追加生産・再販したもの。個別デザインはcatalog.csvの各行を参照。代表URLはMKH09182-2のもの。
+kh-hairclip-halloweentown-a-2025,kingdom-hearts,キングダム ハーツII ヘアクリップセット ハロウィンタウンA,Kingdom Hearts II Hair Clip Set Halloween Town A,ハロウィンタウンヘアクリップ|MKH09602-1|KH2 Halloween Town Hair Clip A,スクウェア・エニックス,other,retail,2025-09-27,https://store.jp.square-enix.com/estore/g/gMKH09602-1/,ハロウィンタウンをモチーフにした2種1セットのヘアクリップ。追加生産分(再販)。似て非なる商品：型番末尾が「A」であり、別デザインの「B」セットが存在する可能性があるが本データには未収録(URL未確認)。
+kh2-gaming-mousepad-2025,kingdom-hearts,キングダム ハーツII / ゲーミングマウスパッド,Kingdom Hearts II Gaming Mouse Pad,KH2ゲーミングマウスパッド|MKH09657|KH2 Gaming Mouse Pad,スクウェア・エニックス,other,retail,2025-09-20,https://store.jp.square-enix.com/estore/g/gMKH09657/,デスク全面に敷ける大型マウスパッド(約W800×H400mm)。似て非なる商品：同日発売の「マウスパッドVol.6」(kh-mousepad-vol6-2025、円形・直径約200mmの小型)とはサイズも系統も別商品。
+kh-mousepad-vol6-2025,kingdom-hearts,キングダム ハーツ / マウスパッド Vol.6,Kingdom Hearts Mouse Pad Vol.6,KHマウスパッドVol6|ステンドグラスマウスパッド|MKH09659|KH Mouse Pad Vol.6,スクウェア・エニックス,other,retail,2025-09-20,https://store.jp.square-enix.com/estore/g/gMKH09659/,ステンドグラス調イラストの円形マウスパッド(直径約200mm)。「Vol.6」の表記から同シリーズにVol.1〜5等の他デザインが存在するとみられるが本データには未収録。似て非なる商品：同日発売の「ゲーミングマウスパッド」(kh2-gaming-mousepad-2025、大型・長方形)とは別商品。
+kh-plush-reprint-2025-11,kingdom-hearts,キングダム ハーツ シリーズ ぬいぐるみ 追加生産分（2025年11月）,Kingdom Hearts Plush Reprint Wave (Nov 2025),KHぬいぐるみ再販|KH Plush Reprint 2025-11,スクウェア・エニックス,plush,retail,2025-11-15,https://store.jp.square-enix.com/estore/g/gMKH09310-1/,KHIIソラの「おすわりぬいぐるみ」とハートレス「シャドウ」のぬいぐるみを、同日(2025-11-15)にまとめて追加生産・再販したもの。個別デザインはcatalog.csvの各行を参照。代表URLはMKH09310-1のもの。
+kh3-pets-dogwear-sora-2025,kingdom-hearts,KINGDOM HEARTS PETs ドッグウェア ソラ,Kingdom Hearts PETs Dog Wear (Sora),KHペットウェアソラ|ドッグウェアソラ|MHK09662|KH PETs Sora Dog Wear,スクウェア・エニックス,apparel,retail,2025-09-27,https://store.jp.square-enix.com/estore/g/gMHK09662/,ペット(犬)用のソラ衣装モチーフウェア。『キングダム ハーツIII』のソラの衣装を再現。フード着脱可能、胸元テープ開閉式。
+kh-silicon-ice-tray-kingdomchain-2025,kingdom-hearts,キングダム ハーツ / シリコンアイストレー ＜キングダムチェーン＞,Kingdom Hearts Silicone Ice Tray (Kingdom Chain),KHアイストレー|キングダムチェーン製氷皿|MKH09655|KH Silicon Ice Tray Kingdom Chain,スクウェア・エニックス,other,retail,2025-07-19,https://store.jp.square-enix.com/estore/g/gMKH09655/,キーブレード「キングダムチェーン」の形を模したシリコン製氷皿、2個セット。追加生産分(再販)。
+kh-keyblade-keyholder-ultima-2025,kingdom-hearts,キングダム ハーツ / キーブレードキーホルダー ＜アルテマウェポン＞,Kingdom Hearts Keyblade Keychain (Ultima Weapon),アルテマウェポンキーホルダー|KHキーブレードキーホルダー|MKH051229-3|KH Ultima Weapon Keychain,スクウェア・エニックス,other,retail,2025-06-28,https://store.jp.square-enix.com/estore/g/gMKH051229-3/,キーブレード「アルテマウェポン」を模したメタル製キーホルダー。追加生産分で、内容は初回版と同一と明記。
+kh-long-hoodie-halloweentown-2025,kingdom-hearts,キングダム ハーツ / ロングフーディー ハロウィンタウン,Kingdom Hearts Long Hoodie Halloween Town,ハロウィンタウンパーカー|KHロングフーディー|V-MKH09617|KH Halloween Town Long Hoodie,スクウェア・エニックス,apparel,retail,2025-02-01,https://store.jp.square-enix.com/estore/g/gV-MKH09617-M/,背面にハロウィンタウン衣装のソラ・ドナルド・グーフィーをデザインしたブラックのロングパーカー。M/Lサイズ展開(このURLはMサイズのページ)。
+kh-acrylic-stand-2024-10,kingdom-hearts,キングダム ハーツ -ファイナル ミックス- / アクリルスタンド（2024年10月発売）,Kingdom Hearts -Final Mix- Acrylic Stand (Oct 2024 release),KHFMアクリルスタンド|KH2FMアクリルスタンド|KH Final Mix Acrylic Stand 2024,スクウェア・エニックス,acrylic,retail,2024-10-31,https://store.jp.square-enix.com/estore/g/gMKH09604/,『キングダム ハーツ -ファイナル ミックス-』と『キングダム ハーツII -ファイナル ミックス-』のイラストを使ったアクリルスタンド2種を同日発売。個別デザインはcatalog.csvの各行を参照。代表URLはMKH09604のもの。
+kh-books,kingdom-hearts,キングダム ハーツ / 書籍・コミック・アルティマニア,"Kingdom Hearts Books, Manga & Ultimania Guides",KH書籍|KH本|キングダムハーツ書籍|Kingdom Hearts books|Kingdom Hearts manga|Kingdom Hearts Ultimania|キングダム ハーツ ブック・コミック,スクウェア・エニックス,book,book,2004-12-17,https://store.jp.square-enix.com/estore/e/ekingdom-book/,スクウェア・エニックス e-STORE「キングダム ハーツ ブック・コミック」掲載の11点（コミック2・ゲームノベル4・アルティマニア2・ファンブック等3）に加え、SQUARE ENIX GAME BOOKS ONLINE（アルティマニア9冊・GAME NOVELS系小説20冊）とガンガンコミックス公式ページ（天野シロ漫画: FINAL MIX 3・チェイン オブ メモリーズ 2・KHII 10・358/2 Days 5・KHIII 2・3）の51点を追加。release_dateは登録商品で最も早いアルティマニア2冊（2004-12-17）の発売日。個別の発売日・価格・ISBNはcatalog.csvの各行を参照。GAME BOOKS ONLINE掲載のうちキャラクターズレポート・ポストカードブック・天野シロ ART WORKSは未収録。絶版判定（availability_hint）は公式e-STOREに取扱ページが無いことに基づく推定で、出版社の絶版表記ではない。
+kh-soundtrack,kingdom-hearts,キングダム ハーツ / サウンドトラックCD・楽曲アルバム,Kingdom Hearts Soundtrack CDs & Music Albums,KHサウンドトラック|KHサントラ|キングダムハーツサントラ|Kingdom Hearts OST|Kingdom Hearts Soundtrack|SQUARE ENIX MUSIC キングダム ハーツ,スクウェア・エニックス,music,music,2009-05-27,https://www.jp.square-enix.com/music/lineup/series/KINGDOM_HEARTS/,"SQUARE ENIX MUSIC公式ラインナップページ（KINGDOM HEARTSシリーズ）に掲載されている楽曲商品群。release_dateは判明している中で最も早い商品（Piano Collections KINGDOM HEARTS, 2009年）の発売日。個別商品の発売日・価格・品番はcatalog.csvの各行を参照。ページ上に掲載の全13タイトルをcatalog.csvへ下書き済み（本ラインナップページ経由での購入可否のみ確認。ストリーミング配信の詳細は別途確認が必要）。"
+kh-collab-u-treasure-todo,kingdom-hearts,［プレースホルダー］KH × U-TREASURE コラボジュエリー,[Placeholder] KH x U-TREASURE Collab Jewelry,,U-TREASURE,other,retail,,,次セッションで公式ページを渡して確定する予定のプレースホルダー行。例: クラウン ネックレス等。
+kh-collab-supergroupies-todo,kingdom-hearts,［プレースホルダー］KH × SuperGroupies コラボ雑貨,[Placeholder] KH x SuperGroupies Collab Goods,,SuperGroupies,other,retail,,,次セッションで公式ページを渡して確定する予定のプレースホルダー行。例: リクモデルブーツ、ロクサスバックパック等。
+kh-collab-graniph-todo,kingdom-hearts,［プレースホルダー］KH × graniph コラボアパレル,[Placeholder] KH x graniph Collab Apparel,,graniph,apparel,retail,,,次セッションで公式ページを渡して確定する予定のプレースホルダー行。例: グラフィックTシャツ等。
+kh-game-kh1,kingdom-hearts,キングダム ハーツ,KINGDOM HEARTS,キングダム ハーツ|KINGDOM HEARTS|KH1,スクウェア・エニックス,game,game,2002-03-28,https://www.jp.square-enix.com/game/detail/kh/,ゲームソフト『キングダム ハーツ』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。
+kh-game-khfm,kingdom-hearts,キングダム ハーツ -ファイナル ミックス-,KINGDOM HEARTS -FINAL MIX-,キングダム ハーツ -ファイナル ミックス-|KINGDOM HEARTS -FINAL MIX-|KHFM|KH FM|KH1FM,スクウェア・エニックス,game,game,2002-12-26,https://www.jp.square-enix.com/game/detail/khfm/,ゲームソフト『キングダム ハーツ -ファイナル ミックス-』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。
+kh-game-khcom,kingdom-hearts,キングダム ハーツ チェイン オブ メモリーズ,KINGDOM HEARTS Chain of Memories,キングダム ハーツ チェイン オブ メモリーズ|KINGDOM HEARTS Chain of Memories|KHCoM|KH CoM,スクウェア・エニックス,game,game,2004-11-11,https://www.jp.square-enix.com/game/detail/khcom/,ゲームソフト『キングダム ハーツ チェイン オブ メモリーズ』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。
+kh-game-kh2,kingdom-hearts,キングダム ハーツII,KINGDOM HEARTS II,キングダム ハーツII|KINGDOM HEARTS II|KH2|KHII,スクウェア・エニックス,game,game,2005-12-22,https://www.jp.square-enix.com/game/detail/kh2/,ゲームソフト『キングダム ハーツII』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。
+kh-game-kh2fm,kingdom-hearts,キングダム ハーツII ファイナル ミックス+,KINGDOM HEARTS II FINAL MIX+,キングダム ハーツII ファイナル ミックス+|KINGDOM HEARTS II FINAL MIX+|KH2FM|KH2 FM|KHIIFM,スクウェア・エニックス,game,game,2007-03-29,https://www.jp.square-enix.com/game/detail/kh2fm/,ゲームソフト『キングダム ハーツII ファイナル ミックス+』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。
+kh-game-khdays,kingdom-hearts,キングダム ハーツ 358/2 Days,KINGDOM HEARTS 358/2 Days,キングダム ハーツ 358/2 Days|KINGDOM HEARTS 358/2 Days|KH358/2|KH Days,スクウェア・エニックス,game,game,2009-05-30,https://www.jp.square-enix.com/game/detail/khdays/,ゲームソフト『キングダム ハーツ 358/2 Days』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。
+kh-game-khbbs,kingdom-hearts,キングダム ハーツ バース バイ スリープ,KINGDOM HEARTS Birth by Sleep,キングダム ハーツ バース バイ スリープ|KINGDOM HEARTS Birth by Sleep|KHBbS|KH BbS,スクウェア・エニックス,game,game,2010-01-09,https://www.jp.square-enix.com/game/detail/khbbs/,ゲームソフト『キングダム ハーツ バース バイ スリープ』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。
+kh-game-khbbsfm,kingdom-hearts,キングダム ハーツ バース バイ スリープ ファイナル ミックス,KINGDOM HEARTS Birth by Sleep FINAL MIX,キングダム ハーツ バース バイ スリープ ファイナル ミックス|KINGDOM HEARTS Birth by Sleep FINAL MIX|KHBbSFM|BbS FM,スクウェア・エニックス,game,game,2011-01-20,https://www.jp.square-enix.com/game/detail/khbbsfm/,ゲームソフト『キングダム ハーツ バース バイ スリープ ファイナル ミックス』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。
+kh-game-kh3d,kingdom-hearts,キングダム ハーツ 3D [ドリーム ドロップ ディスタンス],KINGDOM HEARTS 3D [Dream Drop Distance],キングダム ハーツ 3D [ドリーム ドロップ ディスタンス]|KINGDOM HEARTS 3D [Dream Drop Distance]|KH3D|KHDDD,スクウェア・エニックス,game,game,2012-03-29,https://www.jp.square-enix.com/game/detail/kh3d/,ゲームソフト『キングダム ハーツ 3D [ドリーム ドロップ ディスタンス]』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。
+kh-game-khrecoded,kingdom-hearts,キングダム ハーツ Re:コーデッド,KINGDOM HEARTS Re:coded,キングダム ハーツ Re:コーデッド|KINGDOM HEARTS Re:coded|KH Re:coded|KHRe:coded,スクウェア・エニックス,game,game,2010-10-07,http://www.square-enix.co.jp/kingdom/recoded/,ゲームソフト『キングダム ハーツ Re:コーデッド』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。
+kh-game-khhd15,kingdom-hearts,キングダム ハーツ -HD 1.5 リミックス-,KINGDOM HEARTS -HD 1.5 ReMIX-,キングダム ハーツ -HD 1.5 リミックス-|KINGDOM HEARTS -HD 1.5 ReMIX-|KH HD1.5|KHHD1.5,スクウェア・エニックス,game,game,2013-03-14,https://www.jp.square-enix.com/kingdom/khhd/,ゲームソフト『キングダム ハーツ -HD 1.5 リミックス-』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。
+kh-game-khhd25,kingdom-hearts,キングダム ハーツ -HD 2.5 リミックス-,KINGDOM HEARTS -HD 2.5 ReMIX-,キングダム ハーツ -HD 2.5 リミックス-|KINGDOM HEARTS -HD 2.5 ReMIX-|KH HD2.5|KHHD2.5,スクウェア・エニックス,game,game,2014-10-02,https://www.jp.square-enix.com/kingdom/khhd2/,ゲームソフト『キングダム ハーツ -HD 2.5 リミックス-』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。
+kh-game-khhd28,kingdom-hearts,キングダム ハーツ HD 2.8 ファイナル チャプター プロローグ,KINGDOM HEARTS HD 2.8 Final Chapter Prologue,キングダム ハーツ HD 2.8 ファイナル チャプター プロローグ|KINGDOM HEARTS HD 2.8 Final Chapter Prologue|KH HD2.8|KHHD2.8|キングダムハーツ HD2.8|キングダム ハーツ HD 2.8|KINGDOM HEARTS HD 2.8,スクウェア・エニックス,game,game,2017-01-12,https://www.jp.square-enix.com/kingdom/khhd_fcp/,ゲームソフト『キングダム ハーツ HD 2.8 ファイナル チャプター プロローグ』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。
+kh-game-khhd1525,kingdom-hearts,キングダム ハーツ -HD 1.5+2.5 リミックス-,KINGDOM HEARTS -HD 1.5+2.5 ReMIX-,キングダム ハーツ -HD 1.5+2.5 リミックス-|KINGDOM HEARTS -HD 1.5+2.5 ReMIX-|KH HD1.5+2.5|KH1.5+2.5|キングダムハーツ HD1.5+2.5|キングダム ハーツ HD 1.5+2.5|KINGDOM HEARTS HD 1.5+2.5,スクウェア・エニックス,game,game,2017-03-09,https://www.jp.square-enix.com/kingdom/khhd1_2/,ゲームソフト『キングダム ハーツ -HD 1.5+2.5 リミックス-』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。
+kh-game-kh3,kingdom-hearts,キングダム ハーツIII,KINGDOM HEARTS III,キングダム ハーツIII|KINGDOM HEARTS III|KH3|KHIII,スクウェア・エニックス,game,game,2019-01-25,https://www.jp.square-enix.com/kingdom/kh3/,ゲームソフト『キングダム ハーツIII』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。
+kh-game-khmom,kingdom-hearts,キングダム ハーツ メロディ オブ メモリー,KINGDOM HEARTS Melody of Memory,キングダム ハーツ メロディ オブ メモリー|KINGDOM HEARTS Melody of Memory|KH MoM|KHMoM|メロディーオブメモリー,スクウェア・エニックス,game,game,2020-11-11,https://www.jp.square-enix.com/kingdom/kh_mom/,ゲームソフト『キングダム ハーツ メロディ オブ メモリー』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。
+kh-game-collection,kingdom-hearts,キングダム ハーツ コレクション [I～III],KINGDOM HEARTS Collection [I-III],キングダム ハーツ コレクション [I～III]|KINGDOM HEARTS Collection [I-III]|KH Collection|KHコレクション,スクウェア・エニックス,game,game,2026-10-08,https://www.jp.square-enix.com/kingdom/collection/,ゲームソフト『キングダム ハーツ コレクション [I～III]』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。
+kh-game-integrum,kingdom-hearts,キングダム ハーツ インテグラム マスターピース,KINGDOM HEARTS INTEGRUM MASTERPIECE,キングダム ハーツ インテグラム マスターピース|KINGDOM HEARTS INTEGRUM MASTERPIECE|INTEGRUM MASTERPIECE|インテグラムマスターピース|KH INTEGRUM|KINGDOM HEARTS All-in-One Package|キングダムハーツ オールインワンパッケージ,スクウェア・エニックス,game,game,2019-01-25,https://store.playstation.com/ja-jp/product/JP0082-CUSA11060_00-KH3AOP0000000000,『KH III』『HD 1.5+2.5 ReMIX』『HD 2.8 Final Chapter Prologue』の3タイトルセット。PS4ダウンロード版（PS Store）・e-STORE限定パッケージ版（限定予約、終了）・Steamダウンロード版がある。構成タイトルは set_components を参照。
+kh-limited-console,kingdom-hearts,KH限定版ゲーム機本体（同梱版）,KH Limited Edition Console Bundles,PlayStation4 Pro KINGDOM HEARTS III LIMITED EDITION|PlayStation4 Pro KINGDOM HEARTS III LIMITED EDITION|PS4 Pro KH3 LIMITED EDITION|PS4 Pro キングダムハーツIII リミテッドエディション|PS4 Pro キングダム ハーツIII 限定版|PS4 Pro キングダムハーツ限定版|PS4 Pro 1TB キングダムハーツ限定版|CUHJ-10025,スクウェア・エニックス,console,set,2019-01-25,https://www.famitsu.com/news/201806/12158933.html,限定デザインのゲーム機本体とKHソフトの同梱セット。同梱ソフトは set_components の sku_id（catalog.csv内のソフト行）で表す。ニンテンドー3DS キングダムハーツエディション等は今後追加。
+kh-game-khuc,kingdom-hearts,キングダム ハーツ ユニオン クロス ダーク ロード,KINGDOM HEARTS Union χ [Cross] Dark Road,キングダム ハーツ ユニオン クロス ダーク ロード|KINGDOM HEARTS Union χ [Cross] Dark Road|KH UX|KH Union X|KHユニオンクロス,スクウェア・エニックス,game,game,2015-09-03,https://www.jp.square-enix.com/kingdom/archives/index.html,ゲームソフト『キングダム ハーツ ユニオン クロス ダーク ロード』。機種・版（通常/アルティメット ヒッツ/ダウンロード等）違いは catalog.csv の行で分ける（sku_id は <title>-<platform>-<edition>-<region>）。機種別の発売日は公式ゲーム一覧（https://www.jp.square-enix.com/game/）、型番・価格は各作品ページによる。
+kh-and-you-mini-plush,kingdom-hearts,キングダム ハーツ ＆you ミニぬいぐるみ,Kingdom Hearts & You Mini Plush,KH ＆you ミニぬいぐるみ|Kingdom Hearts and You Mini Plush|＆youミニぬいぐるみ,セガ フェイブ,plush,prize,2026-05-15,https://segaplaza.jp/prize/B122285/,セガのプライズ(クレーンゲーム景品)。ソラ・ドナルドダック・グーフィーの全3種、サイズ約6×8×12cm。二次流通のみ想定。一次情報URLで内容の再確認を推奨(verified=false)。
+kh-furyu-prize-plush-vol2,kingdom-hearts,キングダム ハーツ フリュー プライズ アイテム ぬいぐるみマスコット Volume 2,Kingdom Hearts Furyu Prize Item Plush Mascot Volume 2,FuRyu KHぬいぐるみマスコット Vol.2|フリューKHぬいぐるみマスコット第2弾,FuRyu(フリュー),plush,prize,2025-05-01,https://www.aitaikuji.com/kingdom-hearts-furyu-prize-item-plush-mascot-volume-2,FuRyu制のプライズぬいぐるみ第2弾。デスティニートリオ(ソラ・リク・カイリ)の全3種、サイズ約14cm。2026-10-11修正：以前の「ウェイファインダートリオ+全6種」表記は誤り(アクア・テラ・ヴェントゥスは別リリースのVolume 3、line_id kh-furyu-prize-plush-vol3として分離登録済み)。source_urlは小売(アイテイクジ)ページで、より公式に近いソースが見つかれば差し替え可。verified=false。
+diamond-select-kh-series2,kingdom-hearts,ディズニー キングダム ハーツ シリーズ2 ピート、チップ&デール、ソルジャー アクションフィギュア3体セット,Disney Kingdom Hearts Select Series 2 Pete Chip 'n Dale & Soldier Action Figure 3-Pack,Kingdom Hearts Select Series 2|KH Select Series 2|DST KH Series 2,Diamond Select Toys,figure,western_license,2018-06-01,https://toywiz.com/disney-kingdom-hearts-series-2-pete-chip-and-dale-and-soldier-action-figure-3-pack/,北米向け公式ライセンス品(西側正規品)。UPC 699788827420、型番SEP178689。USD MSRPは複数の海外小売ページで確認できず(toywizは在庫切れで価格非表示、Amazonはfetch不可)、英国小売で£24.00の販売実績のみ確認。msrp_jpy欄は空欄、price_basis=noneとし、notesに未確認である旨を記載。verified=false。
+kh-pin-2025,kingdom-hearts,ピンズ,Pin,,スクウェア・エニックス,accessory,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-keyblade-keychain-2025,kingdom-hearts,キーブレードキーホルダー,Keyblade Keychain,,スクウェア・エニックス,accessory,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-art-museum-box-2025,kingdom-hearts,アートミュージアム BOX,Art Museum Box,,スクウェア・エニックス,stationery,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-music-box-2025,kingdom-hearts,オルゴール,Music Box,,スクウェア・エニックス,novelty,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-plush-2025,kingdom-hearts,ぬいぐるみ（通常シリーズ）,Plush (Standard Series),,スクウェア・エニックス,plush,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh2-coin-pouch-2025,kingdom-hearts,マニーポーチ,Coin Pouch,,スクウェア・エニックス,accessory,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-metal-keychain-2025,kingdom-hearts,メタルキーホルダー,Metal Keychain,,スクウェア・エニックス,accessory,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-com-playing-cards-2025,kingdom-hearts,トランプ,Playing Cards,,スクウェア・エニックス,novelty,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-stationery-cardcase-2025,kingdom-hearts,ステーショナリー 名刺ケース,Stationery - Business Card Case,,スクウェア・エニックス,stationery,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-quilted-2025,kingdom-hearts,キルティングシリーズ（バッグ・財布）,Quilted Series (Bags & Wallets),,スクウェア・エニックス,bag,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-stationery-pen-2025,kingdom-hearts,ステーショナリー ボールペン,Stationery - Ballpoint Pen,,スクウェア・エニックス,stationery,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-stationery-pencase-2025,kingdom-hearts,ステーショナリー ペンケース,Stationery - Pen Case,,スクウェア・エニックス,stationery,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-stationery-pencilboard-2025,kingdom-hearts,ステーショナリー リフィル下敷き,Stationery - Refill Pencil Board,,スクウェア・エニックス,stationery,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-silver-jewelry-2025,kingdom-hearts,シルバージュエリー（ネックレス・リング）,Silver Jewelry (Necklace & Ring),,スクウェア・エニックス,accessory,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-acrylic-sticker-2025,kingdom-hearts,アクリルステッカーコレクション,Acrylic Sticker Collection,,スクウェア・エニックス,novelty,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-aluminum-magnet-2025,kingdom-hearts,アルミマグネット（作品別）,Aluminum Magnet (By Title),,スクウェア・エニックス,novelty,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-hd28-acrylic-keychain-2025,kingdom-hearts,HD 2.8 アクリルキーホルダー,HD 2.8 Acrylic Keychain,,スクウェア・エニックス,accessory,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-wayfinder-charm-2025,kingdom-hearts,つながりのお守りアクセサリー,Wayfinder Charm Accessory,,スクウェア・エニックス,accessory,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-bright-arts-gallery-2025,kingdom-hearts,ブライトアーツギャラリー,Bright Arts Gallery,,スクウェア・エニックス,figure,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-canvas-pouch-2025,kingdom-hearts,キャンバスポーチ 100エーカーの森,Canvas Pouch -100 Acre Wood-,,スクウェア・エニックス,accessory,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-acrylic-magnet-gallery-2025,kingdom-hearts,アクリルマグネットギャラリー,Acrylic Magnet Gallery,,スクウェア・エニックス,novelty,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-pets-2025,kingdom-hearts,KINGDOM HEARTS PETs（ペット用品）,Kingdom Hearts PETs (Pet Goods),,スクウェア・エニックス,other,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-mousepad-2025,kingdom-hearts,マウスパッド,Mouse Pad,,スクウェア・エニックス,stationery,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-face-mug-2025,kingdom-hearts,フェイスマグカップ,Face Mug,,スクウェア・エニックス,novelty,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-planner-charm-2025,kingdom-hearts,ステーショナリー 手帳チャーム,Stationery - Planner Charm,,スクウェア・エニックス,stationery,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-stationery-diary-2025,kingdom-hearts,ステーショナリー 日記帳,Stationery - Diary,,スクウェア・エニックス,stationery,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-stationery-refillnote-2025,kingdom-hearts,ステーショナリー リフィルノート,Stationery - Refill Notebook,,スクウェア・エニックス,stationery,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-stationery-stickerset-2025,kingdom-hearts,ステーショナリー ステッカーセット,Stationery - Sticker Set,,スクウェア・エニックス,stationery,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-stationery-maskingtape-2025,kingdom-hearts,ステーショナリー マスキングテープセット,Stationery - Masking Tape Set,,スクウェア・エニックス,stationery,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-stationery-stickynote-2025,kingdom-hearts,ステーショナリー 付箋メモセット,Stationery - Sticky Note Set,,スクウェア・エニックス,stationery,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-artisan-artist-collab-2025,kingdom-hearts,× アルティザン・アンド・アーティスト コラボポーチ,x Artisan & Artist Collab Pouch,,スクウェア・エニックス,other,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-amigurumi-2025,kingdom-hearts,あみぐるみ,Amigurumi,,スクウェア・エニックス,plush,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-can-badge-2025,kingdom-hearts,カンバッジコレクション,Can Badge Collection,,スクウェア・エニックス,novelty,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-acrylic-stand-halloweentown-2025,kingdom-hearts,アクリルスタンド ハロウィンタウン,Acrylic Stand -Halloween Town-,,スクウェア・エニックス,novelty,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-glass-magnet-2025,kingdom-hearts,ガラスマグネット,Glass Magnet,,スクウェア・エニックス,novelty,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-can-glass-2025,kingdom-hearts,缶型グラス,Can-Shaped Glass,,スクウェア・エニックス,novelty,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-hairclip-halloweentown-2025,kingdom-hearts,ヘアクリップセット ハロウィンタウン,Hair Clip Set -Halloween Town-,,スクウェア・エニックス,accessory,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-planner-cover-2025,kingdom-hearts,ステーショナリー PUシステム手帳カバー,Stationery - PU Leather Planner Cover,,スクウェア・エニックス,stationery,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-stationery-file-2025,kingdom-hearts,20th Anniversary メタリックファイル,20th Anniversary Metallic File,,スクウェア・エニックス,stationery,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-hoodie-2025,kingdom-hearts,フーディー,Hoodie,,スクウェア・エニックス,apparel,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-long-wallet-2025,kingdom-hearts,長財布,Long Wallet,,スクウェア・エニックス,accessory,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-loungewear-2025,kingdom-hearts,もこもこルームウェアセット,Fluffy Loungewear Set,,スクウェア・エニックス,apparel,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-plush-halloweentown-2025,kingdom-hearts,ぬいぐるみ ハロウィンタウンVer.,Plush -Halloween Town Ver.-,,スクウェア・エニックス,plush,retail,,https://store.jp.square-enix.com/estore/e/ekingdom-goods/,スクエニe-STORE「グッズ」カテゴリより2026-09棚卸しで追加。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-graniph-tshirt-2025,kingdom-hearts,グラニフ コラボTシャツ,Graniph Collab T-Shirt,,graniph,apparel,retail,,https://www.graniph.com/feature,グラニフ公式サイト キングダム ハーツコラボより2026-09棚卸しで追加。graniphはWorldShopping BIZ経由で海外発送対応（代行業者不要、自国通貨で購入可）。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-graniph-shirt-2025,kingdom-hearts,グラニフ コラボシャツ,Graniph Collab Shirt,,graniph,apparel,retail,,https://www.graniph.com/feature,グラニフ公式サイト キングダム ハーツコラボより2026-09棚卸しで追加。graniphはWorldShopping BIZ経由で海外発送対応（代行業者不要、自国通貨で購入可）。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-graniph-bag-2025,kingdom-hearts,グラニフ コラボバッグ,Graniph Collab Bag,,graniph,bag,retail,,https://www.graniph.com/feature,グラニフ公式サイト キングダム ハーツコラボより2026-09棚卸しで追加。graniphはWorldShopping BIZ経由で海外発送対応（代行業者不要、自国通貨で購入可）。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-graniph-pants-2025,kingdom-hearts,グラニフ コラボパンツ,Graniph Collab Pants,,graniph,apparel,retail,,https://www.graniph.com/feature,グラニフ公式サイト キングダム ハーツコラボより2026-09棚卸しで追加。graniphはWorldShopping BIZ経由で海外発送対応（代行業者不要、自国通貨で購入可）。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-graniph-socks-2025,kingdom-hearts,グラニフ コラボソックス,Graniph Collab Socks,,graniph,apparel,retail,,https://www.graniph.com/feature,グラニフ公式サイト キングダム ハーツコラボより2026-09棚卸しで追加。graniphはWorldShopping BIZ経由で海外発送対応（代行業者不要、自国通貨で購入可）。個別の発売日はcatalog.csv各行を参照(未確認時は空欄)。
+kh-avail-hoodie-2026,kingdom-hearts,アベイル コラボパーカ,Avail Collab Hoodie,,アベイル,apparel,retail,2026-09-19,https://puchipurabu.com/avail-kingdomhearts/,アベイル公式コラボ（2026年8月・9月発売）について、ファンまとめサイト（puchipurabu.com、品番付き・複数記事で相互確認済み）より2026-09棚卸しで追加。アベイル公式オンラインストアの個別商品URLは検索で見つからず、公式一次情報での裏取りは未完了のため availability_confidence=estimated / verified=false としている。海外発送の記載は確認できなかった。
+kh-avail-tshirt-2026,kingdom-hearts,アベイル コラボTシャツ,Avail Collab T-Shirt,,アベイル,apparel,retail,2026-09-19,https://puchipurabu.com/avail-kingdomhearts/,アベイル公式コラボ（2026年8月・9月発売）について、ファンまとめサイト（puchipurabu.com、品番付き・複数記事で相互確認済み）より2026-09棚卸しで追加。アベイル公式オンラインストアの個別商品URLは検索で見つからず、公式一次情報での裏取りは未完了のため availability_confidence=estimated / verified=false としている。海外発送の記載は確認できなかった。
+kh-avail-pullover-2026,kingdom-hearts,アベイル コラボプルオーバー,Avail Collab Pullover,,アベイル,apparel,retail,2026-09-19,https://puchipurabu.com/avail-kingdomhearts/,アベイル公式コラボ（2026年8月・9月発売）について、ファンまとめサイト（puchipurabu.com、品番付き・複数記事で相互確認済み）より2026-09棚卸しで追加。アベイル公式オンラインストアの個別商品URLは検索で見つからず、公式一次情報での裏取りは未完了のため availability_confidence=estimated / verified=false としている。海外発送の記載は確認できなかった。
+kh-avail-roomwear-2026,kingdom-hearts,アベイル コラボルームウェア,Avail Collab Roomwear,,アベイル,apparel,retail,2026-08-08,https://puchipurabu.com/avail-kingdomhearts/,アベイル公式コラボ（2026年8月・9月発売）について、ファンまとめサイト（puchipurabu.com、品番付き・複数記事で相互確認済み）より2026-09棚卸しで追加。アベイル公式オンラインストアの個別商品URLは検索で見つからず、公式一次情報での裏取りは未完了のため availability_confidence=estimated / verified=false としている。海外発送の記載は確認できなかった。
+kh-avail-socks-2026,kingdom-hearts,アベイル コラボソックス,Avail Collab Socks,,アベイル,apparel,retail,2026-09-19,https://puchipurabu.com/avail-kingdomhearts/,アベイル公式コラボ（2026年8月・9月発売）について、ファンまとめサイト（puchipurabu.com、品番付き・複数記事で相互確認済み）より2026-09棚卸しで追加。アベイル公式オンラインストアの個別商品URLは検索で見つからず、公式一次情報での裏取りは未完了のため availability_confidence=estimated / verified=false としている。海外発送の記載は確認できなかった。
+kh-avail-bag-2026,kingdom-hearts,アベイル コラボバッグ,Avail Collab Bag,,アベイル,bag,retail,2026-09-19,https://puchipurabu.com/avail-kingdomhearts/,アベイル公式コラボ（2026年8月・9月発売）について、ファンまとめサイト（puchipurabu.com、品番付き・複数記事で相互確認済み）より2026-09棚卸しで追加。アベイル公式オンラインストアの個別商品URLは検索で見つからず、公式一次情報での裏取りは未完了のため availability_confidence=estimated / verified=false としている。海外発送の記載は確認できなかった。
+kh-avail-pouch-2026,kingdom-hearts,アベイル コラボポーチ,Avail Collab Pouch,,アベイル,accessory,retail,2026-09-19,https://puchipurabu.com/avail-kingdomhearts/,アベイル公式コラボ（2026年8月・9月発売）について、ファンまとめサイト（puchipurabu.com、品番付き・複数記事で相互確認済み）より2026-09棚卸しで追加。アベイル公式オンラインストアの個別商品URLは検索で見つからず、公式一次情報での裏取りは未完了のため availability_confidence=estimated / verified=false としている。海外発送の記載は確認できなかった。
+kh-avail-passcase-2026,kingdom-hearts,アベイル コラボパスケース,Avail Collab Pass Case,,アベイル,accessory,retail,2026-09-19,https://puchipurabu.com/avail-kingdomhearts/,アベイル公式コラボ（2026年8月・9月発売）について、ファンまとめサイト（puchipurabu.com、品番付き・複数記事で相互確認済み）より2026-09棚卸しで追加。アベイル公式オンラインストアの個別商品URLは検索で見つからず、公式一次情報での裏取りは未完了のため availability_confidence=estimated / verified=false としている。海外発送の記載は確認できなかった。
+kh-shimamura-bedding-2026,kingdom-hearts,しまむら コラボ寝具・インテリア,Shimamura Collab Bedding & Interior,,しまむら,other,retail,2026-07-18,https://nijimen.kusuguru.co.jp/topics/626314,しまむら公式コラボ（2026年7月18日発売）について、ファンまとめサイト（nijimen.kusuguru.co.jp）より2026-09棚卸しで追加。個別品番は情報源になく、キャラクター表記も「王冠・ハート・鍵」等の総柄モチーフ中心で個別キャラの明記が薄い。公式一次情報での裏取りは未完了のため availability_confidence=estimated / verified=false としている。海外発送の記載は確認できなかった。
+kh-shimamura-accessory-2026,kingdom-hearts,しまむら コラボ雑貨,Shimamura Collab Accessory,,しまむら,accessory,retail,2026-07-18,https://nijimen.kusuguru.co.jp/topics/626314,しまむら公式コラボ（2026年7月18日発売）について、ファンまとめサイト（nijimen.kusuguru.co.jp）より2026-09棚卸しで追加。個別品番は情報源になく、キャラクター表記も「王冠・ハート・鍵」等の総柄モチーフ中心で個別キャラの明記が薄い。公式一次情報での裏取りは未完了のため availability_confidence=estimated / verified=false としている。海外発送の記載は確認できなかった。
+kh-shimamura-keychain-2026,kingdom-hearts,しまむら コラボ小物・キーホルダー,Shimamura Collab Keychain & Small Goods,,しまむら,accessory,retail,2026-07-18,https://nijimen.kusuguru.co.jp/topics/626314,しまむら公式コラボ（2026年7月18日発売）について、ファンまとめサイト（nijimen.kusuguru.co.jp）より2026-09棚卸しで追加。個別品番は情報源になく、キャラクター表記も「王冠・ハート・鍵」等の総柄モチーフ中心で個別キャラの明記が薄い。公式一次情報での裏取りは未完了のため availability_confidence=estimated / verified=false としている。海外発送の記載は確認できなかった。
+kh-shimamura-apparel-2026,kingdom-hearts,しまむら コラボアパレル,Shimamura Collab Apparel,,しまむら,apparel,retail,2026-07-18,https://nijimen.kusuguru.co.jp/topics/626314,しまむら公式コラボ（2026年7月18日発売）について、ファンまとめサイト（nijimen.kusuguru.co.jp）より2026-09棚卸しで追加。個別品番は情報源になく、キャラクター表記も「王冠・ハート・鍵」等の総柄モチーフ中心で個別キャラの明記が薄い。公式一次情報での裏取りは未完了のため availability_confidence=estimated / verified=false としている。海外発送の記載は確認できなかった。
+kh-furyu-prize-plush-vol3,kingdom-hearts,キングダム ハーツ フリュー プライズ アイテム ぬいぐるみマスコット Volume 3,Kingdom Hearts Furyu Prize Item Plush Mascot Volume 3,FuRyu KHぬいぐるみマスコット Vol.3|フリューKHぬいぐるみマスコット第3弾,FuRyu(フリュー),plush,prize,2025-05,https://www.aitaikuji.com/kingdom-hearts-furyu-prize-item-plush-mascot-volume-3,FuRyu制のプライズぬいぐるみ第3弾。ウェイファインダートリオ(アクア・テラ・ヴェントゥス、Birth by Sleep衣装)の全3種、サイズ約14cm。Volume 2(ソラ・リク・カイリ)とは別リリース。2026-10-11、Marley指摘により新規登録(以前はVolume 2の行に誤って混在)。source_urlは小売(アイテイクジ)ページ、verified=false。
+kh-x-tamagotchi-collab-2022,kingdom-hearts,KINGDOM HEARTS Tamagotchi,KINGDOM HEARTS Tamagotchi,KH Tamagotchi,Bandai,other,retail,2022-10,https://p-bandai.jp/item/item-1000172249/?rt=pr,KHシリーズ20周年記念たまごっちコラボ。プレミアムバンダイ限定予約販売(2022-03-28受付開始)、現在は中古のみ流通。
