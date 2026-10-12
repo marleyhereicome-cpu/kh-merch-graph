@@ -1,5 +1,5 @@
 // KH Merch Graph MCPサーバー（ローカル版・stdioトランスポート）。
-// Claude Desktop から呼ばれ、SPEC.md 3章の5ツールを提供する。
+// Claude Desktop から呼ばれ、SPEC.md 3章のツール群を提供する。
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
@@ -8,6 +8,7 @@ import { registerExplainProductTool } from "./tools/explain_product.js";
 import { registerDiscoverTool } from "./tools/discover.js";
 import { registerEstimateLandedCostTool } from "./tools/estimate_landed_cost.js";
 import { registerReportCorrectionTool } from "./tools/report_correction.js";
+import { registerResolveListingsBatchTool } from "./tools/resolve_listings_batch.js";
 import { fileCorrectionStore } from "./lib/correction-store.node.js";
 
 const server = new McpServer({
@@ -16,6 +17,7 @@ const server = new McpServer({
 });
 
 registerResolveListingTool(server);
+registerResolveListingsBatchTool(server);
 registerExplainProductTool(server);
 registerDiscoverTool(server);
 registerEstimateLandedCostTool(server);

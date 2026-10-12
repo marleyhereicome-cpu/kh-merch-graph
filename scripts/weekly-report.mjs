@@ -119,7 +119,10 @@ async function main() {
   const keys = await listUsageKeys();
   console.log(`  usage:* キー ${keys.length} 件を発見。値を取得中…`);
 
-  const entries = (await mapWithConcurrency(keys, CONCURRENCY, getEntry)).filter(Boolean);
+  // resolve_listings_batch は1つのキーにエントリの配列をまとめて保存するので、配列は展開する。
+  const entries = (await mapWithConcurrency(keys, CONCURRENCY, getEntry))
+    .filter(Boolean)
+    .flatMap((v) => (Array.isArray(v) ? v : [v]));
   const inWindow = entries.filter((e) => e.at && Date.parse(e.at) >= since);
 
   const skuCounter = new Map();
@@ -133,7 +136,7 @@ async function main() {
     if (e.dest_country) bump(destCounter, e.dest_country);
     for (const tok of e.unresolved_tokens ?? []) bump(unresolvedTokenCounter, tok);
     if (e.requested_ip) bump(unresolvedIpCounter, e.requested_ip);
-    if (e.tool === "resolve_listing" && e.src) {
+    if ((e.tool === "resolve_listing" || e.tool === "resolve_listings_batch") && e.src) {
       if (!bySrc.has(e.src)) bySrc.set(e.src, { resolveCalls: 0, activeDays: new Set() });
       const stats = bySrc.get(e.src);
       stats.resolveCalls += 1;

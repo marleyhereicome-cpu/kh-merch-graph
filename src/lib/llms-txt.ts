@@ -23,6 +23,7 @@ export function buildLlmsTxt(baseUrl: string): string {
 ## Tools
 
 - \`resolve_listing(title, description?, price_jpy?, platform?, url?)\` — identify a listing's SKU, condition terms, bootleg-caution flags, and price-to-MSRP ratio. Each candidate includes \`source_url\` so you can verify it yourself.
+- \`resolve_listings_batch(listings[])\` — the same as \`resolve_listing\`, for up to 200 listings in one call (each item takes the same arguments). Results come back as an array in the same order as the input; an item that fails is \`{ error }\` instead of failing the whole call. For more than 200 listings, split into chunks of 200. Prefer this over calling \`resolve_listing\` repeatedly.
 - \`explain_product(sku_id | query)\` — full detail on one SKU: product line, character, dimensions, rerelease history, primary source.
 - \`discover(ip, character?, budget_jpy?, purpose?, limit?)\` — browse the catalog by IP/character/budget/purpose. Does not confirm anything is currently listed for sale anywhere.
 - \`estimate_landed_cost(price_jpy, sku_id|weight_g, dest_country, proxy?)\` — proxy-service + shipping cost estimate to a destination country.

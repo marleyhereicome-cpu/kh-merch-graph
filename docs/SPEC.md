@@ -233,6 +233,14 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 `price`・`acquisition`・`availability`・`region`・`variety` は上位候補が無い場合は `null`（`availability` は `availability_hint` が未確定でも `null`）。`variety` は `design_count` が無いSKUでも `null`。
 `out_of_scope` は該当する理由が一つも無ければ `null`（複数の理由が同時に立つこともある）。
 
+### 3.1b `resolve_listings_batch`
+`resolve_listing` を複数件まとめて1回で実行する（数十〜数百件の照会で、呼び出し側が1件ごとに許可を求めずに済むようにするため）。`resolve_listing` は1件用としてそのまま残す。
+入力：`listings`（配列・1〜200件）。各要素は `resolve_listing` と同じ引数（`title` 必須、`description`/`platform`/`price_jpy`/`src`/`url` 任意）
+出力：入力と同じ順番の配列。各要素は `resolve_listing` と同じ形式。1件が失敗しても全体は止めず、その件だけ `{ "error": "..." }` を返す。件数が多いため JSON は整形せず詰めて返す
+処理：既存の `resolveListing()` をループで呼ぶだけ（名寄せロジックは複製しない。`src/tools/resolve_listings_batch.ts`）
+- 上限：1回200件（`MAX_BATCH_LISTINGS`）。Cloudflare Workers のCPU時間制限のため。0件・201件以上は `isError: true` と、分割して呼ぶよう促すメッセージを返す
+- 利用ログ：中身は `resolve_listing` と同じ（SKU候補・価格・src・日時のみ。`tool` は `resolve_listings_batch`）。1件ごとにKVへ書かず、1回の呼び出し分を1つのキー（値はエントリの配列）にまとめて書く。`scripts/weekly-report.mjs` は配列を展開して集計する
+
 ### 3.2 `explain_product`
 入力：`sku_id` または `query`（自然文）
 出力：ライン・弾・キャラ・特徴・寸法・再販履歴・「似て非なる商品」・出典URL

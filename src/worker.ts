@@ -9,6 +9,7 @@ import { registerExplainProductTool } from "./tools/explain_product.js";
 import { registerDiscoverTool } from "./tools/discover.js";
 import { registerEstimateLandedCostTool } from "./tools/estimate_landed_cost.js";
 import { registerReportCorrectionTool } from "./tools/report_correction.js";
+import { registerResolveListingsBatchTool } from "./tools/resolve_listings_batch.js";
 import { createKvCorrectionStore } from "./lib/correction-store.kv.js";
 import type { UsageLogEntry } from "./lib/usage-log.js";
 import { buildLlmsTxt } from "./lib/llms-txt.js";
@@ -54,7 +55,16 @@ function buildServer(env: Env): McpServer {
     await env.KH_KV.put(key, JSON.stringify(entry), { expirationTtl: USAGE_LOG_TTL_SECONDS });
   };
 
+  // バッチ版は数百件分のログを1つのKVキー（値はエントリの配列）にまとめて書く。
+  // 1件ずつ書くと1リクエストあたりのKV書き込み上限・1日の無料枠をすぐ使い切るため。
+  // scripts/weekly-report.mjs は配列の値も展開して集計する。
+  const onUsageBatch = async (entries: UsageLogEntry[]) => {
+    const key = `usage:${entries[0].at}:${crypto.randomUUID()}`;
+    await env.KH_KV.put(key, JSON.stringify(entries), { expirationTtl: USAGE_LOG_TTL_SECONDS });
+  };
+
   registerResolveListingTool(server, onUsage);
+  registerResolveListingsBatchTool(server, onUsageBatch);
   registerExplainProductTool(server);
   registerDiscoverTool(server, onUsage);
   registerEstimateLandedCostTool(server, onUsage);
