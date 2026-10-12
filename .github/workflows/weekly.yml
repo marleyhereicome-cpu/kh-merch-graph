@@ -36,6 +36,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # 【一時的・デバッグ用】週次実行が is_error:true / total_cost_usd:0 で失敗する原因をログに出すため。
+          # 原因が分かったら削除すること（公開リポジトリのため、Actionsのログは誰でも見られる）。
+          show_full_output: true
           # prompt を渡すと automation mode（@claude のメンション無しで、この指示をそのまま実行）になる。
           prompt: |
             このリポジトリ（KH Merch Graph）の週次点検を行い、結果を1つの GitHub Issue にまとめて投稿してください。
