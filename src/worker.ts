@@ -9,6 +9,7 @@ import { registerExplainProductTool } from "./tools/explain_product.js";
 import { registerDiscoverTool } from "./tools/discover.js";
 import { registerEstimateLandedCostTool } from "./tools/estimate_landed_cost.js";
 import { registerReportCorrectionTool } from "./tools/report_correction.js";
+import { registerResolveListingsBatchTool, parseMaxBatchListings } from "./tools/resolve_listings_batch.js";
 import { createKvCorrectionStore } from "./lib/correction-store.kv.js";
 import type { UsageLogEntry } from "./lib/usage-log.js";
 import { buildLlmsTxt } from "./lib/llms-txt.js";
@@ -41,6 +42,8 @@ interface RateLimiter {
 export interface Env {
   KH_KV: KVNamespace;
   RATE_LIMITER: RateLimiter;
+  // resolve_listings_batch の1回あたりの上限件数（wrangler.toml の [vars]）。未設定なら既定値。
+  MAX_BATCH_LISTINGS?: string;
 }
 
 // 利用ログの保存期間（秒）。90日を過ぎたら自動で消える。
@@ -54,7 +57,16 @@ function buildServer(env: Env): McpServer {
     await env.KH_KV.put(key, JSON.stringify(entry), { expirationTtl: USAGE_LOG_TTL_SECONDS });
   };
 
+  // バッチ版は数百件分のログを1つのKVキー（値はエントリの配列）にまとめて書く。
+  // 1件ずつ書くと1リクエストあたりのKV書き込み上限・1日の無料枠をすぐ使い切るため。
+  // scripts/weekly-report.mjs は配列の値も展開して集計する。
+  const onUsageBatch = async (entries: UsageLogEntry[]) => {
+    const key = `usage:${entries[0].at}:${crypto.randomUUID()}`;
+    await env.KH_KV.put(key, JSON.stringify(entries), { expirationTtl: USAGE_LOG_TTL_SECONDS });
+  };
+
   registerResolveListingTool(server, onUsage);
+  registerResolveListingsBatchTool(server, onUsageBatch, parseMaxBatchListings(env.MAX_BATCH_LISTINGS));
   registerExplainProductTool(server);
   registerDiscoverTool(server, onUsage);
   registerEstimateLandedCostTool(server, onUsage);
@@ -122,7 +134,7 @@ export default {
     // AIエージェントが自力でこのサーバーを見つけて使い方を理解できるようにするための静的な入口。
     if (url.pathname === "/llms.txt") {
       return withCors(
-        new Response(buildLlmsTxt(baseUrl), {
+        new Response(buildLlmsTxt(baseUrl, parseMaxBatchListings(env.MAX_BATCH_LISTINGS)), {
           status: 200,
           headers: { "Content-Type": "text/plain; charset=utf-8" },
         })
@@ -131,7 +143,7 @@ export default {
 
     if (url.pathname === "/openapi.json") {
       return withCors(
-        new Response(JSON.stringify(buildOpenApiDocument(baseUrl), null, 2), {
+        new Response(JSON.stringify(buildOpenApiDocument(baseUrl, parseMaxBatchListings(env.MAX_BATCH_LISTINGS)), null, 2), {
           status: 200,
           headers: { "Content-Type": "application/json; charset=utf-8" },
         })

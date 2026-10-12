@@ -22,7 +22,7 @@ export function detectOutOfScope(
   outOfScopeKeywords: OutOfScopeKeyword[],
   otherIpKeywords: OtherIpKeyword[] = [],
   ipTerms: IpTerm[] = [],
-  currentIps: Set<string> = new Set(["kingdom-hearts"])
+  currentIps: ReadonlySet<string> = new Set(["kingdom-hearts"])
 ): OutOfScopeMatch[] {
   const matches: OutOfScopeMatch[] = [];
 

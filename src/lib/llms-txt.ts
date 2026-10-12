@@ -2,7 +2,7 @@
 // AIエージェントがこのMCPサーバーを自力で見つけたときに、人手を介さず
 // 「何をするサーバーか」「どう繋ぐか」「どのツールがあるか」を読み取れるようにするための静的テキスト。
 // baseUrl はリクエストごとに request.url の origin から組み立てる（ドメインをここに固定しない）。
-export function buildLlmsTxt(baseUrl: string): string {
+export function buildLlmsTxt(baseUrl: string, maxBatchListings: number): string {
   return `# KH Merch Graph MCP Server
 
 > An MCP (Model Context Protocol) server that turns a Japanese secondhand-listing title/description for Kingdom Hearts merchandise into a canonical SKU match, condition-term explanation, bootleg caution flags, and a price/landed-cost estimate.
@@ -23,6 +23,7 @@ export function buildLlmsTxt(baseUrl: string): string {
 ## Tools
 
 - \`resolve_listing(title, description?, price_jpy?, platform?, url?)\` — identify a listing's SKU, condition terms, bootleg-caution flags, and price-to-MSRP ratio. Each candidate includes \`source_url\` so you can verify it yourself.
+- \`resolve_listings_batch(listings[])\` — the same as \`resolve_listing\`, for up to ${maxBatchListings} listings in one call (each item takes the same arguments). Results come back as an array in the same order as the input; an item that fails is \`{ error }\` instead of failing the whole call. For more than ${maxBatchListings} listings, split into chunks of ${maxBatchListings}. Prefer this over calling \`resolve_listing\` once per listing.
 - \`explain_product(sku_id | query)\` — full detail on one SKU: product line, character, dimensions, rerelease history, primary source.
 - \`discover(ip, character?, budget_jpy?, purpose?, limit?)\` — browse the catalog by IP/character/budget/purpose. Does not confirm anything is currently listed for sale anywhere.
 - \`estimate_landed_cost(price_jpy, sku_id|weight_g, dest_country, proxy?)\` — proxy-service + shipping cost estimate to a destination country.

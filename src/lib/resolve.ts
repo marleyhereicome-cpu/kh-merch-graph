@@ -88,6 +88,19 @@ function genericPhrasesByLine(lines: ProductLine[]): Map<string, Set<string>> {
   return result;
 }
 
+// 採点では同じ「a|b|c」の文字列を出品のたびに分割し直すので、結果を覚えておく（読み取り専用。書き換えないこと）。
+// splitPipe 本体は、結果をツールの出力に入れる呼び出し元もあるため変えない。
+const splitCache = new Map<string, readonly string[]>();
+function splitPipeCached(value: string): readonly string[] {
+  if (!value) return [];
+  let parts = splitCache.get(value);
+  if (!parts) {
+    parts = splitPipe(value);
+    splitCache.set(value, parts);
+  }
+  return parts;
+}
+
 // SKU固有のスコア（賞の文字・キャラ名など）とライン固有のスコア（シリーズ名・周年）を分けて集計する。
 function scoreSku(
   queryText: string,
@@ -131,10 +144,10 @@ function scoreSku(
 
   tryMatch(sku.name_ja, WEIGHTS.sku_name, "sku");
   tryMatch(sku.name_en, WEIGHTS.sku_name_en, "sku");
-  for (const a of splitPipe(sku.aliases)) tryMatch(a, WEIGHTS.sku_alias, "sku");
+  for (const a of splitPipeCached(sku.aliases)) tryMatch(a, WEIGHTS.sku_alias, "sku");
   tryMatch(sku.variant, WEIGHTS.variant, "sku");
-  for (const c of splitPipe(sku.character)) tryMatch(c, WEIGHTS.character, "sku");
-  for (const c of splitPipe(sku.character_en)) tryMatch(c, WEIGHTS.character_en, "sku");
+  for (const c of splitPipeCached(sku.character)) tryMatch(c, WEIGHTS.character, "sku");
+  for (const c of splitPipeCached(sku.character_en)) tryMatch(c, WEIGHTS.character_en, "sku");
 
   if (line) {
     // 他の弾の名称・別名に丸ごと含まれる汎用フレーズ（例:「一番くじキングダムハーツ」）は、
@@ -146,10 +159,156 @@ function scoreSku(
     };
     tryLine(line.name_ja, WEIGHTS.line_name);
     tryLine(line.name_en, WEIGHTS.line_name_en);
-    for (const a of splitPipe(line.aliases)) tryLine(a, WEIGHTS.line_alias);
+    for (const a of splitPipeCached(line.aliases)) tryLine(a, WEIGHTS.line_alias);
   }
 
   return { skuScore, lineScore, reasons };
+}
+
+// ---------------------------------------------------------------------------
+// 高速化用の索引（結果は変えない。どの行を scoreSku にかけるかを絞り込むだけ）。
+//
+// scoreSku が加点するのは「正規化した値（名称・別名・キャラ等）が、正規化した出品文に部分文字列として
+// 含まれる」ときだけ（containsNormalized）。値 n が出品文 h に含まれるなら、n の中のどの2文字（バイグラム）も
+// 必ず h に含まれる。そこで各値から「カタログ全体で最も珍しい2文字」を1つ選んで索引に登録し、
+// 出品文に現れる2文字から引いた行だけを採点する。採点しない行は、どの値も出品文に含まれ得ないので、
+// 全行を採点しても hasMatch=false で捨てられていた行であり、結果は全行を採点した場合と完全に一致する。
+// （日本語の出品文は単語の区切りに空白が無いため、単語単位ではなく2文字単位で索引を作る。）
+// 1文字の値は2文字を持たないので、毎回そのまま照合する。
+// ---------------------------------------------------------------------------
+interface IndexedValue {
+  row: number; // カタログ行の番号
+  value: string; // 正規化済みの値
+}
+
+interface ScoringIndex {
+  byBigram: Map<string, IndexedValue[]>; // 2文字 → その2文字を「最も珍しい2文字」として持つ値
+  singleChars: IndexedValue[]; // 1文字の値（2文字を持たないので、毎回そのまま照合する）
+}
+
+const scoringIndexCache = new WeakMap<CatalogSku[], WeakMap<ProductLine[], ScoringIndex>>();
+
+// scoreSku が containsNormalized にかける値を、同じ規則（汎用フレーズの除外を含む）で正規化して列挙する。
+// scoreSku で照合する列を増やしたら、ここにも必ず足すこと（足さないとその列だけで一致する行が採点されなくなる）。
+function matchValuesOf(
+  sku: CatalogSku,
+  line: ProductLine | undefined,
+  genericPhrases: Map<string, Set<string>>
+): string[] {
+  const values = [
+    sku.name_ja,
+    sku.name_en,
+    ...splitPipe(sku.aliases),
+    sku.variant,
+    ...splitPipe(sku.character),
+    ...splitPipe(sku.character_en),
+  ];
+  if (line) {
+    const generic = genericPhrases.get(line.line_id);
+    for (const v of [line.name_ja, line.name_en, ...splitPipe(line.aliases)]) {
+      if (generic?.has(normalize(v))) continue;
+      values.push(v);
+    }
+  }
+  const out: string[] = [];
+  for (const v of values) {
+    if (!v) continue;
+    const n = normalize(v);
+    if (n) out.push(n);
+  }
+  return out;
+}
+
+function bigramsOf(s: string): Set<string> {
+  const grams = new Set<string>();
+  for (let i = 0; i + 2 <= s.length; i++) grams.add(s.slice(i, i + 2));
+  return grams;
+}
+
+function buildScoringIndex(catalog: CatalogSku[], lines: ProductLine[]): ScoringIndex {
+  const lineById = new Map(lines.map((l) => [l.line_id, l]));
+  const genericPhrases = genericPhrasesByLine(lines);
+  const valuesPerSku = catalog.map((sku) => matchValuesOf(sku, lineById.get(sku.line_id), genericPhrases));
+
+  // 2文字ごとの出現数（その2文字を含む値の数）。少ないほど絞り込みが効く。
+  const frequency = new Map<string, number>();
+  for (const values of valuesPerSku) {
+    for (const n of values) for (const g of bigramsOf(n)) frequency.set(g, (frequency.get(g) ?? 0) + 1);
+  }
+
+  const byBigram = new Map<string, IndexedValue[]>();
+  const singleChars: IndexedValue[] = [];
+  valuesPerSku.forEach((values, row) => {
+    for (const value of new Set(values)) {
+      if (value.length < 2) {
+        singleChars.push({ row, value });
+        continue;
+      }
+      let best = "";
+      let bestFreq = Infinity;
+      for (const g of bigramsOf(value)) {
+        const f = frequency.get(g)!;
+        if (f < bestFreq) {
+          best = g;
+          bestFreq = f;
+        }
+      }
+      const list = byBigram.get(best);
+      if (list) list.push({ row, value });
+      else byBigram.set(best, [{ row, value }]);
+    }
+  });
+  return { byBigram, singleChars };
+}
+
+function getScoringIndex(catalog: CatalogSku[], lines: ProductLine[]): ScoringIndex {
+  let perLines = scoringIndexCache.get(catalog);
+  if (!perLines) {
+    perLines = new WeakMap();
+    scoringIndexCache.set(catalog, perLines);
+  }
+  let index = perLines.get(lines);
+  if (!index) {
+    index = buildScoringIndex(catalog, lines);
+    perLines.set(lines, index);
+  }
+  return index;
+}
+
+// 採点する価値のある行だけを、カタログの元の順番のまま返す（同点時の並び順を変えないため）。
+// 「値が出品文にそのまま含まれる（includes）」は containsNormalized が true になるための必要条件なので、
+// それを満たす値を1つでも持つ行だけを残す。数字の境界などの細かい判定は、これまでどおり scoreSku が行う。
+function rowsWorthScoring(scoringText: string, catalog: CatalogSku[], lines: ProductLine[]): CatalogSku[] {
+  const index = getScoringIndex(catalog, lines);
+  const h = normalize(scoringText);
+  const rows = new Set<number>();
+  const consider = (entries: IndexedValue[]) => {
+    for (const { row, value } of entries) {
+      if (!rows.has(row) && h.includes(value)) rows.add(row);
+    }
+  };
+  consider(index.singleChars);
+  for (const g of bigramsOf(h)) {
+    const list = index.byBigram.get(g);
+    if (list) consider(list);
+  }
+  return [...rows].sort((a, b) => a - b).map((i) => catalog[i]);
+}
+
+// IPアンカー語の一覧は catalog と ip_terms だけで決まるので、組み合わせごとに一度だけ作る。
+const anchorTermsCache = new WeakMap<CatalogSku[], WeakMap<IpTerm[], string[]>>();
+function cachedAnchorTerms(catalog: CatalogSku[], ipTerms: IpTerm[]): string[] {
+  let perTerms = anchorTermsCache.get(catalog);
+  if (!perTerms) {
+    perTerms = new WeakMap();
+    anchorTermsCache.set(catalog, perTerms);
+  }
+  let terms = perTerms.get(ipTerms);
+  if (!terms) {
+    terms = buildAnchorTerms(catalog, ipTerms);
+    perTerms.set(ipTerms, terms);
+  }
+  return terms;
 }
 
 // title・description を結合したテキストから、上位N件の候補SKUを返す。
@@ -161,6 +320,30 @@ export function resolveCandidates(
   otherIpKeywords: OtherIpKeyword[] = [],
   ipTerms: IpTerm[] = []
 ): ResolveResult {
+  return resolveCandidatesImpl(queryText, catalog, lines, limit, otherIpKeywords, ipTerms, true);
+}
+
+// テスト専用：索引を使わず全行を採点する（索引ありの結果と完全に一致することを確かめるため）。
+export function resolveCandidatesFullScan(
+  queryText: string,
+  catalog: CatalogSku[],
+  lines: ProductLine[],
+  limit = 3,
+  otherIpKeywords: OtherIpKeyword[] = [],
+  ipTerms: IpTerm[] = []
+): ResolveResult {
+  return resolveCandidatesImpl(queryText, catalog, lines, limit, otherIpKeywords, ipTerms, false);
+}
+
+function resolveCandidatesImpl(
+  queryText: string,
+  catalog: CatalogSku[],
+  lines: ProductLine[],
+  limit: number,
+  otherIpKeywords: OtherIpKeyword[],
+  ipTerms: IpTerm[],
+  useIndex: boolean
+): ResolveResult {
   // 他作品名が出品文に含まれていれば、キングダムハーツ商品ではないとみなし候補を出さない。
   if (otherIpKeywords.some((k) => containsNormalized(queryText, k.keyword))) {
     return { candidates: [], weak_matches: [] };
@@ -170,14 +353,15 @@ export function resolveCandidates(
   // 対応する日本語表記に変換してスコアリング用テキストに追加する（表示用の理由文には使わない）。
   const scoringText = withEnglishExpansion(queryText);
 
-  const anchorPresent = buildAnchorTerms(catalog, ipTerms).some((term) =>
+  const anchorPresent = cachedAnchorTerms(catalog, ipTerms).some((term) =>
     containsNormalized(scoringText, term)
   );
 
   const lineById = new Map(lines.map((l) => [l.line_id, l]));
   const genericPhrases = genericPhrasesByLine(lines);
 
-  const scored = catalog
+  // 全行ではなく、索引で絞った「一致し得る行」だけを採点する（結果は全行採点と同じ）。
+  const scored = (useIndex ? rowsWorthScoring(scoringText, catalog, lines) : catalog)
     .map((sku) => {
       const line = lineById.get(sku.line_id);
       const { skuScore, lineScore, reasons } = scoreSku(scoringText, sku, line, genericPhrases);

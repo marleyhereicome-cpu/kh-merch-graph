@@ -25,9 +25,16 @@ function uniqueByNormalized(values: string[]): string[] {
   return out;
 }
 
-// カタログに登場するIP。
-export function catalogIps(catalog: CatalogSku[]): Set<string> {
-  return new Set(catalog.map((s) => s.ip).filter(Boolean));
+// カタログに登場するIP。カタログごとに一度だけ作る（出品1件ごとに全行をなめないため）。
+// 返す Set は共有されるので、呼び出し側で書き換えないこと。
+const catalogIpsCache = new WeakMap<CatalogSku[], ReadonlySet<string>>();
+export function catalogIps(catalog: CatalogSku[]): ReadonlySet<string> {
+  let ips = catalogIpsCache.get(catalog);
+  if (!ips) {
+    ips = new Set(catalog.map((s) => s.ip).filter(Boolean));
+    catalogIpsCache.set(catalog, ips);
+  }
+  return ips;
 }
 
 // 出品文にあれば「そのIPの商品」とみなす語（IPアンカー語）。
@@ -46,7 +53,7 @@ export function buildAnchorTerms(catalog: CatalogSku[], ipTerms: IpTerm[]): stri
 export function findOtherIpTerms(
   queryText: string,
   ipTerms: IpTerm[],
-  currentIps: Set<string>
+  currentIps: ReadonlySet<string>
 ): Array<{ ip: string; term: string }> {
   const hits: Array<{ ip: string; term: string }> = [];
   for (const t of ipTerms) {

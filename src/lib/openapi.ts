@@ -4,7 +4,7 @@
 // 注意：実際の通信はREST APIではなくMCP（/mcp への JSON-RPC 2.0）である。
 // ここでの各パスは「/mcp に何を投げればどのツールが呼べるか」を説明するための参考資料であり、
 // 権威ある入出力定義は各ツールのzodスキーマ（src/tools/*.ts）と、サーバー自身への `tools/list` 呼び出し。
-export function buildOpenApiDocument(baseUrl: string): object {
+export function buildOpenApiDocument(baseUrl: string, maxBatchListings: number): object {
   const toolArgSchemas = {
     resolve_listing: {
       type: "object",
@@ -16,6 +16,31 @@ export function buildOpenApiDocument(baseUrl: string): object {
         platform: { type: "string", enum: ["mercari", "yahoo", "surugaya", "mandarake", "other"] },
         url: { type: "string", description: "出品URL（任意。サーバー側では保存しない）" },
         src: { type: "string", description: "計測用の流入元タグ（任意）。src自体と日時のみ利用ログに残す" },
+      },
+    },
+    resolve_listings_batch: {
+      type: "object",
+      required: ["listings"],
+      properties: {
+        listings: {
+          type: "array",
+          minItems: 1,
+          maxItems: maxBatchListings,
+          description:
+            `出品の配列（1〜${maxBatchListings}件）。各要素は resolve_listing と同じ引数。結果は入力と同じ順番の配列で返る（失敗した件のみ { error }）`,
+          items: {
+            type: "object",
+            required: ["title"],
+            properties: {
+              title: { type: "string" },
+              description: { type: "string" },
+              price_jpy: { type: "number" },
+              platform: { type: "string", enum: ["mercari", "yahoo", "surugaya", "mandarake", "other"] },
+              url: { type: "string" },
+              src: { type: "string" },
+            },
+          },
+        },
       },
     },
     explain_product: {
