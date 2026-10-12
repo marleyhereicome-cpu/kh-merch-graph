@@ -640,7 +640,14 @@ async function enrich(items) {
 
 let allItemsPromise = null;
 function loadAllItems() {
-  if (!allItemsPromise) allItemsPromise = discover({ limit: 500 }).then((r) => r.items);
+  // NOTE (2026-10-12): limit was 500, but the catalog has already grown past
+  // that (867 rows as of this fix), so up to 367 items were silently excluded
+  // from every client-side search, no matter what keyword matched them. This
+  // is why some real items (e.g. the Furyu Terra/Aqua/Ventus plush) never
+  // showed up in a character search even though they exist in the catalog.
+  // Raised with headroom above the current catalog size; revisit again once
+  // the catalog approaches 2000 rows.
+  if (!allItemsPromise) allItemsPromise = discover({ limit: 2000 }).then((r) => r.items);
   return allItemsPromise;
 }
 
