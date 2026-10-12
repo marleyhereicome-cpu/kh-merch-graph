@@ -7,6 +7,28 @@ import { splitPipe, type CatalogSku, type IpTerm, type OtherIpKeyword, type Prod
 import { surfaceForms, catalogIps } from "./ip-terms.js";
 import { normalizedEnglishTokenHits } from "./en-tokens.js";
 
+// カタログ全行のキャラ名（日本語・英語）を、正規化後の重複を除いて、最初に現れた順に並べたもの。
+// 照合結果は正規化後の文字列だけで決まり、hits は Set なので、重複を除いても結果（順番を含む）は変わらない。
+// カタログごとに一度だけ作る（未解決の出品1件ごとに全行をなめないため）。
+const characterNamesCache = new WeakMap<CatalogSku[], string[]>();
+function uniqueCharacterNames(catalog: CatalogSku[]): string[] {
+  let names = characterNamesCache.get(catalog);
+  if (!names) {
+    const seen = new Set<string>();
+    names = [];
+    for (const sku of catalog) {
+      for (const c of [...splitPipe(sku.character), ...splitPipe(sku.character_en)]) {
+        const key = normalize(c);
+        if (!c || !key || seen.has(key)) continue;
+        seen.add(key);
+        names.push(c);
+      }
+    }
+    characterNamesCache.set(catalog, names);
+  }
+  return names;
+}
+
 // 一番くじの賞（A賞・B賞…）を示す表記。
 const PRIZE_RE = /[a-z]賞/g;
 
@@ -40,11 +62,8 @@ export function extractUnresolvedTokens(
     }
   }
 
-  for (const sku of catalog) {
-    const characters = [...splitPipe(sku.character), ...splitPipe(sku.character_en)];
-    for (const c of characters) {
-      if (c && containsNormalized(queryText, c)) hits.add(normalize(c));
-    }
+  for (const c of uniqueCharacterNames(catalog)) {
+    if (containsNormalized(queryText, c)) hits.add(normalize(c));
   }
 
   const prizeMatches = normalize(queryText).match(PRIZE_RE);
