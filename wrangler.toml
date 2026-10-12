@@ -13,3 +13,9 @@ id = "fda1f8f2d57a491fa516d8a6e4826d59"
 name = "RATE_LIMITER"
 namespace_id = "1001"
 simple = { limit = 30, period = 60 }
+
+# resolve_listings_batch の1回あたりの上限件数。
+# 無料プラン（CPU時間 1リクエスト10ms）に余裕を持って収まる値として 5 にしている（根拠: docs/SPEC.md §3.1b）。
+# 有料プラン（Workers Paid）に移ったら、この数字を変えて main に push するだけで引き上げられる。
+[vars]
+MAX_BATCH_LISTINGS = "5"

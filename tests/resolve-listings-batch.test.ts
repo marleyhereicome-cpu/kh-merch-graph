@@ -1,11 +1,15 @@
 import { describe, it, expect } from "vitest";
 import worker, { type Env } from "../src/worker.js";
 import { resolveListing } from "../src/tools/resolve_listing.js";
-import { MAX_BATCH_LISTINGS } from "../src/tools/resolve_listings_batch.js";
+import { DEFAULT_MAX_BATCH_LISTINGS, parseMaxBatchListings } from "../src/tools/resolve_listings_batch.js";
+import { buildLlmsTxt } from "../src/lib/llms-txt.js";
+import { buildOpenApiDocument } from "../src/lib/openapi.js";
 
-function makeEnv() {
+// maxBatch を渡すと wrangler.toml の [vars] MAX_BATCH_LISTINGS を設定したのと同じ状態になる。
+function makeEnv(maxBatch?: string) {
   const store = new Map<string, string>();
   const env: Env = {
+    MAX_BATCH_LISTINGS: maxBatch,
     KH_KV: {
       async get(key: string) {
         return store.get(key) ?? null;
@@ -64,8 +68,8 @@ describe("resolve_listings_batch（MCP経由）", () => {
     expect(names).toContain("resolve_listings_batch");
   });
 
-  it("10件を入力と同じ順番で返し、各結果は resolve_listing の単体呼び出しと一致する", async () => {
-    const { env } = makeEnv();
+  it("10件を入力と同じ順番で返し、各結果は resolve_listing の単体呼び出しと一致する（上限10に設定）", async () => {
+    const { env } = makeEnv("10");
     const result = await callTool(env, "resolve_listings_batch", { listings: DUMMY_LISTINGS });
     expect(result.isError).toBeFalsy();
     const results = JSON.parse(result.content[0].text);
@@ -86,7 +90,7 @@ describe("resolve_listings_batch（MCP経由）", () => {
   });
 
   it("利用ログは1回の呼び出しにつきKVキー1つ（値は件数分の配列）にまとめ、タイトル原文を残さない", async () => {
-    const { env, store } = makeEnv();
+    const { env, store } = makeEnv("10");
     await callTool(env, "resolve_listings_batch", { listings: DUMMY_LISTINGS });
     const keys = [...store.keys()].filter((k) => k.startsWith("usage:"));
     expect(keys).toHaveLength(1);
@@ -98,22 +102,56 @@ describe("resolve_listings_batch（MCP経由）", () => {
     expect(raw).not.toContain("ノークレーム");
   });
 
-  it(`上限（${MAX_BATCH_LISTINGS}件）を超えるとエラーメッセージを返し、ログも書かない`, async () => {
+  it(`既定の上限は${DEFAULT_MAX_BATCH_LISTINGS}件で、超えるとエラーメッセージを返し、ログも書かない`, async () => {
     const { env, store } = makeEnv();
-    const tooMany = Array.from({ length: MAX_BATCH_LISTINGS + 1 }, () => ({ title: "ソラ" }));
+    const tooMany = Array.from({ length: DEFAULT_MAX_BATCH_LISTINGS + 1 }, () => ({ title: "ソラ" }));
     const result = await callTool(env, "resolve_listings_batch", { listings: tooMany });
     expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain(`maximum per call is ${MAX_BATCH_LISTINGS}`);
+    expect(result.content[0].text).toContain(`maximum per call is ${DEFAULT_MAX_BATCH_LISTINGS}`);
     expect(store.size).toBe(0);
   });
 
   it("ちょうど上限の件数は受け付ける", async () => {
     const { env } = makeEnv();
-    const max = Array.from({ length: MAX_BATCH_LISTINGS }, (_, i) => ({ title: DUMMY_LISTINGS[i % 10].title }));
+    const max = Array.from({ length: DEFAULT_MAX_BATCH_LISTINGS }, (_, i) => ({ title: DUMMY_LISTINGS[i % 10].title }));
     const result = await callTool(env, "resolve_listings_batch", { listings: max });
     expect(result.isError).toBeFalsy();
-    expect(JSON.parse(result.content[0].text)).toHaveLength(MAX_BATCH_LISTINGS);
+    expect(JSON.parse(result.content[0].text)).toHaveLength(DEFAULT_MAX_BATCH_LISTINGS);
+  });
+
+  it("wrangler.toml の MAX_BATCH_LISTINGS で上限を変えられる（例: 有料プランで200に引き上げ）", async () => {
+    const { env } = makeEnv("200");
+    const many = Array.from({ length: 200 }, (_, i) => ({ title: DUMMY_LISTINGS[i % 10].title }));
+    const ok = await callTool(env, "resolve_listings_batch", { listings: many });
+    expect(ok.isError).toBeFalsy();
+    expect(JSON.parse(ok.content[0].text)).toHaveLength(200);
+    const ng = await callTool(env, "resolve_listings_batch", { listings: [...many, { title: "ソラ" }] });
+    expect(ng.isError).toBe(true);
+    expect(ng.content[0].text).toContain("maximum per call is 200");
   }, 30_000);
+
+  it("設定値が空・数字以外・1未満なら既定値を使う", () => {
+    expect(parseMaxBatchListings(undefined)).toBe(DEFAULT_MAX_BATCH_LISTINGS);
+    expect(parseMaxBatchListings("")).toBe(DEFAULT_MAX_BATCH_LISTINGS);
+    expect(parseMaxBatchListings("abc")).toBe(DEFAULT_MAX_BATCH_LISTINGS);
+    expect(parseMaxBatchListings("0")).toBe(DEFAULT_MAX_BATCH_LISTINGS);
+    expect(parseMaxBatchListings("50")).toBe(50);
+  });
+
+  it("tools/list・llms.txt・openapi.json の説明にも設定した上限が出る", async () => {
+    const { env } = makeEnv("12");
+    const req = new Request("https://example.com/mcp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json, text/event-stream" },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list", params: {} }),
+    });
+    const body = (await (await worker.fetch(req, env)).json()) as { result: { tools: { name: string; description: string }[] } };
+    expect(body.result.tools.find((t) => t.name === "resolve_listings_batch")?.description).toContain("最大12件");
+    expect(await (await worker.fetch(new Request("https://example.com/llms.txt"), env)).text()).toContain("up to 12 listings");
+    expect(await (await worker.fetch(new Request("https://example.com/openapi.json"), env)).text()).toMatch(/"maxItems":\s*12/);
+    expect(JSON.stringify(buildOpenApiDocument("https://x", 12))).toContain('"maxItems":12');
+    expect(buildLlmsTxt("https://x", 12)).toContain("chunks of 12");
+  });
 
   it("0件はエラーメッセージを返す", async () => {
     const { env } = makeEnv();

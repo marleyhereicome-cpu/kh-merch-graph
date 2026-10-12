@@ -195,6 +195,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
    `keychain`/`Japan import` 等の既知の英語トークンを対応する日本語表記に変換してスコアリング用テキストに追加する
    （`src/lib/en-tokens.ts`。表示用の理由文には元の原文を使う）
 2. `aliases`・`name_ja`・`character`・`variant` との一致スコアで候補SKUを上位3件（0〜1の信頼度）
+   - 高速化のため、全行を採点せず、索引で「一致し得る行」だけを採点する（`src/lib/resolve.ts` の `rowsWorthScoring`）。各値（正規化済み）の「カタログ内で最も珍しい2文字」で索引を作り、出品文にその2文字があり、かつ値が出品文にそのまま含まれる行だけを採点する。どちらも一致の必要条件なので、結果は全行を採点した場合と完全に一致する（`tests/resolve-index.test.ts` が索引あり／なしの一致を検査）。日本語の出品文は単語の区切りに空白が無いため、単語ではなく2文字単位にしている。`scoreSku` で照合する列を増やしたら、索引側（`matchValuesOf`）にも必ず足すこと
    - `other_ip_keywords.csv` の語（他作品名）が含まれる場合は候補を出さない（`candidates: []`, `weak_matches: []`）
    - キングダムハーツを示す語（`キングダムハーツ`/`KH`/`Kingdom Hearts`/主要キャラ名）が出品文に無い場合、「A賞」等の作品横断語だけの一致では信頼度を0.3以下に抑える
    - 信頼度が0.3未満の一致は `candidates` に含めず、参考情報として `weak_matches` に分けて返す（呼び出し側のAIが「該当なしの可能性が高い」と判断できるように）
@@ -235,10 +236,12 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 
 ### 3.1b `resolve_listings_batch`
 `resolve_listing` を複数件まとめて1回で実行する（数十〜数百件の照会で、呼び出し側が1件ごとに許可を求めずに済むようにするため）。`resolve_listing` は1件用としてそのまま残す。
-入力：`listings`（配列・1〜200件）。各要素は `resolve_listing` と同じ引数（`title` 必須、`description`/`platform`/`price_jpy`/`src`/`url` 任意）
+入力：`listings`（配列・1〜上限件数。上限は既定5件、`wrangler.toml` の `[vars] MAX_BATCH_LISTINGS` で変更）。各要素は `resolve_listing` と同じ引数（`title` 必須、`description`/`platform`/`price_jpy`/`src`/`url` 任意）
 出力：入力と同じ順番の配列。各要素は `resolve_listing` と同じ形式。1件が失敗しても全体は止めず、その件だけ `{ "error": "..." }` を返す。件数が多いため JSON は整形せず詰めて返す
 処理：既存の `resolveListing()` をループで呼ぶだけ（名寄せロジックは複製しない。`src/tools/resolve_listings_batch.ts`）
-- 上限：1回200件（`MAX_BATCH_LISTINGS`）。Cloudflare Workers のCPU時間制限のため。0件・201件以上は `isError: true` と、分割して呼ぶよう促すメッセージを返す
+- 上限：1回5件（`wrangler.toml` の `[vars] MAX_BATCH_LISTINGS = "5"`。未設定・不正値ならコード側の既定値 `DEFAULT_MAX_BATCH_LISTINGS = 5`）。0件・上限超えは `isError: true` と、上限件数ずつに分けて呼ぶよう促すメッセージを返す。`tools/list` のツール説明・`/llms.txt`・`/openapi.json`（`maxItems`）にも設定値がそのまま出る
+  - 5件にした根拠（2026-10-12 計測。実際の出品タイトル203件＝評価セット35件＋カバレッジ標本168件を使用）：Workers 無料プランのCPU時間は1リクエスト10msで、たまの超過は許されるが、恒常的に超えると打ち切られる（エラー1102）。MCPリクエスト1回の固定費（サーバー組み立て等）が中央値約1.3ms、名寄せ1件あたり平均約0.25〜0.4ms。5件の呼び出しは、実際の出品の組み合わせで平均3.5ms・p90 5.0ms・p99 7.9ms（600回中10ms超え0回）、最も重いタイトルだけを集めた最悪ケースでも平均5.2ms・p90 7.1ms。10件だと最悪ケースの p90 が8ms前後まで上がり、本番マシンの速度差を見込むと余裕が無いため、5件とした
+  - 有料プラン（Workers Paid、CPU時間の既定上限30秒）に移ったら、`wrangler.toml` の `MAX_BATCH_LISTINGS` の数字を変えて `main` に push するだけで引き上げられる（コードの変更は不要）。引き上げる前後は、Cloudflare ダッシュボードの Workers の「CPU時間」を確認する
 - 利用ログ：中身は `resolve_listing` と同じ（SKU候補・価格・src・日時のみ。`tool` は `resolve_listings_batch`）。1件ごとにKVへ書かず、1回の呼び出し分を1つのキー（値はエントリの配列）にまとめて書く。`scripts/weekly-report.mjs` は配列を展開して集計する
 
 ### 3.2 `explain_product`

@@ -12,8 +12,17 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { resolveListing, type ResolveListingInput } from "./resolve_listing.js";
 import type { UsageLogEntry } from "../lib/usage-log.js";
 
-// 1回のリクエストで受け付ける最大件数。Workers のCPU時間制限に合わせて調整する値。
-export const MAX_BATCH_LISTINGS = 200;
+// 1回のリクエストで受け付ける最大件数の既定値。
+// 本番（Cloudflare Workers）では wrangler.toml の [vars] MAX_BATCH_LISTINGS が優先される。
+// 無料プランのCPU時間（1リクエスト10ms）に余裕を持って収まる値。根拠は docs/SPEC.md §3.1b。
+// 有料プランに移ったら wrangler.toml の1行を変えるだけで引き上げられる（コードの変更は不要）。
+export const DEFAULT_MAX_BATCH_LISTINGS = 5;
+
+// 環境変数（文字列）から上限を読む。空・数字以外・1未満なら既定値を使う。
+export function parseMaxBatchListings(value: string | undefined): number {
+  const n = Number.parseInt(value ?? "", 10);
+  return Number.isInteger(n) && n >= 1 ? n : DEFAULT_MAX_BATCH_LISTINGS;
+}
 
 export const BATCH_TOOL_NAME = "resolve_listings_batch";
 
@@ -27,15 +36,16 @@ export class BatchLimitError extends Error {}
 // MCPツール本体から独立させた共通ロジック（テストからも直接呼べるようにする）。
 export async function resolveListingsBatch(
   listings: ResolveListingInput[],
-  onUsageBatch?: BatchUsageLogger
+  onUsageBatch?: BatchUsageLogger,
+  maxListings: number = DEFAULT_MAX_BATCH_LISTINGS
 ): Promise<BatchItemResult[]> {
   if (listings.length === 0) {
     throw new BatchLimitError("listings must contain at least 1 item.");
   }
-  if (listings.length > MAX_BATCH_LISTINGS) {
+  if (listings.length > maxListings) {
     throw new BatchLimitError(
-      `Too many listings: received ${listings.length}, but the maximum per call is ${MAX_BATCH_LISTINGS}. ` +
-        `Split the list into chunks of ${MAX_BATCH_LISTINGS} or fewer and call ${BATCH_TOOL_NAME} once per chunk.`
+      `Too many listings: received ${listings.length}, but the maximum per call is ${maxListings}. ` +
+        `Split the list into chunks of ${maxListings} or fewer and call ${BATCH_TOOL_NAME} once per chunk.`
     );
   }
 
@@ -74,19 +84,23 @@ const listingSchema = z.object({
   src: z.string().optional().describe("計測用の流入元タグ（任意）。src自体と日時のみ利用ログに残す"),
 });
 
-export function registerResolveListingsBatchTool(server: McpServer, onUsageBatch?: BatchUsageLogger): void {
+export function registerResolveListingsBatchTool(
+  server: McpServer,
+  onUsageBatch?: BatchUsageLogger,
+  maxListings: number = DEFAULT_MAX_BATCH_LISTINGS
+): void {
   server.registerTool(
     BATCH_TOOL_NAME,
     {
       title: "Resolve listings (batch)",
       description:
-        `resolve_listing を最大${MAX_BATCH_LISTINGS}件まとめて1回で実行する。多数の出品を照会するときに使う。` +
+        `resolve_listing を最大${maxListings}件まとめて1回で実行する。多数の出品を照会するときに使う。` +
         "結果は入力と同じ順番の配列で、各要素は resolve_listing と同じ形式（失敗した件のみ { error }）。" +
-        `${MAX_BATCH_LISTINGS}件を超える場合は分割して複数回呼ぶこと。1件だけなら resolve_listing を使う。`,
+        `${maxListings}件を超える場合は${maxListings}件ずつに分けて複数回呼ぶこと。1件だけなら resolve_listing を使う。`,
       inputSchema: {
         listings: z
           .array(listingSchema)
-          .describe(`出品の配列（1〜${MAX_BATCH_LISTINGS}件）。各要素は resolve_listing と同じ引数`),
+          .describe(`出品の配列（1〜${maxListings}件）。各要素は resolve_listing と同じ引数`),
       },
     },
     async ({ listings }) => {
@@ -98,7 +112,7 @@ export function registerResolveListingsBatchTool(server: McpServer, onUsageBatch
           price_jpy,
           src,
         }));
-        const results = await resolveListingsBatch(inputs, onUsageBatch);
+        const results = await resolveListingsBatch(inputs, onUsageBatch, maxListings);
         // 件数が多いと結果が大きくなるため、整形（インデント）せず詰めて返す。
         return { content: [{ type: "text", text: JSON.stringify(results) }] };
       } catch (err) {

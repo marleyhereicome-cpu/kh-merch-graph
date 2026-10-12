@@ -73,7 +73,7 @@ schema for all five tools below.
 | Tool | What it does |
 |---|---|
 | `resolve_listing` | Listing title/description → SKU candidates, condition terms, bootleg-caution flags, price ratio |
-| `resolve_listings_batch` | Same as `resolve_listing` for up to 200 listings in one call; results in input order |
+| `resolve_listings_batch` | Same as `resolve_listing` for several listings in one call (up to 5 per call by default, set by `MAX_BATCH_LISTINGS` in `wrangler.toml`); results in input order |
 | `explain_product` | `sku_id` or free-text query → full detail on one SKU (line, character, dimensions, rerelease history, source) |
 | `discover` | Browse the catalog by IP/character/budget/purpose |
 | `estimate_landed_cost` | Listing price + weight/SKU + destination country → landed-cost estimate by route |

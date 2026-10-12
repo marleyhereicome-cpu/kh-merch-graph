@@ -4,7 +4,7 @@
 // 注意：実際の通信はREST APIではなくMCP（/mcp への JSON-RPC 2.0）である。
 // ここでの各パスは「/mcp に何を投げればどのツールが呼べるか」を説明するための参考資料であり、
 // 権威ある入出力定義は各ツールのzodスキーマ（src/tools/*.ts）と、サーバー自身への `tools/list` 呼び出し。
-export function buildOpenApiDocument(baseUrl: string): object {
+export function buildOpenApiDocument(baseUrl: string, maxBatchListings: number): object {
   const toolArgSchemas = {
     resolve_listing: {
       type: "object",
@@ -25,9 +25,9 @@ export function buildOpenApiDocument(baseUrl: string): object {
         listings: {
           type: "array",
           minItems: 1,
-          maxItems: 200,
+          maxItems: maxBatchListings,
           description:
-            "出品の配列（1〜200件）。各要素は resolve_listing と同じ引数。結果は入力と同じ順番の配列で返る（失敗した件のみ { error }）",
+            `出品の配列（1〜${maxBatchListings}件）。各要素は resolve_listing と同じ引数。結果は入力と同じ順番の配列で返る（失敗した件のみ { error }）`,
           items: {
             type: "object",
             required: ["title"],
