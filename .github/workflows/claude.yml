@@ -43,7 +43,6 @@ jobs:
           ANTHROPIC_CUSTOM_HEADERS: "anthropic-workspace-id: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}"
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          show_full_output: true
           # --allowedTools: Claude が使ってよいコマンド。この範囲（npm の検証スクリプト、git、gh、Web閲覧）に
           # 限っている。デプロイ（worker:deploy / wrangler）は含めていない。
           claude_args: >-
