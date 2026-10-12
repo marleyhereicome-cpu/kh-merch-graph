@@ -34,6 +34,8 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         env:
           GH_TOKEN: ${{ github.token }}
+          # ANTHROPIC_API_KEY はワークスペースに紐づかない（unscoped）キーのため、どのワークスペースで動かすかをヘッダーで指定する。
+          ANTHROPIC_CUSTOM_HEADERS: "anthropic-workspace-id: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}"
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           # 【一時的・デバッグ用】週次実行が is_error:true / total_cost_usd:0 で失敗する原因をログに出すため。
@@ -60,5 +62,5 @@ jobs:
             制約: 出品サイト（メルカリ・ヤフオク・eBay 等）にはアクセスしない。公式サイトへのアクセスは間隔をあけ、
             403/429 が出たらやめる。
           claude_args: >-
-            --model claude-sonnet-5 --max-turns 40
+            --model claude-sonnet-5-5 --max-turns 40
             --allowedTools "Bash(npm run coverage),Bash(npm run eval),Bash(npm run check-urls:*),Bash(git log:*),Bash(git status:*),Bash(gh issue create:*),Bash(gh issue list:*),WebFetch,WebSearch"

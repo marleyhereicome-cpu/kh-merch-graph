@@ -38,11 +38,14 @@ jobs:
       - run: npm ci
 
       - uses: anthropics/claude-code-action@v1
+        env:
+          # ANTHROPIC_API_KEY はワークスペースに紐づかない（unscoped）キーのため、どのワークスペースで動かすかをヘッダーで指定する。
+          ANTHROPIC_CUSTOM_HEADERS: "anthropic-workspace-id: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}"
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           show_full_output: true
           # --allowedTools: Claude が使ってよいコマンド。この範囲（npm の検証スクリプト、git、gh、Web閲覧）に
           # 限っている。デプロイ（worker:deploy / wrangler）は含めていない。
           claude_args: >-
-            --model claude-sonnet-5 --max-turns 60
+            --model claude-sonnet-5-5 --max-turns 60
             --allowedTools "Edit,Write,Bash(npm ci),Bash(npm test),Bash(npm run build:data),Bash(npm run validate),Bash(npm run eval),Bash(npm run coverage),Bash(npm run check-urls:*),Bash(npm run sample-rows:*),Bash(npx tsc --noEmit),Bash(npx tsx:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git switch:*),Bash(git push:*),Bash(gh pr:*),Bash(gh issue:*),WebFetch,WebSearch"
