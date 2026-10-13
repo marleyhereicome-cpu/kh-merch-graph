@@ -583,25 +583,34 @@ function findItBlock(detail, item) {
 
 // ---------------------------------------------------------------------------
 // Prices.
-// NOTE (2026-10-13): the catalog column is called msrp_jpy, but for items
-// released outside Japan it actually holds the local price (USD for NA, GBP
-// for EU), and discover() doesn't return the currency. Region maps 1:1 to
-// currency in the catalog today (JP=JPY, NA=USD, EU=GBP), so we infer it from
-// region. Before this fix, a $39.99 item was compared as ¥39.99, so every
-// overseas item passed any budget filter.
+// discover() returns, per item: msrp_jpy (always yen — overseas prices are
+// converted server-side at a fixed rate), price_local + currency (the price in
+// the currency it was released in, e.g. 39.99 USD), and once per response the
+// fixed rates it used (fx_rates_to_jpy). We use the server's rates so the page
+// and the API never disagree. Rates are refreshed in data/fx_rates.csv.
+// (Before 2026-10-13 msrp_jpy held the raw USD/GBP number for overseas items
+// and this page converted it itself; legacyItem() keeps that path working if
+// an older API response ever reaches this page, so prices are never converted
+// twice.)
 // ---------------------------------------------------------------------------
-const FX_TO_JPY = { USD: 155, EUR: 165, GBP: 195, JPY: 1 };
+let FX_TO_JPY = { USD: 158.5, GBP: 209.4, JPY: 1 }; // replaced by the server's rates on load
 const REGION_CURRENCY = { JP: 'JPY', NA: 'USD', EU: 'GBP' };
 const CURRENCY_SYMBOL = { JPY: '¥', USD: '$', GBP: '£', EUR: '€' };
 
-function currencyFor(item) { return REGION_CURRENCY[item.region] || 'JPY'; }
+function legacyItem(item) { return item.currency === undefined; }
+function currencyFor(item) { return item.currency || REGION_CURRENCY[item.region] || 'JPY'; }
+function localAmount(item) {
+  if (legacyItem(item)) return item.msrp_jpy;
+  return typeof item.price_local === 'number' ? item.price_local : item.msrp_jpy;
+}
 function hasRealPrice(item) {
   return typeof item.msrp_jpy === 'number' && item.msrp_jpy > 0
     && !['none', '', null, undefined, 'draw_price'].includes(item.price_basis);
 }
 function priceInJpy(item) {
   if (!hasRealPrice(item)) return null;
-  return item.msrp_jpy * (FX_TO_JPY[currencyFor(item)] || 1);
+  if (legacyItem(item)) return item.msrp_jpy * (FX_TO_JPY[currencyFor(item)] || 1);
+  return item.msrp_jpy;
 }
 function fmtMoney(amount, currency) {
   const sym = CURRENCY_SYMBOL[currency] || '';
@@ -611,7 +620,8 @@ function fmtMoney(amount, currency) {
 function approxUsd(item) {
   const cur = currencyFor(item);
   if (cur === 'USD') return '';
-  const usd = item.msrp_jpy * (FX_TO_JPY[cur] || 1) / FX_TO_JPY.USD;
+  const yen = legacyItem(item) ? item.msrp_jpy * (FX_TO_JPY[cur] || 1) : item.msrp_jpy;
+  const usd = yen / FX_TO_JPY.USD;
   return ` <span class="approx">(~$${Math.max(1, Math.round(usd))})</span>`;
 }
 const NOT_SOLD_TYPES = ['prize', 'novelty', 'bonus', 'furoku'];
@@ -622,7 +632,7 @@ function priceLine(item, detail) {
     const key = NOT_SOLD_TYPES.includes(detail?.acquisition_type) ? 'priceNotSold' : 'priceNone';
     return `<div class="card-price"><span class="basis">${escapeHtml(t(key))}</span></div>`;
   }
-  const money = escapeHtml(fmtMoney(v, currencyFor(item))) + approxUsd(item);
+  const money = escapeHtml(fmtMoney(localAmount(item), currencyFor(item))) + approxUsd(item);
   if (basis === 'draw_price') return `<div class="card-price">${money} <span class="basis">${escapeHtml(t('pricePerDraw'))}</span></div>`;
   if (basis === 'set_price') return `<div class="card-price"><span class="basis">${escapeHtml(t('priceSet'))}</span> ${money}</div>`;
   if (basis === 'estimated') return `<div class="card-price"><span class="basis">${escapeHtml(t('priceApproxOriginal'))}</span> ${money}</div>`;
@@ -704,10 +714,13 @@ function shuffled(arr) {
 let catalogPromise = null;
 function loadCatalog() {
   if (!catalogPromise) {
-    catalogPromise = discover({ limit: 2000 }).then((r) => ({
-      ordered: r.items,             // catalog order: keeps sets/series together for searches
-      browse: shuffled(r.items),    // fresh order every visit for the default view
-    }));
+    catalogPromise = discover({ limit: 2000 }).then((r) => {
+      if (r.fx_rates_to_jpy?.rates) FX_TO_JPY = { ...FX_TO_JPY, ...r.fx_rates_to_jpy.rates };
+      return {
+        ordered: r.items,             // catalog order: keeps sets/series together for searches
+        browse: shuffled(r.items),    // fresh order every visit for the default view
+      };
+    });
   }
   return catalogPromise;
 }
@@ -749,11 +762,10 @@ function findSuggestion(keyword) {
   return null;
 }
 
-// NOTE (2026-10-13): about 524 of 963 catalog rows (almost all overseas
-// licensed items and brand collabs) point at a line_id that isn't in
-// data/product_lines.csv, so discover() returns line_type: null for them and
-// they never showed up under any category chip. Until the data is fixed, guess
-// the type from the English name. Order matters: first match wins.
+// NOTE (2026-10-13): every catalog line_id now has a row in
+// data/product_lines.csv, so discover() returns line_type for all items. This
+// name-based guess is only a fallback in case a new row arrives without one.
+// Order matters: first match wins.
 const LINE_TYPE_GUESSES = [
   ['plush', /plush|mascot|cushion|pillow/],
   ['figure', /figure|funko|\bpop!|bring arts|statue|minimates|vinimates|form-ism|play arts|figuarts|nendoroid|amiibo|diorama|\bbust\b|\bselect\b|5 star|ornament|\b\d+-pack\b/],

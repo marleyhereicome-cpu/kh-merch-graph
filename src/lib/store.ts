@@ -9,6 +9,7 @@ import otherIpKeywordsJson from "../data/other_ip_keywords.json" with { type: "j
 import channelsJson from "../data/channels.json" with { type: "json" };
 import outOfScopeKeywordsJson from "../data/out_of_scope_keywords.json" with { type: "json" };
 import ipTermsJson from "../data/ip_terms.json" with { type: "json" };
+import fxRatesJson from "../data/fx_rates.json" with { type: "json" };
 
 import type {
   ProductLine,
@@ -21,6 +22,7 @@ import type {
   Channel,
   OutOfScopeKeyword,
   IpTerm,
+  FxRate,
 } from "./types.js";
 
 export const productLines = productLinesJson as unknown as ProductLine[];
@@ -33,3 +35,4 @@ export const otherIpKeywords = otherIpKeywordsJson as unknown as OtherIpKeyword[
 export const channels = channelsJson as unknown as Channel[];
 export const outOfScopeKeywords = outOfScopeKeywordsJson as unknown as OutOfScopeKeyword[];
 export const ipTerms = ipTermsJson as unknown as IpTerm[];
+export const fxRates = fxRatesJson as unknown as FxRate[];

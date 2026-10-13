@@ -18,7 +18,8 @@
     "worker:dev": "wrangler dev",
     "worker:deploy": "wrangler deploy",
     "check-urls": "node scripts/check-urls.mjs",
-    "sample-rows": "node scripts/sample-rows.mjs"
+    "sample-rows": "node scripts/sample-rows.mjs",
+    "fx:apply": "node scripts/fx-apply.mjs"
   },
   "keywords": [],
   "author": "",

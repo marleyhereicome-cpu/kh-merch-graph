@@ -25,7 +25,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | 列 | 説明 |
 |---|---|
 | sku_id | 一意ID（`line_id` + 連番など） |
-| line_id | 所属する商品ライン（`product_lines.csv` の `line_id`）。グループ化するラインが無い単発の単品商品は、空欄にせず自分の `sku_id` と同じ値を入れる（この場合 `product_lines.csv` に行は不要）。複数の行で同じ `line_id` を使うときは `product_lines.csv` に行を足す（無いと `npm run validate` が警告し、ライン名での一致と `line_type` が使えない） |
+| line_id | 所属する商品ライン（`product_lines.csv` の `line_id`）。**すべての `line_id` に `product_lines.csv` の行が必要**（無いと `discover` の `line_type` が null になり、Web版のカテゴリ絞り込みから漏れる。`npm run validate` がエラーにする）。グループ化するラインが無い単発の単品商品は、自分の `sku_id` と同じ値を `line_id` にし、その `line_id` の行も足す |
 | ip | 作品ID（必須。所属ラインの `ip` と一致させる。空欄だと `discover` などから漏れる） |
 | character | キャラ名（`|` 区切りで複数可、日本語） |
 | character_en | キャラ英語名 |
@@ -33,10 +33,10 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | aliases | 通称（`|` 区切り） |
 | variant | 版・カラバリ・等級（くじの「A賞」など） |
 | design_variants | 同じ行に複数デザインが含まれる場合の内訳（公式ページに記載がある範囲で `|` 区切り）。個別の記載がなければ空欄 |
-| msrp_jpy | 定価（税込、円）。くじは1回の価格。`price_basis` が `none` の場合は空欄。**書籍は出版社（ガンガンコミックス公式・GAME BOOKS ONLINE）の税込価格を正とし、e-STORE表示との差は `notes` に残す** |
+| msrp_jpy | 定価（税込、円）。**常に円**。`currency` が JPY 以外の商品は、`price_local` を `data/fx_rates.csv` の固定レートで換算した目安（ビルド時に必ず計算し直す。2.13）。くじは1回の価格。`price_basis` が `none` の場合は空欄。**書籍は出版社（ガンガンコミックス公式・GAME BOOKS ONLINE）の税込価格を正とし、e-STORE表示との差は `notes` に残す** |
 | price_basis | `msrp_jpy` の性質。`msrp`（商品そのものの定価）／`draw_price`（くじ1回の抽選価格。個々の景品の定価ではない）／`capsule_price`（ガチャポン1回の価格）／`box_price`（ブラインドボックス1箱の価格）／`bundle_price`（まとめ売り・セットの価格）／`set_price`（公式セット商品の価格）／`estimated`（確定した単品の定価が見つからないため、根拠を `notes` に書いた参考推定値。同ウェーブ・同カテゴリの価格からの推定、価格帯の代表値など。2026-10-08 の「保留事項を作らない方針」による）／`none`（定価情報なし） |
 | acquisition_type | 入手経路。`retail`（通常小売）／`kuji`（一番くじ等の抽選くじ）／`prize`（アーケード・クレーンゲーム景品）／`capsule`（ガチャポン）／`blind`（ブラインドボックス・ブラインドバッグ）／`bonus`（購入特典。本体は別商品）／`furoku`（雑誌等の付録）／`event`（イベント限定販売）／`novelty`（ノベルティ・非売品）／`set`（複数商品のセット販売）／`western_license`（海外正規ライセンス商品）／`jp_collab`（国内ブランドとのコラボ商品。アパレル・ジュエリー等）／`game`（ゲームソフト・ゲーム機本体）／`book`（書籍：漫画・小説・攻略本等）／`music`（音楽CD等） |
-| currency | `msrp_jpy` の通貨（既定 `JPY`） |
+| currency | 定価の元の通貨（既定 `JPY`。例: `USD`, `GBP`）。JPY 以外は `data/fx_rates.csv` にレートが必要 |
 | design_count | ブラインド・ガチャ等で中身が選べない場合の全種類数（数値）。個別デザインが判明していて選べる場合や非該当の場合は空欄 |
 | set_components | セット商品（`acquisition_type=set` 等）の内訳（`|` 区切り）。限定版ゲーム機本体などでは同梱ソフトの `sku_id`（`npm run validate` が存在を検査する）。非該当なら空欄 |
 | bonus_of | `acquisition_type=bonus`／`furoku`／`novelty` の場合、本体となる商品の `sku_id` または `line_id`（例: サイン入り抽選版CDの本体は無印版CD）。非該当なら空欄 |
@@ -55,6 +55,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | source_url | 一次情報URL（必須） |
 | verified | 人が一次情報で確認したら `true` |
 | notes | 「似て非なる商品」との違いなど |
+| price_local | **`currency` が JPY 以外の行だけ**：発売国の通貨での定価（例: `39.99`）。JPY の行は空欄。海外の定価は `msrp_jpy` ではなくこの列に入れる（列は最後尾。旧形式の35列の行も読める） |
 
 #### ゲームソフト行の設計（`acquisition_type=game`）
 - 1行 = **タイトル × プラットフォーム × 版 × 地域**。`sku_id` は `<title>-<platform>-<edition>-<region>`（すべて小文字、例: `kh3-ps4-standard-jp`）。`npm run validate` が末尾の形式を検査する。
@@ -185,6 +186,20 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 - **他IP対応の構造**：カタログに存在しないIPの `ip_terms` が出品文に含まれていれば `out_of_scope` に `non_kh` を返す（今は kingdom-hearts のみ登録。他IPの語を足すだけで有効になる）。
 - `discover` の `terms` 引数の照合にも使う。
 
+### 2.13 `fx_rates.csv` — 円換算の固定レート
+| 列 | 説明 |
+|---|---|
+| currency | 通貨コード（`USD`・`GBP` など。JPY は書かない） |
+| jpy_per_unit | 1単位あたりの円（例: `158.5`） |
+| as_of | レートの基準日（`YYYY-MM-DD`） |
+| source_url | レートの出典 |
+| notes | 補足 |
+
+- 外貨の商品の `msrp_jpy` は、`npm run build:data`（デプロイ時に毎回実行）が `round(price_local × jpy_per_unit)` で計算し直す。CSV に書かれた `msrp_jpy` は使わないので、**レートの更新はこのファイルの1行を直して `main` に push するだけ**で本番に反映される。
+- CSV 上の `msrp_jpy` も揃えたいときは `npm run fx:apply`（外貨行の `msrp_jpy` だけを書き直す）。揃っていないと `npm run validate` が警告する。
+- 精度より「同じ桁で比べられること」が目的の固定レート。見直しの目安は数か月に1回、または10%以上動いたとき。
+- `price_local` が空欄なのに `msrp_jpy` に数字がある外貨行（旧形式：外貨の数字が円の列に入ったまま）は推測せず円換算を空欄にし、`npm run validate` がエラー、`npm test`（`tests/fx.test.ts`）が失敗する（デプロイが止まる）。
+
 ## 3. MCPツール
 
 ### 3.1 `resolve_listing`
@@ -251,6 +266,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 ### 3.3 `discover`
 入力：`ip`, `character`(任意), `budget_jpy`(任意), `purpose`(`display`/`wear`/`read`/`play`/`any`), `limit`, `terms`(任意: `{types?: term_type[], names?: string[]}`)
 `terms` を指定すると、`ip_terms.csv` の該当する固有語（例: `types:["faction"]`、`names:["XIII機関"]`）が商品の名称・別名・キャラ・備考に含まれるものだけに絞り、該当した語を `matched_terms` で返す。辞書に該当する語が無い場合は空で `terms_note_en` を返す。各項目に `region`・`platform`・`edition` も含む
+`budget_jpy` は `msrp_jpy`（常に円換算）と比べる。各項目は `msrp_jpy`（円）・`price_local`（発売国の通貨での定価。JPY の商品は `msrp_jpy` と同じ）・`currency`・`line_type` を含み、`name_en` が空の行は `name_ja` を返す。結果全体に、換算に使った固定レート `fx_rates_to_jpy`（`{rates, as_of}`）を含める
 出力：カタログからの候補SKUリスト（出品の有無は保証しない旨を含める）
 
 ### 3.4 `estimate_landed_cost`

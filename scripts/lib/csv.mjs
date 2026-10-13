@@ -60,3 +60,10 @@ export function loadCsv(dataDir, filename) {
   });
   return { header, records };
 }
+
+// parseCsv の逆。カンマ・ダブルクォート・改行を含むフィールドだけを囲む（Python csv の QUOTE_MINIMAL と同じ）。
+// 行末は \n。読み込んだファイルをそのまま書き戻すと1バイトも変わらないことを fx-apply.mjs で確かめてから使う。
+export function formatCsv(rows) {
+  const cell = (v) => (/[",\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+  return rows.map((r) => r.map(cell).join(",")).join("\n") + "\n";
+}

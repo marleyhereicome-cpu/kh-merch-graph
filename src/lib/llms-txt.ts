@@ -34,6 +34,7 @@ export function buildLlmsTxt(baseUrl: string, maxBatchListings: number): string 
 - Supported IP today: Kingdom Hearts only (\`ip = "kingdom-hearts"\`). Requests naming other franchises are noted (by keyword only) to help prioritize what to add next — they are not silently ignored, but they are also not answered yet.
 - Authenticity notes are caution flags for the calling agent to weigh, not a verdict that an item is genuine or fake.
 - Prices and landed-cost totals are estimates for planning, not quotes or appraisals.
+- \`msrp_jpy\` is always in yen. For items released outside Japan it is the original price (\`price_local\` + \`currency\`, e.g. 39.99 USD) converted at a fixed, periodically refreshed rate (\`discover\` returns the rates it used as \`fx_rates_to_jpy\`), so \`budget_jpy\` compares like with like.
 - This server does not browse, log in to, or purchase from any marketplace. It only interprets text you send it.
 `;
 }
