@@ -47,6 +47,20 @@ describe("buildPriceInfo", () => {
 });
 
 describe("buildAcquisitionInfo", () => {
+  it("jp_collab には専用の説明文を返す（コード名のまま返さない）", () => {
+    const info = buildAcquisitionInfo(findSku("supergroupies-kh-outer-sora-2026"));
+    expect(info?.type).toBe("jp_collab");
+    expect(info?.note_en).toContain("Japanese brand collaboration");
+    expect(info?.note_en).not.toContain("Acquisition type:");
+  });
+
+  it("catalog.csv で使われている acquisition_type はすべて専用の説明文を持つ", () => {
+    for (const type of new Set(catalog.map((s) => s.acquisition_type).filter(Boolean))) {
+      const sku = catalog.find((s) => s.acquisition_type === type)!;
+      expect(buildAcquisitionInfo(sku)?.note_en, type).not.toMatch(/^Acquisition type:/);
+    }
+  });
+
   it("kuji は入手経路の説明文を返す", () => {
     const info = buildAcquisitionInfo(findSku("ichiban-kuji-kh-2018-a"));
     expect(info?.type).toBe("kuji");
