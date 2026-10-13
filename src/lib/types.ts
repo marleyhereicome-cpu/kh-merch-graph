@@ -150,6 +150,13 @@ export interface KhEvent {
   source_url: string;
 }
 
+// CSV の真偽値列（official・verified）を読む。大文字小文字・前後の空白を区別しない（"TRUE" も true）。
+// 2026-10-13、official が "TRUE" の公式コラボ品29件が `=== "true"` の比較で false になり、
+// Web版で「Fan-made」と表示されていた。真偽値列は必ずこの関数で読むこと（データ側は validate が小文字を強制）。
+export function isTrue(value: string | undefined | null): boolean {
+  return (value ?? "").trim().toLowerCase() === "true";
+}
+
 // `|` 区切りのCSV列を配列に分解する（空文字は空配列）。
 export function splitPipe(value: string): string[] {
   if (!value) return [];

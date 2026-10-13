@@ -80,6 +80,10 @@ const ENUMS = {
       "3DS", "DS", "PSP", "GBA", "Mobile", "",
     ],
     edition: ["standard", "limited", "collectors", "remix", "collection", "digital", ""],
+    // 真偽値は小文字の true / false だけ（"TRUE" 等は不可）。サーバーは大文字小文字を区別せず読むが、
+    // 2026-10-13 に大文字 TRUE の公式品29件が「Fan-made」と表示された事故を繰り返さないため、データ側でも統一する。
+    official: ["true", "false"],
+    verified: ["true", "false"],
   },
   "channels.csv": {
     channel_type: ["new", "secondhand", "proxy", "western"],

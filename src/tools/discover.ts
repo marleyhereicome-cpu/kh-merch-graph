@@ -4,7 +4,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { catalog, productLines, ipTerms } from "../lib/store.js";
 import { TERM_TYPES, selectTerms, termsInSku, type TermType } from "../lib/ip-terms.js";
 import { containsNormalized } from "../lib/normalize.js";
-import { splitPipe } from "../lib/types.js";
+import { splitPipe, isTrue } from "../lib/types.js";
 import { buildUsageLogEntry, type UsageLogger } from "../lib/usage-log.js";
 import { localPriceOf, fxRatesToJpy } from "../lib/price.js";
 
@@ -15,8 +15,10 @@ const PURPOSE_LINE_TYPES: Record<string, string[]> = {
   play: ["game", "card"],
 };
 
+// line_id → line_type。全件取得（約1,000商品×約600ライン）で毎回 find すると時間がかかるため、一度だけ作る。
+const lineTypeById = new Map(productLines.map((l) => [l.line_id, l.line_type]));
 function lineTypeFor(lineId: string): string | undefined {
-  return productLines.find((l) => l.line_id === lineId)?.line_type;
+  return lineTypeById.get(lineId);
 }
 
 // ゼロ件誘導機能：単独グッズがまだ無いキャラ名で検索された場合、グループ名（例:
@@ -112,6 +114,8 @@ export function discoverCatalog({ ip, character, budget_jpy, purpose, limit, ter
     sku_id: s.sku_id,
     // 英語名が未記入の行（約15行）は、sku_id ではなく日本語名を表示名に使う。
     name_en: s.name_en || s.name_ja,
+    name_ja: s.name_ja,
+    character: splitPipe(s.character),
     character_en: splitPipe(s.character_en),
     line_type: lineTypeFor(s.line_id) ?? null,
     msrp_jpy: s.msrp_jpy ? Number(s.msrp_jpy) : null,
@@ -122,6 +126,12 @@ export function discoverCatalog({ ip, character, budget_jpy, purpose, limit, ter
     region: s.region || "JP",
     platform: s.platform || null,
     edition: s.edition || null,
+    // 以下はカード表示に必要な項目（explain_product と同じ形）。これで Web版はカードごとに explain_product を
+    // 呼ばずに済み、explain_product の呼び出し回数が「詳細パネルを開いた」回数（Gate C の関心シグナル）になる。
+    acquisition_type: s.acquisition_type || null,
+    availability_hint: s.availability_hint || "unknown",
+    official: isTrue(s.official),
+    typical_channels: splitPipe(s.typical_channels),
     ...(matchedTermsBySku.has(s.sku_id) ? { matched_terms: matchedTermsBySku.get(s.sku_id) } : {}),
     source_url: s.source_url,
   }));
@@ -190,7 +200,9 @@ export function registerDiscoverTool(server: McpServer, onUsage?: UsageLogger): 
       }
 
       const result = discoverCatalog({ ip, character, budget_jpy, purpose, limit, terms });
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      // 整形（インデント）しない。全件取得（Web版は limit 2000 で1回呼ぶ）だと結果が数百KBになり、
+      // 整形の空白・改行が MCP の応答の中でさらにエスケープされて、サイズとCPU時間がほぼ倍になるため。中身は同じ。
+      return { content: [{ type: "text", text: JSON.stringify(result) }] };
     }
   );
 }
