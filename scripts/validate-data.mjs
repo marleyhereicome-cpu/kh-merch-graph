@@ -55,17 +55,17 @@ const ENUMS = {
   "product_lines.csv": {
     acquisition_type: [
       "retail", "kuji", "prize", "capsule", "blind", "bonus", "furoku",
-      "event", "novelty", "set", "western_license", "game", "book", "music",
+      "event", "novelty", "set", "western_license", "jp_collab", "game", "book", "music",
     ],
   },
   "catalog.csv": {
     price_basis: [
       "msrp", "draw_price", "capsule_price", "box_price", "bundle_price",
-      "set_price", "none", "",
+      "set_price", "estimated", "none", "",
     ],
     acquisition_type: [
       "retail", "kuji", "prize", "capsule", "blind", "bonus", "furoku",
-      "event", "novelty", "set", "western_license", "game", "book", "music", "",
+      "event", "novelty", "set", "western_license", "jp_collab", "game", "book", "music", "",
     ],
     availability_hint: [
       "jp_retail_new", "jp_secondhand_only", "western_official",
@@ -204,22 +204,28 @@ function main() {
     console.log("");
   }
 
-  // catalog.csv の line_id が product_lines.csv に存在するか
+  // catalog.csv の line_id が product_lines.csv に存在するか。
+  // - 単発の単品商品は line_id に自分の sku_id を入れる運用（グループ化するラインが無いため。SPEC.md 2.2）。
+  //   これは product_lines.csv に行が無くて正常なので、検査の対象外にする。
+  // - 複数の行が同じ line_id を共有しているのに product_lines.csv に行が無い場合は警告にする
+  //   （サーバーは動くが、そのラインの名称・別名での一致と line_type が使えない）。ラインごとに1行で出す。
   if (loaded["catalog.csv"] && loaded["product_lines.csv"]) {
     const validLineIds = new Set(
       loaded["product_lines.csv"].records.map((r) => r.line_id)
     );
     const orphans = loaded["catalog.csv"].records.filter(
-      (r) => r.line_id && !validLineIds.has(r.line_id)
+      (r) => r.line_id && r.line_id !== r.sku_id && !validLineIds.has(r.line_id)
     );
     if (orphans.length > 0) {
+      const byLine = new Map();
+      for (const r of orphans) byLine.set(r.line_id, [...(byLine.get(r.line_id) ?? []), r.sku_id]);
       console.log("## catalog.csv ⇔ product_lines.csv の整合性");
-      orphans.forEach((r) => {
+      for (const [lineId, skus] of byLine) {
         console.log(
-          `  ✗ sku_id=${r.sku_id} の line_id="${r.line_id}" が product_lines.csv にありません`
+          `  ! line_id="${lineId}" が product_lines.csv にありません（${skus.length}行: ${skus.join(", ")}）。ラインの行を足すと、ライン名での一致と line_type が使えるようになります`
         );
-      });
-      errorCount += orphans.length;
+      }
+      warningCount += byLine.size;
       console.log("");
     }
   }

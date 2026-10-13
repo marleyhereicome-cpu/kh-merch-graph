@@ -25,7 +25,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | 列 | 説明 |
 |---|---|
 | sku_id | 一意ID（`line_id` + 連番など） |
-| line_id | 所属する商品ライン |
+| line_id | 所属する商品ライン（`product_lines.csv` の `line_id`）。グループ化するラインが無い単発の単品商品は、空欄にせず自分の `sku_id` と同じ値を入れる（この場合 `product_lines.csv` に行は不要）。複数の行で同じ `line_id` を使うときは `product_lines.csv` に行を足す（無いと `npm run validate` が警告し、ライン名での一致と `line_type` が使えない） |
 | ip | 作品ID（必須。所属ラインの `ip` と一致させる。空欄だと `discover` などから漏れる） |
 | character | キャラ名（`|` 区切りで複数可、日本語） |
 | character_en | キャラ英語名 |
@@ -34,8 +34,8 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | variant | 版・カラバリ・等級（くじの「A賞」など） |
 | design_variants | 同じ行に複数デザインが含まれる場合の内訳（公式ページに記載がある範囲で `|` 区切り）。個別の記載がなければ空欄 |
 | msrp_jpy | 定価（税込、円）。くじは1回の価格。`price_basis` が `none` の場合は空欄。**書籍は出版社（ガンガンコミックス公式・GAME BOOKS ONLINE）の税込価格を正とし、e-STORE表示との差は `notes` に残す** |
-| price_basis | `msrp_jpy` の性質。`msrp`（商品そのものの定価）／`draw_price`（くじ1回の抽選価格。個々の景品の定価ではない）／`capsule_price`（ガチャポン1回の価格）／`box_price`（ブラインドボックス1箱の価格）／`bundle_price`（まとめ売り・セットの価格）／`set_price`（公式セット商品の価格）／`none`（定価情報なし） |
-| acquisition_type | 入手経路。`retail`（通常小売）／`kuji`（一番くじ等の抽選くじ）／`prize`（アーケード・クレーンゲーム景品）／`capsule`（ガチャポン）／`blind`（ブラインドボックス・ブラインドバッグ）／`bonus`（購入特典。本体は別商品）／`furoku`（雑誌等の付録）／`event`（イベント限定販売）／`novelty`（ノベルティ・非売品）／`set`（複数商品のセット販売）／`western_license`（海外正規ライセンス商品）／`game`（ゲームソフト・ゲーム機本体）／`book`（書籍：漫画・小説・攻略本等）／`music`（音楽CD等） |
+| price_basis | `msrp_jpy` の性質。`msrp`（商品そのものの定価）／`draw_price`（くじ1回の抽選価格。個々の景品の定価ではない）／`capsule_price`（ガチャポン1回の価格）／`box_price`（ブラインドボックス1箱の価格）／`bundle_price`（まとめ売り・セットの価格）／`set_price`（公式セット商品の価格）／`estimated`（確定した単品の定価が見つからないため、根拠を `notes` に書いた参考推定値。同ウェーブ・同カテゴリの価格からの推定、価格帯の代表値など。2026-10-08 の「保留事項を作らない方針」による）／`none`（定価情報なし） |
+| acquisition_type | 入手経路。`retail`（通常小売）／`kuji`（一番くじ等の抽選くじ）／`prize`（アーケード・クレーンゲーム景品）／`capsule`（ガチャポン）／`blind`（ブラインドボックス・ブラインドバッグ）／`bonus`（購入特典。本体は別商品）／`furoku`（雑誌等の付録）／`event`（イベント限定販売）／`novelty`（ノベルティ・非売品）／`set`（複数商品のセット販売）／`western_license`（海外正規ライセンス商品）／`jp_collab`（国内ブランドとのコラボ商品。アパレル・ジュエリー等）／`game`（ゲームソフト・ゲーム機本体）／`book`（書籍：漫画・小説・攻略本等）／`music`（音楽CD等） |
 | currency | `msrp_jpy` の通貨（既定 `JPY`） |
 | design_count | ブラインド・ガチャ等で中身が選べない場合の全種類数（数値）。個別デザインが判明していて選べる場合や非該当の場合は空欄 |
 | set_components | セット商品（`acquisition_type=set` 等）の内訳（`|` 区切り）。限定版ゲーム機本体などでは同梱ソフトの `sku_id`（`npm run validate` が存在を検査する）。非該当なら空欄 |
