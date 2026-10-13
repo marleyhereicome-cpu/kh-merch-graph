@@ -16,6 +16,7 @@ const ACQUISITION_NOTES: Record<string, string> = {
   novelty: "A promotional novelty; typically given away rather than sold, so no maker-set price exists.",
   set: "Sold only as part of an official multi-item set, not as an individual item.",
   western_license: "An officially licensed Western (non-Japanese) release, sold through licensed Western retailers.",
+  jp_collab: "A Japanese brand collaboration product, sold by the partner brand (not directly by Square Enix or Disney).",
   game: "Video game software (or a console bundle); the platform, edition and region matter for compatibility.",
   book: "A published book (manga, novel, guide book or art book); identified by ISBN.",
   music: "A music CD/record; identified by its catalog number.",
