@@ -50,10 +50,10 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | jan | JANコード（あれば） |
 | isbn | ISBN（`line_type=book` の書籍。非該当なら空欄） |
 | catalog_number | 品番（音楽CD・ゲームソフト等。例: `SQEX-11140`。非該当なら空欄） |
-| official | `true`/`false` |
+| official | `true`/`false`。値は小文字の `true`／`false` のみ（`npm run validate` が検査。サーバーは大文字小文字を区別せずに読む：`isTrue()`） |
 | rerelease_dates | 再販日（`|` 区切り） |
 | source_url | 一次情報URL（必須） |
-| verified | 人が一次情報で確認したら `true` |
+| verified | 人が一次情報で確認したら `true`。値は小文字の `true`／`false` のみ（`npm run validate` が検査。サーバーは大文字小文字を区別せずに読む：`isTrue()`） |
 | notes | 「似て非なる商品」との違いなど |
 | price_local | **`currency` が JPY 以外の行だけ**：発売国の通貨での定価（例: `39.99`）。JPY の行は空欄。海外の定価は `msrp_jpy` ではなくこの列に入れる（列は最後尾。旧形式の35列の行も読める） |
 
@@ -266,6 +266,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 ### 3.3 `discover`
 入力：`ip`, `character`(任意), `budget_jpy`(任意), `purpose`(`display`/`wear`/`read`/`play`/`any`), `limit`, `terms`(任意: `{types?: term_type[], names?: string[]}`)
 `terms` を指定すると、`ip_terms.csv` の該当する固有語（例: `types:["faction"]`、`names:["XIII機関"]`）が商品の名称・別名・キャラ・備考に含まれるものだけに絞り、該当した語を `matched_terms` で返す。辞書に該当する語が無い場合は空で `terms_note_en` を返す。各項目に `region`・`platform`・`edition` も含む
+各項目は、カード表示に必要な `name_ja`・`character`（日本語、配列）・`acquisition_type`・`availability_hint`（空欄は `unknown`）・`official`（真偽値）・`typical_channels`（配列）も含む（Web版がカードごとに `explain_product` を呼ばずに済むように。`explain_product` と同じ形）。全件取得で応答が大きくなるため、JSON は整形せずに返す
 `budget_jpy` は `msrp_jpy`（常に円換算）と比べる。各項目は `msrp_jpy`（円）・`price_local`（発売国の通貨での定価。JPY の商品は `msrp_jpy` と同じ）・`currency`・`line_type` を含み、`name_en` が空の行は `name_ja` を返す。結果全体に、換算に使った固定レート `fx_rates_to_jpy`（`{rates, as_of}`）を含める
 出力：カタログからの候補SKUリスト（出品の有無は保証しない旨を含める）
 

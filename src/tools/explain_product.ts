@@ -4,7 +4,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { catalog, productLines, ipTerms } from "../lib/store.js";
 import { buildAvailabilityInfo, buildRegionInfo } from "../lib/acquisition.js";
 import { resolveCandidates } from "../lib/resolve.js";
-import { splitPipe } from "../lib/types.js";
+import { splitPipe, isTrue } from "../lib/types.js";
 import { localPriceOf } from "../lib/price.js";
 
 function numOrNull(value: string): number | null {
@@ -94,8 +94,8 @@ export function registerExplainProductTool(server: McpServer): void {
         // discover.html 側でこれを使い、実際に検索できるリンクを組み立てる。
         typical_channels: splitPipe(sku.typical_channels),
         rerelease_dates: splitPipe(sku.rerelease_dates),
-        official: sku.official === "true",
-        verified: sku.verified === "true",
+        official: isTrue(sku.official),
+        verified: isTrue(sku.verified),
         notes: sku.notes,
         source_url: sku.source_url,
       };
