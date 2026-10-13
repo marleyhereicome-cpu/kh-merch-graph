@@ -1,19 +1,21 @@
 # PR の段階でデータの大量消失を知らせる（マージ前のチェック）。デプロイ時にも同じチェックが走る（deploy.yml）。
 # 取り込み先（PR の base）と比べ、catalog.csv・product_lines.csv・images.json の ID が「5件または2%」を超えて
 # 消えていたら失敗にする。意図して消すときは、PR のタイトルか本文に [allow-data-removal] を入れる。
+#
+# main の保護ルールで「必須チェック」にしているため、すべての PR で必ず走らせる（paths で絞ると、データを
+# 触らない PR ではチェックが始まらず「待機中」のままになり、マージできなくなる）。データを触らない PR は数秒で通る。
 name: Data guard
 
 on:
   pull_request:
-    paths:
-      - "data/**"
-      - "web/images.json"
 
 permissions:
   contents: read
 
 jobs:
-  data-removal:
+  data-guard:
+    # この名前が「必須チェック」の名前になる（保護ルールの設定と合わせること）。
+    name: Data guard
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
