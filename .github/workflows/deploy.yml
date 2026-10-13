@@ -17,14 +17,39 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
-      contents: read
+      # write は、デプロイ成功後に last-deployed タグを動かすためだけに使う。
+      contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          # データ消失チェックで、最後に本番へ出した版（last-deployed タグ）と比べるために履歴とタグを取る。
+          fetch-depth: 0
+          fetch-tags: true
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+
+      # データの大量消失チェック（2026-10-13 の product_lines.csv 上書き事故の再発防止）。
+      # 最後に本番へ出した版（last-deployed タグ。初回は push 前の main）と比べ、catalog.csv・product_lines.csv・
+      # images.json の ID が「5件または2%」を超えて消えていたら、ここで止めて本番を更新しない。
+      # 直前のコミットではなく本番の版と比べるので、事故のあとに別の push が来ても、消えたデータは本番に出ない。
+      # 意図して消すときは、コミットメッセージに [allow-data-removal] を入れる。
+      - name: Data removal guard
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          BASE=""
+          if git rev-parse -q --verify refs/tags/last-deployed >/dev/null; then
+            BASE=last-deployed
+          elif [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            BASE="$BEFORE"
+          fi
+          if [ -z "$BASE" ]; then echo "比較元がないためスキップ（初回）"; exit 0; fi
+          ALLOW=0
+          if git log --format=%B "$BASE..HEAD" | grep -qF '[allow-data-removal]'; then ALLOW=1; fi
+          ALLOW_DATA_REMOVAL=$ALLOW node scripts/check-data-removal.mjs "$BASE"
 
       - run: npm ci
       - run: npm run build:data
@@ -54,3 +79,11 @@ jobs:
           cp -r web/. "$SITE_DIR/public/"
           cd "$SITE_DIR"
           "$WRANGLER" deploy --name kh-merch-graph-web --assets ./public --compatibility-date "$COMPAT_DATE"
+
+      # 本番に出した版の目印。次回のデータ消失チェックはこの版と比べる。
+      # 失敗してもデプロイ自体は済んでいるので、ジョブは失敗にしない（次回は少し古い版と比べるだけ）。
+      - name: Mark deployed version
+        continue-on-error: true
+        run: |
+          git tag -f last-deployed "$GITHUB_SHA"
+          git push -f origin refs/tags/last-deployed

@@ -153,3 +153,16 @@ Claude は「承認の指示」がない限り `verified=true` を付けませ�
 - Claude の実行は `ANTHROPIC_API_KEY` の利用料がかかります。1回の実行は最大40ターンで止まります（`--max-turns 40`）。
 - Claude が使えるコマンドは `.github/workflows/claude.yml` の `--allowedTools` に書いた範囲に限っています（テスト・検証・git・PR作成・Web閲覧。デプロイは含みません）。
 - `@claude` に反応できるのは、このリポジトリに書き込み権限のある人だけです（他人が勝手に動かすことはできません）。
+
+## データの大量消失チェック（2026-10-13〜）
+
+古い `product_lines.csv` を元に全体を貼り付けて、PR で足した475ラインが消える事故が起きたため、次のチェックを入れています（`scripts/check-data-removal.mjs`）。
+
+- 対象：`data/catalog.csv`（sku_id）・`data/product_lines.csv`（line_id）・`web/images.json`（キー）
+- 比較元にあった ID のうち、消えた数が **5件、または2%** を超えたら失敗
+- **デプロイ時**（`deploy.yml`）：最後に本番へ出した版（`last-deployed` タグ）と比べ、失敗したら本番を更新しない。直前のコミットではなく本番の版と比べるので、事故のあとに別の push が来ても、消えたデータは本番に出ない
+- **PR**（`data-guard.yml`）：取り込み先と比べ、マージ前に赤くなる
+- 意図して大量に消すとき：コミットメッセージ（PR ならタイトルか本文）に `[allow-data-removal]` を入れる
+- 手元で確かめる：`node scripts/check-data-removal.mjs origin/main`
+
+**注意**：GitHub の画面から main に直接コミットした場合、PR のチェックは走りません（デプロイ時のチェックで本番は守られますが、main には残ります）。main への直接コミットそのものを止めたい場合は、GitHub の設定（Branches → Branch protection rules）で「PR を必須にする」＋「Data guard を必須チェックにする」を有効にします（画面からの編集は自動でPRになります）。
