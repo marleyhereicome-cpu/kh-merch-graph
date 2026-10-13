@@ -1,0 +1,34 @@
+# PR の段階でデータの大量消失を知らせる（マージ前のチェック）。デプロイ時にも同じチェックが走る（deploy.yml）。
+# 取り込み先（PR の base）と比べ、catalog.csv・product_lines.csv・images.json の ID が「5件または2%」を超えて
+# 消えていたら失敗にする。意図して消すときは、PR のタイトルか本文に [allow-data-removal] を入れる。
+name: Data guard
+
+on:
+  pull_request:
+    paths:
+      - "data/**"
+      - "web/images.json"
+
+permissions:
+  contents: read
+
+jobs:
+  data-removal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Data removal guard
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          ALLOW=0
+          if printf '%s\n%s' "$PR_TITLE" "$PR_BODY" | grep -qF '[allow-data-removal]'; then ALLOW=1; fi
+          ALLOW_DATA_REMOVAL=$ALLOW node scripts/check-data-removal.mjs "$BASE_SHA"
