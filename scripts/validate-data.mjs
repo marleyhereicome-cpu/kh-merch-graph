@@ -5,6 +5,7 @@ import { readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadCsv as loadCsvShared } from "./lib/csv.mjs";
+import { loadFxRates, deriveMsrpJpy, currencyOf } from "./lib/fx.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, "..", "data");
@@ -22,7 +23,7 @@ const SCHEMAS = {
     "set_components", "bonus_of", "availability_hint", "availability_confidence",
     "typical_channels", "region", "platform", "edition",
     "width_mm", "height_mm", "depth_mm", "weight_g", "jan", "isbn", "catalog_number",
-    "official", "rerelease_dates", "source_url", "verified", "notes",
+    "official", "rerelease_dates", "source_url", "verified", "notes", "price_local",
   ],
   "condition_lexicon.csv": [
     "term_ja", "variants", "term_en", "meaning_en", "price_effect", "risk_flag",
@@ -48,6 +49,7 @@ const SCHEMAS = {
   "coverage_sample.csv": ["listing_title", "lang", "platform", "price", "currency", "collected"],
   "out_of_scope_keywords.csv": ["keyword", "reason", "message_en", "notes"],
   "ip_terms.csv": ["ip", "term_ja", "variants", "term_en", "term_type", "notes"],
+  "fx_rates.csv": ["currency", "jpy_per_unit", "as_of", "source_url", "notes"],
 };
 
 // 列の値がSPEC.mdで定義された選択肢のいずれかであることを確認する。
@@ -204,28 +206,23 @@ function main() {
     console.log("");
   }
 
-  // catalog.csv の line_id が product_lines.csv に存在するか。
-  // - 単発の単品商品は line_id に自分の sku_id を入れる運用（グループ化するラインが無いため。SPEC.md 2.2）。
-  //   これは product_lines.csv に行が無くて正常なので、検査の対象外にする。
-  // - 複数の行が同じ line_id を共有しているのに product_lines.csv に行が無い場合は警告にする
-  //   （サーバーは動くが、そのラインの名称・別名での一致と line_type が使えない）。ラインごとに1行で出す。
+  // catalog.csv の line_id は、すべて product_lines.csv に行がなければならない（単発の単品商品も含む。SPEC.md 2.2）。
+  // 行が無いと discover の line_type が null になり、Web版のカテゴリ絞り込みから漏れる（2026-10-13 に524行で発生）。
   if (loaded["catalog.csv"] && loaded["product_lines.csv"]) {
     const validLineIds = new Set(
       loaded["product_lines.csv"].records.map((r) => r.line_id)
     );
     const orphans = loaded["catalog.csv"].records.filter(
-      (r) => r.line_id && r.line_id !== r.sku_id && !validLineIds.has(r.line_id)
+      (r) => !r.line_id || !validLineIds.has(r.line_id)
     );
     if (orphans.length > 0) {
-      const byLine = new Map();
-      for (const r of orphans) byLine.set(r.line_id, [...(byLine.get(r.line_id) ?? []), r.sku_id]);
       console.log("## catalog.csv ⇔ product_lines.csv の整合性");
-      for (const [lineId, skus] of byLine) {
+      orphans.forEach((r) => {
         console.log(
-          `  ! line_id="${lineId}" が product_lines.csv にありません（${skus.length}行: ${skus.join(", ")}）。ラインの行を足すと、ライン名での一致と line_type が使えるようになります`
+          `  ✗ sku_id=${r.sku_id} の line_id="${r.line_id}" が product_lines.csv にありません（product_lines.csv に line_id・maker・line_type・source_url の行を足してください）`
         );
-      }
-      warningCount += byLine.size;
+      });
+      errorCount += orphans.length;
       console.log("");
     }
   }
@@ -249,6 +246,39 @@ function main() {
         );
       });
       errorCount += orphans.length;
+      console.log("");
+    }
+  }
+
+  // catalog.csv の価格と通貨（SPEC.md 2.2）:
+  // - JPY 以外の行は、現地通貨の定価を price_local に入れる（msrp_jpy は円換算。ビルド時に計算し直す）
+  // - currency のレートが data/fx_rates.csv に無い・price_local が無い／数でない → エラー（本番の円換算が空欄になる）
+  // - CSV の msrp_jpy が現在のレートでの円換算と違う → 警告（npm run fx:apply で揃う。本番はビルド時に正しく計算される）
+  if (loaded["catalog.csv"] && loaded["fx_rates.csv"]) {
+    const rates = loadFxRates(DATA_DIR);
+    const fxErrors = [];
+    const stale = [];
+    const jpyWithLocal = [];
+    for (const r of loaded["catalog.csv"].records) {
+      if (currencyOf(r) === "JPY") {
+        if (r.price_local) jpyWithLocal.push(r.sku_id);
+        continue;
+      }
+      const { msrp_jpy, problem } = deriveMsrpJpy(r, rates);
+      if (problem) fxErrors.push(`${r.sku_id}: ${problem}`);
+      else if (msrp_jpy !== r.msrp_jpy) stale.push(r.sku_id);
+    }
+    if (fxErrors.length > 0 || stale.length > 0 || jpyWithLocal.length > 0) {
+      console.log("## catalog.csv の価格と通貨");
+      fxErrors.forEach((e) => console.log(`  ✗ ${e}`));
+      if (stale.length > 0) {
+        console.log(`  ! msrp_jpy が現在のレートでの円換算と違う外貨行が ${stale.length} 行あります（npm run fx:apply で揃います）: ${stale.join(", ")}`);
+      }
+      if (jpyWithLocal.length > 0) {
+        console.log(`  ! currency=JPY なのに price_local が入っている行があります（price_local は外貨の行だけで使います）: ${jpyWithLocal.join(", ")}`);
+      }
+      errorCount += fxErrors.length;
+      warningCount += (stale.length > 0 ? 1 : 0) + (jpyWithLocal.length > 0 ? 1 : 0);
       console.log("");
     }
   }

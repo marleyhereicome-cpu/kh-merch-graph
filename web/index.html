@@ -192,7 +192,14 @@ function render(data) {
   if (data.price) {
     parts.push("<h2>Price</h2>");
     parts.push(
-      `<div class="card">${data.price.msrp_jpy === null ? "No maker price" : `MSRP: ¥${escapeHtml(data.price.msrp_jpy)}`}`
+      `<div class="card">${
+        data.price.msrp_jpy === null
+          ? "No maker price"
+          : data.price.price_local !== undefined
+            ? // 海外の商品：元の通貨での定価と、固定レートでの円換算（目安）
+              `MSRP: ${escapeHtml(data.price.currency)} ${escapeHtml(data.price.price_local)} (~¥${escapeHtml(data.price.msrp_jpy)})`
+            : `MSRP: ¥${escapeHtml(data.price.msrp_jpy)}`
+      }`
     );
     if (data.price.ratio !== undefined) parts.push(` — listing is ${data.price.ratio}× MSRP`);
     parts.push(`<div class="note">${escapeHtml(data.price.note_en)}</div></div>`);

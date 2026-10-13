@@ -3,6 +3,7 @@
 // 取得経路（bonus/furoku/prize 等）に応じた説明文を返す。
 // design_count があるブラインド・ガチャは全種数を返す。
 import { splitPipe, type CatalogSku } from "./types.js";
+import { localPriceOf, formatMoney } from "./price.js";
 
 const ACQUISITION_NOTES: Record<string, string> = {
   retail: "Regular retail item, sold directly by the maker or an authorized retailer.",
@@ -52,9 +53,13 @@ export function buildAcquisitionInfo(sku: CatalogSku, catalog?: CatalogSku[]): A
 }
 
 export interface PriceInfo {
+  // 円換算の定価。外貨の商品は price_local を固定レートで換算した値。
   msrp_jpy: number | null;
   price_basis: string;
   ratio?: number;
+  // 外貨の商品のときだけ：元の通貨での定価と通貨コード。
+  price_local?: number;
+  currency?: string;
   note_en: string;
 }
 
@@ -84,43 +89,60 @@ export function buildPriceInfo(sku: CatalogSku, priceJpy: number | undefined): P
     };
   }
 
+  // 外貨の商品は「元の価格（≈円換算）」の形で書き、円換算が固定レートによる目安だと明記する。
+  // 円の商品は従来どおりの文言（出力を変えない）。
+  const local = currency !== "JPY" ? localPriceOf(sku) : null;
+  const yen = local ? `${formatMoney(local)} ≈ ¥${msrp} at a fixed exchange rate` : `¥${msrp}`;
+  const foreign = local ? { price_local: local.amount, currency: local.currency } : {};
+  const withForeign = (info: PriceInfo): PriceInfo => ({ ...info, ...foreign });
   const perUnitNote = (label: string) =>
-    `${label}: per-unit price ¥${msrp} (${currency}); secondary market premium for a specific design/prize is normal`;
+    local
+      ? `${label}: per-unit price ${yen}; secondary market premium for a specific design/prize is normal`
+      : `${label}: per-unit price ¥${msrp} (${currency}); secondary market premium for a specific design/prize is normal`;
+  const originalNote = local ? ` (original price ${yen})` : "";
 
-  switch (basis) {
-    case "draw_price":
-      return { msrp_jpy: msrp, price_basis: basis, note_en: perUnitNote("kuji prize") };
-    case "capsule_price":
-      return { msrp_jpy: msrp, price_basis: basis, note_en: perUnitNote("gachapon capsule") };
-    case "box_price":
-      return { msrp_jpy: msrp, price_basis: basis, note_en: perUnitNote("blind box") };
-    case "bundle_price":
-      return {
-        msrp_jpy: msrp,
-        price_basis: basis,
-        note_en: `bundle price ¥${msrp} (${currency}) is for multiple items together, not a single item`,
-      };
-    case "set_price":
-      return {
-        msrp_jpy: msrp,
-        price_basis: basis,
-        note_en: `official set price ¥${msrp} (${currency}) covers the whole set, not a single component`,
-      };
-    case "msrp":
-      return priceJpy !== undefined
-        ? {
-            msrp_jpy: msrp,
-            price_basis: basis,
-            ratio: Math.round((priceJpy / msrp) * 100) / 100,
-            note_en: "estimate only",
-          }
-        : { msrp_jpy: msrp, price_basis: basis, note_en: "estimate only (listing price not provided)" };
-    default:
-      return {
-        msrp_jpy: msrp,
-        price_basis: basis,
-        note_en: "estimate only",
-      };
+  return withForeign(priceFor());
+
+  function priceFor(): PriceInfo {
+    switch (basis) {
+      case "draw_price":
+        return { msrp_jpy: msrp, price_basis: basis, note_en: perUnitNote("kuji prize") };
+      case "capsule_price":
+        return { msrp_jpy: msrp, price_basis: basis, note_en: perUnitNote("gachapon capsule") };
+      case "box_price":
+        return { msrp_jpy: msrp, price_basis: basis, note_en: perUnitNote("blind box") };
+      case "bundle_price":
+        return {
+          msrp_jpy: msrp,
+          price_basis: basis,
+          note_en: local
+            ? `bundle price ${yen} is for multiple items together, not a single item`
+            : `bundle price ¥${msrp} (${currency}) is for multiple items together, not a single item`,
+        };
+      case "set_price":
+        return {
+          msrp_jpy: msrp,
+          price_basis: basis,
+          note_en: local
+            ? `official set price ${yen} covers the whole set, not a single component`
+            : `official set price ¥${msrp} (${currency}) covers the whole set, not a single component`,
+        };
+      case "msrp":
+        return priceJpy !== undefined
+          ? {
+              msrp_jpy: msrp,
+              price_basis: basis,
+              ratio: Math.round((priceJpy / msrp) * 100) / 100,
+              note_en: `estimate only${originalNote}`,
+            }
+          : { msrp_jpy: msrp, price_basis: basis, note_en: `estimate only (listing price not provided)${originalNote}` };
+      default:
+        return {
+          msrp_jpy: msrp,
+          price_basis: basis,
+          note_en: `estimate only${originalNote}`,
+        };
+    }
   }
 }
 

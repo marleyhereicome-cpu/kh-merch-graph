@@ -1,0 +1,3 @@
+currency,jpy_per_unit,as_of,source_url,notes
+USD,158.5,2026-10-13,https://www.poundsterlinglive.com/history/USD-JPY-2026,2026-10-13 の仲値(mid) 158.505 を丸めた値。定期的に見直す（目安は数か月に1回、または10%以上動いたとき）
+GBP,209.4,2026-10-13,https://www.poundsterlinglive.com/history/GBP-JPY-2026,2026-10-13 の仲値(mid) 209.408 を丸めた値。定期的に見直す（目安は数か月に1回、または10%以上動いたとき）

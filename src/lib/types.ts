@@ -27,11 +27,15 @@ export interface CatalogSku {
   aliases: string;
   variant: string;
   design_variants: string;
+  // 定価の円換算。currency が JPY 以外の行は、ビルド時に price_local × data/fx_rates.csv から計算した値（SPEC.md 2.2）。
   msrp_jpy: string;
   price_basis: string;
   // 入手経路: retail/kuji/prize/capsule/blind/bonus/furoku/event/novelty/set/western_license
   acquisition_type: string;
+  // msrp_jpy / price_local の元の通貨（空欄は JPY）。
   currency: string;
+  // currency が JPY 以外のとき、現地通貨での定価（例: 39.99）。JPY の行は空欄。
+  price_local: string;
   // ブラインド・ガチャ等で中身が選べない場合の全種類数（不明・非該当なら空欄）
   design_count: string;
   // セット商品の内訳（`|` 区切り、非該当なら空欄）
@@ -71,6 +75,15 @@ export interface OutOfScopeKeyword {
   // cosplay/bundle/reserved_listing/non_kh/unofficial
   reason: string;
   message_en: string;
+  notes: string;
+}
+
+// data/fx_rates.csv：1通貨あたりの円（固定レート。定期的に見直す）。
+export interface FxRate {
+  currency: string;
+  jpy_per_unit: string;
+  as_of: string;
+  source_url: string;
   notes: string;
 }
 

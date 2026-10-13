@@ -6,6 +6,7 @@ import { TERM_TYPES, selectTerms, termsInSku, type TermType } from "../lib/ip-te
 import { containsNormalized } from "../lib/normalize.js";
 import { splitPipe } from "../lib/types.js";
 import { buildUsageLogEntry, type UsageLogger } from "../lib/usage-log.js";
+import { localPriceOf, fxRatesToJpy } from "../lib/price.js";
 
 const PURPOSE_LINE_TYPES: Record<string, string[]> = {
   display: ["figure", "prize", "kuji", "acrylic", "plush", "other"],
@@ -73,6 +74,7 @@ export function discoverCatalog({ ip, character, budget_jpy, purpose, limit, ter
     );
   }
 
+  // msrp_jpy は常に円換算（外貨の商品は price_local を固定レートで換算済み）なので、そのまま円の予算と比べられる。
   if (budget_jpy !== undefined) {
     results = results.filter((s) => {
       const msrp = parseFloat(s.msrp_jpy);
@@ -108,10 +110,14 @@ export function discoverCatalog({ ip, character, budget_jpy, purpose, limit, ter
   const lim = limit ?? 10;
   const items = results.slice(0, lim).map((s) => ({
     sku_id: s.sku_id,
-    name_en: s.name_en,
+    // 英語名が未記入の行（約15行）は、sku_id ではなく日本語名を表示名に使う。
+    name_en: s.name_en || s.name_ja,
     character_en: splitPipe(s.character_en),
     line_type: lineTypeFor(s.line_id) ?? null,
     msrp_jpy: s.msrp_jpy ? Number(s.msrp_jpy) : null,
+    // 発売国の通貨での定価（JPY の商品は msrp_jpy と同じ）と、その通貨コード。
+    price_local: localPriceOf(s)?.amount ?? null,
+    currency: s.currency || "JPY",
     price_basis: s.price_basis,
     region: s.region || "JP",
     platform: s.platform || null,
@@ -128,6 +134,8 @@ export function discoverCatalog({ ip, character, budget_jpy, purpose, limit, ter
   const result = {
     items,
     total_matches: results.length,
+    // msrp_jpy の円換算に使った固定レート（1単位あたりの円）と基準日。表示側も同じレートを使う。
+    fx_rates_to_jpy: fxRatesToJpy(),
     ...(termsNote ? { terms_note_en: termsNote } : {}),
     ...(suggestion
       ? {

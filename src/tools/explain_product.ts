@@ -5,6 +5,7 @@ import { catalog, productLines, ipTerms } from "../lib/store.js";
 import { buildAvailabilityInfo, buildRegionInfo } from "../lib/acquisition.js";
 import { resolveCandidates } from "../lib/resolve.js";
 import { splitPipe } from "../lib/types.js";
+import { localPriceOf } from "../lib/price.js";
 
 function numOrNull(value: string): number | null {
   if (value === "") return null;
@@ -76,7 +77,10 @@ export function registerExplainProductTool(server: McpServer): void {
           depth: numOrNull(sku.depth_mm),
         },
         weight_g: numOrNull(sku.weight_g),
+        // 円換算の定価（外貨の商品は固定レートで換算した目安）と、発売国の通貨での定価。
         msrp_jpy: numOrNull(sku.msrp_jpy),
+        price_local: localPriceOf(sku)?.amount ?? null,
+        currency: sku.currency || "JPY",
         price_basis: sku.price_basis,
         acquisition_type: sku.acquisition_type,
         region: buildRegionInfo(sku),
