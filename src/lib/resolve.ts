@@ -122,6 +122,34 @@ function franchiseNamesOf(ipTerms: IpTerm[]): Set<string> {
   return names;
 }
 
+// 作品タイトル（ゲームのライン＝product_lines.csv の line_type=game の name_ja・name_en・aliases。
+// 例:「Kingdom Hearts II」「キングダム ハーツII」「KH2」）も、作品名と同じ理由で SKU の根拠にしない。
+// 北米版PS2ソフト kh2-ps2-standard-na の name_en は「Kingdom Hearts II」そのもので、
+// 『Kingdom Hearts II.8 Final Chapter Prologue』のような別作品の出品がタイトルの一部一致だけでこのSKUに一致していた
+// （2026-10-14、カバレッジ標本の163行目）。ip_terms.csv には作品タイトルが無いため、ゲームのラインから取る。
+// タイトルの一致はライン側（line_name 等）では従来どおり加点されるので、ラインの候補（弱い一致）としては残る。
+const workNameCache = new WeakMap<ProductLine[], WeakMap<IpTerm[], Set<string>>>();
+function nonEvidenceNamesOf(ipTerms: IpTerm[], lines: ProductLine[]): Set<string> {
+  let byTerms = workNameCache.get(lines);
+  if (!byTerms) {
+    byTerms = new WeakMap();
+    workNameCache.set(lines, byTerms);
+  }
+  let names = byTerms.get(ipTerms);
+  if (!names) {
+    names = new Set(franchiseNamesOf(ipTerms));
+    for (const l of lines) {
+      if (l.line_type !== "game") continue;
+      for (const v of [l.name_ja, l.name_en, ...splitPipe(l.aliases)]) {
+        const n = normalize(v ?? "");
+        if (n) names.add(n);
+      }
+    }
+    byTerms.set(ipTerms, names);
+  }
+  return names;
+}
+
 // SKU固有のスコア（賞の文字・キャラ名など）とライン固有のスコア（シリーズ名・周年）を分けて集計する。
 function scoreSku(
   queryText: string,
@@ -164,7 +192,7 @@ function scoreSku(
     reasons.push(`'${value}'`);
   };
 
-  // 作品名と完全に同じ値は、SKU を区別する根拠にしない（franchiseNamesOf の説明を参照）。
+  // 作品名・作品タイトルと完全に同じ値は、SKU を区別する根拠にしない（franchiseNamesOf・nonEvidenceNamesOf の説明を参照）。
   const trySku = (value: string, weight: number) => {
     if (value && franchiseNames?.has(normalize(value))) return;
     tryMatch(value, weight, "sku");
@@ -386,7 +414,7 @@ function resolveCandidatesImpl(
 
   const lineById = new Map(lines.map((l) => [l.line_id, l]));
   const genericPhrases = genericPhrasesByLine(lines);
-  const franchiseNames = franchiseNamesOf(ipTerms);
+  const franchiseNames = nonEvidenceNamesOf(ipTerms, lines);
 
   // 全行ではなく、索引で絞った「一致し得る行」だけを採点する（結果は全行採点と同じ）。
   const scored = (useIndex ? rowsWorthScoring(scoringText, catalog, lines) : catalog)
