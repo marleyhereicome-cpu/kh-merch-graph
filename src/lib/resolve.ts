@@ -2,7 +2,7 @@
 // LLMは使わず、正規化した文字列同士の部分一致のみで判定する（ルール＋辞書）。
 import { containsNormalized, normalize } from "./normalize.js";
 import { splitPipe, type CatalogSku, type IpTerm, type OtherIpKeyword, type ProductLine } from "./types.js";
-import { buildAnchorTerms } from "./ip-terms.js";
+import { buildAnchorTerms, surfaceForms } from "./ip-terms.js";
 import { withEnglishExpansion } from "./en-tokens.js";
 
 // 「そのIP（キングダムハーツ）の商品である」ことを示す語（IPアンカー語）は data/ip_terms.csv と
@@ -101,12 +101,34 @@ function splitPipeCached(value: string): readonly string[] {
   return parts;
 }
 
+// 作品名そのもの（data/ip_terms.csv の term_type=other。例:「Kingdom Hearts」「キングダムハーツ」「KH」）。
+// SKU の名称・別名がこれと完全に同じ（例: 北米版PS2ソフト kh1-ps2-standard-na の name_en は「Kingdom Hearts」）だと、
+// 作品名を含むだけの出品（キーホルダー・ぬいぐるみ・Tシャツ…）がすべてそのSKUに一致してしまい、
+// どの商品かを区別する根拠にならない（2026-10-14、カバレッジ標本168件中26件がこの誤一致）。
+// そのため、作品名と完全に同じ値は SKU の根拠として加点しない。「Kingdom Hearts III」のように作品名＋αの値は対象外。
+const franchiseNameCache = new WeakMap<IpTerm[], Set<string>>();
+function franchiseNamesOf(ipTerms: IpTerm[]): Set<string> {
+  let names = franchiseNameCache.get(ipTerms);
+  if (!names) {
+    names = new Set(
+      ipTerms
+        .filter((t) => t.term_type === "other")
+        .flatMap(surfaceForms)
+        .map((f) => normalize(f))
+        .filter(Boolean)
+    );
+    franchiseNameCache.set(ipTerms, names);
+  }
+  return names;
+}
+
 // SKU固有のスコア（賞の文字・キャラ名など）とライン固有のスコア（シリーズ名・周年）を分けて集計する。
 function scoreSku(
   queryText: string,
   sku: CatalogSku,
   line: ProductLine | undefined,
-  genericPhrases?: Map<string, Set<string>>
+  genericPhrases?: Map<string, Set<string>>,
+  franchiseNames?: Set<string>
 ): { skuScore: number; lineScore: number; reasons: string[] } {
   let skuScore = 0;
   let lineScore = 0;
@@ -142,12 +164,17 @@ function scoreSku(
     reasons.push(`'${value}'`);
   };
 
-  tryMatch(sku.name_ja, WEIGHTS.sku_name, "sku");
-  tryMatch(sku.name_en, WEIGHTS.sku_name_en, "sku");
-  for (const a of splitPipeCached(sku.aliases)) tryMatch(a, WEIGHTS.sku_alias, "sku");
-  tryMatch(sku.variant, WEIGHTS.variant, "sku");
-  for (const c of splitPipeCached(sku.character)) tryMatch(c, WEIGHTS.character, "sku");
-  for (const c of splitPipeCached(sku.character_en)) tryMatch(c, WEIGHTS.character_en, "sku");
+  // 作品名と完全に同じ値は、SKU を区別する根拠にしない（franchiseNamesOf の説明を参照）。
+  const trySku = (value: string, weight: number) => {
+    if (value && franchiseNames?.has(normalize(value))) return;
+    tryMatch(value, weight, "sku");
+  };
+  trySku(sku.name_ja, WEIGHTS.sku_name);
+  trySku(sku.name_en, WEIGHTS.sku_name_en);
+  for (const a of splitPipeCached(sku.aliases)) trySku(a, WEIGHTS.sku_alias);
+  trySku(sku.variant, WEIGHTS.variant);
+  for (const c of splitPipeCached(sku.character)) trySku(c, WEIGHTS.character);
+  for (const c of splitPipeCached(sku.character_en)) trySku(c, WEIGHTS.character_en);
 
   if (line) {
     // 他の弾の名称・別名に丸ごと含まれる汎用フレーズ（例:「一番くじキングダムハーツ」）は、
@@ -359,12 +386,13 @@ function resolveCandidatesImpl(
 
   const lineById = new Map(lines.map((l) => [l.line_id, l]));
   const genericPhrases = genericPhrasesByLine(lines);
+  const franchiseNames = franchiseNamesOf(ipTerms);
 
   // 全行ではなく、索引で絞った「一致し得る行」だけを採点する（結果は全行採点と同じ）。
   const scored = (useIndex ? rowsWorthScoring(scoringText, catalog, lines) : catalog)
     .map((sku) => {
       const line = lineById.get(sku.line_id);
-      const { skuScore, lineScore, reasons } = scoreSku(scoringText, sku, line, genericPhrases);
+      const { skuScore, lineScore, reasons } = scoreSku(scoringText, sku, line, genericPhrases, franchiseNames);
       const isKuji = line?.line_type === "kuji";
       // くじで「賞の文字」等sku側だけ一致し、シリーズを示す語（line側）が無い＝弾を特定できない。
       const seriesAmbiguous = isKuji && skuScore > 0 && lineScore === 0;
