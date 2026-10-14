@@ -28,3 +28,26 @@ describe("作品名だけの一致は候補にしない", () => {
     expect(ids(r)).toContain("kh1-ps2-standard-jp");
   });
 });
+
+// 作品タイトル（ゲームのラインの名称・別名。例:「Kingdom Hearts II」）と完全に同じ値も、SKU の根拠にしない。
+// 2026-10-14、『Kingdom Hearts II.8 Final Chapter Prologue』の出品（カバレッジ標本163行目）が、
+// name_en が「Kingdom Hearts II」だけの北米版PS2ソフト kh2-ps2-standard-na に一致していた。
+describe("作品タイトルだけの一致は候補にしない", () => {
+  it("KH II.8 の出品に、KH II の北米版ソフトを候補として出さない", async () => {
+    const r = await resolveListing({ title: "Kingdom Hearts II.8 2.8 Final Chapter Prologue Limited Edition PlayStation 4 PS4" });
+    expect(ids(r)).not.toContain("kh2-ps2-standard-na");
+  });
+
+  it.each([
+    ["BRING ARTS KINGDOM HEARTS III テラ", "kh3-ps4-standard-na"],
+    ["KINGDOM HEARTS III アクリルスタンド 2種セット アクセサリー", "kh3-ps4-standard-na"],
+    ["Kingdom Hearts 358/2 Days Vol.1-5 Complete Manga Set Shiro Amano Japanese", "khdays-ds-standard-na"],
+  ])("%s → %s を候補に出さない", async (title, sku) => {
+    expect(ids(await resolveListing({ title }))).not.toContain(sku);
+  });
+
+  it("機種名などを別名に持つ SKU はこれまでどおり一致する", async () => {
+    expect(ids(await resolveListing({ title: "Kingdom Hearts II PS2 NTSC" }))).toContain("kh2-ps2-standard-jp");
+    expect(ids(await resolveListing({ title: "Kingdom Hearts III PS4" }))).toContain("kh3-ps4-standard-jp");
+  });
+});
