@@ -78,6 +78,7 @@
   .pillars .p-name { font-family: 'Shippori Mincho', serif; font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 8px; }
   .pillars .p-name .n { font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 10px; color: var(--gold); letter-spacing: 0.1em; }
   .pillars .p-text { font-size: 12.5px; line-height: 1.6; color: var(--ink-soft); margin-top: 4px; }
+  .pillars .check-link { white-space: nowrap; font-weight: 500; }
 
   .stats { font-size: 13px; color: var(--muted); margin: 0 0 16px; min-height: 1.4em; }
   .stats .st { white-space: nowrap; }
@@ -322,7 +323,7 @@
     font-size: 12px; color: var(--muted); border-top: 1px solid var(--line);
   }
   footer a { color: inherit; }
-  footer .legal { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--line); font-size: 11px; line-height: 1.7; color: var(--faint); }
+  footer .legal { font-size: 11px; line-height: 1.7; color: var(--faint); }
   footer .legal p { margin: 0 0 6px; }
 
   .to-top {
@@ -367,7 +368,6 @@
   </a>
   <nav class="site-nav" aria-label="Main">
     <a href="./discover.html" aria-current="page" data-i18n="navDiscover">Discover</a>
-    <a href="./index.html" data-i18n="navCheck">Check a listing</a>
     <a href="#about" data-i18n="navAbout">About</a>
     <a href="?lang=ja" class="lang-switch" id="langSwitch" lang="ja">日本語</a>
   </nav>
@@ -380,7 +380,7 @@
 
   <ul class="pillars">
     <li><div class="p-name"><span class="n">01</span><span data-i18n="p1Name">Discover</span></div><div class="p-text" data-i18n="p1Text">Things that never reached your country's shops, and things you didn't know were made at all.</div></li>
-    <li><div class="p-name"><span class="n">02</span><span data-i18n="p2Name">Know</span></div><div class="p-text" data-i18n="p2Text">Official or fan-made, and what it cost when it first came out, so you can tell a fair price from a markup.</div></li>
+    <li><div class="p-name"><span class="n">02</span><span data-i18n="p2Name">Know</span></div><div class="p-text" data-i18n-html="p2Text">Official or fan-made, and what it cost when it first came out, so you can tell a fair price from a markup. <a href="./index.html" class="check-link">Found a listing? Check it ›</a></div></li>
     <li><div class="p-name"><span class="n">03</span><span data-i18n="p3Name">Find</span></div><div class="p-text" data-i18n="p3Text">Where fans actually get it today: still in shops, secondhand only, or event-exclusive.</div></li>
   </ul>
 
@@ -461,11 +461,10 @@
 </section>
 
 <footer>
-  <span data-i18n-html="footerText">Every card links to where I checked it, so you can check it too. Some cards show a real photo, credited to where it's from. The rest use a placeholder illustration until I get to them. "Fan-made" items are doujin/fan works, clearly separated from official releases. Source &amp; corrections: <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph" target="_blank" rel="noopener">GitHub</a> · Prefer to check a listing you already found? <a href="./index.html">Try the listing checker</a>.</span>
   <div class="legal">
-    <p data-i18n="legal1">This is an independent fan-run project. It is not affiliated with, endorsed by, or sponsored by Square Enix, Disney, or any manufacturer, retailer, marketplace, or shipping service mentioned on this site.</p>
-    <p data-i18n="legal2">Kingdom Hearts and all related titles, characters, names, logos, and artwork are trademarks and/or copyrights of their respective owners. Product photos are shown only to help identify items and remain the property of their owners; the source of each photo is credited on its card.</p>
-    <p data-i18n-html="legal3">Rights holder and want something changed or removed? <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">Open an issue on GitHub</a> and it will be handled promptly. Prices and availability are for reference only and may be out of date.</p>
+    <p data-i18n="legal1">An independent fan project. Not affiliated with, endorsed or sponsored by Square Enix, Disney, or any maker, shop, marketplace or shipping service mentioned here. Nothing is sold on this site.</p>
+    <p data-i18n="legal2">Kingdom Hearts and all related names, characters, logos and artwork belong to their respective owners. Product photos are shown only to identify items, with their source credited. Fan-made items are labelled separately from official merchandise. Prices and availability are for reference and may be out of date.</p>
+    <p data-i18n-html="legal3">Spotted a mistake, or a rights holder who wants something changed or removed? <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">Open an issue on GitHub</a> and it will be handled promptly.</p>
   </div>
 </footer>
 
@@ -502,7 +501,7 @@ const STRINGS = {
     heroTitle: 'Kingdom Hearts merch your local shops never showed you.',
     heroLede: "From Japan and overseas, official and fan-made. For every item: what it is, whether it's official, what it originally cost, and where fans actually find it.",
     p1Name: 'Discover', p1Text: "Things that never reached your country's shops, and things you didn't know were made at all.",
-    p2Name: 'Know', p2Text: 'Official or fan-made, and what it cost when it first came out, so you can tell a fair price from a markup.',
+    p2Name: 'Know', p2Text: 'Official or fan-made, and what it cost when it first came out, so you can tell a fair price from a markup. <a href="./index.html" class="check-link">Found a listing? Check it ›</a>',
     p3Name: 'Find', p3Text: 'Where fans actually get it today: still in shops, secondhand only, or event-exclusive.',
     statsTotal: '{n} items catalogued', statsJp: '{n} released in Japan', statsOverseas: '{n} released overseas',
     searchPlaceholder: 'Search a character or item, e.g. Sora, plush',
@@ -567,7 +566,8 @@ const STRINGS = {
     copyName: 'Copy', copied: 'Copied',
     copyNameHintJa: 'Japanese name — paste it into Japanese sites to search',
     copyNameHintEn: 'English name — paste it into overseas sites to search',
-    searchOn: 'Search for it on:',
+    searchOn: 'Search for it on:', alsoSoldAt: 'Also sold at:',
+    checkListing: 'Found a listing for this? Check it before you buy ›',
     priceExplain: 'Use this as a yardstick: listings far above it are resale markups.',
     priceEstimatedNote: "Approximate: the exact original price hasn't been confirmed yet.",
     factRegion: 'Released in', factMaker: 'Maker', factPlatform: 'Platform', factEdition: 'Edition', factReleased: 'Release date',
@@ -590,7 +590,7 @@ const STRINGS = {
     heroTitle: 'まだ知らないキングダム ハーツのグッズに、世界中から出会える。',
     heroLede: '日本のグッズも、海外の公式ライセンス品やファンメイドも。それが何か、公式か、元の価格はいくらか、いまどこで手に入るかが分かります。',
     p1Name: '出会う', p1Text: '国内では売られていなかったもの、存在すら知らなかったもの。',
-    p2Name: '知る', p2Text: '公式かファンメイドか、発売時の価格はいくらか。高すぎる転売価格を見分ける目安になります。',
+    p2Name: '知る', p2Text: '公式かファンメイドか、発売時の価格はいくらか。高すぎる転売価格を見分ける目安になります。 <a href="./index.html" class="check-link">見つけた出品をチェック ›</a>',
     p3Name: '見つける', p3Text: 'いまどこで手に入るか。新品で買えるのか、中古だけなのか、イベント限定なのか。',
     statsTotal: '{n}件を掲載', statsJp: '日本発売 {n}件', statsOverseas: '海外発売 {n}件',
     searchPlaceholder: 'キャラ名や商品名で検索（例：ソラ、ぬいぐるみ）',
@@ -616,10 +616,9 @@ const STRINGS = {
     aboutProxyA: '日本のショップやフリマの多くは国内にしか発送しません。海外のファンは、<a href="https://buyee.jp/" target="_blank" rel="noopener">Buyee</a> や <a href="https://zenmarket.jp/en/" target="_blank" rel="noopener">ZenMarket</a> などの有料の代行サービスに日本国内で代わりに購入してもらい、海外へ転送してもらいます。手数料と国際送料が商品代金に加わります。当サイトはどの代行サービスとも提携していません。',
     aboutPriceQ: '「定価」とは？',
     aboutPriceA: '発売時の価格で、発売国の通貨で表示しています（かっこ内は固定レートによるおおよその換算で、最新の為替ではありません）。くじ景品は景品そのものが販売されていないため、1回分の価格を表示しています。いまの中古・転売価格は定価より大幅に高いことも安いこともあります。定価はその比較の目安です。',
-    footerText: '各カードには、確認した出典へのリンクがあります。実物の写真は出典を明記して掲載し、写真がないものはイラストで代用しています。「ファンメイド」は同人・ファン作品で、公式商品とは明確に区別しています。ソースと修正の受付：<a href="https://github.com/marleyhereicome-cpu/kh-merch-graph" target="_blank" rel="noopener">GitHub</a> ・見つけた出品を確認したい場合は <a href="./index.html">出品チェッカー</a> へ。',
-    legal1: '当サイトはファンによる独立したプロジェクトです。株式会社スクウェア・エニックス、ディズニー、および当サイトに掲載しているメーカー・小売店・マーケットプレイス・代行サービスのいずれとも提携しておらず、承認・後援を受けていません。',
-    legal2: '「キングダム ハーツ」および関連するタイトル、キャラクター、名称、ロゴ、アートワークは、それぞれの権利者の商標または著作物です。商品写真は商品の識別のためにのみ掲載しており、権利は各権利者に帰属します。写真の出典は各カードに記載しています。',
-    legal3: '権利者の方で、掲載内容の変更・削除をご希望の場合は <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">GitHubのIssue</a> からご連絡ください。速やかに対応します。価格や入手状況は参考情報であり、最新でない場合があります。',
+    legal1: '当サイトはファンによる独立したプロジェクトです。スクウェア・エニックス、ディズニー、および掲載しているメーカー・ショップ・マーケットプレイス・代行サービスのいずれとも提携しておらず、承認・後援も受けていません。当サイトでは商品を販売していません。',
+    legal2: '「キングダム ハーツ」および関連する名称、キャラクター、ロゴ、アートワークの権利は各権利者に帰属します。商品写真は商品の識別のためにのみ、出典を明記して掲載しています。ファンメイドの商品は公式商品と区別して表示しています。価格や入手状況は参考情報で、最新でない場合があります。',
+    legal3: '掲載内容の誤りや、権利者の方で変更・削除をご希望の場合は <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">GitHubのIssue</a> からご連絡ください。速やかに対応します。',
     photoCredit: '写真：{src}', illustration: 'イラスト（写真ではありません）',
     findIt: '探す', proxyNote: '', proxyWhat: '',
     seeDetails: '詳しく ›',
@@ -661,7 +660,8 @@ const STRINGS = {
     copyName: 'コピー', copied: 'コピーしました',
     copyNameHintJa: '日本語名：国内サイトで検索するときに',
     copyNameHintEn: '英語名：海外サイトで検索するときに',
-    searchOn: '検索する：',
+    searchOn: '検索する：', alsoSoldAt: 'その他の取扱店：',
+    checkListing: '出品を見つけたら、買う前にチェック ›',
     priceExplain: '比較の目安です。これより大幅に高い出品は転売価格の可能性があります。',
     priceEstimatedNote: 'おおよその価格です（正確な定価は未確認）。',
     factRegion: '発売地域', factMaker: 'メーカー', factPlatform: '対応機種', factEdition: '版', factReleased: '発売日',
@@ -810,6 +810,10 @@ const CHANNELS = {
   buyee: { label: 'Buyee', ja: 'Buyee', template: 'https://buyee.jp/item/search/query/{q}', proxy: false, jpName: true },
   zenmarket: { label: 'ZenMarket', ja: 'ZenMarket', template: 'https://zenmarket.jp/en/search?q={q}', proxy: false, jpName: true },
   graniph: { label: 'graniph', ja: 'graniph', template: 'https://www.graniph.com/item?keyword={q}', proxy: false, worldwideCheckout: true, jpName: true },
+  gamestop: { label: 'GameStop', ja: 'GameStop', template: 'https://www.gamestop.com/search/?q={q}', proxy: false, jpName: false },
+  bigbadtoystore: { label: 'BigBadToyStore', ja: 'BigBadToyStore', template: 'https://www.bigbadtoystore.com/Search?SearchText={q}', proxy: false, jpName: false },
+  boxlunch: { label: 'BoxLunch', ja: 'BoxLunch', template: 'https://www.boxlunch.com/search?q={q}', proxy: false, jpName: false },
+  walmart: { label: 'Walmart', ja: 'Walmart', template: 'https://www.walmart.com/search?q={q}', proxy: false, jpName: false },
 };
 
 function monogramFor(label) {
@@ -821,9 +825,32 @@ function channelUrl(ch, detail, item) {
   const name = ch.jpName ? (detail?.name_ja || item.name_en) : (detail?.name_en || item.name_en);
   return ch.template.replace('{q}', encodeURIComponent(name || ''));
 }
-function channelsFor(detail) {
-  return (detail?.typical_channels || []).map((key) => CHANNELS[key]).filter(Boolean);
+// typical_channels in the catalog is partly free text ("square_enix_estore",
+// "hottopic.com", "Hot Topic限定", "figpin_official,hot_topic", ...). Map the
+// common spellings onto a known channel; anything left over is shown as plain
+// text ("Also sold at") rather than dropped.
+const CHANNEL_ALIASES = {
+  square_enix_estore: 'e-store', 'square enix e-store': 'e-store', 'se公式/jpストア': 'e-store',
+  'hottopic.com': 'hot_topic', hottopic: 'hot_topic', 'hot topic': 'hot_topic', 'hot topic限定': 'hot_topic',
+  'her universe / hot topic': 'hot_topic', 'our universe / hot topic': 'hot_topic',
+  'graniph公式オンラインストア/国内店舗': 'graniph', yahoo: 'yahoo_auctions',
+  'gamestop.com': 'gamestop', 'boxlunch限定': 'boxlunch', 'boxlunch (exclusive)': 'boxlunch',
+};
+const NOT_A_CHANNEL = new Set(['jp', 'us']);
+function splitChannels(detail) {
+  const known = []; const other = [];
+  for (const raw of detail?.typical_channels || []) {
+    for (const part of String(raw).split(',')) {
+      const name = part.trim();
+      if (!name || NOT_A_CHANNEL.has(name.toLowerCase())) continue;
+      const key = CHANNELS[name] ? name : CHANNEL_ALIASES[name.toLowerCase()] || name.toLowerCase();
+      if (CHANNELS[key]) { if (!known.includes(CHANNELS[key])) known.push(CHANNELS[key]); }
+      else if (!other.includes(name)) other.push(name);
+    }
+  }
+  return { known, other };
 }
+function channelsFor(detail) { return splitChannels(detail).known; }
 
 // ---------------------------------------------------------------------------
 // Prices. discover() returns msrp_jpy (always yen — overseas prices converted
@@ -1199,6 +1226,11 @@ let panelSku = null;
 let lastFocus = null;
 let panelIsSurprise = false;
 
+function checkerUrl() {
+  let src = null;
+  try { src = new URLSearchParams(location.search).get('src'); } catch {}
+  return `./index.html?src=${encodeURIComponent(src && src !== 'share' ? src : 'discover')}`;
+}
 function itemUrl(sku) {
   const u = new URL(location.href);
   u.hash = `item=${encodeURIComponent(sku)}`;
@@ -1240,9 +1272,11 @@ function panelHtml(item, detail, imageMap, catalog) {
   const acq = detail?.acquisition_type;
   const howKey = isUnofficial ? 'acqx_fan' : (acq && STRINGS.en[`acqx_${acq}`] ? `acqx_${acq}` : '');
   const hint = detail?.availability?.hint || 'unknown';
-  const chans = channelsFor(detail);
+  const { known: chans, other: otherChans } = splitChannels(detail);
   const badge = badgeFor(hint, chans.some((ch) => ch.worldwideCheckout));
   const needsProxy = !JA && chans.some((ch) => ch.proxy);
+  // Point to the listing checker where people actually deal with marketplace listings.
+  const showCheck = hint === 'jp_secondhand_only' || hint === 'event_only' || chans.some((ch) => ch.proxy);
   const price = priceParts(item, detail);
   const title = displayName(item, detail);
   // The "other" name: the one that searches best where the item was released.
@@ -1284,6 +1318,8 @@ function panelHtml(item, detail, imageMap, catalog) {
       <div class="badge ${badge.cls}"><span class="dot"></span>${escapeHtml(badge.label)}</div>
       ${chans.length ? `<p class="sub" style="margin-top:10px">${escapeHtml(t('searchOn'))}</p>
         <div class="channel-links">${chans.map((ch) => `<a href="${escapeHtml(channelUrl(ch, detail, item))}" target="_blank" rel="noopener">${escapeHtml(JA ? ch.ja : ch.label)} ↗</a>`).join('')}</div>` : ''}
+      ${otherChans.length ? `<p class="sub" style="margin-top:8px">${escapeHtml(t('alsoSoldAt'))} ${otherChans.map(escapeHtml).join(' · ')}</p>` : ''}
+      ${showCheck ? `<p class="sub" style="margin-top:10px"><a href="${escapeHtml(checkerUrl())}">${escapeHtml(t('checkListing'))}</a></p>` : ''}
       ${needsProxy ? `<p class="sub" style="margin-top:8px">${escapeHtml(t('proxyNote'))} <a href="#shipping-proxy-faq" data-close-panel>${escapeHtml(t('proxyWhat'))}</a></p>` : ''}
     </div>
 
@@ -1540,6 +1576,7 @@ window.addEventListener('scroll', () => {
 els.toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
 applyStaticStrings();
+document.querySelectorAll('.check-link').forEach((a) => { a.href = checkerUrl(); });
 refreshBudgetLabels();
 renderGiftBudgets();
 renderGiftChars();
