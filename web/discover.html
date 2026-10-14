@@ -776,7 +776,12 @@ function sourceUrlsOf(value) {
 // リポジトリに置いたゲームのパッケージ画像（web/images/games/、CLAUDE.md の例外）はURLにホスト名が無いので、
 // 固定のクレジットを出す。それ以外（直リンクの画像）は従来どおりホスト名から作る。
 function isRepoGameImage(url) { return /^(\.\/|\/)?images\/games\//.test(String(url || '')); }
-function photoCreditFor(url) { return isRepoGameImage(url) ? t('gamePackageCredit') : t('photoCredit', { src: creditFor(url) }); }
+// サイト自前の代わりのロゴ（kh-fallback-logo.png）は出典のある写真ではないので、クレジットを出さない。
+function isFallbackLogo(url) { return /(^|\/)kh-fallback-logo\.png$/.test(String(url || '').split(/[?#]/)[0]); }
+function photoCreditFor(url) {
+  if (isFallbackLogo(url)) return '';
+  return isRepoGameImage(url) ? t('gamePackageCredit') : t('photoCredit', { src: creditFor(url) });
+}
 function creditFor(url) {
   try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return 'source'; }
 }
