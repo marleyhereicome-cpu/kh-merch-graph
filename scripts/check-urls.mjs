@@ -16,6 +16,10 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadCsv } from "./lib/csv.mjs";
 
+function splitSourceUrls(value) {
+  return String(value || "").split(" ; ").map((u) => u.trim()).filter(Boolean);
+}
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, "..", "data");
 
@@ -99,11 +103,13 @@ function matchEvidence(body, owner) {
 
 function collectTargets(only) {
   const targets = new Map(); // url -> { url, owners: [{kind,id,...}] }
-  const add = (url, owner) => {
-    if (!url) return;
-    if (only && !url.includes(only)) return;
-    if (!targets.has(url)) targets.set(url, { url, owners: [] });
-    targets.get(url).owners.push(owner);
+  // source_url に複数のURLがあるときは「 ; 」区切り（SPEC.md 2章）。1つずつ確認する。
+  const add = (value, owner) => {
+    for (const url of splitSourceUrls(value)) {
+      if (only && !url.includes(only)) continue;
+      if (!targets.has(url)) targets.set(url, { url, owners: [] });
+      targets.get(url).owners.push(owner);
+    }
   };
   for (const r of loadCsv(DATA_DIR, "catalog.csv").records) {
     add(r.source_url, { kind: "catalog", id: r.sku_id, name_ja: r.name_ja, name_en: r.name_en, isbn: r.isbn, catalog_number: r.catalog_number, acquisition_type: r.acquisition_type });
