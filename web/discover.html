@@ -523,6 +523,7 @@ const STRINGS = {
     aboutTitle: 'What this is',
     aboutKhQ: 'What is Kingdom Hearts?', aboutProxyQ: "What's a shipping proxy?", aboutPriceQ: 'What does "original price" mean?',
     photoCredit: 'photo: {src}', illustration: 'illustration, not a photo',
+    gamePackageCredit: 'Official product packaging — © Disney / © Square Enix',
     findIt: 'Find it', proxyNote: "Ships from Japan only — a shipping proxy forwards it to you.", proxyWhat: "What's that?",
     seeDetails: 'Details ›',
     // gift
@@ -622,6 +623,7 @@ const STRINGS = {
     legal2: '「キングダム ハーツ」および関連する名称、キャラクター、ロゴ、アートワークの権利は各権利者に帰属します。商品写真は商品の識別のためにのみ、出典を明記して掲載しています。ファンメイドの商品は公式商品と区別して表示しています。価格や入手状況は参考情報で、最新でない場合があります。',
     legal3: '掲載内容の誤りは <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">GitHubのIssue</a> からご連絡ください。権利者の方で画像の削除をご希望の場合は <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues/new?template=image-takedown.yml" target="_blank" rel="noopener">削除依頼フォーム</a> からご連絡ください。速やかに対応します。',
     photoCredit: '写真：{src}', illustration: 'イラスト（写真ではありません）',
+    gamePackageCredit: '公式パッケージ画像（© Disney / © Square Enix）',
     findIt: '探す', proxyNote: '', proxyWhat: '',
     seeDetails: '詳しく ›',
     giftOpen: 'キングダム ハーツ好きへのプレゼントを探していますか？', giftTitle: 'プレゼントを探す',
@@ -771,6 +773,10 @@ const imageMapPromise = fetch('./images.json').then((r) => (r.ok ? r.json() : {}
 function sourceUrlsOf(value) {
   return String(value || '').split(' ; ').map((u) => u.trim()).filter((u) => /^https?:\/\//.test(u));
 }
+// リポジトリに置いたゲームのパッケージ画像（web/images/games/、CLAUDE.md の例外）はURLにホスト名が無いので、
+// 固定のクレジットを出す。それ以外（直リンクの画像）は従来どおりホスト名から作る。
+function isRepoGameImage(url) { return /^(\.\/|\/)?images\/games\//.test(String(url || '')); }
+function photoCreditFor(url) { return isRepoGameImage(url) ? t('gamePackageCredit') : t('photoCredit', { src: creditFor(url) }); }
 function creditFor(url) {
   try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return 'source'; }
 }
@@ -950,7 +956,7 @@ function artHtml(item, imageMap) {
   return {
     art: `${photoUrl ? `<img class="photo" src="${escapeHtml(photoUrl)}" alt="${escapeHtml(item.name_en)}" loading="lazy" onerror="${escapeHtml(errorHandler)}">` : ''}
           <div class="icon-wrap" style="${photoUrl ? 'display:none;' : ''}">${iconFor(lineTypeOf(item))}</div>`,
-    credit: photoUrl ? t('photoCredit', { src: creditFor(photoUrl) }) : t('illustration'),
+    credit: photoUrl ? photoCreditFor(photoUrl) : t('illustration'),
   };
 }
 
