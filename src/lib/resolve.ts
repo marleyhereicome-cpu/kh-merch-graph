@@ -150,13 +150,32 @@ function nonEvidenceNamesOf(ipTerms: IpTerm[], lines: ProductLine[]): Set<string
   return names;
 }
 
+// 続編番号の境界：作品名（例:「Kingdom Hearts」「キングダムハーツ」「KH」）で終わる値が出品文に含まれていても、
+// そのすぐ後ろに続編番号が続く位置（「… Kingdom Hearts II」「… キングダムハーツ3」「… Kingdom Hearts 3D」）は、別の作品なので一致とみなさない。
+// 例: 日本版KH1の別名「PS2 KINGDOM HEARTS」が出品「PS2 Kingdom Hearts II」の中に部分一致し、KH2 と同点になっていた（2026-10-14）。
+// 正規化でローマ数字 II〜IV は 2〜4 になるので、「（空白）2〜4、その後ろが数字でない」を続編番号とみなす（「25th」「2005」は対象外）。
+const SEQUEL_AFTER_RE = /^ ?[2-4](?![0-9])/;
+function endsWithFranchise(n: string, franchiseForms: Set<string>): boolean {
+  for (const f of franchiseForms) {
+    if (n === f || (n.endsWith(f) && /[ \d]|[^\x00-\x7F]/.test(n[n.length - f.length - 1] ?? " "))) return true;
+  }
+  return false;
+}
+function onlyBeforeSequel(h: string, n: string): boolean {
+  for (let i = h.indexOf(n); i >= 0; i = h.indexOf(n, i + 1)) {
+    if (!SEQUEL_AFTER_RE.test(h.slice(i + n.length, i + n.length + 3))) return false;
+  }
+  return true;
+}
+
 // SKU固有のスコア（賞の文字・キャラ名など）とライン固有のスコア（シリーズ名・周年）を分けて集計する。
 function scoreSku(
   queryText: string,
   sku: CatalogSku,
   line: ProductLine | undefined,
   genericPhrases?: Map<string, Set<string>>,
-  franchiseNames?: Set<string>
+  franchiseNames?: Set<string>,
+  franchiseForms?: Set<string>
 ): { skuScore: number; lineScore: number; reasons: string[] } {
   let skuScore = 0;
   let lineScore = 0;
@@ -174,6 +193,7 @@ function scoreSku(
     if (!containsNormalized(queryText, value)) return;
 
     const key = normalize(value);
+    if (franchiseForms && endsWithFranchise(key, franchiseForms) && onlyBeforeSequel(normalize(queryText), key)) return;
     const credited = target === "sku" ? creditedSku : creditedLine;
     const prevWeight = credited.get(key);
 
@@ -415,12 +435,13 @@ function resolveCandidatesImpl(
   const lineById = new Map(lines.map((l) => [l.line_id, l]));
   const genericPhrases = genericPhrasesByLine(lines);
   const franchiseNames = nonEvidenceNamesOf(ipTerms, lines);
+  const franchiseForms = franchiseNamesOf(ipTerms);
 
   // 全行ではなく、索引で絞った「一致し得る行」だけを採点する（結果は全行採点と同じ）。
   const scored = (useIndex ? rowsWorthScoring(scoringText, catalog, lines) : catalog)
     .map((sku) => {
       const line = lineById.get(sku.line_id);
-      const { skuScore, lineScore, reasons } = scoreSku(scoringText, sku, line, genericPhrases, franchiseNames);
+      const { skuScore, lineScore, reasons } = scoreSku(scoringText, sku, line, genericPhrases, franchiseNames, franchiseForms);
       const isKuji = line?.line_type === "kuji";
       // くじで「賞の文字」等sku側だけ一致し、シリーズを示す語（line側）が無い＝弾を特定できない。
       const seriesAmbiguous = isKuji && skuScore > 0 && lineScore === 0;
