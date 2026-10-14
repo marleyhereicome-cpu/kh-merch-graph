@@ -18,7 +18,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | line_type | `figure` `prize` `kuji` `acrylic` `plush` `apparel` `book` `music` `game` `card` `other` | kuji |
 | acquisition_type | このラインの既定の入手経路。値は catalog.csv 2.2 の `acquisition_type` と同じ選択肢。catalog.csv 側の行で個別に上書きされる | kuji |
 | release_date | 発売日（YYYY-MM-DD、不明なら YYYY-MM） | 2023-03 |
-| source_url | 一次情報URL | https://... |
+| source_url | 一次情報URL。複数あるときは「 ; 」で区切る（catalog.csv と同じ） | https://... |
 | notes | 補足 | |
 
 ### 2.2 `catalog.csv` — SKU
@@ -42,7 +42,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | bonus_of | `acquisition_type=bonus`／`furoku`／`novelty` の場合、本体となる商品の `sku_id` または `line_id`（例: サイン入り抽選版CDの本体は無印版CD）。非該当なら空欄 |
 | availability_hint | 現在の入手しやすさの目安。`jp_retail_new`（日本国内で新品小売中）／`jp_secondhand_only`（日本の中古市場のみ）／`western_official`（海外正規代理店で購入可）／`event_only`（イベント会場限定）／`unknown`（不明） |
 | availability_confidence | `availability_hint` の確からしさ。`confirmed`（出典で確認済み）／`estimated`（推定。例: 公式ストアに取扱ページが無い・刊行から10年以上経過、という理由での絶版推定）／空欄（未評価）。`estimated` の `jp_secondhand_only` は `resolve_listing` が「Likely out of print (no current listing on the publisher's store); verify before assuming」と返す |
-| typical_channels | 主な入手チャネル（`|` 区切り）。`data/channels.csv` の `channel_name` と対応させる |
+| typical_channels | 主な入手チャネル（`|` 区切り）。`data/channels.csv` の `channel_name` と対応させる（無い値は `npm run validate` が警告する） |
 | region | 発売地域。`JP`／`NA`／`EU`／`ASIA`／`GLOBAL`（既定 `JP`）。ゲームの海外版・書籍の英語版・海外公式品はこの列で表す。`resolve_listing` は「Region: JP release」の形で返す |
 | platform | ゲームソフト・ゲーム機の対応機種。`PS2`／`PS3`／`PS4`／`PS5`／`Switch`／`Switch2`／`XboxOne`／`XboxSeries`／`PC`／`3DS`／`DS`／`PSP`／`GBA`／`Mobile`（非該当は空欄）。`acquisition_type=game` の行は必須 |
 | edition | ゲームの版。`standard`／`limited`／`collectors`／`remix`／`collection`／`digital`（非該当は空欄）。`acquisition_type=game` の行は必須 |
@@ -52,7 +52,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | catalog_number | 品番（音楽CD・ゲームソフト等。例: `SQEX-11140`。非該当なら空欄） |
 | official | `true`/`false`。値は小文字の `true`／`false` のみ（`npm run validate` が検査。サーバーは大文字小文字を区別せずに読む：`isTrue()`） |
 | rerelease_dates | 再販日（`|` 区切り） |
-| source_url | 一次情報URL（必須） |
+| source_url | 一次情報URL（必須）。複数あるときは「 ; 」（半角空白＋セミコロン＋半角空白）で区切る（例: `https://a.example/1 ; https://b.example/2`）。それ以外の区切り（` | ` 等）やURL以外の文は `npm run validate` が警告する |
 | verified | 人が一次情報で確認したら `true`。値は小文字の `true`／`false` のみ（`npm run validate` が検査。サーバーは大文字小文字を区別せずに読む：`isTrue()`） |
 | notes | 「似て非なる商品」との違いなど |
 | price_local | **`currency` が JPY 以外の行だけ**：発売国の通貨での定価（例: `39.99`）。JPY の行は空欄。海外の定価は `msrp_jpy` ではなくこの列に入れる（列は最後尾。旧形式の35列の行も読める） |

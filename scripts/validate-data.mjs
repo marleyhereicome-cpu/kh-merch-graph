@@ -357,6 +357,43 @@ function main() {
     }
   }
 
+  // typical_channels の値が channels.csv の channel_name にあるか（販路の表記ゆれを早めに見つけるため）。
+  // Web版（discover.html）の別名対応表は表示側の応急処置なので、データ側のずれはここで知らせる。
+  if (loaded["catalog.csv"] && loaded["channels.csv"]) {
+    const known = new Set(loaded["channels.csv"].records.map((r) => r.channel_name));
+    const unknown = new Map(); // 値 -> 使っている行数
+    for (const r of loaded["catalog.csv"].records) {
+      for (const v of (r.typical_channels || "").split("|").map((s) => s.trim()).filter(Boolean)) {
+        if (!known.has(v)) unknown.set(v, (unknown.get(v) ?? 0) + 1);
+      }
+    }
+    if (unknown.size > 0) {
+      const uses = [...unknown.values()].reduce((a, b) => a + b, 0);
+      console.log("## catalog.csv の typical_channels");
+      console.log(`  ! channels.csv の channel_name に無い値が ${unknown.size} 種類（延べ ${uses} 件）あります。channels.csv に行を足すか、既存の channel_name に揃えてください:`);
+      console.log(`    ${[...unknown].sort((a, b) => b[1] - a[1]).map(([v, n]) => `${v}（${n}）`).join(", ")}`);
+      warningCount += 1;
+      console.log("");
+    }
+  }
+
+  // source_url に複数のURLを書くときは「 ; 」（半角空白＋セミコロン＋半角空白）で区切る（SPEC.md 2章）。
+  // 「 | 」など別の区切りや、URL以外の文（サイト名だけ等）だと、Web版のリンク・check-urls が正しく動かない。
+  for (const filename of ["catalog.csv", "product_lines.csv"]) {
+    if (!loaded[filename]) continue;
+    const { header, records } = loaded[filename];
+    const idKey = header[0];
+    const bad = records.filter((r) =>
+      (r.source_url || "").split(" ; ").some((u) => u.trim() && !/^https?:\/\/\S+$/.test(u.trim()))
+    );
+    if (bad.length > 0) {
+      console.log(`## ${filename} の source_url`);
+      console.log(`  ! 1つのURLとして読めない値が ${bad.length} 行あります（複数のURLは「 ; 」で区切ってください）: ${bad.map((r) => r[idKey]).join(", ")}`);
+      warningCount += bad.length;
+      console.log("");
+    }
+  }
+
   console.log("---");
   console.log(`エラー: ${errorCount} 件 / 警告: ${warningCount} 件`);
   if (errorCount === 0 && warningCount === 0) {

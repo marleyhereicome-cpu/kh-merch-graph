@@ -358,6 +358,8 @@
     .search-form button { flex: 1 1 100%; }
     .facts { grid-template-columns: 96px 1fr; }
   }
+.source-list { margin: 4px 0 0; padding-left: 18px; }
+.source-list li { margin: 2px 0; }
 </style>
 </head>
 <body>
@@ -765,6 +767,10 @@ function explainProduct(sku_id) {
 
 const imageMapPromise = fetch('./images.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
 
+// source_url は複数のURLを「 ; 」で区切って持つことがある（SPEC.md 2章）。URLとして読めるものだけを返す。
+function sourceUrlsOf(value) {
+  return String(value || '').split(' ; ').map((u) => u.trim()).filter((u) => /^https?:\/\//.test(u));
+}
 function creditFor(url) {
   try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return 'source'; }
 }
@@ -1286,7 +1292,7 @@ function panelHtml(item, detail, imageMap, catalog) {
   const copyTarget = altName || title;
   const altHint = /[\u3040-\u30ff\u4e00-\u9fff]/.test(copyTarget) ? t('copyNameHintJa') : t('copyNameHintEn');
   const characters = displayCharacters(item, detail);
-  const sourceUrl = detail?.source_url || item.source_url || '';
+  const sourceUrls = sourceUrlsOf(detail?.source_url || item.source_url);
 
   return `
     <div class="panel-art">${a.art}</div>
@@ -1325,9 +1331,11 @@ function panelHtml(item, detail, imageMap, catalog) {
 
     ${(() => { const f = factsHtml(item, detail, catalog); return f ? `<div class="panel-section"><h3>${escapeHtml(t('secFacts'))}</h3>${f}</div>` : ''; })()}
 
-    ${sourceUrl ? `<div class="panel-section"><h3>${escapeHtml(t('secSource'))}</h3>
-      <p class="sub">${escapeHtml(creditFor(sourceUrl))}${detail?.line?.maker ? ` · ${escapeHtml(detail.line.maker)}` : ''}</p>
-      <a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(t('sourceLink'))}</a></div>` : ''}
+    ${sourceUrls.length ? `<div class="panel-section"><h3>${escapeHtml(t('secSource'))}</h3>
+      <p class="sub">${sourceUrls.map((u) => escapeHtml(creditFor(u))).join(' · ')}${detail?.line?.maker ? ` · ${escapeHtml(detail.line.maker)}` : ''}</p>
+      ${sourceUrls.length === 1
+        ? `<a href="${escapeHtml(sourceUrls[0])}" target="_blank" rel="noopener">${escapeHtml(t('sourceLink'))}</a>`
+        : `<ul class="source-list">${sourceUrls.map((u) => `<li><a href="${escapeHtml(u)}" target="_blank" rel="noopener">${escapeHtml(creditFor(u))} ↗</a></li>`).join('')}</ul>`}</div>` : ''}
 
     <div class="panel-section">
       <h3>${escapeHtml(t('secShare'))}</h3>

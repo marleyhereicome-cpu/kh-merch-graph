@@ -356,8 +356,8 @@ async function callResolveListing(args) {
   return JSON.parse(text);
 }
 
-// source_url can hold several URLs separated by " ; " — link the first one.
-function firstUrl(s) { return String(s || '').split(/\s*;\s*/)[0].trim(); }
+// source_url can hold several URLs separated by " ; " (SPEC.md section 2) — link all of them.
+function sourceUrlsOf(s) { return String(s || '').split(' ; ').map((u) => u.trim()).filter((u) => /^https?:\/\//.test(u)); }
 function strengthOf(c) {
   if (c.confidence >= 0.6) return ['s-high', t('strengthHigh')];
   if (c.confidence >= 0.3) return ['s-mid', t('strengthMid')];
@@ -365,14 +365,14 @@ function strengthOf(c) {
 }
 function matchHtml(c) {
   const [cls, label] = strengthOf(c);
-  const src = firstUrl(c.source_url);
+  const srcs = sourceUrlsOf(c.source_url);
   return `
     <div class="match">
       <div class="m-name">${escapeHtml(c.name_en)}</div>
       <div class="m-meta"><span class="strength ${cls}">${escapeHtml(label)}</span><span>${escapeHtml(c.why || '')}</span></div>
       <div class="m-links">
         <a href="./discover.html#item=${encodeURIComponent(c.sku_id)}">${escapeHtml(t('viewItem'))}</a>
-        ${src ? `<a href="${escapeHtml(src)}" target="_blank" rel="noopener">${escapeHtml(t('source'))}</a>` : ''}
+        ${srcs.map((u, i) => `<a href="${escapeHtml(u)}" target="_blank" rel="noopener">${escapeHtml(t('source'))}${srcs.length > 1 ? ` ${i + 1}` : ''}</a>`).join('')}
       </div>
     </div>`;
 }
