@@ -1,0 +1,24 @@
+name: Image removal request / 画像の削除依頼
+description: For rights holders — ask us to remove an image from the catalog. / 権利者の方向け：カタログの画像の削除をご依頼ください。
+title: "Image removal request: "
+labels: ["image-takedown"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for contacting us. This is a non-commercial fan catalog; we will remove the image promptly.
+        ご連絡ありがとうございます。非営利のファンカタログです。速やかに画像を削除します。
+  - type: input
+    id: page
+    attributes:
+      label: Page or item / 対象のページ・商品
+      description: The item's link (the URL in your browser when the item is open) or its name. / 商品を開いたときのURL、または商品名。
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details / 詳細
+      description: Which image, and on whose behalf you are writing (optional). / どの画像か、どなたの代理か（任意）。
+    validations:
+      required: false
