@@ -15,7 +15,33 @@ export interface OutOfScopeMatch {
 
 // 候補（candidates/weak_matches）自体を出すべきでない理由。
 // 手作り・コスプレは「公式商品として一致するはずがない」ため、これらが立ったら候補を空にする。
+// ただし unofficial（ファンメイド等）は、カタログに意図的に収録した非公式品（official=false）だけは候補に残す（applyOutOfScope）。
 export const SUPPRESSING_REASONS: ReadonlySet<OutOfScopeReason> = new Set(["cosplay", "unofficial", "non_kh"]);
+
+// 対象外の判定を候補に反映する（resolve_listing と coverage.mjs で同じ規則にするため共通化）。
+// - cosplay / non_kh: 候補をすべて消す。
+// - unofficial（手作り・同人・ファンメイド・レプリカ等の語がある）: 公式品の候補は消し、カタログに収録した非公式品
+//   （候補に unofficial: true が付いたもの）だけを残す。残った候補があれば、「カタログの商品とは一致しない」という
+//   unofficial の注意文は事実と食い違うので out_of_scope から外す（代わりに resolve_listing が unofficial_item の注意を付ける）。
+export function applyOutOfScope<T extends { unofficial?: true }>(
+  outOfScope: OutOfScopeMatch[],
+  candidates: T[],
+  weakMatches: T[]
+): { candidates: T[]; weak_matches: T[]; out_of_scope: OutOfScopeMatch[] } {
+  const hardSuppress = outOfScope.some((m) => m.reason !== "unofficial" && SUPPRESSING_REASONS.has(m.reason));
+  if (hardSuppress) return { candidates: [], weak_matches: [], out_of_scope: outOfScope };
+  if (!outOfScope.some((m) => m.reason === "unofficial")) {
+    return { candidates, weak_matches: weakMatches, out_of_scope: outOfScope };
+  }
+  const keptCandidates = candidates.filter((c) => c.unofficial);
+  const keptWeak = weakMatches.filter((c) => c.unofficial);
+  const keptAny = keptCandidates.length > 0 || keptWeak.length > 0;
+  return {
+    candidates: keptCandidates,
+    weak_matches: keptWeak,
+    out_of_scope: keptAny ? outOfScope.filter((m) => m.reason !== "unofficial") : outOfScope,
+  };
+}
 
 export function detectOutOfScope(
   queryText: string,

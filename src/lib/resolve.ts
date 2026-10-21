@@ -1,7 +1,7 @@
 // SPEC 3.1: 出品テキストを正規SKUの候補に結びつける名寄せスコアリング。
 // LLMは使わず、正規化した文字列同士の部分一致のみで判定する（ルール＋辞書）。
 import { containsNormalized, normalize } from "./normalize.js";
-import { splitPipe, type CatalogSku, type IpTerm, type OtherIpKeyword, type ProductLine } from "./types.js";
+import { isTrue, splitPipe, type CatalogSku, type IpTerm, type OtherIpKeyword, type ProductLine } from "./types.js";
 import { buildAnchorTerms, surfaceForms } from "./ip-terms.js";
 import { withEnglishExpansion } from "./en-tokens.js";
 
@@ -23,6 +23,8 @@ export interface ResolveCandidate {
   source_url: string;
   // 一番くじで「賞の文字」だけ一致し弾（シリーズ）を特定できていない場合に true。
   ambiguous_series?: boolean;
+  // カタログに意図的に収録した非公式品（catalog.csv の official=false。ファンメイドのブランド等）のときだけ true。
+  unofficial?: true;
 }
 
 // この信頼度未満の一致は「候補」として提示せず、weak_matches（参考情報）に回す。
@@ -479,6 +481,7 @@ function resolveCandidatesImpl(
     why: `matched ${reasons.slice(0, 3).join(" + ")}`,
     source_url: sku.source_url,
     ...(seriesAmbiguous ? { ambiguous_series: true as const } : {}),
+    ...(isTrue(sku.official) ? {} : { unofficial: true as const }),
   }));
 
   // 信頼度が閾値未満のものは candidates ではなく weak_matches（参考情報）として分ける。

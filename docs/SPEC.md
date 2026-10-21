@@ -50,7 +50,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | jan | JANコード（あれば） |
 | isbn | ISBN（`line_type=book` の書籍。非該当なら空欄） |
 | catalog_number | 品番（音楽CD・ゲームソフト等。例: `SQEX-11140`。非該当なら空欄） |
-| official | `true`/`false`。値は小文字の `true`／`false` のみ（`npm run validate` が検査。サーバーは大文字小文字を区別せずに読む：`isTrue()`） |
+| official | `true`/`false`。値は小文字の `true`／`false` のみ（`npm run validate` が検査。サーバーは大文字小文字を区別せずに読む：`isTrue()`）。`true`＝権利者（スクウェア・エニックス／ディズニー）のライセンス品（国内コラボ・海外ライセンス品を含む）。`false`＝**カタログに意図的に収録する非公式品**（ファンメイドのブランド等。例: Six On Clothing、Sugoi Collection）。非公式品の扱いは 2.14 節。くじ・国内コラボ・海外ライセンス・ゲーム・書籍などの入手経路と `false` の組み合わせは、付け間違いの可能性として `npm run validate` が警告する |
 | rerelease_dates | 再販日（`|` 区切り） |
 | source_url | 一次情報URL（必須）。複数あるときは「 ; 」（半角空白＋セミコロン＋半角空白）で区切る（例: `https://a.example/1 ; https://b.example/2`）。それ以外の区切り（` | ` 等）やURL以外の文は `npm run validate` が警告する |
 | verified | 人が一次情報で確認したら `true`。値は小文字の `true`／`false` のみ（`npm run validate` が検査。サーバーは大文字小文字を区別せずに読む：`isTrue()`） |
@@ -169,8 +169,10 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | notes | 補足 |
 
 `non_kh` は `other_ip_keywords.csv`（2.8節）と重複させず、`src/lib/out-of-scope.ts` がその場で読み合わせて統合する。
-`cosplay`／`unofficial`／`non_kh` は「公式SKUと一致するはずがない」ため `resolve_listing` の `candidates`／`weak_matches` を
+`cosplay`／`non_kh` は「カタログのSKUと一致するはずがない」ため `resolve_listing` の `candidates`／`weak_matches` を
 空にする（`bundle`／`reserved_listing` は識別結果自体は残し、注意文だけ添える）。
+`unofficial` は公式品の候補を消し、**カタログに収録した非公式品（`official=false`）の候補だけを残す**（2.14節）。
+判定は `src/lib/out-of-scope.ts` の `applyOutOfScope` に集約し、`resolve_listing` と `npm run coverage` で同じ規則を使う。
 
 ### 2.12 `ip_terms.csv` — IPごとの固有語辞書
 | 列 | 説明 |
@@ -186,6 +188,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 - **他IP対応の構造**：カタログに存在しないIPの `ip_terms` が出品文に含まれていれば `out_of_scope` に `non_kh` を返す（今は kingdom-hearts のみ登録。他IPの語を足すだけで有効になる）。
 - `discover` の `terms` 引数の照合にも使う。
 
+
 ### 2.13 `fx_rates.csv` — 円換算の固定レート
 | 列 | 説明 |
 |---|---|
@@ -200,6 +203,13 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 - 精度より「同じ桁で比べられること」が目的の固定レート。見直しの目安は数か月に1回、または10%以上動いたとき。
 - `price_local` が空欄なのに `msrp_jpy` に数字がある外貨行（旧形式：外貨の数字が円の列に入ったまま）は推測せず円換算を空欄にし、`npm run validate` がエラー、`npm test`（`tests/fx.test.ts`）が失敗する（デプロイが止まる）。
 
+### 2.14 非公式品（ファンメイド等）の扱い（2026-10-21）
+カタログは公式ライセンス品が中心だが、ファンの間で広く流通し、公式品と見分けたいニーズがある非公式ブランド（例: Six On Clothing、Sugoi Collection）は、**意図的に** `catalog.csv` に収録する（`official=false`）。
+- **カタログに収録した非公式品**：通常どおり識別する。`resolve_listing` は候補として返し、各候補に `"unofficial": true` を付ける。上位候補が非公式品なら `flags` に `unofficial_item`（公式品ではない旨）を加え、`acquisition.note_en` にも「公式ライセンス品ではない」旨を添える。`explain_product`・`discover` は `official: false` を返す。
+- **カタログに無い非公式品**（手作り・同人・レプリカ等）：従来どおり対象外。出品文に `unofficial` の語（2.11節）があれば、公式品の候補は返さない。
+- 出品文に `unofficial` の語があり、カタログの非公式品にも一致した場合は、その非公式品の候補だけを残す（例:「fan made」と書かれた Six On の出品）。
+- 入手経路（`acquisition_type`）は新設しない。非公式品は `official=false` で区別し、入手経路は実態に合わせる（ブランドの通販なら `retail`）。
+- Web版（discover.html）は `official=false` の商品に「Unofficial · fan-made」／「非公式・ファンメイド」のバッジを付け、詳細パネルで公式品ではない旨を説明する。出品チェッカー（index.html）は非公式品の候補に同じバッジを付ける。
 ## 3. MCPツール
 
 ### 3.1 `resolve_listing`
@@ -223,7 +233,8 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
    - 一番くじで弾（シリーズ）を特定できない場合、同点の弾を行順で一つに絞らず、該当する弾を全て信頼度≤0.3の `candidates` として返す。この判定は丸め・キャップ前の生スコアで比較し、無関係な行の偶然の一致（例: 別ラインのキャラ名2つの一致）に負けて埋もれないようにする
 3. 状態語辞書に当たる語を抽出
 4. `bootleg_patterns` を評価して注意フラグ
-4.5. `out_of_scope_keywords.csv`（2.11節）・`other_ip_keywords.csv` を評価し、対象外の可能性を `out_of_scope` に理由付きで返す。`cosplay`／`unofficial`／`non_kh` の場合は `candidates`／`weak_matches` を空にする
+4.5. `out_of_scope_keywords.csv`（2.11節）・`other_ip_keywords.csv` を評価し、対象外の可能性を `out_of_scope` に理由付きで返す。`cosplay`／`non_kh` の場合は `candidates`／`weak_matches` を空にする。`unofficial` の場合は、カタログに収録した非公式品（`official=false`）の候補だけを残す（残った場合、`unofficial` の注意文は `out_of_scope` から外す）
+4.6. 上位候補がカタログに収録した非公式品なら、`flags` に `{"type":"unofficial_item", ...}` を加え、公式品ではないことを伝える（海賊版の注意 `bootleg_caution` とは別。`next_checks_en` の「近接写真を求める」は `bootleg_caution` のときだけ）
 5. 上位候補（`candidates[0]`）の `price_basis`・`acquisition_type` に応じて `price` と `acquisition` を組み立てる（`src/lib/acquisition.ts`）
    - `price_basis` が `none`（または値があるのに `msrp_jpy` が空）の場合：`price.msrp_jpy` は `null`、`price.note_en` は必ず `"no maker price: ..."` で始まり、その入手経路（`acquisition_type` が `prize`/`bonus`/`furoku`/`novelty`/`event` のいずれか）を理由として明言する
    - `price_basis` も `msrp_jpy` も空欄の場合は「定価が無い」ではなく「未記録」：`price.note_en` は `"maker price not recorded in this catalog ..."`（例: 当時価格を公式ページから取得できなかった旧版CD）
@@ -237,6 +248,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 ```json
 {
   "candidates": [{"sku_id":"...","name_en":"...","confidence":0.92,"why":"matched 'A賞' + 'ソラ' + line alias","source_url":"https://..."}],
+  // 非公式品（official=false）の候補には "unofficial": true が付く
   "weak_matches": [{"sku_id":"...","name_en":"...","confidence":0.15,"why":"matched 'ソラ'","source_url":"https://..."}],
   "conditions": [{"term_ja":"開封済","term_en":"opened","meaning_en":"...","price_effect":"minor_down"}],
   "flags": [{"type":"bootleg_caution","message_en":"..."}],

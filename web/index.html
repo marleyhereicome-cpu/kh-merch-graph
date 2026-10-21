@@ -93,6 +93,7 @@
   .strength { display: inline-block; font-size: 11px; border-radius: 999px; padding: 2px 9px; background: #EFEAE0; color: #6B6350; }
   .strength.s-high { background: var(--good-bg); color: var(--good); }
   .strength.s-mid { background: #EEF0F6; color: var(--navy); }
+  .strength.s-fan { background: #EFEAF6; color: #4A3B73; }
   .terms { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   .terms td { padding: 8px 6px; border-top: 1px solid var(--line); vertical-align: top; line-height: 1.55; }
   .terms tr:first-child td { border-top: none; }
@@ -252,6 +253,7 @@ const STRINGS = {
     sMatches: 'Possible matches', sOther: 'Other possibilities', sWarnings: 'Warnings', sTerms: 'What the listing says',
     sPrice: 'Price', sHow: 'How this item is normally obtained', sNext: 'Before you buy', sVariety: 'Comes in several designs',
     strengthHigh: 'Strong match', strengthMid: 'Possible match', strengthLow: 'Weak match',
+    unofficialBadge: 'Unofficial · fan-made', unofficialNote: 'This is a fan-made product in our catalog, not official merchandise (not licensed by Square Enix or Disney).',
     viewItem: 'See this item ›', source: 'Source ↗',
     priceListing: 'Listing price', priceOriginal: 'Original price', pricePerDraw: 'Price of one draw',
     priceRatio: 'The listing is {r}× the original price.', priceNoMaker: 'No maker price (never sold in shops)',
@@ -283,6 +285,7 @@ const STRINGS = {
     sMatches: '候補', sOther: 'その他の可能性', sWarnings: '注意点', sTerms: '出品に書かれている言葉',
     sPrice: '価格', sHow: 'この商品の通常の入手方法', sNext: '購入前に確認すること', sVariety: '複数のデザインがあります',
     strengthHigh: '一致度：高', strengthMid: '一致度：中', strengthLow: '一致度：低',
+    unofficialBadge: '非公式・ファンメイド', unofficialNote: 'カタログに収録しているファンメイドの商品です。公式グッズではありません（スクウェア・エニックス／ディズニーのライセンス品ではありません）。',
     viewItem: '商品ページを見る ›', source: '出典 ↗',
     priceListing: '出品価格', priceOriginal: '定価', pricePerDraw: 'くじ1回の価格',
     priceRatio: '出品価格は定価の {r}倍です。', priceNoMaker: 'メーカー定価なし（店頭販売なし）',
@@ -369,7 +372,7 @@ function matchHtml(c) {
   return `
     <div class="match">
       <div class="m-name">${escapeHtml(c.name_en)}</div>
-      <div class="m-meta"><span class="strength ${cls}">${escapeHtml(label)}</span><span>${escapeHtml(c.why || '')}</span></div>
+      <div class="m-meta"><span class="strength ${cls}">${escapeHtml(label)}</span>${c.unofficial ? `<span class="strength s-fan">${escapeHtml(t('unofficialBadge'))}</span>` : ''}<span>${escapeHtml(c.why || '')}</span></div>
       <div class="m-links">
         <a href="./discover.html#item=${encodeURIComponent(c.sku_id)}">${escapeHtml(t('viewItem'))}</a>
         ${srcs.map((u, i) => `<a href="${escapeHtml(u)}" target="_blank" rel="noopener">${escapeHtml(t('source'))}${srcs.length > 1 ? ` ${i + 1}` : ''}</a>`).join('')}
@@ -402,15 +405,17 @@ function render(data, listingPrice) {
     if (ambiguous) {
       parts.push(`<div class="verdict"><div class="v-label">${escapeHtml(t('vAmbLabel'))}</div><h2>${escapeHtml(t('vAmbTitle', { n: cands.length }))}</h2><p>${escapeHtml(t('vAmbiguous'))}</p></div>`);
     } else {
-      parts.push(`<div class="verdict${bootleg ? '' : ' good'}"><div class="v-label">${escapeHtml(t('vMatch'))}</div><h2>${escapeHtml(top.name_en)}</h2></div>`);
+      parts.push(`<div class="verdict${bootleg ? '' : ' good'}"><div class="v-label">${escapeHtml(t('vMatch'))}</div><h2>${escapeHtml(top.name_en)}</h2>${top.unofficial ? `<p>${escapeHtml(t('unofficialNote'))}</p>` : ''}</div>`);
     }
   } else if (weak.length) {
     parts.push(`<div class="verdict"><div class="v-label">${escapeHtml(t('vWeak'))}</div><h2>${escapeHtml(t('vWeakTitle'))}</h2><p>${escapeHtml(t('vWeakText'))}</p></div>`);
   } else {
     parts.push(`<div class="verdict"><div class="v-label">${escapeHtml(t('vNone'))}</div><h2>${escapeHtml(t('vNoneTitle'))}</h2><p>${escapeHtml(t('vNoneText'))}</p></div>`);
   }
-  if (data.out_of_scope?.note_en || data.out_of_scope?.message_en) {
-    parts.push(`<div class="r-section"><h3>${escapeHtml(t('outOfScope'))}</h3><p class="note">${escapeHtml(data.out_of_scope.note_en || data.out_of_scope.message_en)}</p></div>`);
+  // out_of_scope はサーバーから配列で返る（理由ごとに1件）。同じ文は1回だけ出す。
+  const scopeNotes = [...new Set((Array.isArray(data.out_of_scope) ? data.out_of_scope : []).map((m) => m.message_en).filter(Boolean))];
+  if (scopeNotes.length) {
+    parts.push(`<div class="r-section"><h3>${escapeHtml(t('outOfScope'))}</h3>${scopeNotes.map((n) => `<p class="note">${escapeHtml(n)}</p>`).join('')}</div>`);
   }
 
   // 2. Warnings

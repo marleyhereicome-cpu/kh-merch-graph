@@ -10,7 +10,7 @@ import { loadCsv } from "./lib/csv.mjs";
 import { resolveCandidates } from "../src/lib/resolve.js";
 import { containsNormalized } from "../src/lib/normalize.js";
 import { splitPipe } from "../src/lib/types.js";
-import { detectOutOfScope, SUPPRESSING_REASONS } from "../src/lib/out-of-scope.js";
+import { applyOutOfScope, detectOutOfScope } from "../src/lib/out-of-scope.js";
 import { catalogIps } from "../src/lib/ip-terms.js";
 import { catalog, productLines, otherIpKeywords, outOfScopeKeywords, ipTerms } from "../src/lib/store.js";
 
@@ -58,15 +58,10 @@ function guessLine(cleanedTitle) {
 function classify(rawTitle) {
   const title = stripNoise(rawTitle);
 
-  // resolve_listing本体と同じ判定にする：cosplay/unofficial/non_kh の場合は候補自体を出さない。
-  const outOfScope = detectOutOfScope(title, outOfScopeKeywords, otherIpKeywords, ipTerms, catalogIps(catalog));
-  const suppress = outOfScope.some((m) => SUPPRESSING_REASONS.has(m.reason));
-
-  let { candidates, weak_matches } = resolveCandidates(title, catalog, productLines, 3, otherIpKeywords, ipTerms);
-  if (suppress) {
-    candidates = [];
-    weak_matches = [];
-  }
+  // resolve_listing本体と同じ判定にする（applyOutOfScope）：cosplay/non_kh は候補を出さず、unofficial はカタログに収録した非公式品だけ残す。
+  const detected = detectOutOfScope(title, outOfScopeKeywords, otherIpKeywords, ipTerms, catalogIps(catalog));
+  const resolved = resolveCandidates(title, catalog, productLines, 3, otherIpKeywords, ipTerms);
+  const { candidates, weak_matches, out_of_scope: outOfScope } = applyOutOfScope(detected, resolved.candidates, resolved.weak_matches);
 
   if (candidates.length > 0 && candidates[0].confidence >= HIGH_CONFIDENCE_THRESHOLD) {
     return { bucket: "high_confidence", candidates, weak_matches, outOfScope };

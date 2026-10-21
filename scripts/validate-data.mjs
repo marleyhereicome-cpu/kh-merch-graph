@@ -357,6 +357,22 @@ function main() {
     }
   }
 
+  // official=false（非公式品）は、カタログに意図的に収録したファンメイド等のブランドだけに使う（SPEC.md 2.2）。
+  // 公式ライセンスを前提にした入手経路（くじ・国内コラボ・海外ライセンス・ゲーム・書籍など）と組み合わさっていたら、
+  // official の付け間違いの可能性が高い（2026-10-08 にも U-TREASURE 20件で同じ誤記があった）。
+  if (loaded["catalog.csv"]) {
+    const LICENSED_ONLY = new Set(["kuji", "prize", "capsule", "blind", "jp_collab", "western_license", "game", "book", "music", "furoku", "bonus"]);
+    const suspicious = loaded["catalog.csv"].records.filter(
+      (r) => (r.official || "").trim().toLowerCase() === "false" && LICENSED_ONLY.has(r.acquisition_type)
+    );
+    if (suspicious.length > 0) {
+      console.log("## catalog.csv の official");
+      console.log(`  ! official=false なのに acquisition_type が公式ライセンス品のものです（official の付け間違いの可能性）: ${suspicious.map((r) => `${r.sku_id}(${r.acquisition_type})`).join(", ")}`);
+      warningCount += suspicious.length;
+      console.log("");
+    }
+  }
+
   // typical_channels の値が channels.csv の channel_name にあるか（販路の表記ゆれを早めに見つけるため）。
   // Web版（discover.html）の別名対応表は表示側の応急処置なので、データ側のずれはここで知らせる。
   if (loaded["catalog.csv"] && loaded["channels.csv"]) {
