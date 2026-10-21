@@ -3,7 +3,9 @@ import { containsNormalized } from "./normalize.js";
 import type { BootlegPattern } from "./types.js";
 
 export interface BootlegFlag {
-  type: "bootleg_caution";
+  // bootleg_caution: 海賊版の注意（bootleg_patterns.csv）。
+  // unofficial_item: 最有力候補がカタログに収録した非公式品（official=false）。海賊版の疑いではなく、公式品ではないことの注意。
+  type: "bootleg_caution" | "unofficial_item";
   message_en: string;
 }
 

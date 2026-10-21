@@ -22,7 +22,8 @@ import {
   buildRegionInfo,
   buildVarietyInfo,
 } from "../lib/acquisition.js";
-import { detectOutOfScope, SUPPRESSING_REASONS } from "../lib/out-of-scope.js";
+import { applyOutOfScope, detectOutOfScope } from "../lib/out-of-scope.js";
+import { isTrue } from "../lib/types.js";
 import { catalogIps } from "../lib/ip-terms.js";
 
 function buildNextChecks(
@@ -42,7 +43,7 @@ function buildNextChecks(
     checks.push("Confirm the exact variant/prize with the seller before buying");
   }
 
-  if (flags.length > 0) {
+  if (flags.some((f) => f.type === "bootleg_caution")) {
     checks.push("Ask seller for close-up photos (maker mark, tag, print quality) before buying");
   }
 
@@ -67,14 +68,9 @@ export async function resolveListing(input: ResolveListingInput, onUsage?: Usage
   const { title, description, price_jpy, src } = input;
   const queryText = `${title} ${description ?? ""}`;
 
-  const outOfScope = detectOutOfScope(queryText, outOfScopeKeywords, otherIpKeywords, ipTerms, catalogIps(catalog));
-  const shouldSuppressCandidates = outOfScope.some((m) => SUPPRESSING_REASONS.has(m.reason));
-
-  let { candidates, weak_matches } = resolveCandidates(queryText, catalog, productLines, 3, otherIpKeywords, ipTerms);
-  if (shouldSuppressCandidates) {
-    candidates = [];
-    weak_matches = [];
-  }
+  const detected = detectOutOfScope(queryText, outOfScopeKeywords, otherIpKeywords, ipTerms, catalogIps(catalog));
+  const resolved = resolveCandidates(queryText, catalog, productLines, 3, otherIpKeywords, ipTerms);
+  const { candidates, weak_matches, out_of_scope: outOfScope } = applyOutOfScope(detected, resolved.candidates, resolved.weak_matches);
   const conditions = extractConditions(queryText, conditionLexicon);
 
   const topSku =
@@ -92,6 +88,14 @@ export async function resolveListing(input: ResolveListingInput, onUsage?: Usage
     },
     bootlegPatterns
   );
+  // 最有力候補がカタログに収録した非公式品なら、公式品ではないことをはっきり伝える（海賊版の疑いとは区別する）。
+  if (topSku && !isTrue(topSku.official)) {
+    flags.push({
+      type: "unofficial_item",
+      message_en:
+        "The top match is a fan-made / unofficial product (not licensed by Square Enix or Disney). It is in this catalog for reference so it can be told apart from official merchandise; it is not official merch.",
+    });
+  }
 
   const price = topSku ? buildPriceInfo(topSku, price_jpy) : null;
   const acquisition = topSku ? buildAcquisitionInfo(topSku, catalog) : null;

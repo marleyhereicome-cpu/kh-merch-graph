@@ -2,7 +2,7 @@
 // price_basis が none のものは「メーカー定価が無い」旨を明言し、
 // 取得経路（bonus/furoku/prize 等）に応じた説明文を返す。
 // design_count があるブラインド・ガチャは全種数を返す。
-import { splitPipe, type CatalogSku } from "./types.js";
+import { isTrue, splitPipe, type CatalogSku } from "./types.js";
 import { localPriceOf, formatMoney } from "./price.js";
 
 const ACQUISITION_NOTES: Record<string, string> = {
@@ -48,6 +48,9 @@ export function buildAcquisitionInfo(sku: CatalogSku, catalog?: CatalogSku[]): A
     });
     note += ` Set includes: ${names.join("; ")}.`;
   }
+
+  // 非公式品（official=false）は、入手経路の説明に公式品ではない旨を必ず添える。
+  if (!isTrue(sku.official)) note += " Not officially licensed: a fan-made / unofficial product, listed for reference.";
 
   return { type, note_en: note };
 }
