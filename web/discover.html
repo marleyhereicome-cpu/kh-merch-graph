@@ -829,6 +829,73 @@ function sourceUrlsOf(value) {
 // 固定のクレジットを出す。それ以外（直リンクの画像）は従来どおりホスト名から作る。
 function isRepoGameImage(url) { return /^(\.\/|\/)?images\/games\//.test(String(url || '')); }
 // サイト自前の代わりのロゴ（kh-fallback-logo.png）は出典のある写真ではないので、クレジットを出さない。
+// ---- 構造化データ（schema.org の JSON-LD）----
+// 検索エンジン・AIの回答エンジンが、商品名・画像・メーカー・定価・確認状況を機械的に読めるようにする。
+// このサイトは何も販売していないので、価格は「メーカーの定価（ListPrice）」として示し、販売中の在庫は示さない。
+const LD_PRICED_BASES = new Set(['msrp', 'estimated', 'set_price', 'bundle_price']);
+function absUrl(u) { try { return new URL(u, location.href).href; } catch { return ''; } }
+// 構造化データ用の正規URL（共有用の itemUrl と違い ?src= を付けない）。
+function canonicalItemUrl(sku) { return `${location.origin}${location.pathname}#item=${encodeURIComponent(sku)}`; }
+function productLd(item, detail, imageMap) {
+  const photo = (imageMap || {})[item.sku_id] || '';
+  const maker = detail?.line?.maker || '';
+  const prop = (name, value) => (value === undefined || value === null || value === '' ? null : { '@type': 'PropertyValue', name, value });
+  const amount = localAmount(item);
+  const priced = LD_PRICED_BASES.has(item.price_basis) && typeof amount === 'number' && amount > 0;
+  const ld = {
+    '@type': 'Product',
+    name: item.name_en,
+    ...(item.name_ja && item.name_ja !== item.name_en ? { alternateName: item.name_ja } : {}),
+    sku: item.sku_id,
+    url: canonicalItemUrl(item.sku_id),
+    ...(photo && !isFallbackLogo(photo) ? { image: absUrl(photo) } : {}),
+    ...(maker ? { brand: { '@type': 'Brand', name: maker } } : {}),
+    ...(item.line_type ? { category: item.line_type } : {}),
+    additionalProperty: [
+      prop('official_license', item.official === false ? false : true),
+      prop('verified', typeof detail?.verified === 'boolean' ? detail.verified : null),
+      prop('availability_hint', item.availability_hint),
+      prop('availability_confidence', detail?.availability?.confidence),
+      prop('acquisition_type', item.acquisition_type),
+      prop('price_basis', item.price_basis),
+      prop('region', item.region),
+    ].filter(Boolean),
+  };
+  if (priced) {
+    const currency = currencyFor(item);
+    ld.offers = {
+      '@type': 'Offer',
+      price: amount,
+      priceCurrency: currency,
+      priceSpecification: { '@type': 'UnitPriceSpecification', priceType: 'https://schema.org/ListPrice', price: amount, priceCurrency: currency },
+    };
+  }
+  return ld;
+}
+function setLd(id, data) {
+  let el = document.getElementById(id);
+  if (!data) { if (el) el.remove(); return; }
+  if (!el) {
+    el = document.createElement('script');
+    el.type = 'application/ld+json';
+    el.id = id;
+    document.head.appendChild(el);
+  }
+  // データに「＜/script＞」が含まれてもページが壊れないよう、< をエスケープする。
+  el.textContent = JSON.stringify({ '@context': 'https://schema.org', ...data }).replace(/</g, '\\u003c');
+}
+function updateListLd(imageMap) {
+  const shown = filteredItems.slice(0, renderedCount);
+  setLd('ld-list', shown.length ? {
+    '@type': 'ItemList',
+    numberOfItems: shown.length,
+    itemListElement: shown.map((item, i) => {
+      const cached = detailCache.get(item.sku_id);
+      return { '@type': 'ListItem', position: i + 1, item: productLd(item, cached && cached.__value, imageMap) };
+    }),
+  } : null);
+}
+
 function isFallbackLogo(url) { return /(^|\/)kh-fallback-logo\.png$/.test(String(url || '').split(/[?#]/)[0]); }
 function photoCreditFor(url) {
   if (isFallbackLogo(url)) return '';
@@ -1415,6 +1482,7 @@ async function renderMore(imageMap) {
   const enriched = await enrich(nextSlice);
   els.grid.insertAdjacentHTML('beforeend', enriched.map(({ item, detail }) => renderCard(item, detail, imageMap)).join(''));
   renderedCount += nextSlice.length;
+  updateListLd(imageMap);
   els.status.textContent = t(browsing ? 'showingShuffled' : 'showing', { shown: renderedCount, total: filteredItems.length });
   if (renderedCount < filteredItems.length) {
     els.loadMoreRow.classList.remove('hidden');
@@ -1602,6 +1670,7 @@ async function openItem(sku, { surprise = false } = {}) {
     if (panelSku !== sku) return; // the visitor already moved on
     els.panelBody.innerHTML = panelHtml(item, detail, imageMap, catalog);
     els.panelBody.scrollTop = 0;
+    setLd('ld-product', productLd(item, detail, imageMap));
   } catch (err) {
     els.panelBody.innerHTML = `<div class="state-msg">${escapeHtml(t('connError', { e: err.message }))}</div>`;
   }
@@ -1609,6 +1678,7 @@ async function openItem(sku, { surprise = false } = {}) {
 function closePanel() {
   if (!els.panel.classList.contains('open')) return;
   panelSku = null;
+  setLd('ld-product', null);
   els.panel.classList.remove('open');
   els.panel.setAttribute('aria-hidden', 'true');
   els.scrim.classList.remove('open');

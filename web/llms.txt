@@ -1,0 +1,23 @@
+# KH Merch Graph
+
+> A verified Kingdom Hearts merchandise catalog. For figures, apparel, accessories, books, music, games and collectibles from Japanese and Western releases, it records official licensing status, the maker's original price by acquisition type, availability, and how each entry was checked.
+
+## What this is
+- A curated catalog, not a marketplace: no listings, no transactions, nothing is sold here.
+- Each entry is checked by a person against a primary source (the maker's or official retailer's page, or reliable press such as Famitsu or 4Gamer), linked from the entry. Entries are marked verified or not; prices and availability that could only be checked indirectly are labeled as estimates.
+- Official licensed merchandise is the core. A few fan-made brands are included on purpose so they can be told apart from official merch; they are clearly labeled "unofficial / fan-made".
+- Prices are the maker's original prices (per draw for ichiban-kuji, per capsule for gachapon), not current resale prices. Items released outside Japan keep their original currency and are also shown converted to yen at a fixed rate.
+- Not affiliated with, endorsed or sponsored by Square Enix, Disney, or any maker, shop or marketplace.
+
+## Key pages
+- [Browse the catalog](https://kh-merch-graph-web.fandex.workers.dev/discover.html): search by character, budget and category. Open an item with `discover.html#item=<sku_id>`.
+- [Listing checker](https://kh-merch-graph-web.fandex.workers.dev/index.html): paste a marketplace listing title (Japanese or English) to see which catalog item it most likely is, what the condition terms mean, and bootleg caution notes. Pasted text is not stored.
+
+## For AI agents (MCP server)
+- The same catalog is available as an MCP server that resolves fuzzy product names and listing titles to catalog entries, explains condition terms, and estimates landed cost.
+- MCP endpoint (Streamable HTTP, no auth): https://kh-merch-graph.fandex.workers.dev/mcp
+- Full tool list and usage notes for agents: [MCP server llms.txt](https://kh-merch-graph.fandex.workers.dev/llms.txt)
+
+## Source and corrections
+- Source code and data: https://github.com/marleyhereicome-cpu/kh-merch-graph
+- Report an error: https://github.com/marleyhereicome-cpu/kh-merch-graph/issues
