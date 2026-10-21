@@ -11,3 +11,5 @@ hot_topic,western,US,https://www.hottopic.com/search?query={q},no,https://www.ho
 buyee,proxy,JP,https://buyee.jp/item/search/query/{q},no,https://buyee.jp/
 zenmarket,proxy,JP,https://zenmarket.jp/en/search?q={q},no,https://zenmarket.jp/
 graniph,new,JP,https://www.graniph.com/item?keyword={q},no,https://www.graniph.com/other/global-shipping-guidance-en
+six_on_clothing,western,US,,no,https://www.sixonclothing.com/
+sugoi_collection,western,US,,no,https://sugoicollections.com/
