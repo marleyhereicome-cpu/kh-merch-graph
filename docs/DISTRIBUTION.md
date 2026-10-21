@@ -48,6 +48,11 @@ file and the `mcp-publisher` CLI (or a GitHub-based flow), using a reverse-DNS n
 (e.g. `io.github.marleyhereicome-cpu/kh-merch-graph`).
 - Publishing guide: https://github.com/modelcontextprotocol/registry/tree/main/docs
 - What you'll need: the repo URL, the deployed MCP URL, and a GitHub account you control (ownership is verified through it).
+- **Ready in this repo (2026-10-21):** `server.json` (name `io.github.marleyhereicome-cpu/kh-merch-graph`, remote = the MCP URL)
+  and `.github/workflows/publish-mcp.yml`. To publish, open GitHub → **Actions** → **Publish to MCP Registry** → **Run workflow**.
+  It authenticates with GitHub Actions OIDC, so no token or terminal is needed. The registry's `description` is limited to 100 characters.
+  To update the listing later, edit `server.json`, raise its `version` (a version can only be published once), then run the workflow again.
+- `glama.json` (repo root) lists the GitHub account that may claim the Glama listing.
 
 ### 2. Smithery — smithery.ai
 A large MCP marketplace with an auth/observability layer; publishing is free and just needs your repo.

@@ -204,6 +204,11 @@
   .card-price { font-size: 12.5px; color: var(--ink); }
   .card-price .basis, .card-price .approx { color: var(--muted); }
   .card-spacer { flex-grow: 1; }
+  .verify { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; margin: 0 0 8px; padding: 3px 10px; border-radius: 999px; border: 1px solid; }
+  .verify.yes { background: #EAF4EC; color: #2F6B3E; border-color: #CFE5D4; }
+  .verify.no { background: #F4F1EA; color: #6B6350; border-color: #E4DED0; }
+  .verify .mark { font-weight: 700; }
+  .verify a { color: inherit; }
   .badge {
     display: inline-flex; align-items: center; gap: 6px; border-radius: 999px;
     padding: 5px 10px; font-size: 11px; width: fit-content;
@@ -512,6 +517,10 @@
     <summary data-i18n="aboutPriceQ">What does "original price" mean?</summary>
     <p data-i18n="aboutPriceA">It's the price an item had when it was first released, in the currency of the country it was released in (approximate conversions are shown in brackets, using a fixed rate, not a live one). Lottery prizes show the price of one draw, since the prize itself was never sold. Resale prices today can be far above or below the original; the original price is there so you have something to compare against.</p>
   </details>
+  <details id="verified-faq">
+    <summary data-i18n="aboutVerifyQ">How is the information on this site checked?</summary>
+    <p data-i18n="aboutVerifyA">Each item marked “verified” has had its price, release date and product code checked directly against at least one of: the maker’s official site, an authorized retailer, or reliable press (4Gamer, Famitsu and the like). When the official information is outdated or can only be confirmed indirectly, the item shows an “estimated” reference price and the basis is noted. Listing photos and prices from marketplaces (eBay, Mercari and so on) are never used as evidence.</p>
+  </details>
 </section>
 
 <footer>
@@ -618,6 +627,7 @@ const STRINGS = {
     panelEyebrow: 'Item', surpriseEyebrow: 'Surprise pick',
     secPrice: 'Original price', secHow: 'How it came out', secWhere: 'Where to find it today', secFacts: 'Details',
     secShare: 'Share', secSource: 'Where this was checked',
+    verifiedYes: 'Verified against the source', verifiedNo: 'Being checked (not yet verified)', verifiedHow: 'How we check',
     copyName: 'Copy', copied: 'Copied',
     copyNameHintJa: 'Japanese name — paste it into Japanese sites to search',
     copyNameHintEn: 'English name — paste it into overseas sites to search',
@@ -669,6 +679,8 @@ const STRINGS = {
     aboutKhA: 'スクウェア・エニックスとディズニーによるアクションRPGシリーズです。ディズニーの世界とキャラクターに、オリジナルのキャラクター（ときどきファイナルファンタジーの面々も）が加わります。2002年から十数作が発売されており、これほど多くのグッズが生まれた理由でもあります。<a href="https://ja.wikipedia.org/wiki/キングダム_ハーツ" target="_blank" rel="noopener">Wikipediaで詳しく ↗</a>',
     aboutProxyQ: '代行サービス（shipping proxy）とは？',
     aboutProxyA: '日本のショップやフリマの多くは国内にしか発送しません。海外のファンは、<a href="https://buyee.jp/" target="_blank" rel="noopener">Buyee</a> や <a href="https://zenmarket.jp/en/" target="_blank" rel="noopener">ZenMarket</a> などの有料の代行サービスに日本国内で代わりに購入してもらい、海外へ転送してもらいます。手数料と国際送料が商品代金に加わります。当サイトはどの代行サービスとも提携していません。',
+    aboutVerifyQ: 'このサイトの商品情報はどう検証していますか？',
+    aboutVerifyA: '各商品は、メーカー公式サイト・正規販売店・信頼できる報道（4gamer、famitsu等）のいずれかで価格・発売日・型番を直接確認したものに「verified」マークを付けています。公式情報が古い、または間接的にしか確認できない場合は「estimated」として参考価格を表示し、その根拠を明記しています。出品サイト（eBay・メルカリ等）の出品写真や価格は検証の根拠にしていません。',
     aboutPriceQ: '「定価」とは？',
     aboutPriceA: '発売時の価格で、発売国の通貨で表示しています（かっこ内は固定レートによるおおよその換算で、最新の為替ではありません）。くじ景品は景品そのものが販売されていないため、1回分の価格を表示しています。いまの中古・転売価格は定価より大幅に高いことも安いこともあります。定価はその比較の目安です。',
     legal1: '当サイトはファンによる独立したプロジェクトです。スクウェア・エニックス、ディズニー、および掲載しているメーカー・ショップ・マーケットプレイス・代行サービスのいずれとも提携しておらず、承認・後援も受けていません。当サイトでは商品を販売していません。',
@@ -713,6 +725,7 @@ const STRINGS = {
     panelEyebrow: 'グッズ', surpriseEyebrow: 'ランダムピック',
     secPrice: '定価', secHow: 'どういうグッズか', secWhere: 'いまどこで手に入るか', secFacts: '詳細',
     secShare: 'シェア', secSource: '確認した出典',
+    verifiedYes: '出典で確認済み（verified）', verifiedNo: '確認中（未検証）', verifiedHow: '確認の方法',
     copyName: 'コピー', copied: 'コピーしました',
     copyNameHintJa: '日本語名：国内サイトで検索するときに',
     copyNameHintEn: '英語名：海外サイトで検索するときに',
@@ -1555,6 +1568,13 @@ function factsHtml(item, detail, catalog) {
   return rows.length ? `<dl class="facts">${rows.join('')}</dl>` : '';
 }
 
+// データを出典で確認済みか（verified）の1行。公式／非公式（official）のバッジとは別の軸として、
+// 統合せずに独立して見せる（将来、確認状況そのものを見せ方の差別化に使う可能性があるため）。
+function verifiedLine(detail) {
+  if (typeof detail?.verified !== 'boolean') return '';
+  const yes = detail.verified;
+  return `<p class="verify ${yes ? 'yes' : 'no'}"><span class="mark" aria-hidden="true">${yes ? '✓' : '…'}</span>${escapeHtml(t(yes ? 'verifiedYes' : 'verifiedNo'))} · <a href="#verified-faq" data-close-panel>${escapeHtml(t('verifiedHow'))}</a></p>`;
+}
 function panelHtml(item, detail, imageMap, catalog) {
   const a = artHtml(item, imageMap);
   const isUnofficial = detail && detail.official === false;
@@ -1615,6 +1635,7 @@ function panelHtml(item, detail, imageMap, catalog) {
     ${(() => { const f = factsHtml(item, detail, catalog); return f ? `<div class="panel-section"><h3>${escapeHtml(t('secFacts'))}</h3>${f}</div>` : ''; })()}
 
     ${sourceUrls.length ? `<div class="panel-section"><h3>${escapeHtml(t('secSource'))}</h3>
+      ${verifiedLine(detail)}
       <p class="sub">${sourceUrls.map((u) => escapeHtml(creditFor(u))).join(' · ')}${detail?.line?.maker ? ` · ${escapeHtml(detail.line.maker)}` : ''}</p>
       ${sourceUrls.length === 1
         ? `<a href="${escapeHtml(sourceUrls[0])}" target="_blank" rel="noopener">${escapeHtml(t('sourceLink'))}</a>`
@@ -1724,7 +1745,13 @@ els.panelBody.addEventListener('click', async (e) => {
   }
   const setLink = e.target.closest('a[href^="#item="]');
   if (setLink) { e.preventDefault(); openItem(decodeURIComponent(setLink.getAttribute('href').slice(6))); return; }
-  if (e.target.closest('[data-close-panel]')) closePanel();
+  const closer = e.target.closest('[data-close-panel]');
+  if (closer) {
+    closePanel();
+    // 「このサイトについて」の折りたたみへのリンクなら、開いた状態で見せる。
+    const target = closer.getAttribute('href')?.startsWith('#') ? document.getElementById(closer.getAttribute('href').slice(1)) : null;
+    if (target && target.tagName === 'DETAILS') target.open = true;
+  }
 });
 
 els.panelBody.addEventListener('submit', async (e) => {

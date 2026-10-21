@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.marleyhereicome-cpu/kh-merch-graph",
+  "title": "KH Merch Graph",
+  "description": "Identifies Kingdom Hearts merch from Japanese listing titles: SKU, condition terms, bootleg flags.",
+  "version": "1.0.0",
+  "websiteUrl": "https://kh-merch-graph-web.fandex.workers.dev",
+  "repository": {
+    "url": "https://github.com/marleyhereicome-cpu/kh-merch-graph",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://kh-merch-graph.fandex.workers.dev/mcp"
+    }
+  ]
+}

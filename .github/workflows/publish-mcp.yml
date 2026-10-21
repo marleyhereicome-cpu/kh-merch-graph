@@ -1,0 +1,27 @@
+# 公式 MCP レジストリ（registry.modelcontextprotocol.io）に server.json を登録・更新する。
+# 手で動かすだけのワークフロー：GitHub の「Actions」→「Publish to MCP Registry」→「Run workflow」。
+# 認証は GitHub Actions の OIDC（合言葉の登録は不要）。io.github.marleyhereicome-cpu/ の名前で登録できる。
+# 同じ version は二度登録できないので、説明文などを直して登録し直すときは server.json の version を上げてから動かす。
+name: Publish to MCP Registry
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # OIDC 認証に必要
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install mcp-publisher
+        run: |
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+
+      - name: Authenticate to MCP Registry
+        run: ./mcp-publisher login github-oidc
+
+      - name: Publish server to MCP Registry
+        run: ./mcp-publisher publish
