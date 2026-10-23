@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Listing check | Merchgraph | Kingdom Hearts</title>
+<meta name="description" content="Found a Kingdom Hearts item on Mercari, Yahoo! Auctions or Suruga-ya? Paste the listing title to see which official item it is, what the condition words mean, signs of a bootleg, and how the price compares to the original." />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Listing check | Merchgraph | Kingdom Hearts" />
+<meta property="og:site_name" content="Merchgraph" />
+<meta property="og:description" content="Paste a Japanese listing title: which official item it is, what the condition words mean, bootleg warning signs, and the original price." />
+<meta name="twitter:card" content="summary" />
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --paper: #F7F3EC; --paper-2: #FAF8F3; --ink: #1C1B29; --ink-soft: #5A5646; --muted: #8A806B;
+    --faint: #A79A7B; --line: #E4DCC8; --line-2: #C9BBA0; --navy: #3D4A73; --gold: #C9A227;
+    --good-bg: #EAF1EC; --good: #2E5A3F; --warn-bg: #F6E9E0; --warn: #8A4220;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Zen Kaku Gothic New', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--paper); color: var(--ink); }
+  a { color: var(--navy); }
+  a:hover { color: var(--gold); }
+  h1, h2, h3 { font-family: 'Shippori Mincho', serif; font-weight: 500; margin: 0; }
+
+  .site-header {
+    position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; padding: 12px 24px; background: rgba(247,243,236,0.94); backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line); flex-wrap: wrap;
+  }
+  .home-link { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
+  .home-link:hover { color: var(--ink); }
+  .wordmark-img { height: 44px; width: auto; display: block; }
+  .site-name { font-family: 'Shippori Mincho', serif; font-size: 20px; font-weight: 700; letter-spacing: 0.02em; }
+  .site-nav { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+  .site-nav a { font-size: 13px; text-decoration: none; color: var(--ink); padding: 7px 12px; border-radius: 999px; }
+  .site-nav a:hover { background: #EFE8DA; color: var(--ink); }
+  .site-nav .lang-switch { border: 1px solid var(--line-2); margin-left: 4px; }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+  .back { display: inline-block; font-size: 13px; text-decoration: none; margin: 18px 0 0; }
+  .hero { text-align: center; padding: 22px 0 8px; }
+  .kicker {
+    display: inline-block; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--navy);
+    border: 1px solid var(--line-2); border-radius: 999px; padding: 5px 12px; margin: 0 0 14px;
+  }
+  .hero h1 { font-size: clamp(25px, 4.2vw, 34px); line-height: 1.4; font-weight: 700; margin-bottom: 12px; }
+  .lede { font-size: 15px; line-height: 1.75; color: var(--ink-soft); margin: 0 auto 8px; max-width: 620px; }
+  .privacy { font-size: 12px; color: var(--muted); margin: 0 0 20px; }
+
+  .form-card { background: #FFFFFF; border: 1px solid var(--line); border-radius: 18px; padding: 18px; }
+  .form-card label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .form-card textarea, .form-card input, .form-card select {
+    width: 100%; font-family: inherit; font-size: 15px; padding: 10px 12px; border: 1px solid var(--line);
+    border-radius: 12px; background: var(--paper-2); color: var(--ink);
+  }
+  .form-card textarea::placeholder, .form-card input::placeholder { color: var(--faint); font-size: 13px; }
+  .examples { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 10px 0 0; font-size: 12px; color: var(--muted); }
+  .example-chip {
+    font-family: inherit; font-size: 12px; background: var(--paper-2); color: var(--navy);
+    border: 1px dashed var(--line-2); border-radius: 999px; padding: 5px 11px; cursor: pointer;
+  }
+  .example-chip:hover { border-color: var(--navy); }
+  details.more { margin-top: 14px; }
+  details.more summary { cursor: pointer; font-size: 13px; color: var(--navy); }
+  .more-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .more-grid .full { grid-column: 1 / -1; }
+  .more-grid label { font-weight: 500; color: var(--ink-soft); }
+  .actions { margin-top: 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .check-btn {
+    font-family: inherit; font-size: 15px; font-weight: 700; background: var(--ink); color: var(--paper);
+    border: none; border-radius: 999px; padding: 11px 28px; cursor: pointer;
+  }
+  .check-btn:hover { background: var(--navy); }
+  .check-btn:disabled { opacity: 0.6; cursor: default; }
+  .form-error { font-size: 13px; color: var(--warn); }
+
+  #result { margin: 24px 0 8px; scroll-margin-top: 80px; }
+  .verdict { border-radius: 16px; padding: 16px 18px; margin-bottom: 14px; border: 1px solid var(--line); background: #FFFFFF; }
+  .verdict.warn { background: var(--warn-bg); border-color: #E8CDB9; }
+  .verdict.good { background: var(--good-bg); border-color: #CFE0D4; }
+  .verdict .v-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .verdict.warn .v-label { color: var(--warn); }
+  .verdict.good .v-label { color: var(--good); }
+  .verdict h2 { font-size: 20px; font-weight: 700; margin: 6px 0 4px; line-height: 1.4; }
+  .verdict p { margin: 4px 0 0; font-size: 14px; line-height: 1.65; color: var(--ink-soft); }
+  .r-section { background: #FFFFFF; border: 1px solid var(--line); border-radius: 16px; padding: 14px 18px; margin-bottom: 14px; }
+  .r-section h3 { font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 10px; }
+  .match { padding: 10px 0; border-top: 1px solid var(--line); }
+  .match:first-of-type { border-top: none; padding-top: 0; }
+  .match .m-name { font-family: 'Shippori Mincho', serif; font-size: 16px; line-height: 1.45; }
+  .match .m-meta { font-size: 12px; color: var(--muted); margin-top: 3px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .match .m-links { font-size: 12.5px; margin-top: 4px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .strength { display: inline-block; font-size: 11px; border-radius: 999px; padding: 2px 9px; background: #EFEAE0; color: #6B6350; }
+  .strength.s-high { background: var(--good-bg); color: var(--good); }
+  .strength.s-mid { background: #EEF0F6; color: var(--navy); }
+  .strength.s-fan { background: #EFEAF6; color: #4A3B73; }
+  .terms { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .terms td { padding: 8px 6px; border-top: 1px solid var(--line); vertical-align: top; line-height: 1.55; }
+  .terms tr:first-child td { border-top: none; }
+  .terms .ja { font-weight: 700; white-space: nowrap; }
+  .terms .en { color: var(--muted); font-size: 12px; display: block; font-weight: 400; }
+  .effect { display: inline-block; font-size: 10.5px; border-radius: 4px; padding: 1px 6px; margin-left: 4px; background: #F1ECE1; color: var(--ink-soft); }
+  .effect.down { background: var(--warn-bg); color: var(--warn); }
+  .effect.risk { background: var(--warn-bg); color: var(--warn); font-weight: 700; }
+  ul.list { margin: 0; padding-left: 1.2rem; font-size: 14px; line-height: 1.7; }
+  ul.list.warn li { color: var(--warn); }
+  .price-row { display: flex; gap: 18px; flex-wrap: wrap; align-items: baseline; }
+  .price-row .big { font-size: 20px; font-weight: 700; }
+  .price-row .lbl { font-size: 12px; color: var(--muted); display: block; }
+  .note { font-size: 12.5px; color: var(--ink-soft); line-height: 1.6; margin-top: 8px; }
+  .en-note { font-size: 11.5px; color: var(--muted); margin: 0 0 10px; }
+  .state-msg { text-align: center; padding: 28px 16px; color: var(--muted); font-size: 14px; }
+
+  .howto { margin: 28px 0 0; }
+  .howto h2 { font-size: 20px; margin-bottom: 10px; }
+  .howto ol { margin: 0; padding-left: 1.3rem; font-size: 14px; line-height: 1.8; color: var(--ink-soft); }
+
+  footer { max-width: 1100px; margin: 40px auto 0; padding: 20px 24px 40px; border-top: 1px solid var(--line); }
+  footer .legal { font-size: 11px; line-height: 1.7; color: var(--faint); }
+  footer .legal p { margin: 0 0 6px; }
+  footer a { color: inherit; }
+
+  @media (max-width: 640px) {
+    .site-header { padding: 10px 16px; }
+    .wordmark-img { height: 36px; }
+    .site-name { font-size: 17px; }
+    .site-nav a { padding: 6px 9px; font-size: 12px; }
+    .wrap { padding: 0 16px; }
+    .more-grid { grid-template-columns: 1fr; }
+    .check-btn { width: 100%; }
+    footer { padding-left: 16px; padding-right: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="home-link" href="./" aria-label="Home">
+    <img class="wordmark-img" src="./kh-logo.png" alt="Kingdom Hearts" width="465" height="310" /><span class="site-name">Merchgraph</span>
+  </a>
+  <nav class="site-nav" aria-label="Main">
+    <a href="./" data-i18n="navDiscover">Discover</a>
+    <a href="./#about" data-i18n="navAbout">About</a>
+    <a href="?lang=ja" class="lang-switch" id="langSwitch" lang="ja">日本語</a>
+  </nav>
+</header>
+
+<div class="wrap">
+  <a class="back" href="./" data-i18n="back">‹ Back to browsing</a>
+
+  <section class="hero">
+    <p class="kicker" data-i18n="kicker">Listing check</p>
+    <h1 data-i18n="title">Found one on Mercari? Check it before you buy.</h1>
+    <p class="lede" data-i18n="lede">Paste the title of a Japanese secondhand listing (Mercari, Yahoo! Auctions, Suruga-ya, Mandarake…). You'll see which official item it most likely is, what the condition words mean, any signs of a bootleg, and how the price compares to the original.</p>
+    <p class="privacy" data-i18n="privacy">We only read the text you paste. We never open the listing or store it.</p>
+  </section>
+
+  <form class="form-card" id="checkForm" novalidate>
+    <label for="title" data-i18n="titleLabel">Listing title</label>
+    <textarea id="title" rows="3" data-i18n-placeholder="titlePh" placeholder="Paste the title here, e.g. 一番くじ キングダムハーツ A賞 ソラ フィギュア"></textarea>
+    <div class="examples">
+      <span data-i18n="tryExample">Try an example:</span>
+      <button type="button" class="example-chip" data-example="0" data-i18n="ex0">Prize plush, tags on</button>
+      <button type="button" class="example-chip" data-example="1" data-i18n="ex1">Lottery figure, no box, unbranded</button>
+    </div>
+
+    <details class="more" id="more">
+      <summary data-i18n="moreDetails">Add the price and description for a better check (optional)</summary>
+      <div class="more-grid">
+        <div>
+          <label for="price" data-i18n="priceLabel">Listing price (yen)</label>
+          <input id="price" type="number" min="0" inputmode="numeric" placeholder="4500" />
+        </div>
+        <div>
+          <label for="platform" data-i18n="platformLabel">Where is it listed?</label>
+          <select id="platform">
+            <option value="" data-i18n="platformAny">Not sure / other</option>
+            <option value="mercari" data-i18n="pfMercari">Mercari</option>
+            <option value="yahoo" data-i18n="pfYahoo">Yahoo! Auctions</option>
+            <option value="surugaya" data-i18n="pfSurugaya">Suruga-ya</option>
+            <option value="mandarake" data-i18n="pfMandarake">Mandarake</option>
+          </select>
+        </div>
+        <div class="full">
+          <label for="description" data-i18n="descLabel">Part of the description</label>
+          <textarea id="description" rows="3" data-i18n-placeholder="descPh" placeholder="e.g. 開封済み、箱に少し傷みあり"></textarea>
+        </div>
+      </div>
+    </details>
+
+    <div class="actions">
+      <button type="submit" class="check-btn" id="submit" data-i18n="checkBtn">Check this listing</button>
+      <span class="form-error" id="formError" aria-live="polite"></span>
+    </div>
+  </form>
+
+  <div id="result" aria-live="polite"></div>
+
+  <section class="howto" id="howto">
+    <h2 data-i18n="howTitle">How it works</h2>
+    <ol>
+      <li data-i18n="how1">The title is matched against a hand-checked catalog of Kingdom Hearts merchandise, every entry linked to its source.</li>
+      <li data-i18n="how2">Japanese condition words (未使用, 箱なし, タグ付き…) are explained, and wording that often signals a bootleg is flagged.</li>
+      <li data-i18n="how3">If you add the price, it's compared with the item's original price. When the match isn't confident, we say so instead of guessing.</li>
+    </ol>
+  </section>
+</div>
+
+<footer>
+  <div class="legal">
+    <p data-i18n="legal1">An independent fan project. Not affiliated with, endorsed or sponsored by Square Enix, Disney, or any maker, shop, marketplace or shipping service mentioned here. Nothing is sold on this site.</p>
+    <p data-i18n-html="legal2">Kingdom Hearts and all related names, characters, logos and artwork belong to their respective owners. Results are for reference only and are not a guarantee of authenticity; always check with the seller before buying. Site icon: Twemoji (CC-BY 4.0), see <a href="/credits.txt">credits</a>.</p>
+    <p data-i18n-html="legal3">Spotted a mistake? Use the report form in the item’s details, or <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">open an issue on GitHub</a>. Press, partnerships and other enquiries: <a href="/contact">contact form</a>. Rights holders: please write to legal@merchgraph.app (image removals can also be requested with <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues/new?template=image-takedown.yml" target="_blank" rel="noopener">this form</a>); requests are handled promptly.</p>
+  </div>
+</footer>
+
+<script>
+const MCP_URL = "https://mcp.merchgraph.app/mcp";
+const LANG_KEY = 'khmerch-lang'; // shared with the catalog page (kingdomhearts/index.html)
+
+// Traffic-source tag for measurement (e.g. ?src=reddit). The server logs only src and time.
+const SRC = new URLSearchParams(location.search).get('src') || undefined;
+
+const EXAMPLES = [
+  { title: 'キングダムハーツ フリュー ぬいぐるみマスコット テラ プライズ 未使用 タグ付き', price: 4500, platform: 'mercari' },
+  { title: '一番くじ キングダムハーツ A賞 ソラ＆キングミッキー フィギュア 箱なし 海外製 ノーブランド', price: 1500, platform: '' },
+];
+
+const STRINGS = {
+  en: {
+    navDiscover: 'Discover', navAbout: 'About', back: '‹ Back to browsing',
+    kicker: 'Listing check',
+    title: 'Found one on Mercari? Check it before you buy.',
+    lede: "Paste the title of a Japanese secondhand listing (Mercari, Yahoo! Auctions, Suruga-ya, Mandarake…). You'll see which official item it most likely is, what the condition words mean, any signs of a bootleg, and how the price compares to the original.",
+    privacy: 'We only read the text you paste. We never open the listing or store it.',
+    titleLabel: 'Listing title', titlePh: 'Paste the title here, e.g. 一番くじ キングダムハーツ A賞 ソラ フィギュア',
+    tryExample: 'Try an example:', ex0: 'Prize plush, tags on', ex1: 'Lottery figure, no box, unbranded',
+    moreDetails: 'Add the price and description for a better check (optional)',
+    priceLabel: 'Listing price (yen)', platformLabel: 'Where is it listed?', platformAny: 'Not sure / other',
+    pfMercari: 'Mercari', pfYahoo: 'Yahoo! Auctions', pfSurugaya: 'Suruga-ya', pfMandarake: 'Mandarake',
+    descLabel: 'Part of the description', descPh: 'e.g. 開封済み、箱に少し傷みあり',
+    checkBtn: 'Check this listing', checking: 'Checking…', needTitle: 'Paste a listing title first.',
+    connError: "Couldn't reach the server right now ({e}). Try again in a moment.",
+    // verdicts
+    vBootleg: 'Be careful', vBootlegTitle: 'This listing has signs of a possible bootleg',
+    vBootlegText: 'See the warnings below and ask the seller for close-up photos of the maker mark and tags before buying.',
+    vMatch: 'Most likely', vAmbLabel: 'Narrowed down', vAmbTitle: 'One of {n} similar items', vAmbiguous: 'Several releases share this prize letter or name. Ask the seller which series it is.',
+    vWeak: 'Not sure yet', vWeakTitle: "We can't tell exactly which item this is",
+    vWeakText: "The title doesn't have enough detail. A few possibilities are listed below; asking the seller for the full product name usually settles it.",
+    vNone: 'No match', vNoneTitle: "This doesn't match anything in the catalog",
+    vNoneText: "It may not be Kingdom Hearts merchandise, or it isn't in the catalog yet. If you know what it is, tell us via GitHub and we'll add it.",
+    outOfScope: 'Note',
+    // sections
+    sMatches: 'Possible matches', sOther: 'Other possibilities', sWarnings: 'Warnings', sTerms: 'What the listing says',
+    sPrice: 'Price', sHow: 'How this item is normally obtained', sNext: 'Before you buy', sVariety: 'Comes in several designs',
+    strengthHigh: 'Strong match', strengthMid: 'Possible match', strengthLow: 'Weak match',
+    unofficialBadge: 'Unofficial · fan-made', unofficialNote: 'This is a fan-made product in our catalog, not official merchandise (not licensed by Square Enix or Disney).',
+    viewItem: 'See this item ›', source: 'Source ↗',
+    priceListing: 'Listing price', priceOriginal: 'Original price', pricePerDraw: 'Price of one draw',
+    priceRatio: 'The listing is {r}× the original price.', priceNoMaker: 'No maker price (never sold in shops)',
+    effDown: 'lowers value', effUp: 'raises value', effRisk: 'check this',
+    variety: '{n} designs in total.', enNote: '',
+  },
+  ja: {
+    navDiscover: 'さがす', navAbout: 'このサイトについて', back: '‹ 一覧に戻る',
+    kicker: '出品チェック',
+    title: 'その出品、買う前にチェック。',
+    lede: 'メルカリ・ヤフオク・駿河屋・まんだらけなどの出品タイトルを貼り付けると、どの公式商品か、状態を表す言葉の意味、海賊版の可能性、定価との比較が分かります。',
+    privacy: '貼り付けた文字だけを読み取ります。出品ページを開いたり、内容を保存したりはしません。',
+    titleLabel: '出品タイトル', titlePh: 'ここにタイトルを貼り付け（例：一番くじ キングダムハーツ A賞 ソラ フィギュア）',
+    tryExample: '例で試す：', ex0: 'プライズのぬいぐるみ（タグ付き）', ex1: 'くじのフィギュア（箱なし・ノーブランド）',
+    moreDetails: '価格や説明文も入れると、より詳しく確認できます（任意）',
+    priceLabel: '出品価格（円）', platformLabel: '出品先', platformAny: '分からない／その他',
+    pfMercari: 'メルカリ', pfYahoo: 'ヤフオク', pfSurugaya: '駿河屋', pfMandarake: 'まんだらけ',
+    descLabel: '説明文の一部', descPh: '例：開封済み、箱に少し傷みあり',
+    checkBtn: 'この出品をチェック', checking: 'チェック中…', needTitle: '先に出品タイトルを貼り付けてください。',
+    connError: 'サーバーに接続できませんでした（{e}）。少し時間をおいてお試しください。',
+    vBootleg: '注意', vBootlegTitle: '海賊版の可能性を示す表現があります',
+    vBootlegText: '下の注意点を確認し、購入前にメーカー表記やタグのアップ写真を出品者に依頼してください。',
+    vMatch: 'おそらくこの商品', vAmbLabel: '候補を絞り込みました', vAmbTitle: '似た商品{n}件のどれか', vAmbiguous: '同じ賞・名前の商品が複数のシリーズにあります。どのシリーズか出品者に確認してください。',
+    vWeak: 'まだ特定できません', vWeakTitle: 'どの商品か特定できませんでした',
+    vWeakText: 'タイトルの情報が足りません。候補を下に挙げています。出品者に正式な商品名を聞くと、たいてい特定できます。',
+    vNone: '該当なし', vNoneTitle: 'カタログ内に該当する商品がありません',
+    vNoneText: 'キングダム ハーツのグッズではないか、まだカタログに載っていない可能性があります。ご存じの商品ならGitHubで教えてください。',
+    outOfScope: '補足',
+    sMatches: '候補', sOther: 'その他の可能性', sWarnings: '注意点', sTerms: '出品に書かれている言葉',
+    sPrice: '価格', sHow: 'この商品の通常の入手方法', sNext: '購入前に確認すること', sVariety: '複数のデザインがあります',
+    strengthHigh: '一致度：高', strengthMid: '一致度：中', strengthLow: '一致度：低',
+    unofficialBadge: '非公式・ファンメイド', unofficialNote: 'カタログに収録しているファンメイドの商品です。公式グッズではありません（スクウェア・エニックス／ディズニーのライセンス品ではありません）。',
+    viewItem: '商品ページを見る ›', source: '出典 ↗',
+    priceListing: '出品価格', priceOriginal: '定価', pricePerDraw: 'くじ1回の価格',
+    priceRatio: '出品価格は定価の {r}倍です。', priceNoMaker: 'メーカー定価なし（店頭販売なし）',
+    effDown: '価値が下がる', effUp: '価値が上がる', effRisk: '要確認',
+    variety: '全{n}種類。', enNote: '※解説文は現在英語のみです。',
+    legal1: '当サイトはファンによる独立したプロジェクトです。スクウェア・エニックス、ディズニー、および掲載しているメーカー・ショップ・マーケットプレイス・代行サービスのいずれとも提携しておらず、承認・後援も受けていません。当サイトでは商品を販売していません。',
+    legal2: '「キングダム ハーツ」および関連する名称、キャラクター、ロゴ、アートワークの権利は各権利者に帰属します。チェック結果は参考情報であり、真贋を保証するものではありません。購入前に必ず出品者にご確認ください。サイトのアイコン：Twemoji（CC-BY 4.0、<a href="/credits.txt">クレジット</a>）。',
+    legal3: '掲載内容の誤りは、商品の詳細にある報告フォーム、または <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">GitHubのIssue</a> からご連絡ください。取材・提携などのお問い合わせは <a href="/contact">お問い合わせフォーム</a> へ。権利者の方は legal@merchgraph.app までご連絡ください（画像の削除は <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues/new?template=image-takedown.yml" target="_blank" rel="noopener">削除依頼フォーム</a> からも受け付けます）。速やかに対応します。',
+    howTitle: '仕組み',
+    how1: 'タイトルを、出典つきで人の手で確認したキングダム ハーツのグッズカタログと照合します。',
+    how2: '状態を表す言葉（未使用・箱なし・タグ付き など）を解説し、海賊版によく見られる表現には注意を表示します。',
+    how3: '価格を入れると、その商品の定価と比較します。一致度が低いときは推測せず、そう表示します。',
+  },
+};
+
+function storageGet(k) { try { return localStorage.getItem(k); } catch { return null; } }
+function storageSet(k, v) { try { localStorage.setItem(k, v); } catch {} }
+function getLang() {
+  let q = null;
+  try { q = new URLSearchParams(location.search).get('lang'); } catch {}
+  if (q && STRINGS[q]) { storageSet(LANG_KEY, q); return q; }
+  const saved = storageGet(LANG_KEY);
+  if (saved && STRINGS[saved]) return saved;
+  return /^ja\b/i.test(navigator.language || '') ? 'ja' : 'en';
+}
+const LANG = getLang();
+const JA = LANG === 'ja';
+function t(key, vars) {
+  let s = (STRINGS[LANG] && STRINGS[LANG][key]) ?? STRINGS.en[key] ?? key;
+  if (vars) for (const [k, v] of Object.entries(vars)) s = s.split(`{${k}}`).join(v);
+  return s;
+}
+function applyStaticStrings() {
+  const sw = document.getElementById('langSwitch');
+  const otherLang = JA ? 'en' : 'ja';
+  const u = new URL(location.href);
+  u.searchParams.set('lang', otherLang);
+  sw.href = u.pathname + u.search + u.hash;
+  sw.textContent = JA ? 'English' : '日本語';
+  sw.lang = otherLang;
+  sw.addEventListener('click', () => storageSet(LANG_KEY, otherLang));
+  if (!JA) return;
+  document.documentElement.lang = 'ja';
+  document.title = '出品チェック | Merchgraph | Kingdom Hearts';
+  document.querySelectorAll('[data-i18n]').forEach((el) => { if (STRINGS.ja[el.dataset.i18n] !== undefined) el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-html]').forEach((el) => { if (STRINGS.ja[el.dataset.i18nHtml] !== undefined) el.innerHTML = t(el.dataset.i18nHtml); });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+}
+
+const $ = (id) => document.getElementById(id);
+const els = {
+  form: $('checkForm'), title: $('title'), description: $('description'), price: $('price'),
+  platform: $('platform'), submit: $('submit'), result: $('result'), formError: $('formError'), more: $('more'),
+};
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+async function callResolveListing(args) {
+  const res = await fetch(MCP_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream' },
+    body: JSON.stringify({ jsonrpc: '2.0', id: Date.now(), method: 'tools/call', params: { name: 'resolve_listing', arguments: args } }),
+  });
+  if (!res.ok) throw new Error(`Server returned ${res.status}`);
+  const body = await res.json();
+  if (body.error) throw new Error(body.error.message || 'MCP error');
+  const text = body.result?.content?.[0]?.text;
+  if (!text) throw new Error('Unexpected response shape from server');
+  return JSON.parse(text);
+}
+
+// source_url can hold several URLs separated by " ; " (SPEC.md section 2) — link all of them.
+function sourceUrlsOf(s) { return String(s || '').split(' ; ').map((u) => u.trim()).filter((u) => /^https?:\/\//.test(u)); }
+function strengthOf(c) {
+  if (c.confidence >= 0.6) return ['s-high', t('strengthHigh')];
+  if (c.confidence >= 0.3) return ['s-mid', t('strengthMid')];
+  return ['s-low', t('strengthLow')];
+}
+function matchHtml(c) {
+  const [cls, label] = strengthOf(c);
+  const srcs = sourceUrlsOf(c.source_url);
+  return `
+    <div class="match">
+      <div class="m-name">${escapeHtml(c.name_en)}</div>
+      <div class="m-meta"><span class="strength ${cls}">${escapeHtml(label)}</span>${c.unofficial ? `<span class="strength s-fan">${escapeHtml(t('unofficialBadge'))}</span>` : ''}<span>${escapeHtml(c.why || '')}</span></div>
+      <div class="m-links">
+        <a href="./#item=${encodeURIComponent(c.sku_id)}">${escapeHtml(t('viewItem'))}</a>
+        ${srcs.map((u, i) => `<a href="${escapeHtml(u)}" target="_blank" rel="noopener">${escapeHtml(t('source'))}${srcs.length > 1 ? ` ${i + 1}` : ''}</a>`).join('')}
+      </div>
+    </div>`;
+}
+function effectBadge(c) {
+  const out = [];
+  if (c.risk_flag) out.push(`<span class="effect risk">${escapeHtml(t('effRisk'))}</span>`);
+  if (/down/.test(c.price_effect || '')) out.push(`<span class="effect down">${escapeHtml(t('effDown'))}</span>`);
+  if (/up/.test(c.price_effect || '')) out.push(`<span class="effect">${escapeHtml(t('effUp'))}</span>`);
+  return out.join('');
+}
+function yen(n) { return '¥' + Number(n).toLocaleString('en-US'); }
+
+function render(data, listingPrice) {
+  const parts = [];
+  const flags = data.flags || [];
+  const cands = data.candidates || [];
+  const weak = data.weak_matches || [];
+  const bootleg = flags.some((f) => /bootleg/.test(f.type || ''));
+
+  // 1. Verdict
+  if (bootleg) {
+    parts.push(`<div class="verdict warn"><div class="v-label">${escapeHtml(t('vBootleg'))}</div><h2>${escapeHtml(t('vBootlegTitle'))}</h2><p>${escapeHtml(t('vBootlegText'))}</p></div>`);
+  }
+  if (cands.length) {
+    const ambiguous = cands.length > 1 || cands.some((c) => c.ambiguous_series);
+    const top = cands[0];
+    if (ambiguous) {
+      parts.push(`<div class="verdict"><div class="v-label">${escapeHtml(t('vAmbLabel'))}</div><h2>${escapeHtml(t('vAmbTitle', { n: cands.length }))}</h2><p>${escapeHtml(t('vAmbiguous'))}</p></div>`);
+    } else {
+      parts.push(`<div class="verdict${bootleg ? '' : ' good'}"><div class="v-label">${escapeHtml(t('vMatch'))}</div><h2>${escapeHtml(top.name_en)}</h2>${top.unofficial ? `<p>${escapeHtml(t('unofficialNote'))}</p>` : ''}</div>`);
+    }
+  } else if (weak.length) {
+    parts.push(`<div class="verdict"><div class="v-label">${escapeHtml(t('vWeak'))}</div><h2>${escapeHtml(t('vWeakTitle'))}</h2><p>${escapeHtml(t('vWeakText'))}</p></div>`);
+  } else {
+    parts.push(`<div class="verdict"><div class="v-label">${escapeHtml(t('vNone'))}</div><h2>${escapeHtml(t('vNoneTitle'))}</h2><p>${escapeHtml(t('vNoneText'))}</p></div>`);
+  }
+  // out_of_scope はサーバーから配列で返る（理由ごとに1件）。同じ文は1回だけ出す。
+  const scopeNotes = [...new Set((Array.isArray(data.out_of_scope) ? data.out_of_scope : []).map((m) => m.message_en).filter(Boolean))];
+  if (scopeNotes.length) {
+    parts.push(`<div class="r-section"><h3>${escapeHtml(t('outOfScope'))}</h3>${scopeNotes.map((n) => `<p class="note">${escapeHtml(n)}</p>`).join('')}</div>`);
+  }
+
+  // 2. Warnings
+  if (flags.length) {
+    parts.push(`<div class="r-section"><h3>${escapeHtml(t('sWarnings'))}</h3><ul class="list warn">${flags.map((f) => `<li>${escapeHtml(f.message_en)}</li>`).join('')}</ul></div>`);
+  }
+
+  // 3. Matches
+  if (cands.length) parts.push(`<div class="r-section"><h3>${escapeHtml(t('sMatches'))}</h3>${cands.map(matchHtml).join('')}</div>`);
+  if (weak.length) parts.push(`<div class="r-section"><h3>${escapeHtml(cands.length ? t('sOther') : t('sMatches'))}</h3>${weak.map(matchHtml).join('')}</div>`);
+
+  // 4. Price
+  if (data.price) {
+    const p = data.price;
+    const isDraw = p.price_basis === 'draw_price';
+    const orig = p.msrp_jpy === null || p.msrp_jpy === undefined
+      ? `<div><span class="lbl">${escapeHtml(t('priceOriginal'))}</span><span class="big">${escapeHtml(t('priceNoMaker'))}</span></div>`
+      : `<div><span class="lbl">${escapeHtml(isDraw ? t('pricePerDraw') : t('priceOriginal'))}</span><span class="big">${
+          p.price_local !== undefined && p.currency && p.currency !== 'JPY'
+            ? `${escapeHtml(p.currency)} ${escapeHtml(p.price_local)} <span class="lbl" style="display:inline">(~${escapeHtml(yen(p.msrp_jpy))})</span>`
+            : escapeHtml(yen(p.msrp_jpy))}</span></div>`;
+    const listed = listingPrice ? `<div><span class="lbl">${escapeHtml(t('priceListing'))}</span><span class="big">${escapeHtml(yen(listingPrice))}</span></div>` : '';
+    parts.push(`<div class="r-section"><h3>${escapeHtml(t('sPrice'))}</h3><div class="price-row">${listed}${orig}</div>
+      ${p.ratio !== undefined && !isDraw ? `<p class="note">${escapeHtml(t('priceRatio', { r: p.ratio }))}</p>` : ''}
+      <p class="note">${escapeHtml(p.note_en || '')}</p></div>`);
+  }
+
+  // 5. Condition words
+  if (data.conditions?.length) {
+    parts.push(`<div class="r-section"><h3>${escapeHtml(t('sTerms'))}</h3><table class="terms">${data.conditions.map((c) => `
+      <tr><td class="ja">${escapeHtml(c.term_ja)}<span class="en">${escapeHtml(c.term_en)}</span></td>
+      <td>${escapeHtml(c.meaning_en)} ${effectBadge(c)}</td></tr>`).join('')}</table></div>`);
+  }
+
+  // 6. How it's obtained / variety
+  if (data.acquisition?.note_en) parts.push(`<div class="r-section"><h3>${escapeHtml(t('sHow'))}</h3><p class="note" style="margin-top:0">${escapeHtml(data.acquisition.note_en)}</p></div>`);
+  if (data.variety) parts.push(`<div class="r-section"><h3>${escapeHtml(t('sVariety'))}</h3><p class="note" style="margin-top:0">${escapeHtml(t('variety', { n: data.variety.design_count }))} ${escapeHtml(data.variety.note_en || '')}</p></div>`);
+
+  // 7. Next checks
+  if (data.next_checks_en?.length) parts.push(`<div class="r-section"><h3>${escapeHtml(t('sNext'))}</h3><ul class="list">${data.next_checks_en.map((n) => `<li>${escapeHtml(n)}</li>`).join('')}</ul></div>`);
+
+  if (JA) parts.unshift(`<p class="en-note">${escapeHtml(t('enNote'))}</p>`);
+  els.result.innerHTML = parts.join('\n');
+  els.result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function onSubmit(e, fromExample = false) {
+  e?.preventDefault();
+  els.formError.textContent = '';
+  const title = els.title.value.trim();
+  if (!title) { els.formError.textContent = t('needTitle'); els.title.focus(); return; }
+  const args = { title };
+  if (els.description.value.trim()) args.description = els.description.value.trim();
+  const price = els.price.value ? Number(els.price.value) : null;
+  if (price) args.price_jpy = price;
+  if (els.platform.value) args.platform = els.platform.value;
+  // Example runs are tagged separately so they don't count as real listing checks.
+  if (fromExample) args.src = SRC ? `${SRC}-example` : 'example';
+  else if (SRC) args.src = SRC;
+
+  els.submit.disabled = true;
+  els.submit.textContent = t('checking');
+  els.result.innerHTML = `<div class="state-msg">${escapeHtml(t('checking'))}</div>`;
+  try {
+    render(await callResolveListing(args), price);
+  } catch (err) {
+    els.result.innerHTML = `<div class="state-msg">${escapeHtml(t('connError', { e: err.message }))}</div>`;
+  } finally {
+    els.submit.disabled = false;
+    els.submit.textContent = t('checkBtn');
+  }
+}
+
+els.form.addEventListener('submit', onSubmit);
+document.querySelectorAll('[data-example]').forEach((btn) => btn.addEventListener('click', () => {
+  const ex = EXAMPLES[Number(btn.dataset.example)];
+  els.title.value = ex.title;
+  els.price.value = ex.price || '';
+  els.platform.value = ex.platform || '';
+  els.description.value = '';
+  if (ex.price) els.more.open = true;
+  onSubmit(null, true);
+}));
+
+applyStaticStrings();
+</script>
+</body>
+</html>

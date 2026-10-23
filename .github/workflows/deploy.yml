@@ -64,21 +64,14 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
 
-      # Web版（web/ 以下の静的ファイル一式。静的ファイルだけの Worker: kh-merch-graph-web）。
-      # docs/DISTRIBUTION.md の手順どおり、プロジェクトの wrangler.toml が混ざらないよう、
-      # リポジトリの外の空フォルダにコピーしてからデプロイする。
-      - name: Deploy web checker
+      # Web版（merchgraph.app。Worker: kh-merch-graph-web）。web/ 以下の静的ファイルと、URLを振り分ける小さな Worker
+      # （web-worker/index.ts。ルート / を /kingdomhearts/ の別名にする・旧URLの転送・問い合わせフォーム）。
+      # 設定は web-worker/wrangler.jsonc（プロジェクト直下の wrangler.toml＝MCPサーバーの設定とは別）。
+      - name: Deploy web site
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: |
-          WRANGLER="$GITHUB_WORKSPACE/node_modules/.bin/wrangler"
-          COMPAT_DATE="$(grep -m1 '^compatibility_date' wrangler.toml | cut -d'"' -f2)"
-          SITE_DIR="$RUNNER_TEMP/web-site"
-          mkdir -p "$SITE_DIR/public"
-          cp -r web/. "$SITE_DIR/public/"
-          cd "$SITE_DIR"
-          "$WRANGLER" deploy --name kh-merch-graph-web --assets ./public --compatibility-date "$COMPAT_DATE"
+        run: npx wrangler deploy --config web-worker/wrangler.jsonc
 
       # 本番に出した版の目印。次回のデータ消失チェックはこの版と比べる。
       # 失敗してもデプロイ自体は済んでいるので、ジョブは失敗にしない（次回は少し古い版と比べるだけ）。

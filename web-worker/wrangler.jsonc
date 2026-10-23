@@ -1,0 +1,24 @@
+// Web版（merchgraph.app）の Worker 設定。デプロイは .github/workflows/deploy.yml が行う。
+// - 静的ファイルは web/ 以下。run_worker_first で、すべてのアクセスを先に index.ts（URLの振り分け）に通す。
+// - カスタムドメイン（merchgraph.app）は Cloudflare の画面で設定済み。ここには書かない（書くとデプロイ用トークンにドメイン設定の権限が必要になる）。
+// - 問い合わせメールは send_email バインディング（CONTACT_EMAIL）で送る。送り先は Secret「CONTACT_TO」（ダッシュボードで設定。リポジトリには書かない）。
+{
+  "name": "kh-merch-graph-web",
+  "main": "index.ts",
+  "compatibility_date": "2026-09-18",
+  "assets": {
+    "directory": "../web",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "vars": {
+    "CANONICAL_HOST": "merchgraph.app",
+    "CONTACT_FROM": "contact-form@merchgraph.app"
+  },
+  // 問い合わせフォームの送信回数の上限（IPごとに60秒で3回）。
+  "ratelimits": [
+    { "name": "CONTACT_LIMITER", "namespace_id": "1002", "simple": { "limit": 3, "period": 60 } }
+  ],
+  // 問い合わせメールの送信（Email Routing は 2026-10-23 に有効化済み）。送り先は Email Routing で確認済みのアドレスに限られる。
+  "send_email": [{ "name": "CONTACT_EMAIL" }]
+}

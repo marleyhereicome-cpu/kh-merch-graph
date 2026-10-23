@@ -1,6 +1,6 @@
 {
   "name": "kh-merch-graph",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "これは「日本のIPグッズを理解する層」をMCPサーバーとして作るプロジェクトの、最初の一作品（Kingdom Hearts）用スターターキットです。 このフォルダをそのままClaude Codeで開き、`prompts/` の中のプロンプトを **番号順に1つずつ** 貼れば進みます。",
   "main": "src/server.ts",
   "type": "module",

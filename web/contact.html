@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Contact | Merchgraph</title>
+<meta name="description" content="Contact Merchgraph about press, partnerships or anything else." />
+<meta name="robots" content="noindex" />
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --paper: #F7F3EC; --ink: #1C1B29; --ink-soft: #5A5646; --muted: #8A806B;
+    --line: #E4DCC8; --line-2: #C9BBA0; --navy: #3D4A73; --gold: #C9A227;
+    --good-bg: #EAF1EC; --good: #2E5A3F; --warn-bg: #F6E9E0; --warn: #8A4220;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Zen Kaku Gothic New', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--paper); color: var(--ink); }
+  a { color: var(--navy); }
+  a:hover { color: var(--gold); }
+  h1 { font-family: 'Shippori Mincho', serif; font-weight: 500; margin: 0; font-size: 28px; }
+  .site-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 24px; border-bottom: 1px solid var(--line); }
+  .brand { font-family: 'Shippori Mincho', serif; font-size: 20px; text-decoration: none; color: var(--ink); }
+  .lang-switch { font-size: 13px; text-decoration: none; color: var(--ink); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-2); }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 24px 24px 64px; }
+  .back { display: inline-block; font-size: 13px; text-decoration: none; margin-bottom: 18px; }
+  .lead { color: var(--ink-soft); line-height: 1.8; font-size: 14px; }
+  .note { background: #FFFFFF; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; font-size: 13px; line-height: 1.8; color: var(--ink-soft); margin: 18px 0; }
+  form { background: #FFFFFF; border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: grid; gap: 14px; }
+  label { display: grid; gap: 6px; font-size: 13px; font-weight: 500; }
+  .opt { color: var(--muted); font-weight: 400; }
+  input, select, textarea { font: inherit; font-size: 15px; padding: 10px 12px; border: 1px solid var(--line-2); border-radius: 10px; background: #FFFDF9; color: var(--ink); width: 100%; }
+  textarea { min-height: 160px; resize: vertical; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  button { font: inherit; font-size: 15px; padding: 12px 18px; border-radius: 999px; border: none; background: var(--ink); color: #F7F3EC; cursor: pointer; justify-self: start; }
+  button:disabled { opacity: 0.6; cursor: default; }
+  .out { font-size: 14px; line-height: 1.7; border-radius: 10px; padding: 10px 12px; }
+  .out.ok { background: var(--good-bg); color: var(--good); }
+  .out.err { background: var(--warn-bg); color: var(--warn); }
+  .out:empty { display: none; }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="/">Merchgraph</a>
+  <a class="lang-switch" id="langSwitch" href="?lang=ja" lang="ja">日本語</a>
+</header>
+<main class="wrap">
+  <a class="back" href="/" data-i18n="back">‹ Back</a>
+  <h1 data-i18n="title">Contact</h1>
+  <p class="lead" data-i18n="lead">For press, partnerships or anything else, send us a message here. We reply by email.</p>
+  <div class="note">
+    <div data-i18n="noteData">Found a mistake in an item? The quickest way is the report form in that item’s details.</div>
+    <div data-i18n="noteRights">Rights holders: please write to legal@merchgraph.app.</div>
+  </div>
+  <form id="contactForm" novalidate>
+    <label><span data-i18n="topic">What is it about?</span>
+      <select name="topic">
+        <option value="press" data-i18n="topicPress">Press / interview</option>
+        <option value="partnership" data-i18n="topicPartner">Partnership / collaboration</option>
+        <option value="other" data-i18n="topicOther" selected>Something else</option>
+      </select>
+    </label>
+    <label><span><span data-i18n="name">Your name</span> <span class="opt" data-i18n="optional">(optional)</span></span>
+      <input name="name" autocomplete="name" maxlength="200" />
+    </label>
+    <label><span data-i18n="email">Your email (so we can reply)</span>
+      <input name="email" type="email" autocomplete="email" required maxlength="320" />
+    </label>
+    <label><span data-i18n="message">Message</span>
+      <textarea name="message" required maxlength="5000"></textarea>
+    </label>
+    <div class="hp" aria-hidden="true"><label>Website <input name="website" tabindex="-1" autocomplete="off" /></label></div>
+    <button type="submit" id="send" data-i18n="send">Send</button>
+    <div class="out" id="out" role="status" aria-live="polite"></div>
+  </form>
+</main>
+<script>
+const STRINGS = {
+  en: {},
+  ja: {
+    back: '‹ 戻る', title: 'お問い合わせ',
+    lead: '取材・提携のご相談など、こちらからお送りください。メールでお返事します。',
+    noteData: '掲載内容の誤りは、その商品の詳細にある報告フォームからお知らせいただくのがいちばん早く確実です。',
+    noteRights: '権利者の方は legal@merchgraph.app までご連絡ください。',
+    topic: 'ご用件', topicPress: '取材', topicPartner: '提携・コラボレーション', topicOther: 'その他',
+    name: 'お名前', optional: '（任意）', email: 'メールアドレス（お返事用）', message: '内容', send: '送信する',
+  },
+  msg: {
+    en: { sending: 'Sending…', ok: 'Thank you. Your message has been sent.', invalid_email: 'Please check your email address.', message_too_short: 'Please write a little more.', message_too_long: 'The message is too long (5,000 characters max).', too_many_requests: 'Too many messages in a short time. Please try again in a minute.', contact_not_configured: 'The contact form isn’t open yet. Please try again later.', fail: 'Sorry, the message could not be sent. Please try again later.' },
+    ja: { sending: '送信中…', ok: 'ありがとうございます。送信しました。', invalid_email: 'メールアドレスをご確認ください。', message_too_short: 'もう少し詳しくお書きください。', message_too_long: '内容が長すぎます（5,000文字まで）。', too_many_requests: '短い時間に送信が続いています。1分ほどしてからお試しください。', contact_not_configured: 'お問い合わせフォームは準備中です。時間をおいてお試しください。', fail: '送信できませんでした。時間をおいてお試しください。' },
+  },
+};
+// Language: ?lang= wins, then the choice shared with the catalog pages.
+const LANG_KEY = 'khmerch-lang';
+function getLang() {
+  const q = new URLSearchParams(location.search).get('lang');
+  if (q === 'ja' || q === 'en') { try { localStorage.setItem(LANG_KEY, q); } catch {} return q; }
+  try { const s = localStorage.getItem(LANG_KEY); if (s === 'ja' || s === 'en') return s; } catch {}
+  return (navigator.language || '').startsWith('ja') ? 'ja' : 'en';
+}
+const LANG = getLang();
+const M = STRINGS.msg[LANG];
+if (LANG === 'ja') {
+  document.documentElement.lang = 'ja';
+  document.title = 'お問い合わせ | Merchgraph';
+  document.querySelectorAll('[data-i18n]').forEach((el) => { const v = STRINGS.ja[el.dataset.i18n]; if (v !== undefined) el.textContent = v; });
+  const sw = document.getElementById('langSwitch'); sw.textContent = 'English'; sw.href = '?lang=en'; sw.lang = 'en';
+}
+const shownAt = Date.now();
+const form = document.getElementById('contactForm');
+const out = document.getElementById('out');
+const btn = document.getElementById('send');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(form);
+  out.className = 'out'; out.textContent = M.sending; btn.disabled = true;
+  try {
+    const res = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        topic: fd.get('topic'), name: fd.get('name'), email: fd.get('email'), message: fd.get('message'),
+        website: fd.get('website'), elapsed_ms: Date.now() - shownAt, lang: LANG,
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.ok) {
+      out.className = 'out ok'; out.textContent = M.ok;
+      form.querySelectorAll('input, select, textarea').forEach((el) => { el.disabled = true; });
+      btn.hidden = true;
+      return;
+    }
+    out.className = 'out err'; out.textContent = M[data.error] || M.fail;
+  } catch {
+    out.className = 'out err'; out.textContent = M.fail;
+  }
+  btn.disabled = false;
+});
+</script>
+</body>
+</html>

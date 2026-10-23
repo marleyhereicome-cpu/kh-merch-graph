@@ -38,7 +38,7 @@ Kingdom Hearts のグッズについて英語圏コミュニティ（Reddit、Di
 
 3. **計測用リンクを付ける**
    - Web版チェッカーのURLに `?src=` を付けて添える。`src` の値はチャネル名（例: `reddit`, `discord`）を使う。
-     例：`https://<公開URL>/index.html?src=reddit`
+     例：`https://merchgraph.app/kingdomhearts/check?src=reddit`
    - 公開URLが分からない場合は `web/index.html` のコメントに書かれているMCPサーバーURLを参考に、
      ユーザーに実際のURLを確認してもらう（推測で存在しないURLを作らない）。
 

@@ -16,7 +16,10 @@ describe("server.json（公式 MCP レジストリ）", () => {
     expect(server.version).toMatch(/^\d+\.\d+\.\d+/);
   });
   it("リモートは本番の MCP エンドポイント（Streamable HTTP）", () => {
-    expect(server.remotes).toEqual([{ type: "streamable-http", url: "https://kh-merch-graph.fandex.workers.dev/mcp" }]);
+    expect(server.remotes).toEqual([
+      { type: "streamable-http", url: "https://mcp.merchgraph.app/mcp" },
+      { type: "streamable-http", url: "https://kh-merch-graph.fandex.workers.dev/mcp" },
+    ]);
     expect(server.repository.url).toBe("https://github.com/marleyhereicome-cpu/kh-merch-graph");
   });
   it("version は package.json と揃えておく", () => {

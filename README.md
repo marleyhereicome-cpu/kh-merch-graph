@@ -5,7 +5,7 @@ merchandise (Mercari, Yahoo! Auctions, Suruga-ya, Mandarake, …) into: the like
 condition wording actually means, bootleg-caution flags, a price-to-MSRP ratio, and a landed-cost estimate to
 your country. Point any MCP-capable AI agent at it and hand it listing text — it does the rest.
 
-**Try it in your browser (no AI agent needed):** https://kh-merch-graph-web.fandex.workers.dev
+**Try it in your browser (no AI agent needed):** https://merchgraph.app
 
 ## Why this is different
 
@@ -53,7 +53,7 @@ last checked.
 
 ## Connect
 
-- **MCP endpoint** (Streamable HTTP, JSON-RPC 2.0, no auth): `https://kh-merch-graph.fandex.workers.dev/mcp`
+- **MCP endpoint** (Streamable HTTP, JSON-RPC 2.0, no auth): `https://mcp.merchgraph.app/mcp` (the older `https://kh-merch-graph.fandex.workers.dev/mcp` keeps working)
 - **Health check**: `.../health`
 - **For AI agents that discover servers by URL**: `.../llms.txt` (plain-language entry point) and
   `.../openapi.json` (schema reference — the real transport is MCP's own `tools/list`/`tools/call`, this is a
