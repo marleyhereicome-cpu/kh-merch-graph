@@ -10,6 +10,11 @@
 <meta property="og:site_name" content="Merchgraph" />
 <meta property="og:description" content="Kingdom Hearts merch from Japan and overseas that your local shops never showed you. Not a store: what it is, whether it's official, what it originally cost, and where fans find it." />
 <meta name="twitter:card" content="summary" />
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
 <style>
@@ -566,7 +571,7 @@
 <footer>
   <div class="legal">
     <p data-i18n="legal1">An independent fan project. Not affiliated with, endorsed or sponsored by Square Enix, Disney, or any maker, shop, marketplace or shipping service mentioned here. Nothing is sold on this site.</p>
-    <p data-i18n="legal2">Kingdom Hearts and all related names, characters, logos and artwork belong to their respective owners. Product photos are shown only to identify items, with their source credited. Fan-made items are labelled separately from official merchandise. Prices and availability are for reference and may be out of date.</p>
+    <p data-i18n-html="legal2">Kingdom Hearts and all related names, characters, logos and artwork belong to their respective owners. Product photos are shown only to identify items, with their source credited. Fan-made items are labelled separately from official merchandise. Prices and availability are for reference and may be out of date. Site icon: Twemoji (CC-BY 4.0), see <a href="/credits.txt">credits</a>.</p>
     <p data-i18n-html="legal3">Spotted a mistake? Use the report form in the item’s details, or <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">open an issue on GitHub</a>. Press, partnerships and other enquiries: <a href="/contact">contact form</a>. Rights holders: please write to legal@merchgraph.app (image removals can also be requested with <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues/new?template=image-takedown.yml" target="_blank" rel="noopener">this form</a>); requests are handled promptly.</p>
   </div>
 </footer>
@@ -587,7 +592,7 @@
 </aside>
 
 <script>
-const MCP_URL = "https://kh-merch-graph.fandex.workers.dev/mcp";
+const MCP_URL = "https://mcp.merchgraph.app/mcp";
 const IP = "kingdom-hearts";
 const GRID_LIMIT = 16;
 const LANG_KEY = 'khmerch-lang';
@@ -728,7 +733,7 @@ const STRINGS = {
     aboutPriceQ: '「定価」とは？',
     aboutPriceA: '発売時の価格で、発売国の通貨で表示しています（かっこ内は固定レートによるおおよその換算で、最新の為替ではありません）。くじ景品は景品そのものが販売されていないため、1回分の価格を表示しています。いまの中古・転売価格は定価より大幅に高いことも安いこともあります。定価はその比較の目安です。',
     legal1: '当サイトはファンによる独立したプロジェクトです。スクウェア・エニックス、ディズニー、および掲載しているメーカー・ショップ・マーケットプレイス・代行サービスのいずれとも提携しておらず、承認・後援も受けていません。当サイトでは商品を販売していません。',
-    legal2: '「キングダム ハーツ」および関連する名称、キャラクター、ロゴ、アートワークの権利は各権利者に帰属します。商品写真は商品の識別のためにのみ、出典を明記して掲載しています。ファンメイドの商品は公式商品と区別して表示しています。価格や入手状況は参考情報で、最新でない場合があります。',
+    legal2: '「キングダム ハーツ」および関連する名称、キャラクター、ロゴ、アートワークの権利は各権利者に帰属します。商品写真は商品の識別のためにのみ、出典を明記して掲載しています。ファンメイドの商品は公式商品と区別して表示しています。価格や入手状況は参考情報で、最新でない場合があります。サイトのアイコン：Twemoji（CC-BY 4.0、<a href="/credits.txt">クレジット</a>）。',
     legal3: '掲載内容の誤りは、商品の詳細にある報告フォーム、または <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">GitHubのIssue</a> からご連絡ください。取材・提携などのお問い合わせは <a href="/contact">お問い合わせフォーム</a> へ。権利者の方は legal@merchgraph.app までご連絡ください（画像の削除は <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues/new?template=image-takedown.yml" target="_blank" rel="noopener">削除依頼フォーム</a> からも受け付けます）。速やかに対応します。',
     photoCredit: '写真：{src}',
     gamePackageCredit: '公式パッケージ画像（© Disney / © Square Enix）',

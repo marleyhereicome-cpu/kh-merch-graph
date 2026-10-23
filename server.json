@@ -12,6 +12,10 @@
   "remotes": [
     {
       "type": "streamable-http",
+      "url": "https://mcp.merchgraph.app/mcp"
+    },
+    {
+      "type": "streamable-http",
       "url": "https://kh-merch-graph.fandex.workers.dev/mcp"
     }
   ]

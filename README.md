@@ -53,7 +53,7 @@ last checked.
 
 ## Connect
 
-- **MCP endpoint** (Streamable HTTP, JSON-RPC 2.0, no auth): `https://kh-merch-graph.fandex.workers.dev/mcp`
+- **MCP endpoint** (Streamable HTTP, JSON-RPC 2.0, no auth): `https://mcp.merchgraph.app/mcp` (the older `https://kh-merch-graph.fandex.workers.dev/mcp` keeps working)
 - **Health check**: `.../health`
 - **For AI agents that discover servers by URL**: `.../llms.txt` (plain-language entry point) and
   `.../openapi.json` (schema reference — the real transport is MCP's own `tools/list`/`tools/call`, this is a

@@ -7,7 +7,7 @@ submitted automatically — you click through each one yourself.
 
 Prerequisites — all done as of 2026-09-18:
 - [x] Public GitHub repo: `https://github.com/marleyhereicome-cpu/kh-merch-graph`
-- [x] Deployed MCP server: `https://kh-merch-graph.fandex.workers.dev/mcp`
+- [x] Deployed MCP server: `https://mcp.merchgraph.app/mcp` (also `https://kh-merch-graph.fandex.workers.dev/mcp`)
 - [x] `README.md` / `web/index.html` placeholders replaced with the real URLs above
 - [x] `web/index.html` published: `https://kh-merch-graph-web.fandex.workers.dev` (Cloudflare's Workers-static-assets successor to Pages — see note below)
 
@@ -30,7 +30,7 @@ Keep these values handy — every form below asks for some subset of them.
 | Longer description | See the "Why this is different" section of `README.md` — verified catalog with source links, no confident-sounding guesses, never scrapes listings. |
 | Category | Shopping / Collectibles (fall back to "E-commerce" or "Hobbies & Games" if a directory's taxonomy doesn't have that) |
 | Repo URL | `https://github.com/marleyhereicome-cpu/kh-merch-graph` |
-| Server / MCP URL | `https://kh-merch-graph.fandex.workers.dev/mcp` |
+| Server / MCP URL | `https://mcp.merchgraph.app/mcp` (old `https://kh-merch-graph.fandex.workers.dev/mcp` still works) |
 | Website URL | `https://merchgraph.app` (catalog: `/kingdomhearts/`, listing checker: `/kingdomhearts/check`; the old `kh-merch-graph-web.fandex.workers.dev` redirects here) |
 | Icon | Not required — skip it |
 | License | ISC |

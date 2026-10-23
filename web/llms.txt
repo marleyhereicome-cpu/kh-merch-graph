@@ -15,8 +15,8 @@
 
 ## For AI agents (MCP server)
 - The same catalog is available as an MCP server that resolves fuzzy product names and listing titles to catalog entries, explains condition terms, and estimates landed cost.
-- MCP endpoint (Streamable HTTP, no auth): https://kh-merch-graph.fandex.workers.dev/mcp
-- Full tool list and usage notes for agents: [MCP server llms.txt](https://kh-merch-graph.fandex.workers.dev/llms.txt)
+- MCP endpoint (Streamable HTTP, no auth): https://mcp.merchgraph.app/mcp (the older https://kh-merch-graph.fandex.workers.dev/mcp keeps working)
+- Full tool list and usage notes for agents: [MCP server llms.txt](https://mcp.merchgraph.app/llms.txt)
 
 ## Source and corrections
 - Press, partnerships and other enquiries: https://merchgraph.app/contact
