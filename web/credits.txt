@@ -1,8 +1,0 @@
-Merchgraph — credits
-
-Favicon (magnifying glass): Twemoji by Twitter, Inc and other contributors
-  https://github.com/twitter/twemoji (graphic 1f50e.svg, v14.0.2)
-  License: CC-BY 4.0 https://creativecommons.org/licenses/by/4.0/
-
-Kingdom Hearts logo and all related names belong to their respective owners.
-Merchgraph is an independent fan project, not affiliated with Square Enix or Disney.

@@ -40,6 +40,14 @@
     color: var(--ink);
   }
   body.locked { overflow: hidden; }
+  /* Kingdom Hearts 公式ロゴを、画面中央に薄く固定表示する背景（スクロールしても動かない）。
+     iPhone の Safari は background-attachment: fixed が効かないため、position: fixed の疑似要素で出す。
+     z-index: -1 で本文の下に置き、クリックは拾わない。 */
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background: url('./kh-logo.png') center / min(72vw, 640px) auto no-repeat;
+    opacity: 0.1;
+  }
   a { color: var(--navy); }
   a:hover { color: var(--gold); }
   h1, h2, h3 { font-family: 'Shippori Mincho', serif; font-weight: 500; margin: 0; }
@@ -56,8 +64,7 @@
   }
   .home-link { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
   .home-link:hover { color: var(--ink); }
-  .wordmark-img { height: 44px; width: auto; display: block; }
-  .site-name { font-family: 'Shippori Mincho', serif; font-size: 20px; font-weight: 700; letter-spacing: 0.02em; }
+  .site-name { font-family: 'Shippori Mincho', serif; font-size: 22px; font-weight: 700; letter-spacing: 0.02em; }
   .site-nav { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
   .site-nav a {
     font-size: 13px; text-decoration: none; color: var(--ink);
@@ -74,7 +81,7 @@
     color: var(--navy); border: 1px solid var(--line-2); border-radius: 999px;
     padding: 5px 12px; margin: 0 0 14px;
   }
-  .hero h1 { font-size: clamp(26px, 4.4vw, 38px); line-height: 1.35; font-weight: 700; margin-bottom: 14px; }
+  .hero h1 { font-size: clamp(26px, 4.4vw, 38px); line-height: 1.35; font-weight: 700; margin-bottom: 14px; text-wrap: balance; }
   html[lang="ja"] .hero h1 { font-size: clamp(24px, 4vw, 34px); line-height: 1.5; }
   .lede { font-size: 15px; line-height: 1.7; color: var(--ink-soft); max-width: 640px; margin: 0 auto 20px; }
 
@@ -364,7 +371,6 @@
 
   @media (max-width: 640px) {
     .site-header { padding: 10px 16px; }
-    .wordmark-img { height: 36px; }
     .site-name { font-size: 17px; }
     .site-nav a { padding: 6px 9px; font-size: 12px; }
     .hero { padding: 24px 16px 12px; }
@@ -466,7 +472,7 @@
 
 <header class="site-header">
   <a class="home-link" href="./" id="homeLink" aria-label="Home">
-    <img class="wordmark-img" src="./kh-logo.png" alt="Kingdom Hearts" width="465" height="310" /><span class="site-name">Merchgraph</span>
+    <span class="site-name">Merchgraph</span>
   </a>
   <nav class="site-nav" aria-label="Main">
     <a href="./" aria-current="page" data-i18n="navDiscover">Discover</a>
@@ -571,7 +577,7 @@
 <footer>
   <div class="legal">
     <p data-i18n="legal1">An independent fan project. Not affiliated with, endorsed or sponsored by Square Enix, Disney, or any maker, shop, marketplace or shipping service mentioned here. Nothing is sold on this site.</p>
-    <p data-i18n-html="legal2">Kingdom Hearts and all related names, characters, logos and artwork belong to their respective owners. Product photos are shown only to identify items, with their source credited. Fan-made items are labelled separately from official merchandise. Prices and availability are for reference and may be out of date. Site icon: Twemoji (CC-BY 4.0), see <a href="/credits.txt">credits</a>.</p>
+    <p data-i18n-html="legal2">Kingdom Hearts and all related names, characters, logos and artwork belong to their respective owners. Product photos are shown only to identify items, with their source credited. Fan-made items are labelled separately from official merchandise. Prices and availability are for reference and may be out of date.</p>
     <p data-i18n-html="legal3">Spotted a mistake? Use the report form in the item’s details, or <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">open an issue on GitHub</a>. Press, partnerships and other enquiries: <a href="/contact">contact form</a>. Rights holders: please write to legal@merchgraph.app (image removals can also be requested with <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues/new?template=image-takedown.yml" target="_blank" rel="noopener">this form</a>); requests are handled promptly.</p>
   </div>
 </footer>
@@ -699,47 +705,47 @@ const STRINGS = {
   },
   ja: {
     navDiscover: 'さがす', navCheck: '出品をチェック', navAbout: 'このサイトについて',
-    kicker: 'ここはお店ではありません',
-    heroTitle: 'まだ知らないキングダム ハーツのグッズに、世界中から出会える。',
-    heroLede: '日本のグッズも、海外の公式ライセンス品やファンメイドも。それが何か、公式か、元の価格はいくらか、いまどこで手に入るかが分かります。',
-    p1Name: '出会う', p1Text: '国内では売られていなかったもの、存在すら知らなかったもの。',
-    p2Name: '知る', p2Text: '公式かファンメイドか、発売時の価格はいくらか。高すぎる転売価格を見分ける目安になります。',
+    kicker: '販売サイトではありません',
+    heroTitle: '世界中のキングダム ハーツ グッズを探索してみましょう。',
+    heroLede: '国内外の公式グッズからファンメイド作品まで。商品の詳細や当時の価格、そして現在の入手方法まで一目で確認できます。',
+    p1Name: 'さがす', p1Text: '日本未発売のアイテムや、存在すら知らなかったレアなグッズまで。',
+    p2Name: '知る', p2Text: '公式かファンメイドか、当時の定価はいくらか。適正価格を見極める目安になります。',
     p1Link: 'ランダムに見る ›', p2Link: '見つけた出品をチェック ›', p3Link: '購入方法について ›',
-    p3Name: '見つける', p3Text: 'いまどこで手に入るか。新品で買えるのか、中古だけなのか、イベント限定なのか。',
-    statsTotal: '{n}件を掲載', statsJp: '日本発売 {n}件', statsOverseas: '海外発売 {n}件',
-    searchPlaceholder: 'キャラ名や商品名で検索（例：ソラ、ぬいぐるみ）',
-    priceAny: '定価：指定なし', priceUnder: '定価 〜約¥{v}',
+    p3Name: '見つける', p3Text: '新品、中古市場、イベント限定品など。現在ファンが実際に手に入れているルートがわかります。',
+    statsTotal: '{n}件を掲載', statsJp: '国内発売 {n}件', statsOverseas: '海外発売 {n}件',
+    searchPlaceholder: 'キャラクターや商品名で検索（例：ソラ、ぬいぐるみ）',
+    priceAny: '定価：指定なし', priceUnder: '定価：約¥{v}以下',
     searchBtn: '検索',
     catAny: 'すべて', catDisplay: 'フィギュア・ぬいぐるみ', catWear: 'アパレル・バッグ', catOther: 'アクセサリー・文具',
     catKuji: 'くじ景品', catMusic: '音楽', catBook: '書籍', catGame: 'ゲーム',
     loading: 'カタログを読み込み中…', looking: '検索中…',
     showing: '{total}件中 {shown}件を表示', showingShuffled: '{total}件中 {shown}件を表示・訪問ごとにシャッフル',
     showMore: 'もっと見る', loadingMore: '読み込み中…',
-    pillKeyword: '「{v}」', pillPrice: '定価 〜約¥{v}', pillGift: 'ギフト', clearAll: 'すべて解除',
+    pillKeyword: '「{v}」', pillPrice: '定価：約¥{v}以下', pillGift: 'ギフト', clearAll: 'すべて解除',
     noMatch: '該当する商品が見つかりませんでした。別の言葉やカテゴリで試すか、条件を解除してください。',
     noMatchGroup: 'そのキャラ単独のグッズはまだありません。{chip} で探すと、メンバー全員が登場するグッズが見つかります。',
     noMatchStatus: '該当なし', connError: 'カタログに接続できませんでした（{e}）。少し時間をおいて再読み込みしてください。', connErrorStatus: '接続エラー',
     surprise: 'ランダムに見る', rolling: '選んでいます…', rollAgain: 'もう一度', close: '閉じる ✕',
     toTop: 'トップへ',
     aboutTitle: 'このサイトについて',
-    aboutP1: '世界中のキングダム ハーツのグッズを集めた、ファンによるカタログです。お店ではなく、何も販売していません。それぞれのグッズについて、何なのか、公式ライセンス品かファンメイドか、発売時の価格、いまどこで手に入るかを、確認した出典へのリンクと一緒に載せています。',
-    aboutP2: '多くのファンが目にするのは、身近な通販サイトに出てくる商品だけです。でも、国境や言葉の壁を越えずに埋もれている素敵なグッズはたくさんあります。日本のプライズやくじ景品、海外だけで出たコラボ商品、ファンメイドのアパレル。ここはそれらに出会うための場所です。',
+    aboutP1: '世界中のキングダム ハーツ グッズを集めた、ファン運営のカタログサイトです。※販売を目的としたECサイトではありません。各アイテムの詳細や、公式ライセンス品かファンメイドかの区別、発売当時の価格、現在の入手ルートなどを、情報の出典リンクと共にまとめています。',
+    aboutP2: '普段、私たちが目にするのは身近な通販サイトに並ぶ商品ばかりです。しかし世界には、言葉や国境の壁に阻まれて知られていない素晴らしいグッズがたくさんあります。日本のプライズ品やくじ景品、海外限定のコラボアイテム、そしてファンメイドのアパレル。ここは、そんな未知のグッズと出会える場所です。',
     aboutKhQ: 'キングダム ハーツとは？',
-    aboutKhA: 'スクウェア・エニックスとディズニーによるアクションRPGシリーズです。ディズニーの世界とキャラクターに、オリジナルのキャラクター（ときどきファイナルファンタジーの面々も）が加わります。2002年から十数作が発売されており、これほど多くのグッズが生まれた理由でもあります。<a href="https://ja.wikipedia.org/wiki/キングダム_ハーツ" target="_blank" rel="noopener">Wikipediaで詳しく ↗</a>',
-    aboutProxyQ: '代行サービス（shipping proxy）とは？',
-    aboutProxyA: '日本のショップやフリマの多くは国内にしか発送しません。海外のファンは、<a href="https://buyee.jp/" target="_blank" rel="noopener">Buyee</a> や <a href="https://zenmarket.jp/en/" target="_blank" rel="noopener">ZenMarket</a> などの有料の代行サービスに日本国内で代わりに購入してもらい、海外へ転送してもらいます。手数料と国際送料が商品代金に加わります。当サイトはどの代行サービスとも提携していません。',
-    aboutVerifyQ: 'このサイトの商品情報はどう検証していますか？',
-    aboutVerifyA: '各商品は、メーカー公式サイト・正規販売店・信頼できる報道（4gamer、famitsu等）のいずれかで価格・発売日・型番を直接確認したものに「verified」マークを付けています。公式情報が古い、または間接的にしか確認できない場合は「estimated」として参考価格を表示し、その根拠を明記しています。出品サイト（eBay・メルカリ等）の出品写真や価格は検証の根拠にしていません。',
+    aboutKhA: 'スクウェア・エニックスとディズニーがおくるアクションRPGシリーズ。ディズニーの魅力的な世界やキャラクターたちに、オリジナルキャラクター（ときどき「ファイナルファンタジー」のキャラクターも）が交わる壮大な物語です。2002年の誕生以来十数作にわたって展開されており、数え切れないほどのグッズが生み出され続けています。<a href="https://ja.wikipedia.org/wiki/キングダム_ハーツ" target="_blank" rel="noopener">Wikipediaで詳しく見る ↗</a>',
+    aboutProxyQ: '購入代行サービスとは？',
+    aboutProxyA: '日本のショップやフリマアプリ（メルカリ、ヤフオク!、スクウェア・エニックス e-STOREなど）の多くは、海外発送に対応していません。そこで利用されるのが、日本の住所で代理購入し、海外へ転送してくれる有料の購入代行サービス（<a href="https://buyee.jp/" target="_blank" rel="noopener">Buyee</a>や<a href="https://zenmarket.jp/en/" target="_blank" rel="noopener">ZenMarket</a>などが有名）です。※商品代金に加え、代行手数料と国際送料がかかります。※当サイトはこれらの代行サービスとは一切提携していません。あくまで商品の出品場所をご案内するのみであり、当サイト自身が販売や代行を行うことはありません。',
+    aboutVerifyQ: 'サイト内の情報はどのように検証されていますか？',
+    aboutVerifyA: '「verified（確認済み）」マークがついている商品は、メーカー公式サイト、正規販売店、または信頼できるゲームメディア（4Gamer、ファミ通など）のいずれかで、価格・発売日・型番を直接確認しています。公式情報が古い場合や間接的にしか確認できない場合は「estimated（推定）」として参考価格を表示し、その情報源を記載しています。なお、eBayやメルカリなど、フリマ・オークションサイトの出品写真や価格を検証の根拠とすることはありません。',
     aboutPriceQ: '「定価」とは？',
-    aboutPriceA: '発売時の価格で、発売国の通貨で表示しています（かっこ内は固定レートによるおおよその換算で、最新の為替ではありません）。くじ景品は景品そのものが販売されていないため、1回分の価格を表示しています。いまの中古・転売価格は定価より大幅に高いことも安いこともあります。定価はその比較の目安です。',
-    legal1: '当サイトはファンによる独立したプロジェクトです。スクウェア・エニックス、ディズニー、および掲載しているメーカー・ショップ・マーケットプレイス・代行サービスのいずれとも提携しておらず、承認・後援も受けていません。当サイトでは商品を販売していません。',
-    legal2: '「キングダム ハーツ」および関連する名称、キャラクター、ロゴ、アートワークの権利は各権利者に帰属します。商品写真は商品の識別のためにのみ、出典を明記して掲載しています。ファンメイドの商品は公式商品と区別して表示しています。価格や入手状況は参考情報で、最新でない場合があります。サイトのアイコン：Twemoji（CC-BY 4.0、<a href="/credits.txt">クレジット</a>）。',
-    legal3: '掲載内容の誤りは、商品の詳細にある報告フォーム、または <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">GitHubのIssue</a> からご連絡ください。取材・提携などのお問い合わせは <a href="/contact">お問い合わせフォーム</a> へ。権利者の方は legal@merchgraph.app までご連絡ください（画像の削除は <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues/new?template=image-takedown.yml" target="_blank" rel="noopener">削除依頼フォーム</a> からも受け付けます）。速やかに対応します。',
+    aboutPriceA: '発売当時の価格を、販売国の通貨で表示しています（カッコ内は固定レートによる参考価格であり、最新の為替レートではありません）。くじ景品など非売品の場合は、1回あたりの価格（くじの値段）を記載しています。現在の中古相場や転売価格は定価から大きく変動していることが多いため、適正価格を見極めるための目安としてご活用ください。',
+    legal1: '当サイトはファンが運営する非公式プロジェクトです。スクウェア・エニックス、ディズニー、および当サイトに掲載しているメーカー・ショップ・フリマサイト・代行サービスのいずれとも提携関係はなく、公認やスポンサーシップを受けているものではありません。また、当サイト内で商品の販売は一切行っておりません。',
+    legal2: '「キングダム ハーツ」および関連する名称、キャラクター、ロゴ、アートワークの権利は、それぞれの権利者に帰属します。商品画像はアイテムを識別する目的でのみ、出典を明記したうえで引用しています。ファンメイド作品は公式グッズと明確に区別して掲載しています。なお、価格や入手状況はあくまで参考情報であり、最新の情報とは異なる場合があります。',
+    legal3: '掲載内容に誤りを見つけた場合は、商品の詳細にある報告フォーム、または <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">GitHubのIssue</a> よりお知らせください。取材・提携などのお問い合わせは <a href="/contact">お問い合わせフォーム</a> よりご連絡ください。権利者様からのご連絡は legal@merchgraph.app までお願いいたします（画像削除のご要望は <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues/new?template=image-takedown.yml" target="_blank" rel="noopener">削除依頼フォーム</a> からも受け付けております）。いずれも速やかに対応いたします。',
     photoCredit: '写真：{src}',
     gamePackageCredit: '公式パッケージ画像（© Disney / © Square Enix）',
     findIt: '探す', proxyNote: '', proxyWhat: '',
     seeDetails: '詳しく ›',
-    giftOpen: 'キングダム ハーツ好きへのプレゼントを探していますか？', giftTitle: 'プレゼントを探す',
+    giftOpen: 'キングダム ハーツファンへの贈り物をお探しですか？', giftTitle: 'プレゼントを探す',
     giftHint: '作品を知らなくても大丈夫です。予算と、分かれば好きなキャラを選んでください。定価が予算に収まるグッズを表示するので、買うときに適正な値段かどうかの目安にもなります。',
     giftStep1: '1 · 予算', giftStep2: '2 · 好きなキャラ（任意）', giftGo: 'プレゼント候補を見る',
     giftNote: 'くじ景品は直接購入できないため除外しています。', giftAnyone: '分からない',
