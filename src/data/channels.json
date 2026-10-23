@@ -86,5 +86,29 @@
     "search_url_template": "https://zenmarket.jp/en/search?q={q}",
     "proxy_required": "no",
     "source_url": "https://zenmarket.jp/"
+  },
+  {
+    "channel_name": "graniph",
+    "channel_type": "new",
+    "country": "JP",
+    "search_url_template": "https://www.graniph.com/item?keyword={q}",
+    "proxy_required": "no",
+    "source_url": "https://www.graniph.com/other/global-shipping-guidance-en"
+  },
+  {
+    "channel_name": "six_on_clothing",
+    "channel_type": "western",
+    "country": "US",
+    "search_url_template": "",
+    "proxy_required": "no",
+    "source_url": "https://www.sixonclothing.com/"
+  },
+  {
+    "channel_name": "sugoi_collection",
+    "channel_type": "western",
+    "country": "US",
+    "search_url_template": "",
+    "proxy_required": "no",
+    "source_url": "https://sugoicollections.com/"
   }
 ]
