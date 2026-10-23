@@ -20,8 +20,8 @@
   {
     "line_id": "",
     "pattern": "keyword:塗装が甘い",
-    "message_en": "Listing mentions rough or uneven paint work on a figure. This is sometimes cited for unlicensed figures",
-    "source_url": "but genuine factory seconds exist too; ask for close-up photos before ruling anything out."
+    "message_en": "Listing mentions rough or uneven paint work on a figure. This is sometimes cited for unlicensed figures, but genuine factory seconds exist too; ask for close-up photos before ruling anything out.",
+    "source_url": ""
   },
   {
     "line_id": "",
@@ -32,20 +32,20 @@
   {
     "line_id": "",
     "pattern": "keyword:印刷ズレ",
-    "message_en": "Listing mentions print misalignment on acrylic art (acrylic stands/charms). This can be a sign of an unlicensed reproduction",
-    "source_url": "but minor factory variance also occurs; compare against official product photos."
+    "message_en": "Listing mentions print misalignment on acrylic art (acrylic stands/charms). This can be a sign of an unlicensed reproduction, but minor factory variance also occurs; compare against official product photos.",
+    "source_url": ""
   },
   {
     "line_id": "",
     "pattern": "keyword:縫製が甘い",
-    "message_en": "Listing mentions loose or uneven stitching on a plush. Sometimes reported for unlicensed plush",
-    "source_url": "but this can also reflect wear on a genuine item; ask for close-up photos of the seams."
+    "message_en": "Listing mentions loose or uneven stitching on a plush. Sometimes reported for unlicensed plush, but this can also reflect wear on a genuine item; ask for close-up photos of the seams.",
+    "source_url": ""
   },
   {
     "line_id": "",
     "pattern": "keyword:タグなし",
-    "message_en": "Plush or apparel listed with no maker tag. Licensed KH plush is normally tagged",
-    "source_url": "so a missing tag is worth asking about"
+    "message_en": "Plush or apparel listed with no maker tag. Licensed KH plush is normally tagged, so a missing tag is worth asking about, though tags are also commonly removed or lost on genuine items.",
+    "source_url": ""
   },
   {
     "line_id": "",

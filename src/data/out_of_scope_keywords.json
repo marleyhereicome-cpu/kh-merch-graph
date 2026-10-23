@@ -56,79 +56,79 @@
   {
     "keyword": "lot of",
     "reason": "bundle",
-    "message_en": "This listing bundles multiple items together (eBay lot); any single-SKU match below may reflect only one item in the lot.",
+    "message_en": "This listing bundles multiple items together (eBay \"lot\"); any single-SKU match below may reflect only one item in the lot.",
     "notes": ""
   },
   {
     "keyword": "コスプレ",
     "reason": "cosplay",
-    "message_en": "This is a cosplay item",
-    "notes": "not official licensed merchandise"
+    "message_en": "This is a cosplay item, not official licensed merchandise, so it will not match a catalog SKU.",
+    "notes": ""
   },
   {
     "keyword": "cosplay",
     "reason": "cosplay",
-    "message_en": "This is a cosplay item",
-    "notes": "not official licensed merchandise"
+    "message_en": "This is a cosplay item, not official licensed merchandise, so it will not match a catalog SKU.",
+    "notes": ""
   },
   {
     "keyword": "ウィッグ",
     "reason": "cosplay",
-    "message_en": "This is a wig (cosplay accessory)",
-    "notes": "not official licensed merchandise"
+    "message_en": "This is a wig (cosplay accessory), not official licensed merchandise, so it will not match a catalog SKU.",
+    "notes": ""
   },
   {
     "keyword": "wig",
     "reason": "cosplay",
-    "message_en": "This is a wig (cosplay accessory)",
-    "notes": "not official licensed merchandise"
+    "message_en": "This is a wig (cosplay accessory), not official licensed merchandise, so it will not match a catalog SKU.",
+    "notes": ""
   },
   {
     "keyword": "ハンドメイド",
     "reason": "unofficial",
-    "message_en": "This is a handmade/fan-made item",
-    "notes": "not official licensed merchandise"
+    "message_en": "This is a handmade/fan-made item, not official licensed merchandise, so it will not match a catalog SKU.",
+    "notes": ""
   },
   {
     "keyword": "手作り",
     "reason": "unofficial",
-    "message_en": "This is a handmade/fan-made item",
-    "notes": "not official licensed merchandise"
+    "message_en": "This is a handmade/fan-made item, not official licensed merchandise, so it will not match a catalog SKU.",
+    "notes": ""
   },
   {
     "keyword": "同人",
     "reason": "unofficial",
-    "message_en": "This is a fan-made (doujin) item",
-    "notes": "not official licensed merchandise"
+    "message_en": "This is a fan-made (doujin) item, not official licensed merchandise, so it will not match a catalog SKU.",
+    "notes": ""
   },
   {
     "keyword": "レプリカ",
     "reason": "unofficial",
-    "message_en": "Seller describes this as a replica",
-    "notes": "not an official licensed item"
+    "message_en": "Seller describes this as a replica, not an official licensed item, so it will not match a catalog SKU.",
+    "notes": ""
   },
   {
     "keyword": "fanmade",
     "reason": "unofficial",
-    "message_en": "This is a fan-made item",
-    "notes": "not official licensed merchandise"
+    "message_en": "This is a fan-made item, not official licensed merchandise, so it will not match a catalog SKU.",
+    "notes": ""
   },
   {
     "keyword": "fan made",
     "reason": "unofficial",
-    "message_en": "This is a fan-made item",
-    "notes": "not official licensed merchandise"
+    "message_en": "This is a fan-made item, not official licensed merchandise, so it will not match a catalog SKU.",
+    "notes": ""
   },
   {
     "keyword": "handmade",
     "reason": "unofficial",
-    "message_en": "This is a handmade/fan-made item",
-    "notes": "not official licensed merchandise"
+    "message_en": "This is a handmade/fan-made item, not official licensed merchandise, so it will not match a catalog SKU.",
+    "notes": ""
   },
   {
     "keyword": "replica",
     "reason": "unofficial",
-    "message_en": "Seller describes this as a replica",
-    "notes": "not an official licensed item"
+    "message_en": "Seller describes this as a replica, not an official licensed item, so it will not match a catalog SKU.",
+    "notes": ""
   }
 ]

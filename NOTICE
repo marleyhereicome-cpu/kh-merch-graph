@@ -1,0 +1,18 @@
+Merchgraph (kh-merch-graph) — third-party material
+
+The MIT License in LICENSE covers the code and the catalog data written for this
+project. It does NOT cover the third-party material below, which belongs to its
+owners and is not licensed by this project:
+
+- Kingdom Hearts names, characters, logos and artwork, including
+  web/kingdomhearts/kh-logo.png and the game package images in
+  web/kingdomhearts/images/games/ (© Disney / © Square Enix). They are used only
+  to identify products. Merchgraph is an independent fan project, not affiliated
+  with, endorsed or sponsored by Square Enix or Disney.
+- Product photos linked from web/kingdomhearts/images.json, which stay on their
+  original sites and belong to their owners.
+- The site favicon (web/favicon*, web/*-chrome-*.png, web/apple-touch-icon.png):
+  Twemoji by Twitter, Inc and other contributors, CC-BY 4.0
+  (https://creativecommons.org/licenses/by/4.0/).
+
+Rights holders: legal@merchgraph.app
