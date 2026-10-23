@@ -10,8 +10,8 @@
 - Not affiliated with, endorsed or sponsored by Square Enix, Disney, or any maker, shop or marketplace.
 
 ## Key pages
-- [Browse the catalog](https://kh-merch-graph-web.fandex.workers.dev/discover.html): search by character, budget and category. Open an item with `discover.html#item=<sku_id>`.
-- [Listing checker](https://kh-merch-graph-web.fandex.workers.dev/index.html): paste a marketplace listing title (Japanese or English) to see which catalog item it most likely is, what the condition terms mean, and bootleg caution notes. Pasted text is not stored.
+- [Browse the catalog](https://merchgraph.app/kingdomhearts/): search by character, budget and category. Open an item with `https://merchgraph.app/kingdomhearts/#item=<sku_id>`.
+- [Listing checker](https://merchgraph.app/kingdomhearts/check): paste a marketplace listing title (Japanese or English) to see which catalog item it most likely is, what the condition terms mean, and bootleg caution notes. Pasted text is not stored.
 
 ## For AI agents (MCP server)
 - The same catalog is available as an MCP server that resolves fuzzy product names and listing titles to catalog entries, explains condition terms, and estimates landed cost.
@@ -19,5 +19,7 @@
 - Full tool list and usage notes for agents: [MCP server llms.txt](https://kh-merch-graph.fandex.workers.dev/llms.txt)
 
 ## Source and corrections
+- Press, partnerships and other enquiries: https://merchgraph.app/contact
+- Rights holders: legal@merchgraph.app
 - Source code and data: https://github.com/marleyhereicome-cpu/kh-merch-graph
 - Report an error: https://github.com/marleyhereicome-cpu/kh-merch-graph/issues

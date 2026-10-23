@@ -158,7 +158,7 @@ Claude は「承認の指示」がない限り `verified=true` を付けませ�
 
 古い `product_lines.csv` を元に全体を貼り付けて、PR で足した475ラインが消える事故が起きたため、次のチェックを入れています（`scripts/check-data-removal.mjs`）。
 
-- 対象：`data/catalog.csv`（sku_id）・`data/product_lines.csv`（line_id）・`web/images.json`（キー）
+- 対象：`data/catalog.csv`（sku_id）・`data/product_lines.csv`（line_id）・`web/kingdomhearts/images.json`（キー）
 - 比較元にあった ID のうち、消えた数が **5件、または2%** を超えたら失敗
 - **デプロイ時**（`deploy.yml`）：最後に本番へ出した版（`last-deployed` タグ）と比べ、失敗したら本番を更新しない。直前のコミットではなく本番の版と比べるので、事故のあとに別の push が来ても、消えたデータは本番に出ない
 - **PR**（`data-guard.yml`）：取り込み先と比べ、マージ前に赤くなる

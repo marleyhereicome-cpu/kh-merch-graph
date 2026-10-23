@@ -3,7 +3,7 @@
 //   例: node scripts/check-data-removal.mjs last-deployed   （デプロイ時：最後に本番へ出した版と比べる）
 //       node scripts/check-data-removal.mjs origin/main     （PR：取り込み先と比べる）
 //
-// 比較元にあった ID（catalog.csv の sku_id、product_lines.csv の line_id、web/images.json のキー）のうち、
+// 比較元にあった ID（catalog.csv の sku_id、product_lines.csv の line_id、web/kingdomhearts/images.json のキー）のうち、
 // 今のファイルから消えた数が「5件、または比較元の2%」を超えたら失敗する。
 // 古いファイルを元に全体を貼り付けると、PR で足した行がまとめて消える。行の追加・数件の削除は通る。
 //
@@ -16,7 +16,7 @@ import { parseCsv } from "./lib/csv.mjs";
 export const FILES = [
   { path: "data/catalog.csv", label: "catalog.csv", id: "sku_id" },
   { path: "data/product_lines.csv", label: "product_lines.csv", id: "line_id" },
-  { path: "web/images.json", label: "images.json", id: null },
+  { path: "web/kingdomhearts/images.json", label: "images.json", id: null },
 ];
 
 // 許容する消失数：5件、または比較元の件数の2%の大きい方。

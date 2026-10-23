@@ -31,7 +31,7 @@ Keep these values handy — every form below asks for some subset of them.
 | Category | Shopping / Collectibles (fall back to "E-commerce" or "Hobbies & Games" if a directory's taxonomy doesn't have that) |
 | Repo URL | `https://github.com/marleyhereicome-cpu/kh-merch-graph` |
 | Server / MCP URL | `https://kh-merch-graph.fandex.workers.dev/mcp` |
-| Web checker URL | `https://kh-merch-graph-web.fandex.workers.dev` |
+| Website URL | `https://merchgraph.app` (catalog: `/kingdomhearts/`, listing checker: `/kingdomhearts/check`; the old `kh-merch-graph-web.fandex.workers.dev` redirects here) |
 | Icon | Not required — skip it |
 | License | ISC |
 | Maintainer contact | Whichever email or GitHub handle you're comfortable making public — most directories treat this as optional |
