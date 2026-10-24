@@ -310,6 +310,9 @@
     border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px;
   }
   .channel-links a:hover { border-color: var(--gold); color: var(--ink); }
+  .proxy-note { margin-top: 10px; padding: 10px 12px; background: #FFFFFF; border: 1px solid var(--line); border-radius: 10px; }
+  .proxy-note p { margin: 0 0 4px; }
+  .proxy-note p:last-child { margin-bottom: 0; }
   .facts { display: grid; grid-template-columns: 120px 1fr; gap: 6px 12px; font-size: 13px; margin: 0; }
   .facts dt { color: var(--muted); }
   .facts dd { margin: 0; color: var(--ink); line-height: 1.6; }
@@ -637,7 +640,9 @@ const STRINGS = {
     aboutKhQ: 'What is Kingdom Hearts?', aboutProxyQ: "What's a shipping proxy?", aboutPriceQ: 'What does "original price" mean?',
     photoCredit: 'photo: {src}',
     gamePackageCredit: 'Official product packaging — © Disney / © Square Enix',
-    findIt: 'Find it', proxyNote: "Ships from Japan only — a shipping proxy forwards it to you.", proxyWhat: "What's that?",
+    findIt: 'Find it',
+    proxyNote: "Ships within Japan only — you'll need a shipping-forwarding service to receive this outside Japan.",
+    proxyTry: 'Forwarding services:', proxyNeutral: "Listed for information only — we're not affiliated with any of them.", proxyWhat: "What's a forwarding service?",
     seeDetails: 'Details ›',
     // gift
     giftOpen: 'Looking for a gift for a Kingdom Hearts fan?', giftTitle: 'Gift ideas',
@@ -743,7 +748,9 @@ const STRINGS = {
     legal3: '掲載内容に誤りを見つけた場合は、商品の詳細にある報告フォーム、または <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">GitHubのIssue</a> よりお知らせください。取材・提携などのお問い合わせは <a href="/contact">お問い合わせフォーム</a> よりご連絡ください。権利者様からのご連絡は legal@merchgraph.app までお願いいたします（画像削除のご要望は <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues/new?template=image-takedown.yml" target="_blank" rel="noopener">削除依頼フォーム</a> からも受け付けております）。いずれも速やかに対応いたします。',
     photoCredit: '写真：{src}',
     gamePackageCredit: '公式パッケージ画像（© Disney / © Square Enix）',
-    findIt: '探す', proxyNote: '', proxyWhat: '',
+    findIt: '探す',
+    proxyNote: '日本国内発送のみ。海外へ届けるには配送代行サービスが必要です。',
+    proxyTry: '主な配送代行サービス：', proxyNeutral: '情報提供のための掲載で、当サイトはいずれのサービスとも提携していません。', proxyWhat: '購入代行サービスとは？',
     seeDetails: '詳しく ›',
     giftOpen: 'キングダム ハーツファンへの贈り物をお探しですか？', giftTitle: 'プレゼントを探す',
     giftHint: '作品を知らなくても大丈夫です。予算と、分かれば好きなキャラを選んでください。定価が予算に収まるグッズを表示するので、買うときに適正な値段かどうかの目安にもなります。',
@@ -998,12 +1005,12 @@ function badgeFor(hint, worldwideCheckout) {
 
 // jpName: true → search with the Japanese name (Japanese sites), false → English name.
 const CHANNELS = {
-  mercari: { label: 'Mercari', ja: 'メルカリ', template: 'https://jp.mercari.com/search?keyword={q}', proxy: true, jpName: true },
-  yahoo_auctions: { label: 'Yahoo Auctions', ja: 'ヤフオク', template: 'https://auctions.yahoo.co.jp/search/search?p={q}', proxy: true, jpName: true },
-  surugaya: { label: 'Suruga-ya', ja: '駿河屋', template: 'https://www.suruga-ya.jp/search?category=&search_word={q}', proxy: true, jpName: true },
-  mandarake: { label: 'Mandarake', ja: 'まんだらけ', template: 'https://order.mandarake.co.jp/order/listPage/list?keyword={q}', proxy: true, jpName: true },
+  mercari: { label: 'Mercari', ja: 'メルカリ', template: 'https://jp.mercari.com/search?keyword={q}', proxy: true, marketplace: true, jpName: true },
+  yahoo_auctions: { label: 'Yahoo Auctions', ja: 'ヤフオク', template: 'https://auctions.yahoo.co.jp/search/search?p={q}', proxy: true, marketplace: true, jpName: true },
+  surugaya: { label: 'Suruga-ya', ja: '駿河屋', template: 'https://www.suruga-ya.jp/search?category=&search_word={q}', proxy: true, marketplace: true, jpName: true },
+  mandarake: { label: 'Mandarake', ja: 'まんだらけ', template: 'https://order.mandarake.co.jp/order/listPage/list?keyword={q}', proxy: true, marketplace: true, jpName: true },
   amiami: { label: 'AmiAmi', ja: 'あみあみ', template: 'https://www.amiami.com/eng/search/list/?s_keywords={q}', proxy: false, jpName: true },
-  'e-store': { label: 'Square Enix e-STORE', ja: 'スクエニ e-STORE', template: 'https://store.jp.square-enix.com/estore/g/search/?keyword={q}', proxy: false, jpName: true },
+  'e-store': { label: 'Square Enix e-STORE', ja: 'スクエニ e-STORE', template: 'https://store.jp.square-enix.com/estore/g/search/?keyword={q}', proxy: true, jpName: true },
   tokyo_otaku_mode: { label: 'Tokyo Otaku Mode', ja: 'Tokyo Otaku Mode', template: 'https://otakumode.com/shop/search?q={q}', proxy: false, jpName: false },
   ebay: { label: 'eBay', ja: 'eBay', template: 'https://www.ebay.com/sch/i.html?_nkw={q}', proxy: false, jpName: false },
   hot_topic: { label: 'Hot Topic', ja: 'Hot Topic', template: 'https://www.hottopic.com/search?query={q}', proxy: false, jpName: false },
@@ -1707,6 +1714,21 @@ function verifiedLine(detail) {
   const yes = detail.verified;
   return `<p class="verify ${yes ? 'yes' : 'no'}"><span class="mark" aria-hidden="true">${yes ? '✓' : '…'}</span>${escapeHtml(t(yes ? 'verifiedYes' : 'verifiedNo'))} · <a href="#verified-faq" data-close-panel>${escapeHtml(t('verifiedHow'))}</a></p>`;
 }
+// Forwarding services, listed for information only (no affiliate links, not affiliated with any of them).
+const FORWARDERS = [
+  { label: 'Buyee', url: 'https://buyee.jp/' },
+  { label: 'ZenMarket', url: 'https://zenmarket.jp/en/' },
+  { label: 'Neokyo', url: 'https://neokyo.com/' },
+  { label: 'FROM JAPAN', url: 'https://www.fromjapan.co.jp/en/' },
+];
+function proxyNoteHtml() {
+  const links = FORWARDERS.map((f) => `<a href="${escapeHtml(f.url)}" target="_blank" rel="noopener nofollow">${escapeHtml(f.label)} ↗</a>`).join(' · ');
+  return `<div class="proxy-note">
+        <p class="sub"><strong>${escapeHtml(t('proxyNote'))}</strong></p>
+        <p class="sub">${escapeHtml(t('proxyTry'))} ${links}</p>
+        <p class="sub">${escapeHtml(t('proxyNeutral'))} <a href="#shipping-proxy-faq" data-close-panel>${escapeHtml(t('proxyWhat'))}</a></p>
+      </div>`;
+}
 function panelHtml(item, detail, imageMap, catalog) {
   const a = artHtml(item, imageMap);
   const isUnofficial = detail && detail.official === false;
@@ -1715,9 +1737,11 @@ function panelHtml(item, detail, imageMap, catalog) {
   const hint = detail?.availability?.hint || 'unknown';
   const { known: chans, other: otherChans } = splitChannels(detail);
   const badge = badgeFor(hint, chans.some((ch) => ch.worldwideCheckout));
-  const needsProxy = !JA && chans.some((ch) => ch.proxy);
+  // Japan-only shops (proxy: true) need a forwarding service from abroad. Skip the note when a
+  // shop that ships worldwide is also listed, or when the item is sold by official shops abroad.
+  const needsProxy = chans.some((ch) => ch.proxy) && !chans.some((ch) => ch.worldwideCheckout) && hint !== 'western_official';
   // Point to the listing checker where people actually deal with marketplace listings.
-  const showCheck = hint === 'jp_secondhand_only' || hint === 'event_only' || chans.some((ch) => ch.proxy);
+  const showCheck = hint === 'jp_secondhand_only' || hint === 'event_only' || chans.some((ch) => ch.marketplace);
   const price = priceParts(item, detail);
   const title = displayName(item, detail);
   // The "other" name: the one that searches best where the item was released.
@@ -1761,7 +1785,7 @@ function panelHtml(item, detail, imageMap, catalog) {
         <div class="channel-links">${chans.map((ch) => `<a href="${escapeHtml(channelUrl(ch, detail, item))}" target="_blank" rel="noopener">${escapeHtml(JA ? ch.ja : ch.label)} ↗</a>`).join('')}</div>` : ''}
       ${otherChans.length ? `<p class="sub" style="margin-top:8px">${escapeHtml(t('alsoSoldAt'))} ${otherChans.map(escapeHtml).join(' · ')}</p>` : ''}
       ${showCheck ? `<p class="sub" style="margin-top:10px"><a href="${escapeHtml(checkerUrl())}">${escapeHtml(t('checkListing'))}</a></p>` : ''}
-      ${needsProxy ? `<p class="sub" style="margin-top:8px">${escapeHtml(t('proxyNote'))} <a href="#shipping-proxy-faq" data-close-panel>${escapeHtml(t('proxyWhat'))}</a></p>` : ''}
+      ${needsProxy ? proxyNoteHtml() : ''}
     </div>
 
     ${(() => { const f = factsHtml(item, detail, catalog); return f ? `<div class="panel-section"><h3>${escapeHtml(t('secFacts'))}</h3>${f}</div>` : ''; })()}
