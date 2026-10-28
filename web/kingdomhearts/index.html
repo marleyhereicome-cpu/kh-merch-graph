@@ -15,6 +15,9 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 <link rel="manifest" href="/site.webmanifest" />
+<link rel="canonical" href="https://merchgraph.app/kingdomhearts/" />
+<!-- 「このサイトについて」のFAQの構造化データ。FAQ の文を変えたらここも合わせる（tests/web-pages.test.ts が一致を確認）。 -->
+<script type="application/ld+json" id="ld-faq">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is Kingdom Hearts?", "acceptedAnswer": {"@type": "Answer", "text": "Kingdom Hearts is a long-running action RPG series from Square Enix and Disney, weaving Disney's worlds and characters together with an original cast (and the occasional Final Fantasy face). It's been running since 2002 across more than a dozen games, and it's the reason this much merch exists in the first place. More on Wikipedia ↗"}}, {"@type": "Question", "name": "What's a shipping proxy?", "acceptedAnswer": {"@type": "Answer", "text": "Most Japanese shops and marketplaces (Mercari, Yahoo Auctions, the Square Enix store) only ship inside Japan. A shipping proxy is a paid service (Buyee and ZenMarket are two well-known ones) that buys the item on your behalf with a Japanese address, then forwards it to you. They add a service fee plus international shipping on top of the item's price. We're NOT affiliated with either. This isn't something we do ourselves; we just point you to where an item shows up and let you take it from there."}}, {"@type": "Question", "name": "What does \"original price\" mean?", "acceptedAnswer": {"@type": "Answer", "text": "It's the price an item had when it was first released, in the currency of the country it was released in (approximate conversions are shown in brackets, using a fixed rate, not a live one). Lottery prizes show the price of one draw, since the prize itself was never sold. Resale prices today can be far above or below the original; the original price is there so you have something to compare against."}}, {"@type": "Question", "name": "How is the information on this site checked?", "acceptedAnswer": {"@type": "Answer", "text": "Each item marked “verified” has had its price, release date and product code checked directly against at least one of: the maker’s official site, an authorized retailer, or reliable press (4Gamer, Famitsu and the like). When the official information is outdated or can only be confirmed indirectly, the item shows an “estimated” reference price and the basis is noted. Listing photos and prices from marketplaces (eBay, Mercari and so on) are never used as evidence."}}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
 <style>
@@ -698,6 +701,7 @@ const STRINGS = {
     factSet: 'Includes', factDesigns: 'Designs', factRereleases: 'Re-releases', factSize: 'Size', factCode: 'Item code',
     regionJP: 'Japan', regionNA: 'North America', regionEU: 'Europe',
     sourceLink: 'Open the source ↗',
+    itemPage: "This item's own page ›",
     shareCopy: 'Copy link', shareX: 'Post on X', shareNative: 'Share…', linkCopied: 'Link copied',
     shareText: 'Did you know this Kingdom Hearts item exists?',
     reportOpen: 'Spot a mistake? Tell us',
@@ -801,6 +805,7 @@ const STRINGS = {
     factSet: 'セット内容', factDesigns: 'デザイン', factRereleases: '再販', factSize: 'サイズ', factCode: '品番',
     regionJP: '日本', regionNA: '北米', regionEU: '欧州',
     sourceLink: '出典を開く ↗',
+    itemPage: 'この商品の個別ページ（英語） ›',
     shareCopy: 'リンクをコピー', shareX: 'Xでポスト', shareNative: '共有…', linkCopied: 'リンクをコピーしました',
     shareText: 'こんなキングダム ハーツのグッズ、知ってた？',
     reportOpen: '間違いを見つけたら教えてください',
@@ -913,7 +918,8 @@ const LD_PRICED_BASES = new Set(['msrp', 'estimated', 'set_price', 'bundle_price
 function absUrl(u) { try { return new URL(u, location.href).href; } catch { return ''; } }
 // 構造化データ用の正規URL（共有用の itemUrl と違い ?src= を付けない）。
 // 正規URLは常に /kingdomhearts/ 配下（ルート / は同じ内容の別名）。
-function canonicalItemUrl(sku) { return `${location.origin}/kingdomhearts/#item=${encodeURIComponent(sku)}`; }
+// 商品ごとの静的ページ（scripts/build-item-pages.mjs がデプロイ時に作る）。構造化データの正規URLにも使う。
+function canonicalItemUrl(sku) { return `${location.origin}/kingdomhearts/item/${encodeURIComponent(sku)}`; }
 function productLd(item, detail, imageMap) {
   const photo = (imageMap || {})[item.sku_id] || '';
   const maker = detail?.line?.maker || '';
@@ -1266,28 +1272,21 @@ function lineTypeOf(item) {
 }
 
 // Some characters don't have solo merch yet, but turn up under a broader group
-// search. Data, not logic: add an entry per group.
-const CHARACTER_GROUPS = {
-  organization_xiii: {
-    suggestKeyword: 'organization xiii',
-    suggestLabel: 'Organization XIII',
-    members: [
-      'xemnas', 'xigbar', 'xaldin', 'vexen', 'lexaeus', 'zexion', 'saix', 'saïx',
-      'axel', 'demyx', 'luxord', 'marluxia', 'larxene', 'roxas', 'xion',
-      'ゼムナス', 'シグバール', 'ザルディン', 'ヴィクセン', 'ベクセン', 'レクセウス', 'ゼクシオン',
-      'サイクス', 'アクセル', 'デミックス', 'ルクソード', 'マールーシャ', 'マールシア', 'ラーゼンバーグ', 'ラクシーヌ',
-    ],
-  },
-};
+// search (e.g. Xigbar → Organization XIII). The group data lives on the server
+// (src/lib/character-groups.ts): when a search finds nothing, ask discover()
+// for its suggestion, so the site and AI agents always give the same answer.
+const suggestionCache = new Map();
 function findSuggestion(keyword) {
-  if (!keyword) return null;
-  const lower = keyword.toLowerCase();
-  for (const group of Object.values(CHARACTER_GROUPS)) {
-    if (group.members.some((m) => lower.includes(m.toLowerCase()))) {
-      return { suggestKeyword: group.suggestKeyword, suggestLabel: group.suggestLabel };
-    }
+  if (!keyword) return Promise.resolve(null);
+  if (!suggestionCache.has(keyword)) {
+    const p = discover({ character: keyword, limit: 0 })
+      .then((r) => (r.suggested_character_group
+        ? { suggestKeyword: r.suggested_character_group.suggest_keyword, suggestLabel: r.suggested_character_group.suggest_label }
+        : null))
+      .catch(() => { suggestionCache.delete(keyword); return null; });
+    suggestionCache.set(keyword, p);
   }
-  return null;
+  return suggestionCache.get(keyword);
 }
 
 // Japanese search words → the English words the catalog's searchable fields
@@ -1611,7 +1610,8 @@ async function applyFilters() {
     filteredItems = pool.filter((item) => matchesFeature(item) && matchesKeyword(item, variants) && matchesBudget(item, budgetJpy) && matchesCategory(item, category));
     renderedCount = 0;
     if (!filteredItems.length) {
-      const suggestion = findSuggestion(raw);
+      const suggestion = await findSuggestion(raw);
+      if (currentFilters().raw !== raw) return; // the visitor already searched for something else
       if (suggestion) {
         const chip = `<button type="button" class="suggest-chip" data-kw="${escapeHtml(suggestion.suggestKeyword)}">${escapeHtml(suggestion.suggestLabel)}</button>`;
         els.grid.innerHTML = `<div class="state-msg">${escapeHtml(t('noMatchGroup')).replace('{chip}', chip)}</div>`;
@@ -1804,6 +1804,7 @@ function panelHtml(item, detail, imageMap, catalog) {
         <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(`${t('shareText')} ${title}`)}&url=${encodeURIComponent(itemUrl(item.sku_id))}" target="_blank" rel="noopener">${escapeHtml(t('shareX'))}</a>
         ${navigator.share ? `<button type="button" data-share="native">${escapeHtml(t('shareNative'))}</button>` : ''}
       </div>
+      <p class="sub" style="margin-top:8px"><a href="/kingdomhearts/item/${encodeURIComponent(item.sku_id)}">${escapeHtml(t('itemPage'))}</a></p>
     </div>
 
     <div class="panel-section">

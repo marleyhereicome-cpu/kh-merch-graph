@@ -142,20 +142,26 @@ export function registerResolveListingTool(server: McpServer, onUsage?: UsageLog
     {
       title: "Resolve listing",
       description:
-        "日本語の中古出品タイトル・説明文から、正規SKU候補・状態語・海賊版注意フラグ・定価比の目安を返す。",
+        "Identify a Kingdom Hearts item from a marketplace listing (Mercari, Yahoo! Auctions, Suruga-ya, Mandarake, eBay…). " +
+        "Paste the listing title as-is (Japanese or English), e.g. {title: \"一番くじ キングダムハーツ A賞 ソラ フィギュア 箱なし\", " +
+        "price_jpy: 4500}. Returns candidates[] (sku_id, name_en, confidence 0-1, why, source_url; several when the title " +
+        "is ambiguous), weak_matches[] when unsure, conditions[] (Japanese condition words such as 未使用/箱なし explained), " +
+        "flags[] (bootleg caution notes, not a verdict), price (original price and listing-to-original ratio when " +
+        "price_jpy is given), acquisition notes and next_checks_en (what to ask the seller). Listing text is not stored. " +
+        "For many listings at once use resolve_listings_batch.",
       inputSchema: {
-        title: z.string().describe("出品タイトル（必須）"),
-        description: z.string().optional().describe("説明文の抜粋（任意）"),
-        price_jpy: z.number().optional().describe("出品価格（円、任意）"),
+        title: z.string().describe("The listing title, copied as-is (required)."),
+        description: z.string().optional().describe("Part of the listing description, e.g. condition notes such as 開封済み. Optional; improves condition and bootleg checks."),
+        price_jpy: z.number().optional().describe("Listing price in Japanese yen. Optional; enables the comparison with the original price."),
         platform: z
           .enum(["mercari", "yahoo", "surugaya", "mandarake", "other"])
           .optional()
-          .describe("出品プラットフォーム（任意）"),
-        url: z.string().optional().describe("出品URL（任意・サーバー側では保存しない）"),
+          .describe("Where it is listed. Optional."),
+        url: z.string().optional().describe("Listing URL. Optional; not stored and not fetched."),
         src: z
           .string()
           .optional()
-          .describe("計測用の流入元タグ（任意）。Web版チェッカーのURLパラメータ?src=から渡される。src自体と日時のみ利用ログに残す"),
+          .describe("Traffic-source tag for usage statistics, used by the website (optional; only the tag and time are logged). Agents can omit it."),
       },
     },
     async ({ title, description, price_jpy, src }) => {
