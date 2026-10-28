@@ -1,8 +1,8 @@
 // SPEC 3.2 explain_product — sku_id または自然文クエリから商品の詳細を返す。
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { catalog, productLines, ipTerms } from "../lib/store.js";
-import { buildAvailabilityInfo, buildRegionInfo } from "../lib/acquisition.js";
+import { catalog, productLines, ipTerms, channels } from "../lib/store.js";
+import { buildAvailabilityInfo, buildRegionInfo, buildShippingInfo } from "../lib/acquisition.js";
 import { resolveCandidates } from "../lib/resolve.js";
 import { splitPipe, isTrue } from "../lib/types.js";
 import { localPriceOf } from "../lib/price.js";
@@ -23,7 +23,8 @@ export function registerExplainProductTool(server: McpServer): void {
         "(e.g. {sku_id: \"ichiban-kuji-kh-2018-a\"}), or a free-text query such as {query: \"Sora Bring Arts Halloween Town\"} " +
         "to get the best match. Returns names (en/ja), product line (maker, line type, release date), characters, original " +
         "price (msrp_jpy, price_local, currency, price_basis), acquisition_type (retail, kuji, prize, …), availability " +
-        "(hint + confidence), typical_channels, size/weight, re-release dates, official (licensed or fan-made), verified " +
+        "(hint + confidence), typical_channels, shipping (whether it is only sold at shops that ship within Japan, so a " +
+        "shipping-forwarding service is needed from abroad; costs are not calculated), size/weight, re-release dates, official (licensed or fan-made), verified " +
         "(checked against the source) and source_url.",
       inputSchema: {
         sku_id: z.string().optional().describe('Catalog SKU ID, e.g. "ichiban-kuji-kh-2018-a". Either sku_id or query is required.'),
@@ -95,6 +96,7 @@ export function registerExplainProductTool(server: McpServer): void {
         isbn: sku.isbn || null,
         catalog_number: sku.catalog_number || null,
         availability: buildAvailabilityInfo(sku),
+        shipping: buildShippingInfo(sku, channels),
         // 主な入手チャネル（data/channels.csv の channel_name と対応）。
         // discover.html 側でこれを使い、実際に検索できるリンクを組み立てる。
         typical_channels: splitPipe(sku.typical_channels),

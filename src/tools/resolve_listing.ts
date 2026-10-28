@@ -9,6 +9,7 @@ import {
   otherIpKeywords,
   outOfScopeKeywords,
   ipTerms,
+  channels,
 } from "../lib/store.js";
 import { resolveCandidates, type ResolveCandidate } from "../lib/resolve.js";
 import { extractConditions, type ConditionMatch } from "../lib/conditions.js";
@@ -20,6 +21,7 @@ import {
   buildAvailabilityInfo,
   buildPriceInfo,
   buildRegionInfo,
+  buildShippingInfo,
   buildVarietyInfo,
 } from "../lib/acquisition.js";
 import { applyOutOfScope, detectOutOfScope } from "../lib/out-of-scope.js";
@@ -59,13 +61,15 @@ export interface ResolveListingInput {
   title: string;
   description?: string;
   price_jpy?: number;
+  /** 出品先（mercari / yahoo / surugaya / mandarake / other）。配送代行の要否の判定にだけ使う。 */
+  platform?: string;
   src?: string;
 }
 
 // MCPツール本体・公開版の /v1/resolve（GET、SPEC.md §5）の両方から呼べるよう、
 // ロジックをMCPの登録処理から独立させてある。
 export async function resolveListing(input: ResolveListingInput, onUsage?: UsageLogger) {
-  const { title, description, price_jpy, src } = input;
+  const { title, description, price_jpy, platform, src } = input;
   const queryText = `${title} ${description ?? ""}`;
 
   const detected = detectOutOfScope(queryText, outOfScopeKeywords, otherIpKeywords, ipTerms, catalogIps(catalog));
@@ -102,6 +106,7 @@ export async function resolveListing(input: ResolveListingInput, onUsage?: Usage
   const availability = topSku ? buildAvailabilityInfo(topSku) : null;
   const region = topSku ? buildRegionInfo(topSku) : null;
   const variety = topSku ? buildVarietyInfo(topSku) : null;
+  const shipping = buildShippingInfo(topSku ?? null, channels, platform);
 
   const result = {
     candidates,
@@ -112,6 +117,7 @@ export async function resolveListing(input: ResolveListingInput, onUsage?: Usage
     acquisition,
     availability,
     region,
+    shipping,
     variety,
     out_of_scope: outOfScope.length > 0 ? outOfScope : null,
     next_checks_en: buildNextChecks(candidates, conditions, flags),
@@ -147,7 +153,8 @@ export function registerResolveListingTool(server: McpServer, onUsage?: UsageLog
         "price_jpy: 4500}. Returns candidates[] (sku_id, name_en, confidence 0-1, why, source_url; several when the title " +
         "is ambiguous), weak_matches[] when unsure, conditions[] (Japanese condition words such as 未使用/箱なし explained), " +
         "flags[] (bootleg caution notes, not a verdict), price (original price and listing-to-original ratio when " +
-        "price_jpy is given), acquisition notes and next_checks_en (what to ask the seller). Listing text is not stored. " +
+        "price_jpy is given), shipping (whether a shipping-forwarding service is needed from abroad; set platform for a " +
+        "precise answer), acquisition notes and next_checks_en (what to ask the seller). Listing text is not stored. " +
         "For many listings at once use resolve_listings_batch.",
       inputSchema: {
         title: z.string().describe("The listing title, copied as-is (required)."),
@@ -164,8 +171,8 @@ export function registerResolveListingTool(server: McpServer, onUsage?: UsageLog
           .describe("Traffic-source tag for usage statistics, used by the website (optional; only the tag and time are logged). Agents can omit it."),
       },
     },
-    async ({ title, description, price_jpy, src }) => {
-      const result = await resolveListing({ title, description, price_jpy, src }, onUsage);
+    async ({ title, description, price_jpy, platform, src }) => {
+      const result = await resolveListing({ title, description, price_jpy, platform, src }, onUsage);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
     }
   );

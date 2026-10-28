@@ -13,8 +13,9 @@ export function registerEstimateLandedCostTool(server: McpServer, onUsage?: Usag
       description:
         "Estimate the total cost of buying an item in Japan and having it forwarded abroad. Example: " +
         "{price_jpy: 4500, sku_id: \"ichiban-kuji-kh-2018-a\", dest_country: \"US\"}. Returns routes[] (forwarding service × " +
-        "shipping method, with fees and total_jpy, cheapest first) and cheapest. Figures are estimates from published " +
-        "fee tables, not quotes; we are not affiliated with any forwarding service.",
+        "shipping method, with fees and total_jpy, cheapest first) and cheapest. Rough figures only: fee and shipping " +
+        "tables currently cover US, GB, DE and FR (other countries return no routes), come from third-party comparison " +
+        "guides (mid-2026) and exclude duties. Not a quote; we are not affiliated with any forwarding service.",
       inputSchema: {
         price_jpy: z.number().describe("Item price in Japanese yen (required)."),
         sku_id: z.string().optional().describe("Catalog sku_id, used to look up the weight. Optional."),
