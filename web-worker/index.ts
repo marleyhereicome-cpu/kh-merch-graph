@@ -68,6 +68,12 @@ export default {
 
     if (path === "/api/contact") return handleContact(request, env);
 
+    // Google Search Console の所有権確認ファイル（web/google<英数字>.html）。静的ファイルの既定の動きでは
+    // /xxx.html が /xxx へ転送されてしまい確認に失敗するため、この URL のまま中身を返す。確認後も消さないこと。
+    if (/^\/google[0-9a-f]+\.html$/.test(path)) {
+      return env.ASSETS.fetch(assetRequest(request, url, path.slice(0, -".html".length)));
+    }
+
     // IP のパスの下は、そのまま静的ファイルを返す。
     if (IP_PREFIXES.some((p) => isUnder(path, p))) return env.ASSETS.fetch(request);
 
