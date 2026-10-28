@@ -7,6 +7,8 @@ import { containsNormalized } from "../lib/normalize.js";
 import { splitPipe, isTrue } from "../lib/types.js";
 import { buildUsageLogEntry, type UsageLogger } from "../lib/usage-log.js";
 import { localPriceOf, fxRatesToJpy } from "../lib/price.js";
+import { findCharacterGroupSuggestion } from "../lib/character-groups.js";
+import type { CatalogSku } from "../lib/types.js";
 
 const PURPOSE_LINE_TYPES: Record<string, string[]> = {
   display: ["figure", "prize", "kuji", "acrylic", "plush", "other"],
@@ -21,42 +23,6 @@ function lineTypeFor(lineId: string): string | undefined {
   return lineTypeById.get(lineId);
 }
 
-// ゼロ件誘導機能：単独グッズがまだ無いキャラ名で検索された場合、グループ名（例:
-// 「XIII機関」）での再検索を提案する。web/discover.html の CHARACTER_GROUPS /
-// findSuggestion() と同じデータ・同じロジックをサーバー側に複製したもの。
-// 新しいIPやキャラを追加するときは、ここと discover.html の両方を更新すること
-// （将来的には data/ip_terms.csv の character_group 列から自動生成する案あり。
-// claude/運用体制_スキルとエージェント自動化_2026-09.md §5参照）。
-interface CharacterGroup {
-  suggestKeyword: string;
-  suggestLabel: string;
-  members: string[];
-}
-
-const CHARACTER_GROUPS: Record<string, CharacterGroup> = {
-  organization_xiii: {
-    suggestKeyword: "organization xiii",
-    suggestLabel: "Organization XIII",
-    members: [
-      "xemnas", "xigbar", "xaldin", "vexen", "lexaeus", "zexion", "saix", "saïx",
-      "axel", "demyx", "luxord", "marluxia", "larxene", "roxas", "xion",
-      "ゼムナス", "シグバール", "ザルディン", "ベクセン", "レクセウス", "ゼクシオン",
-      "サイクス", "アクセル", "デミックス", "ルクソード", "マールシア", "ラーゼンバーグ", "ラクシーヌ",
-    ],
-  },
-};
-
-function findCharacterGroupSuggestion(character?: string): { suggest_keyword: string; suggest_label: string } | null {
-  if (!character) return null;
-  const lower = character.toLowerCase();
-  for (const group of Object.values(CHARACTER_GROUPS)) {
-    if (group.members.some((m) => lower.includes(m.toLowerCase()))) {
-      return { suggest_keyword: group.suggestKeyword, suggest_label: group.suggestLabel };
-    }
-  }
-  return null;
-}
-
 export interface DiscoverInput {
   ip: string;
   character?: string;
@@ -64,6 +30,35 @@ export interface DiscoverInput {
   purpose?: "display" | "wear" | "read" | "play" | "any";
   limit?: number;
   terms?: { types?: TermType[]; names?: string[] };
+}
+
+// 一覧1件分の形。カード表示に必要な項目まで含める（Web版がカードごとに explain_product を呼ばずに済む）。
+function itemSummary(s: CatalogSku, matchedTermsBySku?: Map<string, string[]>) {
+  return {
+    sku_id: s.sku_id,
+    // 英語名が未記入の行（約15行）は、sku_id ではなく日本語名を表示名に使う。
+    name_en: s.name_en || s.name_ja,
+    name_ja: s.name_ja,
+    character: splitPipe(s.character),
+    character_en: splitPipe(s.character_en),
+    line_type: lineTypeFor(s.line_id) ?? null,
+    msrp_jpy: s.msrp_jpy ? Number(s.msrp_jpy) : null,
+    // 発売国の通貨での定価（JPY の商品は msrp_jpy と同じ）と、その通貨コード。
+    price_local: localPriceOf(s)?.amount ?? null,
+    currency: s.currency || "JPY",
+    price_basis: s.price_basis,
+    region: s.region || "JP",
+    platform: s.platform || null,
+    edition: s.edition || null,
+    // 以下はカード表示に必要な項目（explain_product と同じ形）。これで Web版はカードごとに explain_product を
+    // 呼ばずに済み、explain_product の呼び出し回数が「詳細パネルを開いた」回数（Gate C の関心シグナル）になる。
+    acquisition_type: s.acquisition_type || null,
+    availability_hint: s.availability_hint || "unknown",
+    official: isTrue(s.official),
+    typical_channels: splitPipe(s.typical_channels),
+    ...(matchedTermsBySku?.has(s.sku_id) ? { matched_terms: matchedTermsBySku.get(s.sku_id) } : {}),
+    source_url: s.source_url,
+  };
 }
 
 // MCPツールの登録処理から独立させ、テストしやすくしてある。
@@ -110,36 +105,20 @@ export function discoverCatalog({ ip, character, budget_jpy, purpose, limit, ter
   }
 
   const lim = limit ?? 10;
-  const items = results.slice(0, lim).map((s) => ({
-    sku_id: s.sku_id,
-    // 英語名が未記入の行（約15行）は、sku_id ではなく日本語名を表示名に使う。
-    name_en: s.name_en || s.name_ja,
-    name_ja: s.name_ja,
-    character: splitPipe(s.character),
-    character_en: splitPipe(s.character_en),
-    line_type: lineTypeFor(s.line_id) ?? null,
-    msrp_jpy: s.msrp_jpy ? Number(s.msrp_jpy) : null,
-    // 発売国の通貨での定価（JPY の商品は msrp_jpy と同じ）と、その通貨コード。
-    price_local: localPriceOf(s)?.amount ?? null,
-    currency: s.currency || "JPY",
-    price_basis: s.price_basis,
-    region: s.region || "JP",
-    platform: s.platform || null,
-    edition: s.edition || null,
-    // 以下はカード表示に必要な項目（explain_product と同じ形）。これで Web版はカードごとに explain_product を
-    // 呼ばずに済み、explain_product の呼び出し回数が「詳細パネルを開いた」回数（Gate C の関心シグナル）になる。
-    acquisition_type: s.acquisition_type || null,
-    availability_hint: s.availability_hint || "unknown",
-    official: isTrue(s.official),
-    typical_channels: splitPipe(s.typical_channels),
-    ...(matchedTermsBySku.has(s.sku_id) ? { matched_terms: matchedTermsBySku.get(s.sku_id) } : {}),
-    source_url: s.source_url,
-  }));
+  const items = results.slice(0, lim).map((s) => itemSummary(s, matchedTermsBySku));
 
   // ゼロ件かつキャラ名指定ありの場合のみ、グループ名での再検索を提案する
   // （予算・用途・terms で絞り込みすぎて0件になったケースは対象外 —
   // その場合はキャラ自体は見つかっているはずなので誤誘導になるため）。
   const suggestion = results.length === 0 ? findCharacterGroupSuggestion(character) : null;
+  // 提案と一緒に、グループ名で探した結果の先頭も返す。エージェントがもう一度 discover を呼ばなくても候補を出せる。
+  const suggestedResults = suggestion
+    ? catalog.filter(
+        (s) =>
+          s.ip === ip &&
+          (containsNormalized(s.character, suggestion.suggest_label) || containsNormalized(s.character_en, suggestion.suggest_label))
+      )
+    : [];
 
   const result = {
     items,
@@ -150,7 +129,9 @@ export function discoverCatalog({ ip, character, budget_jpy, purpose, limit, ter
     ...(suggestion
       ? {
           suggested_character_group: suggestion,
-          suggestion_note_en: `No solo merch found for "${character}" yet. Try searching character="${suggestion.suggest_label}" instead — items featuring the whole group do exist.`,
+          suggested_items: suggestedResults.slice(0, lim).map((s) => itemSummary(s)),
+          suggested_total_matches: suggestedResults.length,
+          suggestion_note_en: `No solo merch found for "${character}" yet. It belongs to ${suggestion.suggest_label}: suggested_items lists group merch that may feature them (${suggestedResults.length} in total; search character="${suggestion.suggest_label}" for all of them).`,
         }
       : {}),
     note_en:
@@ -166,29 +147,35 @@ export function registerDiscoverTool(server: McpServer, onUsage?: UsageLogger): 
     {
       title: "Discover",
       description:
-        "カタログから条件（IP・キャラ・予算・用途）に合う候補SKUを探す。実際に出品されているかは保証しない。",
+        "Browse the Kingdom Hearts merchandise catalog by character, budget and purpose. Use it to answer " +
+        "\"what merch exists for X?\" or \"gift ideas under ¥5,000\". Example: {ip: \"kingdom-hearts\", character: \"Sora\", " +
+        "budget_jpy: 5000, purpose: \"display\"}. Returns items[] (sku_id, name_en/name_ja, official, original price " +
+        "msrp_jpy plus price_local/currency, price_basis, region, availability_hint, typical_channels, source_url) and " +
+        "total_matches. If a character has no solo merch (e.g. Xigbar), the result also has suggested_character_group " +
+        "and suggested_items for their group (e.g. Organization XIII). Lists catalog entries only; it does not mean " +
+        "anything is for sale right now. Use explain_product with a sku_id for full details.",
       inputSchema: {
-        ip: z.string().describe("作品ID（例: kingdom-hearts）"),
-        character: z.string().optional().describe("キャラ名（日英どちらでも可、任意）"),
-        budget_jpy: z.number().optional().describe("予算上限（円、任意）"),
+        ip: z.string().describe('Franchise ID. Currently only "kingdom-hearts".'),
+        character: z.string().optional().describe('Character name in English or Japanese, e.g. "Sora", "ソラ", "Organization XIII". Partial match. Optional.'),
+        budget_jpy: z.number().optional().describe("Maximum original price in Japanese yen (overseas items are compared at a fixed rate), e.g. 5000. Optional."),
         purpose: z
           .enum(["display", "wear", "read", "play", "any"])
           .optional()
-          .describe("用途（任意、既定は any）"),
-        limit: z.number().optional().describe("最大件数（任意、既定10）"),
+          .describe('"display" = figures, plush, prizes, acrylic stands; "wear" = apparel; "read" = books; "play" = games and cards; "any" (default).'),
+        limit: z.number().optional().describe("Maximum number of items to return (default 10). total_matches always gives the full count."),
         terms: z
           .object({
             types: z
               .array(z.enum(TERM_TYPES))
               .optional()
-              .describe("固有語の種類で絞る（character/faction/world/item/keyblade/song/event/other）"),
+              .describe("Only items mentioning a series term of these kinds (character/faction/world/item/keyblade/song/event/other)."),
             names: z
               .array(z.string())
               .optional()
-              .describe("固有語の名前で絞る（日英どちらでも可。例: XIII機関, Heartless）"),
+              .describe('Only items mentioning these series terms, in English or Japanese, e.g. ["Heartless"], ["XIII機関"], ["Kingdom Key"].'),
           })
           .optional()
-          .describe("data/ip_terms.csv の固有語（陣営・ワールド・キーブレード等）が名称・別名・備考に含まれる商品だけに絞る（任意）"),
+          .describe("Filter by series vocabulary (factions, worlds, keyblades, songs…) found in item names, aliases or notes. Optional.")
       },
     },
     async ({ ip, character, budget_jpy, purpose, limit, terms }) => {

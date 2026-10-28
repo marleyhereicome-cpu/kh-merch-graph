@@ -12,6 +12,7 @@
 ## Key pages
 - [Browse the catalog](https://merchgraph.app/kingdomhearts/): search by character, budget and category. Open an item with `https://merchgraph.app/kingdomhearts/#item=<sku_id>`.
 - [Listing checker](https://merchgraph.app/kingdomhearts/check): paste a marketplace listing title (Japanese or English) to see which catalog item it most likely is, what the condition terms mean, and bootleg caution notes. Pasted text is not stored.
+- Item pages: every catalog item has its own page at `https://merchgraph.app/kingdomhearts/item/<sku_id>` (name, official status, original price, availability, sources, with Product structured data). The full list is in the [sitemap](https://merchgraph.app/sitemap.xml).
 
 ## For AI agents (MCP server)
 - The same catalog is available as an MCP server that resolves fuzzy product names and listing titles to catalog entries, explains condition terms, and estimates landed cost.

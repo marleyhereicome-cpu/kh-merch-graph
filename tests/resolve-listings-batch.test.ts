@@ -146,7 +146,7 @@ describe("resolve_listings_batch（MCP経由）", () => {
       body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list", params: {} }),
     });
     const body = (await (await worker.fetch(req, env)).json()) as { result: { tools: { name: string; description: string }[] } };
-    expect(body.result.tools.find((t) => t.name === "resolve_listings_batch")?.description).toContain("最大12件");
+    expect(body.result.tools.find((t) => t.name === "resolve_listings_batch")?.description).toContain("up to 12 listings");
     expect(await (await worker.fetch(new Request("https://example.com/llms.txt"), env)).text()).toContain("up to 12 listings");
     expect(await (await worker.fetch(new Request("https://example.com/openapi.json"), env)).text()).toMatch(/"maxItems":\s*12/);
     expect(JSON.stringify(buildOpenApiDocument("https://x", 12))).toContain('"maxItems":12');

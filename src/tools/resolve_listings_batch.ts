@@ -73,15 +73,15 @@ export async function resolveListingsBatch(
 }
 
 const listingSchema = z.object({
-  title: z.string().describe("出品タイトル（必須）"),
-  description: z.string().optional().describe("説明文の抜粋（任意）"),
-  price_jpy: z.number().optional().describe("出品価格（円、任意）"),
+  title: z.string().describe("The listing title, copied as-is (required)."),
+  description: z.string().optional().describe("Part of the listing description. Optional."),
+  price_jpy: z.number().optional().describe("Listing price in Japanese yen. Optional."),
   platform: z
     .enum(["mercari", "yahoo", "surugaya", "mandarake", "other"])
     .optional()
-    .describe("出品プラットフォーム（任意）"),
-  url: z.string().optional().describe("出品URL（任意・サーバー側では保存しない）"),
-  src: z.string().optional().describe("計測用の流入元タグ（任意）。src自体と日時のみ利用ログに残す"),
+    .describe("Where it is listed. Optional."),
+  url: z.string().optional().describe("Listing URL. Optional; not stored and not fetched."),
+  src: z.string().optional().describe("Traffic-source tag for usage statistics (optional; only the tag and time are logged)."),
 });
 
 export function registerResolveListingsBatchTool(
@@ -94,13 +94,14 @@ export function registerResolveListingsBatchTool(
     {
       title: "Resolve listings (batch)",
       description:
-        `resolve_listing を最大${maxListings}件まとめて1回で実行する。多数の出品を照会するときに使う。` +
-        "結果は入力と同じ順番の配列で、各要素は resolve_listing と同じ形式（失敗した件のみ { error }）。" +
-        `${maxListings}件を超える場合は${maxListings}件ずつに分けて複数回呼ぶこと。1件だけなら resolve_listing を使う。`,
+        `Run resolve_listing on up to ${maxListings} listings in one call, e.g. when comparing search results from a marketplace. ` +
+        "Example: {listings: [{title: \"…\", price_jpy: 3000}, {title: \"…\"}]}. Returns an array in the same order; each " +
+        "element has the same shape as a resolve_listing result (or {error} for that one listing only). " +
+        `For more than ${maxListings}, split into several calls. For a single listing use resolve_listing.`,
       inputSchema: {
         listings: z
           .array(listingSchema)
-          .describe(`出品の配列（1〜${maxListings}件）。各要素は resolve_listing と同じ引数`),
+          .describe(`Listings to check (1–${maxListings}); each takes the same arguments as resolve_listing.`),
       },
     },
     async ({ listings }) => {

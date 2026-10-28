@@ -19,10 +19,15 @@ export function registerExplainProductTool(server: McpServer): void {
     {
       title: "Explain product",
       description:
-        "sku_id または自然文クエリから、商品ライン・キャラ・寸法・再販履歴・出典URLなど商品の詳細を返す。",
+        "Get the full record for one Kingdom Hearts catalog item. Pass a sku_id from discover/resolve_listing " +
+        "(e.g. {sku_id: \"ichiban-kuji-kh-2018-a\"}), or a free-text query such as {query: \"Sora Bring Arts Halloween Town\"} " +
+        "to get the best match. Returns names (en/ja), product line (maker, line type, release date), characters, original " +
+        "price (msrp_jpy, price_local, currency, price_basis), acquisition_type (retail, kuji, prize, …), availability " +
+        "(hint + confidence), typical_channels, size/weight, re-release dates, official (licensed or fan-made), verified " +
+        "(checked against the source) and source_url.",
       inputSchema: {
-        sku_id: z.string().optional().describe("正規SKU_ID（sku_id か query のどちらか必須）"),
-        query: z.string().optional().describe("自然文クエリ（sku_id が無い場合に使用）"),
+        sku_id: z.string().optional().describe('Catalog SKU ID, e.g. "ichiban-kuji-kh-2018-a". Either sku_id or query is required.'),
+        query: z.string().optional().describe('Free-text product name in English or Japanese when you have no sku_id, e.g. "一番くじ キングダムハーツ A賞".'),
       },
     },
     async ({ sku_id, query }) => {

@@ -8,3 +8,7 @@ dist
 .dev.vars*
 !.dev.vars.example
 !.env.example
+
+# 商品ごとの静的ページと sitemap（scripts/build-item-pages.mjs がデプロイ時に作る生成物）
+web/kingdomhearts/item/
+web/sitemap.xml
