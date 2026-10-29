@@ -76,11 +76,12 @@ describe("resolve_listings_batch（MCP経由）", () => {
     expect(results).toHaveLength(DUMMY_LISTINGS.length);
 
     for (let i = 0; i < DUMMY_LISTINGS.length; i++) {
-      const { title, description, price_jpy, src } = DUMMY_LISTINGS[i] as (typeof DUMMY_LISTINGS)[number] & {
+      const { title, description, price_jpy, platform, src } = DUMMY_LISTINGS[i] as (typeof DUMMY_LISTINGS)[number] & {
         description?: string;
+        platform?: string;
         src?: string;
       };
-      const single = await resolveListing({ title, description, price_jpy, src });
+      const single = await resolveListing({ title, description, price_jpy, platform, src });
       expect(results[i]).toEqual(JSON.parse(JSON.stringify(single)));
     }
 

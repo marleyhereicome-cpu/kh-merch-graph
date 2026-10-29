@@ -106,11 +106,12 @@ export function registerResolveListingsBatchTool(
     },
     async ({ listings }) => {
       try {
-        // platform・url は resolve_listing と同様に受け付けるだけで、処理・保存には使わない。
-        const inputs = listings.map(({ title, description, price_jpy, src }) => ({
+        // url は受け付けるだけで、処理・保存には使わない。platform は配送代行の要否の判定にだけ使う。
+        const inputs = listings.map(({ title, description, price_jpy, platform, src }) => ({
           title,
           description,
           price_jpy,
+          platform,
           src,
         }));
         const results = await resolveListingsBatch(inputs, onUsageBatch, maxListings);

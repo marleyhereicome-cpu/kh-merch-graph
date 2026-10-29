@@ -2,7 +2,7 @@
 // price_basis が none のものは「メーカー定価が無い」旨を明言し、
 // 取得経路（bonus/furoku/prize 等）に応じた説明文を返す。
 // design_count があるブラインド・ガチャは全種数を返す。
-import { isTrue, splitPipe, type CatalogSku } from "./types.js";
+import { isTrue, splitPipe, type CatalogSku, type Channel } from "./types.js";
 import { localPriceOf, formatMoney } from "./price.js";
 
 const ACQUISITION_NOTES: Record<string, string> = {
@@ -205,4 +205,81 @@ export interface RegionInfo {
 export function buildRegionInfo(sku: CatalogSku): RegionInfo {
   const code = sku.region || "JP";
   return { code, note_en: `Region: ${code} release` };
+}
+
+// ---- 配送代行が必要か（2026-10-28）----
+// 日本国内にしか発送しないショップ（channels.csv の proxy_required=yes：メルカリ・ヤフオク・駿河屋・まんだらけ・
+// スクエニ e-STORE）でしか手に入らない商品なら、海外からは配送代行サービスが必要だと知らせる。
+// 送料・手数料の金額は計算しない（あくまで「要否」の事実だけ）。Web版の詳細パネルの注記と同じ考え方。
+export const FORWARDING_SERVICES = [
+  { name: "Buyee", url: "https://buyee.jp/" },
+  { name: "ZenMarket", url: "https://zenmarket.jp/en/" },
+  { name: "Neokyo", url: "https://neokyo.com/" },
+  { name: "FROM JAPAN", url: "https://www.fromjapan.co.jp/en/" },
+];
+const CHANNEL_ALIASES: Record<string, string> = { square_enix_estore: "e-store", "square enix e-store": "e-store", yahoo: "yahoo_auctions" };
+// 出品先として resolve_listing の platform に入る値 → channels.csv の名前
+const PLATFORM_CHANNEL: Record<string, string> = { mercari: "mercari", yahoo: "yahoo_auctions", surugaya: "surugaya", mandarake: "mandarake" };
+
+export interface ShippingInfo {
+  forwarding_service_needed: boolean;
+  japan_only_channels: string[];
+  ships_abroad_channels: string[];
+  note_en: string;
+  forwarding_services?: { name: string; url: string }[];
+}
+
+function channelNamesOf(sku: CatalogSku): string[] {
+  const out: string[] = [];
+  for (const raw of splitPipe(sku.typical_channels)) {
+    for (const part of raw.split(",")) {
+      const p = part.trim().toLowerCase();
+      if (!p || p === "jp" || p === "us") continue;
+      const name = CHANNEL_ALIASES[p] ?? p;
+      if (!out.includes(name)) out.push(name);
+    }
+  }
+  return out;
+}
+
+/**
+ * 配送代行の要否。listingPlatform（resolve_listing の platform）が日本国内発送のみの出品先なら、
+ * その出品自体について「代行が必要」と返す。
+ */
+export function buildShippingInfo(
+  sku: CatalogSku | null,
+  channelList: Channel[],
+  listingPlatform?: string
+): ShippingInfo | null {
+  const byName = new Map(channelList.map((c) => [c.channel_name, c]));
+  const listingChannel = listingPlatform ? PLATFORM_CHANNEL[listingPlatform] : undefined;
+  if (listingChannel && byName.get(listingChannel)?.proxy_required === "yes") {
+    return {
+      forwarding_service_needed: true,
+      japan_only_channels: [listingChannel],
+      ships_abroad_channels: [],
+      note_en: `This listing is on ${listingChannel}, which ships within Japan only. To receive it outside Japan you'll need a shipping-forwarding service (listed for information only; not affiliated with any of them).`,
+      forwarding_services: FORWARDING_SERVICES,
+    };
+  }
+  if (!sku) return null;
+  const names = channelNamesOf(sku);
+  const japanOnly = names.filter((n) => byName.get(n)?.proxy_required === "yes");
+  const abroad = names.filter((n) => {
+    const c = byName.get(n);
+    return c !== undefined && c.proxy_required !== "yes" && c.channel_type !== "proxy";
+  });
+  if (names.length === 0) return null;
+  const needed = japanOnly.length > 0 && abroad.length === 0 && sku.availability_hint !== "western_official";
+  return {
+    forwarding_service_needed: needed,
+    japan_only_channels: japanOnly,
+    ships_abroad_channels: abroad,
+    note_en: needed
+      ? "Typically sold only at shops that ship within Japan. To receive it outside Japan you'll need a shipping-forwarding service (listed for information only; not affiliated with any of them). Shipping costs are not calculated here."
+      : japanOnly.length > 0
+        ? "Some shops listed ship within Japan only, but at least one ships abroad."
+        : "No Japan-only shops are listed for this item.",
+    ...(needed ? { forwarding_services: FORWARDING_SERVICES } : {}),
+  };
 }
