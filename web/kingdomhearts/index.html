@@ -913,8 +913,8 @@ function isRepoGameImage(url) { return /^(\.\/|\/)?images\/games\//.test(String(
 // サイト自前の代わりのロゴ（kh-fallback-logo.png）は出典のある写真ではないので、クレジットを出さない。
 // ---- 構造化データ（schema.org の JSON-LD）----
 // 検索エンジン・AIの回答エンジンが、商品名・画像・メーカー・定価・確認状況を機械的に読めるようにする。
-// このサイトは何も販売していないので、価格は「メーカーの定価（ListPrice）」として示し、販売中の在庫は示さない。
-const LD_PRICED_BASES = new Set(['msrp', 'estimated', 'set_price', 'bundle_price']);
+// このサイトは何も販売していないので、価格は Offer（販売の表明）にせず、参考情報の定価として additionalProperty で示す
+// （2026-10-29。配送・返品・在庫を求める Google の「販売者リスティング」の対象にしない）。商品ごとの静的ページと同じ形。
 function absUrl(u) { try { return new URL(u, location.href).href; } catch { return ''; } }
 // 構造化データ用の正規URL（共有用の itemUrl と違い ?src= を付けない）。
 // 正規URLは常に /kingdomhearts/ 配下（ルート / は同じ内容の別名）。
@@ -925,13 +925,17 @@ function productLd(item, detail, imageMap) {
   const maker = detail?.line?.maker || '';
   const prop = (name, value) => (value === undefined || value === null || value === '' ? null : { '@type': 'PropertyValue', name, value });
   const amount = localAmount(item);
-  const priced = LD_PRICED_BASES.has(item.price_basis) && typeof amount === 'number' && amount > 0;
+  const priced = hasRealPrice(item) || (item.price_basis === 'draw_price' && item.msrp_jpy > 0);
+  const currency = currencyFor(item);
+  const acq = detail?.acquisition_type || item.acquisition_type;
+  const howKey = (detail?.official ?? item.official) === false ? 'acqx_fan' : (acq && STRINGS.en[`acqx_${acq}`] ? `acqx_${acq}` : '');
   const ld = {
     '@type': 'Product',
     name: item.name_en,
     ...(item.name_ja && item.name_ja !== item.name_en ? { alternateName: item.name_ja } : {}),
     sku: item.sku_id,
     url: canonicalItemUrl(item.sku_id),
+    ...(howKey ? { description: STRINGS.en[howKey] } : {}),
     ...(photo && !isFallbackLogo(photo) ? { image: absUrl(photo) } : {}),
     ...(maker ? { brand: { '@type': 'Brand', name: maker } } : {}),
     ...(item.line_type ? { category: item.line_type } : {}),
@@ -943,17 +947,10 @@ function productLd(item, detail, imageMap) {
       prop('acquisition_type', item.acquisition_type),
       prop('price_basis', item.price_basis),
       prop('region', item.region),
+      priced ? { '@type': 'PropertyValue', name: 'original_price_jpy', value: Math.round(yenOf(item)), unitText: 'JPY' } : null,
+      priced && currency !== 'JPY' && typeof amount === 'number' ? { '@type': 'PropertyValue', name: `original_price_${currency.toLowerCase()}`, value: amount, unitText: currency } : null,
     ].filter(Boolean),
   };
-  if (priced) {
-    const currency = currencyFor(item);
-    ld.offers = {
-      '@type': 'Offer',
-      price: amount,
-      priceCurrency: currency,
-      priceSpecification: { '@type': 'UnitPriceSpecification', priceType: 'https://schema.org/ListPrice', price: amount, priceCurrency: currency },
-    };
-  }
   return ld;
 }
 function setLd(id, data) {
