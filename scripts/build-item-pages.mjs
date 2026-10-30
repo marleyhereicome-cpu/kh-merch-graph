@@ -62,8 +62,6 @@ const CHANNEL_LABEL = {
 };
 // 日本国内にしか発送しないショップ（カタログページの CHANNELS で proxy: true のもの）
 const JAPAN_ONLY = new Set(["mercari", "yahoo_auctions", "surugaya", "mandarake", "e-store", "square_enix_estore"]);
-// 構造化データで価格を「メーカー定価（ListPrice）」として出す price_basis。くじ1回の値段などは出さない。
-const LD_PRICED_BASES = new Set(["msrp", "estimated", "set_price", "bundle_price"]);
 
 // ---- 小さな道具 ----
 const esc = (s) =>
@@ -160,7 +158,13 @@ function renderItem(s, line, images) {
     ["Re-releases", splitPipe(s.rerelease_dates).join(", ")],
   ].filter(([, v]) => v);
 
-  const prop = (n, v) => (v === "" || v == null ? null : { "@type": "PropertyValue", name: n, value: v });
+  const prop = (n, v, unitText) =>
+    v === "" || v == null ? null : { "@type": "PropertyValue", name: n, value: v, ...(unitText ? { unitText } : {}) };
+  // 価格は Offer（販売の表明）にせず、参考情報の定価として additionalProperty で示す（2026-10-29、Marley 確認済み）。
+  // このサイトは何も売っていないので、配送・返品・在庫を求める Google の「販売者リスティング」の対象にしない。
+  const yen = Number(s.msrp_jpy);
+  const hasPrice = s.price_basis && s.price_basis !== "none" && yen > 0;
+  const jan = String(s.jan || "").replace(/\D/g, "");
   const product = {
     "@type": "Product",
     "@id": `${url}#product`,
@@ -168,11 +172,14 @@ function renderItem(s, line, images) {
     ...(nameJa ? { alternateName: nameJa } : {}),
     sku: s.sku_id,
     url,
-    description: summary,
+    // 「どういうグッズか」の説明。無ければ要約文。
+    description: howText || summary,
     ...(img ? { image: img.url } : {}),
     ...(maker ? { brand: { "@type": "Brand", name: maker } } : {}),
     ...(line?.line_type ? { category: line.line_type } : {}),
     ...(release ? { releaseDate: release } : {}),
+    ...(jan.length === 13 ? { gtin13: jan } : jan.length === 8 ? { gtin8: jan } : {}),
+    ...(s.catalog_number ? { mpn: s.catalog_number } : {}),
     additionalProperty: [
       prop("official_license", official),
       prop("verified", verified),
@@ -181,17 +188,11 @@ function renderItem(s, line, images) {
       prop("acquisition_type", s.acquisition_type),
       prop("price_basis", s.price_basis),
       prop("region", s.region),
+      hasPrice ? prop("original_price_jpy", Math.round(yen), "JPY") : null,
+      hasPrice && price.currency !== "JPY" ? prop(`original_price_${price.currency.toLowerCase()}`, price.amount, price.currency) : null,
     ].filter(Boolean),
     ...(sources.length ? { subjectOf: sources.map((u) => ({ "@type": "WebPage", url: u })) } : {}),
   };
-  if (LD_PRICED_BASES.has(s.price_basis) && price.amount > 0) {
-    product.offers = {
-      "@type": "Offer",
-      price: price.amount,
-      priceCurrency: price.currency,
-      priceSpecification: { "@type": "UnitPriceSpecification", priceType: "https://schema.org/ListPrice", price: price.amount, priceCurrency: price.currency },
-    };
-  }
   const ld = {
     "@context": "https://schema.org",
     "@graph": [

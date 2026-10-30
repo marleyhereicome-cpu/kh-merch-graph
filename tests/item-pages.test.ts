@@ -37,8 +37,21 @@ describe("item pages", () => {
     expect(html).toContain("<h1>Ichiban Kuji Kingdom Hearts Prize A Sora &amp; King Mickey Statue</h1>");
     expect(html).toContain("¥680 per draw");
     expect(html).toContain("✓ Verified against the source.");
-    // くじ1回の値段は商品の定価ではないので、構造化データに価格（offers）は出さない
-    expect(ldOf(html)["@graph"][0].offers).toBeUndefined();
+    // くじ1回の値段も、Offer ではなく参考情報（additionalProperty）として出す。price_basis=draw_price で意味が分かる。
+    const p = ldOf(html)["@graph"][0];
+    expect(p.offers).toBeUndefined();
+    expect(p.additionalProperty).toContainEqual({ "@type": "PropertyValue", name: "original_price_jpy", value: 680, unitText: "JPY" });
+    expect(p.description).toContain("lottery-style draw");
+  });
+
+  // 2026-10-29：何も売っていないので Offer（販売の表明）は出さない。Google の販売者リスティングの対象にしない。
+  it("no page declares an Offer; prices are reference properties", () => {
+    for (const { html } of pages) expect(html).not.toContain('"@type":"Offer"');
+    const usd = catalog.find((s) => s.ip === "kingdom-hearts" && s.currency === "USD" && Number(s.msrp_jpy) > 0 && s.price_local)!;
+    const p = ldOf(pages.find((x) => x.sku === usd.sku_id)!.html)["@graph"][0];
+    const names = p.additionalProperty.map((x: any) => x.name);
+    expect(names).toContain("original_price_jpy");
+    expect(p.additionalProperty).toContainEqual({ "@type": "PropertyValue", name: "original_price_usd", value: Number(usd.price_local), unitText: "USD" });
   });
 });
 

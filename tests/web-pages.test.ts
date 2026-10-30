@@ -5,6 +5,11 @@ import { describe, expect, it } from "vitest";
 const PAGES = ["web/kingdomhearts/index.html", "web/kingdomhearts/check.html"];
 
 describe("catalog pages", () => {
+  it("the catalog's structured data does not declare an Offer", () => {
+    const html = readFileSync("web/kingdomhearts/index.html", "utf8");
+    expect(html).not.toContain("'@type': 'Offer'");
+    expect(html).toContain("name: 'original_price_jpy'");
+  });
   it("the catalog shows the Kingdom Hearts logo as a fixed background, not in the header", () => {
     const html = readFileSync("web/kingdomhearts/index.html", "utf8");
     expect(html).toMatch(/body::before \{[^}]*position: fixed;[^}]*url\('\.\/kh-logo\.png'\)/);
