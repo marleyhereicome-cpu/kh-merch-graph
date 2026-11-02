@@ -1,24 +1,67 @@
 // 商品ごとの静的ページと sitemap.xml を作る（2026-10-28、AEO 対応の本命）。
 //
-// カタログ（web/kingdomhearts/index.html）は #item=<sku_id> で切り替える1枚のページなので、検索エンジンや
+// 各作品のカタログ（例: web/kingdomhearts/index.html）は #item=<sku_id> で切り替える1枚のページなので、検索エンジンや
 // AI のクローラーからは商品単位のページが見えない。ここで全商品ぶんの HTML を作り、
-//   web/kingdomhearts/item/<sku_id>.html   → https://merchgraph.app/kingdomhearts/item/<sku_id>
-//   web/sitemap.xml                         → https://merchgraph.app/sitemap.xml
+//   web/<作品のパス>/item/<sku_id>.html   → 例: https://merchgraph.app/kingdomhearts/item/<sku_id>
+//   web/sitemap.xml                       → https://merchgraph.app/sitemap.xml
 // として配る。どちらもデプロイのたびに作り直す生成物なので、リポジトリには入れない（.gitignore）。
 //
+// 作品（IP）ごとの設定は下の SERIES にまとめてある（2026-11-02〜）。新しい作品を公開するときは、
+// その作品の publish を true にするだけで、商品ページと sitemap の行が作られる。
+//
 // 使い方: npm run build:data のあとに npm run build:pages（デプロイの workflow でも同じ順に実行する）。
-// 入力: src/data/catalog.json・product_lines.json（build:data の出力）と web/kingdomhearts/images.json。
+// 入力: src/data/catalog.json・product_lines.json（build:data の出力）と、各作品の images.json。
 
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const ORIGIN = "https://merchgraph.app";
-const CATALOG_PATH = "/kingdomhearts/";
-const ITEM_DIR = join(ROOT, "web/kingdomhearts/item");
+
+// ---- 作品（IP）ごとの設定 ----
+//   ip           catalog.csv の ip 列（MCP の ip パラメータと同じ）
+//   path         作品ページの URL（web/ 以下のフォルダと同じ）。商品ページは <path>item/<sku_id>
+//   name         表示名（英語。ページの見出し・パンくず・タイトルに使う）
+//   rights       フッターの「提携していない」先として名前を出す権利者
+//   packageCredit  リポジトリに置いた公式パッケージ画像（images/games/…）のクレジット
+//   images       商品写真の対応表（無ければ写真なしで作る）
+//   publish      true のときだけ商品ページと sitemap の行を作る（準備中の作品は false のまま）
+// 作品ページ（トップのハブ web/index.html の SERIES）と同じ ip・path にそろえること。
+export const SERIES = [
+  {
+    ip: "kingdom-hearts",
+    path: "/kingdomhearts/",
+    name: "Kingdom Hearts",
+    rights: "Square Enix, Disney",
+    packageCredit: "Official product packaging — © Disney / © Square Enix",
+    images: "web/kingdomhearts/images.json",
+    publish: true,
+  },
+  {
+    ip: "kimetsu-no-yaiba",
+    path: "/demon-slayer/",
+    name: "Demon Slayer",
+    rights: "the rights holders of Demon Slayer: Kimetsu no Yaiba",
+    packageCredit: "Official product packaging",
+    images: "web/demon-slayer/images.json",
+    publish: false,
+  },
+  {
+    ip: "one-piece",
+    path: "/one-piece/",
+    name: "One Piece",
+    rights: "the rights holders of One Piece",
+    packageCredit: "Official product packaging",
+    images: "web/one-piece/images.json",
+    publish: false,
+  },
+];
+const seriesOf = (ip) => SERIES.find((x) => x.ip === ip);
+const itemDirOf = (series) => join(ROOT, "web", series.path, "item");
 
 const readJson = (p) => JSON.parse(readFileSync(join(ROOT, p), "utf8"));
+const readJsonOr = (p, fallback) => (existsSync(join(ROOT, p)) ? readJson(p) : fallback);
 
 // ---- 表示用の文言（カタログページの英語表示と同じ言い回し） ----
 const ACQ_LABEL = {
@@ -43,8 +86,8 @@ const ACQ_EXPLAIN = {
   bonus: "A bonus given with the purchase of another product.",
   furoku: "An extra that came with a magazine.",
 };
-const FAN_EXPLAIN =
-  "Not official merchandise: made by a fan brand, not licensed by Square Enix or Disney. Listed so you know it exists and can tell it apart from official merch.";
+const fanExplain = (series) =>
+  `Not official merchandise: made by a fan brand, not licensed by ${series.rights.replace(/, ([^,]+)$/, " or $1")}. Listed so you know it exists and can tell it apart from official merch.`;
 const AVAILABILITY = {
   jp_retail_new: "In shops (Japan)",
   jp_secondhand_only: "Secondhand only (Japan)",
@@ -70,8 +113,8 @@ const isTrue = (v) => String(v ?? "").trim().toLowerCase() === "true";
 const splitPipe = (v) => String(v ?? "").split("|").map((x) => x.trim()).filter(Boolean);
 const sourceUrlsOf = (v) => String(v || "").split(" ; ").map((u) => u.trim()).filter((u) => /^https?:\/\//.test(u));
 const hostOf = (u) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return u; } };
-export const itemPath = (sku) => `${CATALOG_PATH}item/${encodeURIComponent(sku)}`;
-const itemUrl = (sku) => ORIGIN + itemPath(sku);
+const itemPathIn = (series, sku) => `${series.path}item/${encodeURIComponent(sku)}`;
+export const itemPath = (sku, ip = "kingdom-hearts") => itemPathIn(seriesOf(ip), sku);
 
 function money(amount, currency) {
   const digits = currency === "JPY" || Number.isInteger(amount) ? 0 : 2;
@@ -109,38 +152,39 @@ function channelsOf(s) {
   return names;
 }
 
-function imageFor(sku, images) {
+function imageFor(sku, images, series) {
   const v = images[sku];
   if (!v || /(^|\/)kh-fallback-logo\.png$/.test(v.split(/[?#]/)[0])) return null;
   if (/^https?:\/\//.test(v)) return { url: v, credit: `photo: ${hostOf(v)}` };
   // リポジトリに置いたゲームのパッケージ画像（images/games/…）。CLAUDE.md の例外。
-  return { url: `${ORIGIN}${CATALOG_PATH}${v.replace(/^\.?\//, "")}`, credit: "Official product packaging — © Disney / © Square Enix" };
+  return { url: `${ORIGIN}${series.path}${v.replace(/^\.?\//, "")}`, credit: series.packageCredit };
 }
 
 // ---- 1商品ぶんのページ ----
-function renderItem(s, line, images) {
+function renderItem(s, line, images, series) {
+  const CATALOG_PATH = series.path;
   const official = isTrue(s.official);
   const verified = isTrue(s.verified);
   const name = s.name_en || s.name_ja || s.sku_id;
   const nameJa = s.name_ja && s.name_ja !== name ? s.name_ja : "";
   const characters = splitPipe(s.character_en).join(" / ");
   const price = priceInfo(s);
-  const img = imageFor(s.sku_id, images);
+  const img = imageFor(s.sku_id, images, series);
   const region = REGION[s.region] || s.region || "Japan";
   const acq = official ? ACQ_LABEL[s.acquisition_type] : "Unofficial · fan-made";
-  const howText = official ? ACQ_EXPLAIN[s.acquisition_type] : FAN_EXPLAIN;
+  const howText = official ? ACQ_EXPLAIN[s.acquisition_type] : fanExplain(series);
   const hint = s.availability_hint || "unknown";
   const channels = channelsOf(s);
   const japanOnly = channels.some((c) => JAPAN_ONLY.has(c.key)) && !channels.some((c) => c.key === "graniph") && hint !== "western_official";
   const sources = sourceUrlsOf(s.source_url);
   const release = line?.release_date || "";
   const maker = line?.maker || "";
-  const url = itemUrl(s.sku_id);
+  const url = ORIGIN + itemPathIn(series, s.sku_id);
   const catalogLink = `${CATALOG_PATH}#item=${encodeURIComponent(s.sku_id)}`;
 
   const summary = [
     `${name}${nameJa ? ` (${nameJa})` : ""}:`,
-    official ? "official Kingdom Hearts merchandise" : "unofficial, fan-made Kingdom Hearts merchandise",
+    official ? `official ${series.name} merchandise` : `unofficial, fan-made ${series.name} merchandise`,
     `released in ${region}${release ? ` (${release.slice(0, 7)})` : ""}.`,
     price.amount ? `Original price ${price.text}.` : `${price.text}.`,
     `${AVAILABILITY[hint] || AVAILABILITY.unknown}.`,
@@ -201,14 +245,14 @@ function renderItem(s, line, images) {
         "@type": "BreadcrumbList",
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "Merchgraph", item: `${ORIGIN}/` },
-          { "@type": "ListItem", position: 2, name: "Kingdom Hearts", item: `${ORIGIN}${CATALOG_PATH}` },
+          { "@type": "ListItem", position: 2, name: series.name, item: `${ORIGIN}${CATALOG_PATH}` },
           { "@type": "ListItem", position: 3, name, item: url },
         ],
       },
     ],
   };
   const ldText = JSON.stringify(ld).replace(/</g, "\\u003c");
-  const title = `${name} | Merchgraph | Kingdom Hearts`;
+  const title = `${name} | Merchgraph | ${series.name}`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -264,7 +308,7 @@ ${img ? `<meta property="og:image" content="${esc(img.url)}" />\n<meta name="twi
   <nav><a href="${CATALOG_PATH}">Browse the catalog</a><a href="${CATALOG_PATH}check?src=item">Check a listing</a></nav>
 </header>
 <main>
-  <div class="crumbs"><a href="/">Merchgraph</a> › <a href="${CATALOG_PATH}">Kingdom Hearts</a></div>
+  <div class="crumbs"><a href="/">Merchgraph</a> › <a href="${CATALOG_PATH}">${esc(series.name)}</a></div>
   <h1>${esc(name)}</h1>
   ${nameJa ? `<p class="ja" lang="ja">${esc(nameJa)}</p>` : ""}
   <div class="tags">
@@ -300,8 +344,8 @@ ${img ? `<meta property="og:image" content="${esc(img.url)}" />\n<meta name="twi
   <a class="cta" href="${esc(catalogLink)}">See it in the catalog (search links, share, report a mistake) ›</a>
 </main>
 <footer>
-  <p>An independent fan project. Not affiliated with, endorsed or sponsored by Square Enix, Disney, or any maker, shop, marketplace or shipping service mentioned here. Nothing is sold on this site.</p>
-  <p>Kingdom Hearts and all related names, characters, logos and artwork belong to their respective owners. Prices and availability are for reference and may be out of date. Rights holders: legal@merchgraph.app</p>
+  <p>An independent fan project. Not affiliated with, endorsed or sponsored by ${esc(series.rights)}, or any maker, shop, marketplace or shipping service mentioned here. Nothing is sold on this site.</p>
+  <p>${esc(series.name)} and all related names, characters, logos and artwork belong to their respective owners. Prices and availability are for reference and may be out of date. Rights holders: legal@merchgraph.app</p>
 </footer>
 </body>
 </html>
@@ -309,30 +353,38 @@ ${img ? `<meta property="og:image" content="${esc(img.url)}" />\n<meta name="twi
 }
 
 // ---- 実行 ----
-export function buildItemPages({ write = true } = {}) {
+export function buildItemPages({ write = true, series = SERIES } = {}) {
   const catalog = readJson("src/data/catalog.json");
   const lines = new Map(readJson("src/data/product_lines.json").map((l) => [l.line_id, l]));
-  const images = readJson("web/kingdomhearts/images.json");
-  const items = catalog.filter((s) => s.ip === "kingdom-hearts");
+  const live = series.filter((x) => x.publish);
 
-  const pages = items.map((s) => ({ sku: s.sku_id, html: renderItem(s, lines.get(s.line_id), images) }));
+  const pages = [];
+  // ルート（/）は作品を選ぶハブページ（2026-11-02〜）。
+  const urls = [`${ORIGIN}/`];
+  for (const x of live) {
+    const images = readJsonOr(x.images, {});
+    const items = catalog.filter((s) => s.ip === x.ip);
+    for (const s of items) pages.push({ sku: s.sku_id, series: x, html: renderItem(s, lines.get(s.line_id), images, x) });
+    urls.push(`${ORIGIN}${x.path}`, `${ORIGIN}${x.path}check`, ...items.map((s) => ORIGIN + itemPathIn(x, s.sku_id)));
+  }
   const today = new Date().toISOString().slice(0, 10);
-  const urls = [`${ORIGIN}/`, `${ORIGIN}${CATALOG_PATH}`, `${ORIGIN}${CATALOG_PATH}check`, ...items.map((s) => itemUrl(s.sku_id))];
   const sitemap =
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
     urls.map((u) => `  <url><loc>${esc(u)}</loc><lastmod>${today}</lastmod></url>`).join("\n") +
     `\n</urlset>\n`;
 
   if (write) {
-    rmSync(ITEM_DIR, { recursive: true, force: true });
-    mkdirSync(ITEM_DIR, { recursive: true });
-    for (const p of pages) writeFileSync(join(ITEM_DIR, `${p.sku}.html`), p.html);
+    // 準備中の作品の古い生成物も消す（公開をやめた作品の商品ページが残らないように）。
+    for (const x of series) rmSync(itemDirOf(x), { recursive: true, force: true });
+    for (const x of live) mkdirSync(itemDirOf(x), { recursive: true });
+    for (const p of pages) writeFileSync(join(itemDirOf(p.series), `${p.sku}.html`), p.html);
     writeFileSync(join(ROOT, "web/sitemap.xml"), sitemap);
   }
-  return { pages, sitemap };
+  return { pages: pages.map(({ sku, series: x, html }) => ({ sku, ip: x.ip, html })), sitemap };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const { pages } = buildItemPages();
-  console.log(`✓ ${pages.length} item pages → web/kingdomhearts/item/, sitemap → web/sitemap.xml`);
+  const dirs = SERIES.filter((x) => x.publish).map((x) => `web${x.path}item/`).join(", ");
+  console.log(`✓ ${pages.length} item pages → ${dirs}, sitemap → web/sitemap.xml`);
 }

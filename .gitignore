@@ -10,5 +10,5 @@ dist
 !.env.example
 
 # 商品ごとの静的ページと sitemap（scripts/build-item-pages.mjs がデプロイ時に作る生成物）
-web/kingdomhearts/item/
+web/*/item/
 web/sitemap.xml

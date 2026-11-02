@@ -3,13 +3,14 @@
 // サイト構造（2026-10-23〜）
 // - IP（作品）ごとのページ・データは、それぞれのパスの下に置く。今は /kingdomhearts/ だけ。
 //   新しい IP は /<IP名>/ の下に足せば、/kingdomhearts/ には一切触れずに済む。
-// - ルート（/）は、今は /kingdomhearts/ と同じ内容を「URLを変えずに」返す（転送しない）。
-//   /check や /images.json のようなルート直下のパスも、ルートに同名のファイルが無ければ /kingdomhearts/ の同名を返す。
-//   将来ルートをポータルにするときは、ROOT_ALIAS を外して web/ 直下に index.html を置くだけでよい。
+// - ルート（/）は作品を選ぶハブページ（web/index.html、2026-11-02〜）。ROOT_PAGE で切り替えられる。
+// - ルート直下のパス（/check・/item/<sku>・/images.json など）は、ルートに同名のファイルが無いときだけ
+//   LEGACY_FALLBACK（/kingdomhearts）の同名を「URLを変えずに」返す。ハブ化前に共有されたリンクを生かすため。
+//   旧リンク https://merchgraph.app/#item=... はサーバーに # が届かないので、ハブページの JS が /kingdomhearts/ へ送る。
 // - 旧URL（*.workers.dev や、旧ファイル名の discover.html / index.html）は新しいURLへ 301 転送する。
 // - /api/contact は問い合わせフォームの送信先（contact.ts）。
 import { handleContact, type ContactEnv } from "./contact.js";
-import { IP_PREFIXES, ROOT_ALIAS, legacyPath } from "./routes.js";
+import { IP_PREFIXES, LEGACY_FALLBACK, ROOT_PAGE, legacyPath } from "./routes.js";
 // 注意: このファイル（Worker の入口）からは default 以外を export しない。
 // Workers の実行環境は、入口モジュールの名前付き export をハンドラとして読もうとし、関数・定数があると起動に失敗する。
 
@@ -77,17 +78,17 @@ export default {
     // IP のパスの下は、そのまま静的ファイルを返す。
     if (IP_PREFIXES.some((p) => isUnder(path, p))) return env.ASSETS.fetch(request);
 
-    if (ROOT_ALIAS && path === "/") {
-      return env.ASSETS.fetch(assetRequest(request, url, `${ROOT_ALIAS}/`));
+    if (ROOT_PAGE && path === "/") {
+      return env.ASSETS.fetch(assetRequest(request, url, `${ROOT_PAGE}/`));
     }
 
-    // ルート直下に実在するファイル（llms.txt・contact・代わりのロゴ・favicon など）はそのまま返す。
+    // ルート直下に実在するファイル（ハブページ・llms.txt・contact・代わりのロゴ・favicon など）はそのまま返す。
     const direct = await env.ASSETS.fetch(request);
-    if (direct.status !== 404 || !ROOT_ALIAS) return direct;
+    if (direct.status !== 404 || !LEGACY_FALLBACK) return direct;
 
-    // 無ければ、別名の IP の同名ファイルを（URLを変えずに）返す。
-    const aliased = await env.ASSETS.fetch(assetRequest(request, url, `${ROOT_ALIAS}${path}`));
+    // 無ければ、旧リンク用に LEGACY_FALLBACK の IP の同名ファイルを（URLを変えずに）返す。
+    const aliased = await env.ASSETS.fetch(assetRequest(request, url, `${LEGACY_FALLBACK}${path}`));
     if (aliased.status === 404) return direct;
-    return stripPrefixFromRedirect(aliased, ROOT_ALIAS, url.origin);
+    return stripPrefixFromRedirect(aliased, LEGACY_FALLBACK, url.origin);
   },
 };

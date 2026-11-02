@@ -49,6 +49,42 @@ export function buildAnchorTerms(catalog: CatalogSku[], ipTerms: IpTerm[]): stri
   return uniqueByNormalized(terms);
 }
 
+// other_ip_keywords.csv（「これがあればキングダム ハーツ以外の作品」とみなす語）のうち、今も有効なもの。
+// カタログに入った作品の語を外す（2026-11-02、複数IP対応）。手でリストから消さなくても、
+// catalog.csv にその作品の商品が入った時点で自動的に外れる。外す条件は次のどちらか。
+//   1. 行の ip 列が、カタログに登場する ip である
+//   2. 語が、カタログに登場する作品のアンカー語（ip_terms の表記・キャラクター名）と同じ表記である
+export function activeOtherIpKeywords<T extends { keyword: string; ip?: string }>(
+  keywords: T[],
+  catalog: CatalogSku[],
+  ipTerms: IpTerm[]
+): T[] {
+  const ips = catalogIps(catalog);
+  const anchors = new Set(buildAnchorTerms(catalog, ipTerms).map((a) => normalize(a)));
+  return keywords.filter((k) => {
+    if (k.ip && ips.has(k.ip)) return false;
+    return !anchors.has(normalize(k.keyword));
+  });
+}
+
+// IPアンカー語を作品（ip）ごとに分けたもの（2026-11-02、複数IP対応）。
+// resolve_listing で「候補の作品のアンカー語が出品文にあるか」を作品ごとに確かめるために使う
+// （鬼滅の刃の語があるだけで、ONE PIECE の候補まで確度が上がらないように）。
+export function buildAnchorTermsByIp(catalog: CatalogSku[], ipTerms: IpTerm[]): Map<string, string[]> {
+  const raw = new Map<string, string[]>();
+  const push = (ip: string, values: string[]) => {
+    if (!ip) return;
+    if (!raw.has(ip)) raw.set(ip, []);
+    raw.get(ip)!.push(...values);
+  };
+  const ips = catalogIps(catalog);
+  for (const t of ipTerms) if (ips.has(t.ip)) push(t.ip, surfaceForms(t));
+  for (const sku of catalog) push(sku.ip, [...splitPipe(sku.character), ...splitPipe(sku.character_en)]);
+  const out = new Map<string, string[]>();
+  for (const [ip, terms] of raw) out.set(ip, uniqueByNormalized(terms));
+  return out;
+}
+
 // 他IP（現在のカタログに無いIP）の語が出品文に含まれていれば、その語とIPを返す。
 export function findOtherIpTerms(
   queryText: string,

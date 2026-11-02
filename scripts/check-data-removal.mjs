@@ -16,7 +16,10 @@ import { parseCsv } from "./lib/csv.mjs";
 export const FILES = [
   { path: "data/catalog.csv", label: "catalog.csv", id: "sku_id" },
   { path: "data/product_lines.csv", label: "product_lines.csv", id: "line_id" },
-  { path: "web/kingdomhearts/images.json", label: "images.json", id: null },
+  { path: "web/kingdomhearts/images.json", label: "kingdomhearts/images.json", id: null },
+  // 準備中の作品（2026-11-02〜）。ファイルができるまでは「対象外」と表示されるだけ。
+  { path: "web/demon-slayer/images.json", label: "demon-slayer/images.json", id: null },
+  { path: "web/one-piece/images.json", label: "one-piece/images.json", id: null },
 ];
 
 // 許容する消失数：5件、または比較元の件数の2%の大きい方。

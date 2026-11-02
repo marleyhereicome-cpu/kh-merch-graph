@@ -1,6 +1,11 @@
 // URL の振り分けの設定（index.ts から使う。テストからも読む）。
-// ルートが別名として中身を返す IP。null にすればルートの別名をやめる（ポータル化するとき）。
-export const ROOT_ALIAS: string | null = "/kingdomhearts";
+// ルート（/）に返すページ。null なら web/index.html（作品を選ぶハブページ、2026-11-02〜）をそのまま返す。
+// IP のパス（例: "/kingdomhearts"）を入れると、ルートでその IP のトップを URL を変えずに返す（ハブ化前の動き）。
+export const ROOT_PAGE: string | null = null;
+// ルート直下のパスが見つからない（404）ときだけ、代わりに中身を探す IP。
+// ハブ化前に共有された /check や /item/<sku> などのリンクを生かすため（URL は変えない）。
+// null にすると、ルート直下で見つからないものはそのまま 404 になる。
+export const LEGACY_FALLBACK: string | null = "/kingdomhearts";
 // IP ごとのパス。ここに並べたパスの下は、そのまま静的ファイルとして返す。
 export const IP_PREFIXES = ["/kingdomhearts"];
 

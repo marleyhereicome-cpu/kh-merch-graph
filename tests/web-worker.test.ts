@@ -14,7 +14,9 @@ const { buildMime, validateContact } = await import("../web-worker/contact.js");
 
 // web/ 以下のファイルの代わり。Workers の静的ファイルと同じく、x.html は /x で返し、/x.html は /x へ転送する。
 const FILES = new Set([
+  "/index.html",
   "/kingdomhearts/index.html",
+  "/kingdomhearts/item/ichiban-kuji-kh-2018-a.html",
   "/kingdomhearts/check.html",
   "/kingdomhearts/images.json",
   "/kingdomhearts/images/games/kh1-ps2-standard-jp.png",
@@ -43,13 +45,24 @@ const get = (url: string, e = env()) => worker.fetch(new Request(url), e as neve
 const body = async (r: Response) => (r.status === 200 ? await r.text() : `${r.status} ${r.headers.get("Location")}`);
 
 describe("URL の振り分け（merchgraph.app）", () => {
-  it("ルート / は URL を変えずに /kingdomhearts/ の中身を返す", async () => {
-    expect(await body(await get("https://merchgraph.app/"))).toBe("file:/kingdomhearts/index.html");
+  it("ルート / は作品を選ぶハブページ（web/index.html）を返す", async () => {
+    expect(await body(await get("https://merchgraph.app/"))).toBe("file:/index.html");
+    expect(await body(await get("https://merchgraph.app/?lang=ja"))).toBe("file:/index.html");
+  });
+  it("ハブ化前の旧リンク（/check・/item/<sku>）は引き続き Kingdom Hearts の中身を返す", async () => {
+    expect(await body(await get("https://merchgraph.app/check"))).toBe("file:/kingdomhearts/check.html");
+    expect(await body(await get("https://merchgraph.app/item/ichiban-kuji-kh-2018-a"))).toBe(
+      "file:/kingdomhearts/item/ichiban-kuji-kh-2018-a.html"
+    );
+    expect((await get("https://merchgraph.app/item/no-such-sku")).status).toBe(404);
   });
   it("/kingdomhearts/ 配下はそのまま", async () => {
     expect(await body(await get("https://merchgraph.app/kingdomhearts/"))).toBe("file:/kingdomhearts/index.html");
     expect(await body(await get("https://merchgraph.app/kingdomhearts/check"))).toBe("file:/kingdomhearts/check.html");
     expect(await body(await get("https://merchgraph.app/kingdomhearts/images.json"))).toBe("file:/kingdomhearts/images.json");
+    expect(await body(await get("https://merchgraph.app/kingdomhearts/item/ichiban-kuji-kh-2018-a"))).toBe(
+      "file:/kingdomhearts/item/ichiban-kuji-kh-2018-a.html"
+    );
   });
   it("ルート直下の相対パスも /kingdomhearts/ の同名を返す（URLは変えない）", async () => {
     expect(await body(await get("https://merchgraph.app/check?src=discover"))).toBe("file:/kingdomhearts/check.html");

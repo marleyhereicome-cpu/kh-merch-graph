@@ -24,6 +24,7 @@ import type {
   IpTerm,
   FxRate,
 } from "./types.js";
+import { activeOtherIpKeywords } from "./ip-terms.js";
 
 export const productLines = productLinesJson as unknown as ProductLine[];
 export const catalog = catalogJson as unknown as CatalogSku[];
@@ -31,8 +32,11 @@ export const conditionLexicon = conditionLexiconJson as unknown as ConditionTerm
 export const bootlegPatterns = bootlegPatternsJson as unknown as BootlegPattern[];
 export const events = eventsJson as unknown as KhEvent[];
 export const proxyRates = proxyRatesJson as unknown as ProxyRate[];
-export const otherIpKeywords = otherIpKeywordsJson as unknown as OtherIpKeyword[];
 export const channels = channelsJson as unknown as Channel[];
 export const outOfScopeKeywords = outOfScopeKeywordsJson as unknown as OutOfScopeKeyword[];
 export const ipTerms = ipTermsJson as unknown as IpTerm[];
+// other_ip_keywords.csv の全行（カタログに入った作品の語も含む）。
+export const otherIpKeywordsAll = otherIpKeywordsJson as unknown as OtherIpKeyword[];
+// 「他作品」とみなす語。カタログに入った作品（鬼滅の刃・ONE PIECE など）の語は自動で外す（ip-terms.ts）。
+export const otherIpKeywords = activeOtherIpKeywords(otherIpKeywordsAll, catalog, ipTerms);
 export const fxRates = fxRatesJson as unknown as FxRate[];

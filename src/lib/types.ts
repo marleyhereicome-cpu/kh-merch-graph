@@ -138,6 +138,9 @@ export interface ProxyRate {
 
 export interface OtherIpKeyword {
   keyword: string;
+  // その語が指す作品の ip（catalog.csv の ip 列と同じ書き方）。分からなければ空欄。
+  // カタログにこの ip の商品が入ったら、その語は「他作品の語」として扱わない（ip-terms.ts の activeOtherIpKeywords）。
+  ip?: string;
   notes: string;
 }
 

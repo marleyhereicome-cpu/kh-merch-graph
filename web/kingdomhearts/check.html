@@ -39,6 +39,10 @@
   .home-link { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
   .home-link:hover { color: var(--ink); }
   .site-name { font-family: 'Shippori Mincho', serif; font-size: 22px; font-weight: 700; letter-spacing: 0.02em; }
+  .brand-crumb { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .crumb-sep { color: var(--line-2); font-size: 18px; }
+  .series-link { font-family: 'Shippori Mincho', serif; font-size: 16px; font-weight: 700; color: var(--ink-soft); text-decoration: none; }
+  .series-link:hover { color: var(--navy); }
   .site-nav { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
   .site-nav a { font-size: 13px; text-decoration: none; color: var(--ink); padding: 7px 12px; border-radius: 999px; }
   .site-nav a:hover { background: #EFE8DA; color: var(--ink); }
@@ -131,6 +135,8 @@
   @media (max-width: 640px) {
     .site-header { padding: 10px 16px; }
     .site-name { font-size: 17px; }
+    .series-link { font-size: 13px; }
+    .brand-crumb { gap: 6px; }
     .site-nav a { padding: 6px 9px; font-size: 12px; }
     .wrap { padding: 0 16px; }
     .more-grid { grid-template-columns: 1fr; }
@@ -142,9 +148,13 @@
 <body>
 
 <header class="site-header">
-  <a class="home-link" href="./" aria-label="Home">
-    <span class="site-name">Merchgraph</span>
-  </a>
+  <div class="brand-crumb">
+    <a class="home-link" href="/" aria-label="Merchgraph home">
+      <span class="site-name">Merchgraph</span>
+    </a>
+    <span class="crumb-sep" aria-hidden="true">/</span>
+    <a class="series-link" href="/kingdomhearts/">Kingdom Hearts</a>
+  </div>
   <nav class="site-nav" aria-label="Main">
     <a href="./" data-i18n="navDiscover">Discover</a>
     <a href="./#about" data-i18n="navAbout">About</a>
