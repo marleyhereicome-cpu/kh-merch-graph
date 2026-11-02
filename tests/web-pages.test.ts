@@ -64,3 +64,20 @@ describe("hub page (web/index.html)", () => {
     expect(emails.filter((e) => e !== "legal@merchgraph.app")).toEqual([]);
   });
 });
+
+// 「全件を人の手で確認」と言い切らない（2026-11-02）。未検証（verified=false）の商品もあるため、
+// 出典リンクと「正確性は保証しない」免責の言い回しにそろえる。
+describe("no blanket 'every item checked by hand' claims", () => {
+  const files = ["web/index.html", "web/kingdomhearts/index.html", "web/kingdomhearts/check.html", "web/llms.txt"];
+  for (const f of files) {
+    it(`${f} does not claim that every item or report is checked by hand`, () => {
+      const text = readFileSync(f, "utf8");
+      expect(text).not.toMatch(/人の手で確認|すべて手作業|hand-checked|checked by a person|by hand\./);
+    });
+  }
+  it("the hub says accuracy is not guaranteed (EN/JA)", () => {
+    const html = readFileSync("web/index.html", "utf8");
+    expect(html).toContain("We take care to keep this accurate, but we can't guarantee it.");
+    expect(html).toContain("正確な情報の提供に努めていますが、正確性を保証するものではありません。");
+  });
+});

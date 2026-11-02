@@ -9,7 +9,7 @@ export function buildLlmsTxt(baseUrl: string, maxBatchListings: number): string 
 
 ## What makes this different
 
-- The catalog behind this server is not scraped or LLM-inferred: every SKU is checked by a human against a primary source (official product page, etc.), recorded in \`source_url\`.
+- The catalog behind this server is not scraped or LLM-inferred: every SKU links to a primary source (official product page, etc.) in \`source_url\`, and each entry is marked \`verified\` or not. We aim for accuracy but cannot guarantee it.
 - When match confidence is low, this server does not guess. Low-confidence matches are returned separately as \`weak_matches\`, never mixed into \`candidates\` — a calling agent should treat an empty \`candidates\` array as "probably not in the catalog," not as a failure.
 - This server never scrapes marketplaces itself (Bring Your Own Listing). You pass it listing text you already have; it never fetches or stores it beyond the single request.
 

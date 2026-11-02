@@ -9,8 +9,8 @@ your country. Point any MCP-capable AI agent at it and hand it listing text — 
 
 ## Why this is different
 
-1. **Verified catalog, not scraped or guessed.** Every SKU in the catalog was checked by a human against a
-   primary source (an official product page, a maker's press release, etc.) — the source URL is attached to
+1. **Sourced catalog, not scraped or guessed.** Every SKU in the catalog is tied to a primary source (an
+   official product page, a maker's press release, etc.) and marked `verified` or not — the source URL is attached to
    every entry and returned with every match, so you can check it yourself. Nothing is inferred by an LLM
    inside the server.
 2. **No confident guess, no candidate.** When the match confidence is low, this server does not present a
@@ -21,7 +21,7 @@ your country. Point any MCP-capable AI agent at it and hand it listing text — 
 
 ## Supported IP
 
-**Kingdom Hearts only, for now.** The catalog is hand-verified one SKU at a time, so it grows slowly on
+**Kingdom Hearts only, for now.** The catalog is curated one SKU at a time, so it grows slowly on
 purpose. If you ask about another franchise, the server won't fabricate an answer — it notes the request (see
 [Data sourcing & privacy](#data-sourcing--privacy)) to help decide what to add next. Use `report_correction` or
 open a GitHub issue if you want to nominate a franchise or a specific missing SKU.
