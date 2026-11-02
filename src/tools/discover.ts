@@ -7,7 +7,7 @@ import { containsNormalized } from "../lib/normalize.js";
 import { splitPipe, isTrue } from "../lib/types.js";
 import { buildUsageLogEntry, type UsageLogger } from "../lib/usage-log.js";
 import { localPriceOf, fxRatesToJpy } from "../lib/price.js";
-import { findCharacterGroupSuggestion } from "../lib/character-groups.js";
+import { findCharacterGroup, groupMatchLabels } from "../lib/character-groups.js";
 import type { CatalogSku } from "../lib/types.js";
 
 const PURPOSE_LINE_TYPES: Record<string, string[]> = {
@@ -110,13 +110,16 @@ export function discoverCatalog({ ip, character, budget_jpy, purpose, limit, ter
   // ゼロ件かつキャラ名指定ありの場合のみ、グループ名での再検索を提案する
   // （予算・用途・terms で絞り込みすぎて0件になったケースは対象外 —
   // その場合はキャラ自体は見つかっているはずなので誤誘導になるため）。
-  const suggestion = results.length === 0 ? findCharacterGroupSuggestion(character) : null;
+  // グループは作品（ip）ごと。この ip のグループだけを提案する。
+  const group = results.length === 0 ? findCharacterGroup(character, ip) : null;
+  const suggestion = group ? { suggest_keyword: group.suggestKeyword, suggest_label: group.suggestLabel } : null;
   // 提案と一緒に、グループ名で探した結果の先頭も返す。エージェントがもう一度 discover を呼ばなくても候補を出せる。
-  const suggestedResults = suggestion
+  const labels = group ? groupMatchLabels(group) : [];
+  const suggestedResults = group
     ? catalog.filter(
         (s) =>
           s.ip === ip &&
-          (containsNormalized(s.character, suggestion.suggest_label) || containsNormalized(s.character_en, suggestion.suggest_label))
+          labels.some((label) => containsNormalized(s.character, label) || containsNormalized(s.character_en, label))
       )
     : [];
 

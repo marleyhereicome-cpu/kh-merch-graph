@@ -1,7 +1,7 @@
 // データの大量消失チェック（scripts/check-data-removal.mjs）。2026-10-13、古い product_lines.csv を
 // 全体貼り付けして475ラインが消えた事故の再発防止。デプロイ前（deploy.yml）と PR（data-guard.yml）で走る。
 import { describe, it, expect } from "vitest";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { FILES, allowedRemovals, compareIds, idsOf } from "../scripts/check-data-removal.mjs";
 
 const ids = (n: number, prefix = "id") => new Set(Array.from({ length: n }, (_, i) => `${prefix}-${i}`));
@@ -30,8 +30,10 @@ describe("check-data-removal", () => {
     expect(compareIds("x", ids(100), ids(100, "other")).ok).toBe(false);
   });
 
-  it("実際の3ファイルから ID を読める", () => {
-    for (const f of FILES) {
+  it("実際のファイルから ID を読める（まだ無い準備中の作品のファイルは除く）", () => {
+    expect(FILES.map((f) => f.path)).toContain("web/demon-slayer/images.json");
+    expect(FILES.map((f) => f.path)).toContain("web/one-piece/images.json");
+    for (const f of FILES.filter((x) => existsSync(x.path))) {
       const set = idsOf(f, readFileSync(f.path, "utf8"));
       expect(set.size, f.label).toBeGreaterThan(100);
     }

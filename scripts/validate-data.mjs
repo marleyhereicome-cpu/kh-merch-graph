@@ -41,7 +41,7 @@ const SCHEMAS = {
     "weight_from_g", "weight_to_g", "shipping_jpy", "duty_note", "updated",
     "source_url",
   ],
-  "other_ip_keywords.csv": ["keyword", "notes"],
+  "other_ip_keywords.csv": ["keyword", "ip", "notes"],
   "channels.csv": [
     "channel_name", "channel_type", "country", "search_url_template",
     "proxy_required", "source_url",

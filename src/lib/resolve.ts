@@ -2,7 +2,7 @@
 // LLMは使わず、正規化した文字列同士の部分一致のみで判定する（ルール＋辞書）。
 import { containsNormalized, normalize } from "./normalize.js";
 import { isTrue, splitPipe, type CatalogSku, type IpTerm, type OtherIpKeyword, type ProductLine } from "./types.js";
-import { buildAnchorTerms, surfaceForms } from "./ip-terms.js";
+import { buildAnchorTermsByIp, surfaceForms } from "./ip-terms.js";
 import { withEnglishExpansion } from "./en-tokens.js";
 
 // 「そのIP（キングダムハーツ）の商品である」ことを示す語（IPアンカー語）は data/ip_terms.csv と
@@ -372,9 +372,9 @@ function rowsWorthScoring(scoringText: string, catalog: CatalogSku[], lines: Pro
   return [...rows].sort((a, b) => a - b).map((i) => catalog[i]);
 }
 
-// IPアンカー語の一覧は catalog と ip_terms だけで決まるので、組み合わせごとに一度だけ作る。
-const anchorTermsCache = new WeakMap<CatalogSku[], WeakMap<IpTerm[], string[]>>();
-function cachedAnchorTerms(catalog: CatalogSku[], ipTerms: IpTerm[]): string[] {
+// IPアンカー語の一覧（作品ごと）は catalog と ip_terms だけで決まるので、組み合わせごとに一度だけ作る。
+const anchorTermsCache = new WeakMap<CatalogSku[], WeakMap<IpTerm[], Map<string, string[]>>>();
+function cachedAnchorTerms(catalog: CatalogSku[], ipTerms: IpTerm[]): Map<string, string[]> {
   let perTerms = anchorTermsCache.get(catalog);
   if (!perTerms) {
     perTerms = new WeakMap();
@@ -382,7 +382,7 @@ function cachedAnchorTerms(catalog: CatalogSku[], ipTerms: IpTerm[]): string[] {
   }
   let terms = perTerms.get(ipTerms);
   if (!terms) {
-    terms = buildAnchorTerms(catalog, ipTerms);
+    terms = buildAnchorTermsByIp(catalog, ipTerms);
     perTerms.set(ipTerms, terms);
   }
   return terms;
@@ -421,7 +421,8 @@ function resolveCandidatesImpl(
   ipTerms: IpTerm[],
   useIndex: boolean
 ): ResolveResult {
-  // 他作品名が出品文に含まれていれば、キングダムハーツ商品ではないとみなし候補を出さない。
+  // カタログに無い作品の名前が出品文に含まれていれば、カタログの商品ではないとみなし候補を出さない。
+  // （カタログに入った作品の語は store.ts の時点で otherIpKeywords から外れている。）
   if (otherIpKeywords.some((k) => containsNormalized(queryText, k.keyword))) {
     return { candidates: [], weak_matches: [] };
   }
@@ -430,9 +431,11 @@ function resolveCandidatesImpl(
   // 対応する日本語表記に変換してスコアリング用テキストに追加する（表示用の理由文には使わない）。
   const scoringText = withEnglishExpansion(queryText);
 
-  const anchorPresent = cachedAnchorTerms(catalog, ipTerms).some((term) =>
-    containsNormalized(scoringText, term)
-  );
+  // 出品文にアンカー語がある作品（ip）。候補の作品のアンカー語が無ければ、その候補の確度を抑える。
+  const anchoredIps = new Set<string>();
+  for (const [ip, terms] of cachedAnchorTerms(catalog, ipTerms)) {
+    if (terms.some((term) => containsNormalized(scoringText, term))) anchoredIps.add(ip);
+  }
 
   const lineById = new Map(lines.map((l) => [l.line_id, l]));
   const genericPhrases = genericPhrasesByLine(lines);
@@ -451,7 +454,7 @@ function resolveCandidatesImpl(
       // 同点になり、弾を特定できない候補と区別できなくなる。丸めるのは最終的な confidence のみ。
       const rawTotal = skuScore + lineScore;
       let confidence = seriesAmbiguous ? Math.min(rawTotal, KUJI_SERIES_AMBIGUOUS_CAP) : Math.min(rawTotal, 1);
-      if (!anchorPresent) confidence = Math.min(confidence, NO_ANCHOR_CONFIDENCE_CAP);
+      if (!anchoredIps.has(sku.ip)) confidence = Math.min(confidence, NO_ANCHOR_CONFIDENCE_CAP);
       // ライン名・弾名だけの一致（SKU固有の根拠なし）は、そのライン内の行を区別できないので候補にしない。
       if (skuScore === 0) confidence = Math.min(confidence, LINE_ONLY_CONFIDENCE_CAP);
       return { sku, reasons, seriesAmbiguous, confidence, rawTotal, hasMatch: rawTotal > 0 };

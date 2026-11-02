@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 // @ts-expect-error -- plain .mjs build script without type declarations
-import { buildItemPages } from "../scripts/build-item-pages.mjs";
+import { buildItemPages, SERIES } from "../scripts/build-item-pages.mjs";
 import { catalog } from "../src/lib/store.js";
 
 // 商品ごとの静的ページ（2026-10-28）：検索エンジン・AI が商品単位で読めるページ。
@@ -14,6 +14,21 @@ describe("item pages", () => {
     expect(pages.map((p) => p.sku).sort()).toEqual([...skus].sort());
     for (const sku of skus) expect(sitemap).toContain(`https://merchgraph.app/kingdomhearts/item/${encodeURIComponent(sku)}</loc>`);
     expect(sitemap).toContain("<loc>https://merchgraph.app/kingdomhearts/</loc>");
+    // ルートは作品を選ぶハブページ（2026-11-02〜）
+    expect(sitemap).toContain("<loc>https://merchgraph.app/</loc>");
+  });
+
+  it("series that are not published yet get no item pages or sitemap entries", () => {
+    expect(SERIES.find((x: any) => x.ip === "kingdom-hearts").publish).toBe(true);
+    for (const x of SERIES.filter((x: any) => !x.publish)) expect(sitemap).not.toContain(`https://merchgraph.app${x.path}`);
+    // 公開すると、その作品の商品ページと sitemap の行ができる（作品ごとの見出し・非提携の表記）
+    const kh = SERIES.find((x: any) => x.ip === "kingdom-hearts");
+    const fake = { ...kh, ip: "kingdom-hearts", path: "/test-series/", name: "Test Series", rights: "Test Rights Holder", publish: true };
+    const built = buildItemPages({ write: false, series: [fake] }) as { pages: { sku: string; html: string }[]; sitemap: string };
+    expect(built.sitemap).toContain("<loc>https://merchgraph.app/test-series/</loc>");
+    expect(built.pages[0].html).toContain('<link rel="canonical" href="https://merchgraph.app/test-series/item/');
+    expect(built.pages[0].html).toContain("Not affiliated with, endorsed or sponsored by Test Rights Holder");
+    expect(built.pages[0].html).toContain("| Merchgraph | Test Series</title>");
   });
 
   it("each page has a canonical URL, OG tags and parseable Product data", () => {

@@ -53,7 +53,7 @@ jobs:
 
       - run: npm ci
       - run: npm run build:data
-      # 商品ごとの静的ページ（/kingdomhearts/item/<sku_id>）と sitemap.xml を作る。リポジトリには入れない生成物。
+      # 商品ごとの静的ページ（/<作品>/item/<sku_id>、例: /kingdomhearts/item/<sku_id>）と sitemap.xml を作る。リポジトリには入れない生成物。
       - run: npm run build:pages
       - run: npm test
       - run: npm run validate
