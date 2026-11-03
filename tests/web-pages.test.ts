@@ -81,3 +81,29 @@ describe("no blanket 'every item checked by hand' claims", () => {
     expect(html).toContain("正確な情報の提供に努めていますが、正確性を保証するものではありません。");
   });
 });
+
+// 季節演出（2026-11-03）：12月は雪だけ（特集棚なし）、年末年始は挨拶の帯（ハブと KH の両方）。
+describe("seasonal effects and greeting", () => {
+  const kh = readFileSync("web/kingdomhearts/index.html", "utf8");
+  const hub = readFileSync("web/index.html", "utf8");
+  it("December is snow only: no item matching, so no feature shelf", () => {
+    const winter = kh.slice(kh.indexOf("id: 'winter-2026'"), kh.indexOf("];", kh.indexOf("id: 'winter-2026'")));
+    expect(winter).toContain("start: '2026-12-01', end: '2026-12-26'");
+    expect(winter).toContain("snow: true");
+    expect(winter).not.toContain("match:");
+    expect(kh).toContain("if (!SEASON || !SEASON.match || !shelf) return;");
+  });
+  it("the New Year greeting is on both pages with the same dates and text", () => {
+    for (const html of [kh, hub]) {
+      expect(html).toContain('<div class="greeting" id="greeting" hidden></div>');
+      expect(html).toContain("id: 'newyear-2027', start: '2026-12-29', end: '2027-01-03'");
+      expect(html).toContain("Happy New Year from Merchgraph. Thanks for discovering with us in 2026");
+      expect(html).toContain("2027年も作品を増やしていきます。");
+    }
+  });
+  it("hub series cards introduce the series itself, not its merch", () => {
+    expect(hub).toContain("ディズニーとスクウェア・エニックスが共同制作するアクションRPGシリーズ。");
+    expect(hub).toContain("大正時代の日本を舞台に、鬼と戦う兄妹の物語。");
+    expect(hub).toContain("海賊王を目指す少年ルフィと仲間たちの大冒険。");
+  });
+});
