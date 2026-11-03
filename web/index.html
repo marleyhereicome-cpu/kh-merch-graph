@@ -67,6 +67,14 @@ if (location.hash.startsWith('#item=')) location.replace('/kingdomhearts/' + loc
   .points b { font-family: 'Shippori Mincho', serif; font-size: 17px; display: block; margin-bottom: 4px; }
   .points span { font-size: 13px; line-height: 1.65; color: var(--ink-soft); }
 
+  /* ---------- New Year greeting (date-gated, see GREETINGS in the script) ---------- */
+  .greeting {
+    max-width: 760px; margin: 14px auto 0; padding: 12px 18px; text-align: center;
+    background: #FFFFFF; border: 1px solid var(--line); border-top: 3px solid var(--gold); border-radius: 14px;
+    font-size: 14px; line-height: 1.7; color: var(--ink-soft);
+  }
+  .greeting[hidden] { display: none; }
+
   /* series */
   .section { padding: 34px 0 8px; scroll-margin-top: 70px; }
   .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
@@ -163,6 +171,8 @@ if (location.hash.startsWith('#item=')) location.replace('/kingdomhearts/' + loc
     </ul>
   </section>
 
+  <div class="greeting" id="greeting" hidden></div>
+
   <section class="section" id="series" aria-labelledby="seriesTitle">
     <div class="section-head">
       <h2 id="seriesTitle" data-i18n="seriesTitle">Choose a series</h2>
@@ -216,6 +226,8 @@ const LANG_KEY = 'khmerch-lang'; // shared with the series pages
 //   path    URL of the series page
 //   status  'live' = page is open · 'soon' = catalog in preparation (no link)
 //   images  photo map used for the card's strip (live series only)
+//   tagline a one-line introduction to the series itself (story/genre), not
+//           to its merch, for visitors who don't know the series
 // No official logos or key art: titles are set in type, and the strip uses
 // the same identification-only product photos the catalog already shows.
 // ---------------------------------------------------------------------------
@@ -223,20 +235,20 @@ const SERIES = [
   {
     ip: 'kingdom-hearts', path: '/kingdomhearts/', status: 'live', accent: '#3D5A80',
     name: { en: 'Kingdom Hearts', ja: 'キングダム ハーツ' }, alt: { en: 'キングダム ハーツ', ja: 'Kingdom Hearts' },
-    tagline: { en: 'Japanese prize plush and lottery figures next to US-exclusive Funko and brand collabs.', ja: '日本のプライズやくじ景品と、海外限定のFunkoやブランドコラボが一緒に。' },
+    tagline: { en: 'An action RPG series co-created by Disney and Square Enix.', ja: 'ディズニーとスクウェア・エニックスが共同制作するアクションRPGシリーズ。' },
     aliases: ['kh', 'キンハー', 'kingdom hearts', 'キングダムハーツ'],
     images: '/kingdomhearts/images.json',
   },
   {
     ip: 'kimetsu-no-yaiba', path: '/demon-slayer/', status: 'soon', accent: '#B23A48',
     name: { en: 'Demon Slayer', ja: '鬼滅の刃' }, alt: { en: 'Kimetsu no Yaiba · 鬼滅の刃', ja: 'Demon Slayer: Kimetsu no Yaiba' },
-    tagline: { en: 'The Hashira, Tanjiro and friends: Japanese kuji and collabs alongside overseas exclusives.', ja: '柱や炭治郎たちのグッズを、日本のくじ・コラボと海外限定品まで。' },
+    tagline: { en: 'Set in Taisho-era Japan, the story of a brother and sister fighting demons.', ja: '大正時代の日本を舞台に、鬼と戦う兄妹の物語。' },
     aliases: ['kimetsu', 'kimetsu no yaiba', '鬼滅', 'きめつ'],
   },
   {
     ip: 'one-piece', path: '/one-piece/', status: 'soon', accent: '#C08A1E',
     name: { en: 'One Piece', ja: 'ONE PIECE' }, alt: { en: 'ワンピース', ja: 'ワンピース' },
-    tagline: { en: 'The Straw Hat crew, from Mugiwara Store exclusives to overseas collabs.', ja: '麦わらの一味のグッズを、麦わらストア限定品から海外コラボまで。' },
+    tagline: { en: 'The grand adventure of Luffy and his crew, chasing the title of Pirate King.', ja: '海賊王を目指す少年ルフィと仲間たちの大冒険。' },
     aliases: ['onepiece', 'ワンピース', 'luffy', 'ルフィ'],
   },
 ];
@@ -405,6 +417,31 @@ if (SERIES.length >= SEARCH_FROM) {
 }
 render();
 renderMeta();
+// ---------------------------------------------------------------------------
+// New Year greeting: a short thank-you band, shown only between the dates
+// (visitor's local date, both ends inclusive). No items are filtered.
+// Preview outside the dates with ?season=<id> (e.g. ?season=newyear-2027).
+// The same list is on the hub (web/index.html) and the Kingdom Hearts page.
+// ---------------------------------------------------------------------------
+const GREETINGS = [
+  {
+    id: 'newyear-2027', start: '2026-12-29', end: '2027-01-03',
+    en: 'Happy New Year from Merchgraph. Thanks for discovering with us in 2026 — more series are on the way in 2027.',
+    ja: 'あけましておめでとうございます。2026年もMerchgraphをご利用いただきありがとうございました。2027年も作品を増やしていきます。',
+  },
+];
+(function showGreeting() {
+  const box = document.getElementById('greeting');
+  if (!box) return;
+  let preview = null;
+  try { preview = new URLSearchParams(location.search).get('season'); } catch {}
+  const d = new Date();
+  const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const g = preview ? GREETINGS.find((x) => x.id === preview) : GREETINGS.find((x) => today >= x.start && today <= x.end);
+  if (!g) return;
+  box.textContent = JA ? g.ja : g.en;
+  box.hidden = false;
+})();
 </script>
 </body>
 </html>

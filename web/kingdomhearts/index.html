@@ -399,6 +399,14 @@
 .source-list { margin: 4px 0 0; padding-left: 18px; }
 .source-list li { margin: 2px 0; }
 
+  /* ---------- New Year greeting (date-gated, see GREETINGS in the script) ---------- */
+  .greeting {
+    max-width: 760px; margin: 14px auto 0; padding: 12px 18px; text-align: center;
+    background: #FFFFFF; border: 1px solid var(--line); border-top: 3px solid var(--gold); border-radius: 14px;
+    font-size: 14px; line-height: 1.7; color: var(--ink-soft);
+  }
+  .greeting[hidden] { display: none; }
+
   /* ---------- seasonal feature (date-gated, see SEASON in the script) ---------- */
   .season-shelf {
     max-width: 1100px; margin: 22px auto 0; padding: 18px 24px 16px;
@@ -439,6 +447,8 @@
   .sprite-ghost { animation-name: sp-ghost; animation-timing-function: ease-in-out; }
   .sprite-ghost .move { display: block; animation: sp-sway 1.8s ease-in-out infinite alternate; }
   .sprite-pumpkin { animation-name: sp-peek; animation-timing-function: ease-in-out; }
+  .sprite-snow { opacity: 0.85; }
+  .sprite-snow .move { display: block; animation: sp-sway 3.2s ease-in-out infinite alternate; }
   .sprite-pumpkin .move { display: block; animation: sp-tilt 0.7s ease-in-out infinite alternate; }
   @keyframes sp-cross { from { transform: translate(var(--x0), var(--y0)); } to { transform: translate(var(--x1), var(--y1)); } }
   @keyframes sp-ghost {
@@ -549,6 +559,8 @@
     </div>
   </div>
 </section>
+
+<div class="greeting" id="greeting" hidden></div>
 
 <section class="season-shelf" id="seasonShelf" hidden aria-label="Seasonal feature"></section>
 
@@ -1372,6 +1384,17 @@ const SEASONS = [
       },
     },
   },
+  {
+    // 12月：雪が降る演出だけ（商品の特集棚・絞り込みは作らない。2026-11-03 Marley 確定）。
+    // match が無い季節は特集棚を出さない。music を省くと、いつもの DEFAULT_TRACKS から再生する。
+    id: 'winter-2026',
+    start: '2026-12-01', end: '2026-12-26',
+    snow: true,
+    strings: {
+      en: { batsOff: '❄️ Effects off', batsOn: '❄️ Effects on' },
+      ja: { batsOff: '❄️ 演出オフ', batsOn: '❄️ 演出オン' },
+    },
+  },
 ];
 
 function todayLocal() {
@@ -1392,11 +1415,11 @@ function st(key, vars) {
   if (vars) for (const [k, v] of Object.entries(vars)) s = s.split(`{${k}}`).join(v);
   return s;
 }
-function matchesFeature(item) { return !featureMode || !SEASON || SEASON.match(item); }
+function matchesFeature(item) { return !featureMode || !SEASON || !SEASON.match || SEASON.match(item); }
 
 async function renderSeasonShelf() {
   const shelf = document.getElementById('seasonShelf');
-  if (!SEASON || !shelf) return;
+  if (!SEASON || !SEASON.match || !shelf) return; // 特集棚は match のある季節だけ
   try {
     const [{ ordered }, imageMap] = await Promise.all([loadCatalog(), imageMapPromise]);
     const items = shuffled(ordered.filter(SEASON.match));
@@ -1439,17 +1462,21 @@ async function renderSeasonShelf() {
 // less motion, while the item panel is open, while the tab is hidden, and
 // after "Stop the effects". They never catch clicks.
 const BATS_OFF_KEY = 'khmerch-bats-off';
+// 雪（12月）は別の記憶にする（ハロウィンで演出を止めた人にも、雪は一度は見せる）。
+function fxOffKey() { return SEASON && SEASON.snow ? 'khmerch-snow-off' : BATS_OFF_KEY; }
+function hasEffects() { return !!(SEASON && (SEASON.bats || SEASON.snow)); }
 function batsAllowed() {
-  if (!SEASON || !SEASON.bats) return false;
+  if (!hasEffects()) return false;
   if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
-  return storageGet(BATS_OFF_KEY) !== '1';
+  return storageGet(fxOffKey()) !== '1';
 }
 let batLayer = null;
 let batTimer = null;
 let batsFlown = 0;
 const MAX_LATER_BATS = 6;
 // bat: darts across · ghost: drifts slowly and fades · pumpkin: peeks up from the bottom edge
-const SPRITES = { bat: '🦇', ghost: '👻', pumpkin: '🎃' };
+// snow: falls slowly from the top to the bottom, drifting a little sideways (December)
+const SPRITES = { bat: '🦇', ghost: '👻', pumpkin: '🎃', snow: '❄️' };
 function launchSprite(kind, delayMs = 0) {
   if (!batLayer || document.hidden || document.body.classList.contains('locked')) return;
   const w = window.innerWidth, h = window.innerHeight;
@@ -1457,7 +1484,14 @@ function launchSprite(kind, delayMs = 0) {
   const el = document.createElement('div');
   el.className = `sprite sprite-${kind}`;
   let size, dur, x0, y0, x1, y1;
-  if (kind === 'pumpkin') {
+  if (kind === 'snow') {
+    size = (small ? 12 : 14) + Math.random() * (small ? 10 : 14);
+    dur = (small ? 10 : 12) + Math.random() * 6;
+    x0 = Math.random() * w;
+    x1 = x0 + (Math.random() - 0.5) * 120;
+    y0 = -40;
+    y1 = h + 40;
+  } else if (kind === 'pumpkin') {
     size = small ? 34 : 44;
     dur = 4;
     x0 = x1 = w * (0.18 + Math.random() * 0.64);
@@ -1487,7 +1521,14 @@ function randomKind() {
   const r = Math.random();
   return r < 0.45 ? 'bat' : r < 0.8 ? 'ghost' : 'pumpkin';
 }
+// 雪は止まずに静かに降り続ける（数秒に1つ。画面に出ている数はアニメーションの長さで自然に十数個まで）。
+function scheduleNextFlake() {
+  clearTimeout(batTimer);
+  const gap = (window.innerWidth < 640 ? 2600 : 1600) + Math.random() * 1600;
+  batTimer = setTimeout(() => { launchSprite('snow'); scheduleNextFlake(); }, gap);
+}
 function scheduleNextBat() {
+  if (SEASON && SEASON.snow) { scheduleNextFlake(); return; }
   clearTimeout(batTimer);
   if (batsFlown >= MAX_LATER_BATS) return;
   batTimer = setTimeout(() => { batsFlown++; launchSprite(randomKind()); scheduleNextBat(); }, 40000 + Math.random() * 35000);
@@ -1497,6 +1538,13 @@ function startBats() {
   batLayer = document.createElement('div');
   batLayer.className = 'bat-layer';
   document.body.appendChild(batLayer);
+  if (SEASON.snow) {
+    // 開いたときに数個を時間差で降らせ始め、あとは scheduleNextFlake で降り続ける。
+    const n = window.innerWidth < 640 ? 4 : 7;
+    for (let i = 0; i < n; i++) launchSprite('snow', 300 + i * (700 + Math.random() * 900));
+    scheduleNextBat();
+    return;
+  }
   const opening = window.innerWidth < 640 ? ['bat', 'ghost'] : ['bat', 'ghost', 'bat', 'pumpkin'];
   opening.forEach((kind, i) => launchSprite(kind, 600 + i * (450 + Math.random() * 500)));
   scheduleNextBat();
@@ -1560,16 +1608,16 @@ function initMusic() {
   fxDock().prepend(btn);
 }
 function initBatToggle() {
-  if (!SEASON || !SEASON.bats) return;
+  if (!hasEffects()) return;
   if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'fx-btn bat-toggle';
-  const label = () => { btn.textContent = st(storageGet(BATS_OFF_KEY) === '1' ? 'batsOn' : 'batsOff'); };
+  const label = () => { btn.textContent = st(storageGet(fxOffKey()) === '1' ? 'batsOn' : 'batsOff'); };
   label();
   btn.addEventListener('click', () => {
-    if (storageGet(BATS_OFF_KEY) === '1') { storageSet(BATS_OFF_KEY, '0'); batsFlown = 0; startBats(); }
-    else { storageSet(BATS_OFF_KEY, '1'); stopBats(); }
+    if (storageGet(fxOffKey()) === '1') { storageSet(fxOffKey(), '0'); batsFlown = 0; startBats(); }
+    else { storageSet(fxOffKey(), '1'); stopBats(); }
     label();
   });
   fxDock().appendChild(btn);
@@ -2084,6 +2132,31 @@ initMusic();
 initBatToggle();
 startBats();
 document.addEventListener('visibilitychange', () => { if (!document.hidden && batLayer) scheduleNextBat(); });
+// ---------------------------------------------------------------------------
+// New Year greeting: a short thank-you band, shown only between the dates
+// (visitor's local date, both ends inclusive). No items are filtered.
+// Preview outside the dates with ?season=<id> (e.g. ?season=newyear-2027).
+// The same list is on the hub (web/index.html) and the Kingdom Hearts page.
+// ---------------------------------------------------------------------------
+const GREETINGS = [
+  {
+    id: 'newyear-2027', start: '2026-12-29', end: '2027-01-03',
+    en: 'Happy New Year from Merchgraph. Thanks for discovering with us in 2026 — more series are on the way in 2027.',
+    ja: 'あけましておめでとうございます。2026年もMerchgraphをご利用いただきありがとうございました。2027年も作品を増やしていきます。',
+  },
+];
+(function showGreeting() {
+  const box = document.getElementById('greeting');
+  if (!box) return;
+  let preview = null;
+  try { preview = new URLSearchParams(location.search).get('season'); } catch {}
+  const d = new Date();
+  const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const g = preview ? GREETINGS.find((x) => x.id === preview) : GREETINGS.find((x) => today >= x.start && today <= x.end);
+  if (!g) return;
+  box.textContent = JA ? g.ja : g.en;
+  box.hidden = false;
+})();
 </script>
 </body>
 </html>
