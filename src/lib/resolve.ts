@@ -457,7 +457,10 @@ function resolveCandidatesImpl(
       if (!anchoredIps.has(sku.ip)) confidence = Math.min(confidence, NO_ANCHOR_CONFIDENCE_CAP);
       // ライン名・弾名だけの一致（SKU固有の根拠なし）は、そのライン内の行を区別できないので候補にしない。
       if (skuScore === 0) confidence = Math.min(confidence, LINE_ONLY_CONFIDENCE_CAP);
-      return { sku, reasons, seriesAmbiguous, confidence, rawTotal, hasMatch: rawTotal > 0 };
+      // 出品文が別の作品をはっきり名指ししている（その作品のアンカー語だけがある）なら、この作品の商品は候補にしない
+      // （2026-11-03、鬼滅の刃の投入時。例:「鬼滅の刃 一番くじ A賞」にキングダム ハーツのA賞を出さない）。
+      const otherIpNamed = anchoredIps.size > 0 && !anchoredIps.has(sku.ip);
+      return { sku, reasons, seriesAmbiguous, confidence, rawTotal, hasMatch: rawTotal > 0 && !otherIpNamed };
     })
     .filter((c) => c.hasMatch)
     .sort((a, b) => b.confidence - a.confidence);

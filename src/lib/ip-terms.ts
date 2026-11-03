@@ -81,7 +81,8 @@ export function buildAnchorTermsByIp(catalog: CatalogSku[], ipTerms: IpTerm[]): 
   for (const t of ipTerms) if (ips.has(t.ip)) push(t.ip, surfaceForms(t));
   for (const sku of catalog) push(sku.ip, [...splitPipe(sku.character), ...splitPipe(sku.character_en)]);
   const out = new Map<string, string[]>();
-  for (const [ip, terms] of raw) out.set(ip, uniqueByNormalized(terms));
+  // 1文字の語（例: キャラクター列の「柱」）は、関係のない出品文にも偶然含まれやすいので、作品を決める根拠にしない。
+  for (const [ip, terms] of raw) out.set(ip, uniqueByNormalized(terms).filter((t) => normalize(t).length >= 2));
   return out;
 }
 
