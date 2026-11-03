@@ -26,7 +26,7 @@ describe("resolveCandidates", () => {
   });
 
   it("他作品名が含まれる出品はA賞等が一致しても候補を出さない", () => {
-    const title = "鬼滅の刃 一番くじ A賞 炭治郎 フィギュア";
+    const title = "ドラゴンボール 一番くじ A賞 悟空 フィギュア";
     const { candidates, weak_matches } = resolveCandidates(title, catalog, productLines, 3, otherIpKeywords, ipTerms);
     expect(candidates.length).toBe(0);
     expect(weak_matches.length).toBe(0);

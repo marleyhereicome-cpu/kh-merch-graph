@@ -36,18 +36,18 @@ const testLines = [...productLines, opLine];
 const testTerms = [...ipTerms, opIpTerm];
 
 describe("other_ip_keywords: カタログに入った作品の語は自動で外す", () => {
-  it("今のカタログ（キングダム ハーツのみ）では、鬼滅・ワンピースは他作品のまま", () => {
+  it("今のカタログ（キングダム ハーツ＋鬼滅の刃、2026-11-03〜）では、鬼滅は外れ、ワンピースは他作品のまま", () => {
     const words = otherIpKeywords.map((k) => k.keyword);
-    expect(words).toContain("鬼滅の刃");
+    expect(words).not.toContain("鬼滅の刃");
+    expect(words).not.toContain("きめつのやいば");
     expect(words).toContain("ワンピース");
-    expect(otherIpKeywordsAll.length).toBe(otherIpKeywords.length);
+    expect(words).toContain("ドラゴンボール");
   });
 
-  it("ONE PIECE の商品が入ると、ip 列が one-piece の語（ワンピース・ONE PIECE）が外れる。鬼滅の刃は残る", () => {
+  it("ONE PIECE の商品が入ると、ip 列が one-piece の語（ワンピース・ONE PIECE）も外れる", () => {
     const active = activeOtherIpKeywords(otherIpKeywordsAll, testCatalog, ipTerms).map((k) => k.keyword);
     expect(active).not.toContain("ワンピース");
     expect(active).not.toContain("ONE PIECE");
-    expect(active).toContain("鬼滅の刃");
     expect(active).toContain("ドラゴンボール");
   });
 
@@ -103,5 +103,26 @@ describe("キャラクターグループは作品ごと", () => {
   });
   it("discover はキングダム ハーツのカタログで「ナミ」を探しても麦わらの一味を提案しない", () => {
     expect(discoverCatalog({ ip: "kingdom-hearts", character: "ナミ" })).not.toHaveProperty("suggested_character_group");
+  });
+});
+
+// 鬼滅の刃 第1便（2026-11-03）の実データで確かめる。
+describe("resolve_listing with Demon Slayer in the catalog", () => {
+  const ids = (t: string) => {
+    const r = resolveCandidates(t, catalog, productLines, 3, otherIpKeywords, ipTerms);
+    return [...r.candidates, ...r.weak_matches].map((c) => c.sku_id);
+  };
+  it("finds the Demon Slayer item when the listing names the series and prize", () => {
+    expect(ids("一番くじ 鬼滅の刃 受け継ぐ者 A賞 悲鳴嶼行冥 フィギュア")[0]).toBe("bandai-kny-ichibankuji-uketsugumono-a-gyomei-masterlise-extra");
+  });
+  it("does not offer Kingdom Hearts prizes for a listing that names Demon Slayer, and vice versa", () => {
+    expect(ids("鬼滅の刃 一番くじ A賞 炭治郎 フィギュア").every((s) => s.includes("-kny-"))).toBe(true);
+    expect(ids("一番くじ KINGDOM HEARTS A賞 ソラ").some((s) => s.includes("-kny-"))).toBe(false);
+  });
+  it("Hashira group suggestion returns Demon Slayer items only", () => {
+    const g: any = discoverCatalog({ ip: "kimetsu-no-yaiba", character: "伊黒小芭内" });
+    expect(g.suggested_character_group?.suggest_label).toBe("Hashira");
+    expect(g.suggested_total_matches).toBeGreaterThan(0);
+    expect(discoverCatalog({ ip: "kingdom-hearts", character: "伊黒小芭内" })).not.toHaveProperty("suggested_character_group");
   });
 });
