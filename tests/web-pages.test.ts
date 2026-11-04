@@ -20,7 +20,7 @@ describe("catalog pages", () => {
     it(`${page} shows the site name in the header and keeps the non-affiliation notice`, () => {
       expect(html).toContain('<span class="site-name">Merchgraph</span>');
       expect(html).toContain("Not affiliated with, endorsed or sponsored by Square Enix, Disney");
-      expect(html).toContain("いずれとも提携関係はなく、公認やスポンサーシップを受けているものではありません");
+      expect(html).toContain("一切関係がなく、提携・公認・協賛を受けていません");
     });
     it(`${page} has no links to the old file names`, () => {
       expect(html).not.toMatch(/href="\.\/(discover|index)\.html/);
@@ -78,7 +78,7 @@ describe("no blanket 'every item checked by hand' claims", () => {
   it("the hub says accuracy is not guaranteed (EN/JA)", () => {
     const html = readFileSync("web/index.html", "utf8");
     expect(html).toContain("We take care to keep this accurate, but we can't guarantee it.");
-    expect(html).toContain("正確な情報の提供に努めていますが、正確性を保証するものではありません。");
+    expect(html).toContain("正確な情報の掲載に努めていますが、内容を保証するものではありません。");
   });
 });
 
@@ -98,12 +98,12 @@ describe("seasonal effects and greeting", () => {
       expect(html).toContain('<div class="greeting" id="greeting" hidden></div>');
       expect(html).toContain("id: 'newyear-2027', start: '2026-12-29', end: '2027-01-03'");
       expect(html).toContain("Happy New Year from Merchgraph. Thanks for discovering with us in 2026");
-      expect(html).toContain("2027年も作品を増やしていきます。");
+      expect(html).toContain("今年も取り上げる作品を増やしていきます。");
     }
   });
   it("hub series cards introduce the series itself, not its merch", () => {
-    expect(hub).toContain("ディズニーとスクウェア・エニックスが共同制作するアクションRPGシリーズ。");
-    expect(hub).toContain("大正時代の日本を舞台に、鬼と戦う兄妹の物語。");
-    expect(hub).toContain("海賊王を目指す少年ルフィと仲間たちの大冒険。");
+    expect(hub).toContain("ディズニーとスクウェア・エニックスによるアクションRPGシリーズ。");
+    expect(hub).toContain("大正時代を舞台に、鬼と戦う竈門炭治郎と妹・禰豆子の物語。");
+    expect(hub).toContain("海賊王を目指すルフィと仲間たちの大冒険。");
   });
 });
