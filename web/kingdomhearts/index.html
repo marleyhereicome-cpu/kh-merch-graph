@@ -164,6 +164,89 @@
   .gift-go:disabled { opacity: 0.5; cursor: default; }
   .gift-note { font-size: 11.5px; color: var(--muted); }
 
+
+  /* ---------- hero: text on the left, a board of real product photos on the right (2026-11 plan A) ---------- */
+  .hero.hero-split {
+    max-width: 1200px; padding: 34px 24px 26px; text-align: left;
+    display: grid; grid-template-columns: minmax(300px, 5fr) 7fr; gap: 44px; align-items: center;
+  }
+  .hero-split .stats { text-align: left; font-size: 12px; letter-spacing: 0.04em; margin: 0 0 12px; }
+  .hero-split h1 { font-size: clamp(26px, 2.9vw, 38px); line-height: 1.45; text-wrap: initial; }
+  html[lang="ja"] .hero-split h1 { font-size: clamp(25px, 2.8vw, 36px); line-height: 1.5; }
+  .hero-split h1 .nw { display: inline-block; }
+  .hero-split .lede { margin: 0 0 20px; max-width: none; line-height: 1.85; }
+  .hero-split .search-form { margin: 0; max-width: none; justify-content: flex-start; padding: 8px; border-radius: 14px; }
+  @media (min-width: 861px) {
+    .hero-split .search-form { flex-wrap: nowrap; }
+    .hero-split #character { flex: 1 1 auto; min-width: 0; }
+    .hero-split #budget { flex: 0 1 150px; min-width: 0; }
+  }
+  /* 詳細パネルの .facts（dl のグリッド）と同じクラス名なので、ヒーロー側は .hero-split を付けて上書きされないようにする */
+  .hero-split .facts { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 14px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--ink-soft); }
+  .hero-split .facts li::before { content: '✓'; color: var(--gold); font-weight: 700; margin-right: 6px; }
+  .hero-below { max-width: 1000px; margin: 0 auto; padding: 0 24px 6px; text-align: center; }
+  .hero-below .category-row { margin-top: 0; }
+
+  /* the board: real catalog photos, each with its original-price tag (the price tag is the site's motif) */
+  .board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px 16px; padding: 8px 6px 4px; }
+  .board[hidden] { display: none; }
+  .pin {
+    position: relative; display: block; background: #FFFFFF; padding: 8px 8px 12px; border: none; border-radius: 3px; cursor: pointer;
+    font: inherit; color: var(--ink); text-align: left;
+    box-shadow: 0 1px 0 rgba(28,27,41,0.06), 0 6px 16px rgba(28,27,41,0.07);
+    transform: rotate(var(--r)); transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .pin:hover, .pin:focus-visible { transform: rotate(0deg) translateY(-4px) scale(1.04); box-shadow: 0 14px 30px rgba(28,27,41,0.16); z-index: 2; outline: none; }
+  .pin .ph { aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .pin .ph img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
+  .pin .stamp {
+    position: absolute; top: 6px; left: 6px; width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em;
+    color: #B23A48; border: 1.5px solid #B23A48; background: rgba(255,255,255,0.75); transform: rotate(-12deg); opacity: 0.85;
+  }
+  .pin .stamp.overseas { color: var(--navy); border-color: var(--navy); }
+  .price-tag {
+    position: absolute; right: -6px; bottom: -10px; display: inline-flex; align-items: baseline; gap: 2px;
+    background: #E8D5AC; color: #3B2F1A; font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap;
+    padding: 4px 9px 4px 16px; clip-path: polygon(9px 0, 100% 0, 100% 100%, 9px 100%, 0 50%);
+    transform: rotate(4deg); box-shadow: 0 2px 0 rgba(59,47,26,0.12);
+  }
+  .price-tag::before { content: ''; position: absolute; left: 6px; top: 50%; width: 5px; height: 5px; margin-top: -2.5px; border-radius: 50%; background: #FFFFFF; }
+  .price-tag small { font-size: 10px; font-weight: 500; opacity: 0.8; }
+  .pin .cap {
+    position: absolute; left: 0; right: 0; top: 100%; margin-top: 14px; font-size: 11.5px; line-height: 1.45;
+    background: #FFFFFF; border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; box-shadow: 0 6px 14px rgba(28,27,41,0.1);
+    opacity: 0; pointer-events: none; transition: opacity 0.15s ease; z-index: 3;
+  }
+  .pin:hover .cap, .pin:focus-visible .cap { opacity: 1; }
+  .board-note { grid-column: 1 / -1; text-align: right; font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+  /* gacha (the "surprise me" button, in the bottom-left dock with music and effects) */
+  .fx-btn.gacha-btn { background: #C9A227; color: #1C1B29; border-color: #C9A227; font-weight: 700; display: inline-flex; align-items: center; gap: 7px; }
+  .fx-btn.gacha-btn:hover { background: #B4921F; color: #1C1B29; border-color: #B4921F; }
+  .cap-ico { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid #1C1B29; background: linear-gradient(rgba(255,255,255,0.85) 0 50%, #3D5A80 50% 100%); display: inline-block; flex: 0 0 auto; }
+  .gacha-stage { position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(28,27,41,0.22); pointer-events: none; }
+  .capsule { position: relative; width: 104px; height: 104px; animation: cap-drop 0.35s cubic-bezier(.3,1.45,.6,1) both, cap-shake 0.42s 0.35s ease-in-out both; }
+  .capsule .half { position: absolute; left: 0; width: 104px; height: 52px; border: 2px solid rgba(28,27,41,0.55); box-sizing: border-box; }
+  .capsule .top { top: 0; border-radius: 52px 52px 0 0; background: radial-gradient(circle at 34% 34%, rgba(255,255,255,0.95) 0 9px, rgba(255,255,255,0.55) 10px 100%); box-shadow: inset 0 -6px 12px rgba(28,27,41,0.08); animation: cap-open-top 0.32s 0.8s ease-out both; }
+  .capsule .bottom { top: 50px; height: 54px; border-radius: 0 0 52px 52px; background: var(--cap); box-shadow: inset 0 8px 0 rgba(255,255,255,0.18); animation: cap-open-bottom 0.32s 0.8s ease-out both; }
+  .capsule .spark { position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px; border-radius: 50%; background: #FFF6CF; box-shadow: 0 0 0 0 rgba(255,230,140,0.9); opacity: 0; animation: cap-spark 0.4s 0.86s ease-out forwards; }
+  @keyframes cap-drop { from { transform: translateY(-60vh) rotate(-200deg); } to { transform: translateY(0) rotate(0); } }
+  @keyframes cap-shake { 0%,100% { transform: rotate(0); } 20% { transform: rotate(-14deg); } 45% { transform: rotate(12deg); } 70% { transform: rotate(-7deg); } }
+  @keyframes cap-open-top { to { transform: translate(-18px, -46px) rotate(-28deg); opacity: 0; } }
+  @keyframes cap-open-bottom { to { transform: translate(14px, 34px) rotate(14deg); opacity: 0; } }
+  @keyframes cap-spark { 0% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(255,230,140,0.9); } 100% { opacity: 0; transform: scale(5); box-shadow: 0 0 0 30px rgba(255,230,140,0); } }
+
+  @media (max-width: 860px) {
+    .hero.hero-split { grid-template-columns: 1fr; gap: 22px; padding: 18px 16px 18px; }
+    .board { order: -1; grid-template-columns: repeat(3, 1fr); gap: 14px 10px; }
+    .board .pin:nth-of-type(n+7) { display: none; }
+    .price-tag { font-size: 11px; padding: 3px 7px 3px 14px; }
+    .pin .stamp { width: 24px; height: 24px; font-size: 8px; }
+    .pin .cap { display: none; }
+    .hero-below { padding: 0 16px 6px; }
+  }
+
   /* ---------- status bar ---------- */
   .status-bar {
     max-width: 1100px; margin: 18px auto 0; padding: 0 24px;
@@ -488,6 +571,18 @@
     .season-shelf { width: calc(100% - 32px); padding: 16px; }
     .mini { flex-basis: 140px; }
   }
+
+  /* phones: the dock (gacha, music, effects) becomes a row of small round icon buttons */
+  .fx-btn .ico { margin-right: 4px; }
+  .fx-btn.gacha-btn .ico { margin-right: 0; }
+  @media (max-width: 640px) {
+    .fx-dock { flex-direction: row; gap: 8px; left: 12px; bottom: 14px; }
+    .fx-btn { width: 40px; height: 40px; padding: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; box-shadow: 0 3px 10px rgba(28,27,41,0.18); }
+    .fx-btn .lbl { display: none; }
+    .fx-btn .ico { margin: 0; }
+    .fx-btn .cap-ico { width: 18px; height: 18px; }
+    body:has(.music-player) .fx-dock { bottom: 196px; }
+  }
 </style>
 </head>
 <body>
@@ -507,19 +602,11 @@
   </nav>
 </header>
 
-<section class="hero">
-  <p class="kicker" data-i18n="kicker">Not a store</p>
-  <h1 data-i18n="heroTitle">Kingdom Hearts merch your local shops never showed you.</h1>
-  <p class="lede" data-i18n="heroLede">From Japan and overseas, official and fan-made. For every item: what it is, whether it's official, what it originally cost, and where fans actually find it.</p>
-
-  <ul class="pillars">
-    <li><div class="p-name"><span class="n">01</span><span data-i18n="p1Name">Discover</span></div><div class="p-text" data-i18n="p1Text">Things that never reached your country's shops, and things you didn't know were made at all.</div><button type="button" class="p-link" id="pillarSurprise" data-i18n="p1Link">Show me something ›</button></li>
-    <li><div class="p-name"><span class="n">02</span><span data-i18n="p2Name">Know</span></div><div class="p-text" data-i18n="p2Text">Official or fan-made, and what it cost when it first came out, so you can tell a fair price from a markup.</div><a href="./check" class="p-link check-link" data-i18n="p2Link">Check a listing you found ›</a></li>
-    <li><div class="p-name"><span class="n">03</span><span data-i18n="p3Name">Find</span></div><div class="p-text" data-i18n="p3Text">Where fans actually get it today: still in shops, secondhand only, or event-exclusive.</div><a href="#shipping-proxy-faq" class="p-link" id="pillarFaq" data-i18n="p3Link">Buying from Japan? ›</a></li>
-  </ul>
-
-  <p class="stats" id="stats" aria-live="polite"></p>
-
+<section class="hero hero-split">
+  <div class="hero-text">
+    <p class="stats" id="stats" aria-live="polite"></p>
+    <h1 data-i18n-html="heroTitle">Kingdom Hearts merch your local shops never showed you.</h1>
+    <p class="lede" data-i18n="heroLede">From Japanese lottery prizes and arcade plush to overseas-only figures and brand collabs. See what each one originally cost, and where fans actually get it today.</p>
   <form class="search-form" id="searchForm">
     <input id="character" type="text" data-i18n-placeholder="searchPlaceholder" placeholder="Search a character or item, e.g. Sora, plush" autocomplete="off" />
     <select id="budget" aria-label="Original price">
@@ -531,6 +618,12 @@
     </select>
     <button type="submit" data-i18n="searchBtn">Search</button>
   </form>
+    <ul class="facts"><li data-i18n="fact1">Original price</li><li data-i18n="fact2">Where to get it now</li><li data-i18n="fact3">Every source linked</li><li data-i18n="fact4">Nothing is sold here</li></ul>
+  </div>
+  <div class="board" id="board" hidden></div>
+</section>
+
+<section class="hero-below">
   <div class="category-row" id="categoryRow">
     <button type="button" class="category-chip active" data-cat="any" data-i18n="catAny">Everything</button>
     <button type="button" class="category-chip" data-cat="display" data-i18n="catDisplay">Figures &amp; plush</button>
@@ -569,10 +662,6 @@
     <span id="statusText" data-i18n="loading">Loading the catalog…</span>
     <span id="activeFilters"></span>
   </div>
-  <button class="surprise" id="surpriseBtn" type="button">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" stroke="#1C1B29" stroke-width="2"/><circle cx="8" cy="8" r="1.3" fill="#1C1B29"/><circle cx="16" cy="8" r="1.3" fill="#1C1B29"/><circle cx="8" cy="16" r="1.3" fill="#1C1B29"/><circle cx="16" cy="16" r="1.3" fill="#1C1B29"/><circle cx="12" cy="12" r="1.3" fill="#1C1B29"/></svg>
-    <span data-i18n="surprise">Surprise me</span>
-  </button>
 </div>
 
 <main>
@@ -641,7 +730,9 @@ const STRINGS = {
     navDiscover: 'Discover', navCheck: 'Check a listing', navAbout: 'About',
     kicker: 'Not a store',
     heroTitle: 'Kingdom Hearts merch your local shops never showed you.',
-    heroLede: "From Japan and overseas, official and fan-made. For every item: what it is, whether it's official, what it originally cost, and where fans actually find it.",
+    heroLede: 'From Japanese lottery prizes and arcade plush to overseas-only figures and brand collabs. See what each one originally cost, and where fans actually get it today.',
+    fact1: 'Original price', fact2: 'Where to get it now', fact3: 'Every source linked', fact4: 'Nothing is sold here',
+    gacha: 'Spin the gacha', tagApprox: '~', tagPerDraw: '/draw', boardNote: 'Tags show the original price · a new random pick from the catalog every visit', stampJP: 'JP', stampNA: 'US', stampEU: 'EU',
     p1Name: 'Discover', p1Text: "Things that never reached your country's shops, and things you didn't know were made at all.",
     p2Name: 'Know', p2Text: 'Official or fan-made, and what it cost when it first came out, so you can tell a fair price from a markup.',
     p1Link: 'Show me something ›', p2Link: 'Check a listing you found ›', p3Link: 'Buying from Japan? ›',
@@ -716,7 +807,7 @@ const STRINGS = {
     searchOn: 'Search for it on:', alsoSoldAt: 'Also sold at:',
     musicDefault: '♪ Play KH music', musicClose: 'Close the player',
     musicNote: 'Played through Spotify. Logged in to Spotify in this browser? You get the full track; otherwise a 30-second preview.',
-    checkListing: 'Found a listing for this? Check it before you buy ›',
+    checkListing: 'Found this on Mercari or Yahoo Auctions? Paste the listing title to check it’s the real item and not overpriced ›',
     priceExplain: 'Use this as a yardstick: listings far above it are resale markups.',
     priceEstimatedNote: "Approximate: the exact original price hasn't been confirmed yet.",
     factRegion: 'Released in', factMaker: 'Maker', factPlatform: 'Platform', factEdition: 'Edition', factReleased: 'Release date',
@@ -737,8 +828,10 @@ const STRINGS = {
   ja: {
     navDiscover: 'さがす', navCheck: '出品チェック', navAbout: 'このサイトについて',
     kicker: '販売サイトではありません',
-    heroTitle: 'まだ知らないキングダム ハーツのグッズが、世界にはこんなにある。',
-    heroLede: '国内外の公式グッズからファンメイドまで。商品の詳細、発売時の定価、いまの入手方法をまとめてチェックできます。',
+    heroTitle: '<span class="nw">まだ知らない</span><span class="nw">キングダム ハーツの</span><span class="nw">グッズが、</span><span class="nw">世界には</span><span class="nw">こんなにある。</span>',
+    heroLede: '日本のくじ景品やプライズから、海外限定のフィギュア、ブランドコラボまで。気になるグッズの発売時の定価と、いまどこで手に入るかがわかります。',
+    fact1: '発売時の定価', fact2: 'いまの入手方法', fact3: '情報の出典つき', fact4: '販売はしていません',
+    gacha: 'ガチャを回す', tagApprox: '約', tagPerDraw: '/回', boardNote: '値札は発売時の定価 ・ 開くたびにカタログからランダムに表示',
     p1Name: '出会う', p1Text: '日本未発売の海外グッズや、存在すら知らなかったレアものまで。',
     p2Name: '値段を知る', p2Text: '公式かファンメイドか、発売時の定価はいくらか。出品価格が妥当かを見極める目安になります。',
     p1Link: 'おまかせで1つ見る ›', p2Link: '見つけた出品をチェック ›', p3Link: '代行サービスについて ›',
@@ -820,7 +913,7 @@ const STRINGS = {
     searchOn: 'ここで探す：', alsoSoldAt: 'ほかの取扱店：',
     musicDefault: '♪ 音楽再生', musicClose: 'プレーヤーを閉じる',
     musicNote: 'Spotifyで再生します。このブラウザでSpotifyにログインしていればフルで、そうでなければ30秒の試聴になります。',
-    checkListing: '出品を見つけたら、買う前にチェック ›',
+    checkListing: 'メルカリなどで出品を見つけたら、タイトルを貼るだけで、本物か・高すぎないかを確認できます ›',
     priceExplain: '比べるときの目安です。これを大きく上回る出品は、転売価格の可能性があります。',
     priceEstimatedNote: 'おおよその価格です（正確な定価は確認できていません）。',
     factRegion: '発売地域', factMaker: 'メーカー', factPlatform: '対応機種', factEdition: 'エディション', factReleased: '発売日',
@@ -1572,6 +1665,16 @@ function pickTrack() {
   const list = (SEASON && SEASON.music && SEASON.music.length) ? SEASON.music : DEFAULT_TRACKS;
   return list.length ? list[Math.floor(Math.random() * list.length)] : null;
 }
+// Dock button content: the part before the first space is the icon (♪, 🎃, ❄️), the rest the label.
+// On phones only the icon shows; the label stays as the accessible name and tooltip.
+function dockLabel(btn, text, iconHtml) {
+  const m = String(text).match(/^(\S+)\s+(.*)$/);
+  const ico = iconHtml || (m ? escapeHtml(m[1]) : '');
+  const lbl = m && !iconHtml ? m[2] : text;
+  btn.innerHTML = `<span class="ico" aria-hidden="true">${ico}</span><span class="lbl">${escapeHtml(lbl)}</span>`;
+  btn.setAttribute('aria-label', lbl);
+  btn.title = lbl;
+}
 function fxDock() {
   let dock = document.getElementById('fxDock');
   if (!dock) {
@@ -1589,7 +1692,7 @@ function initMusic() {
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'fx-btn music-btn';
-  btn.textContent = label;
+  dockLabel(btn, label);
   btn.addEventListener('click', () => {
     // The Spotify player is only loaded once a visitor asks for it, so
     // nobody else gets Spotify's cookies or the extra download.
@@ -1613,7 +1716,7 @@ function initBatToggle() {
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'fx-btn bat-toggle';
-  const label = () => { btn.textContent = st(storageGet(fxOffKey()) === '1' ? 'batsOn' : 'batsOff'); };
+  const label = () => { dockLabel(btn, st(storageGet(fxOffKey()) === '1' ? 'batsOn' : 'batsOff')); };
   label();
   btn.addEventListener('click', () => {
     if (storageGet(fxOffKey()) === '1') { storageSet(fxOffKey(), '0'); batsFlown = 0; startBats(); }
@@ -2109,9 +2212,68 @@ async function rollSurprise() {
     toast(t('connError', { e: err.message }));
   }
 }
-els.surpriseBtn.addEventListener('click', rollSurprise);
-document.getElementById('pillarSurprise').addEventListener('click', rollSurprise);
-document.getElementById('pillarFaq').addEventListener('click', () => { const d = document.getElementById('shipping-proxy-faq'); if (d) d.open = true; });
+
+// Gacha: the surprise pick, as a capsule that drops, shakes and pops open (about 1.2s).
+// Visitors who asked their device for less motion get the item straight away.
+let gachaBusy = false;
+async function spinGacha() {
+  if (gachaBusy) return;
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) { rollSurprise(); return; }
+  gachaBusy = true;
+  const colors = ['#B23A48', '#3D5A80', '#C9A227', '#4C7A5E', '#8A4FA0'];
+  const stage = document.createElement('div');
+  stage.className = 'gacha-stage';
+  stage.innerHTML = `<div class="capsule" style="--cap:${colors[Math.floor(Math.random() * colors.length)]}"><div class="half top"></div><div class="half bottom"></div><div class="spark"></div></div>`;
+  document.body.appendChild(stage);
+  loadCatalog().catch(() => {});
+  setTimeout(() => { stage.remove(); gachaBusy = false; rollSurprise(); }, 1200);
+}
+function initGacha() {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'fx-btn gacha-btn';
+  dockLabel(btn, t('gacha'), '<span class="cap-ico"></span>');
+  btn.addEventListener('click', spinGacha);
+  fxDock().prepend(btn);
+}
+
+// The board: 12 real catalog photos (8 on phones), picked at random every visit.
+// Only official items with a photo and a known price; games, books and music are
+// left out so the board shows merch rather than covers. Clicking opens the item.
+function tagPrice(item) {
+  const money = escapeHtml(fmtMoney(localAmount(item), currencyFor(item)));
+  const pre = item.price_basis === 'estimated' ? escapeHtml(t('tagApprox')) : '';
+  const post = item.price_basis === 'draw_price' ? `<small>${escapeHtml(t('tagPerDraw'))}</small>` : '';
+  return `${pre}${money}${post}`;
+}
+async function renderBoard() {
+  const board = document.getElementById('board');
+  if (!board) return;
+  try {
+    const [{ ordered }, imageMap] = await Promise.all([loadCatalog(), imageMapPromise]);
+    const pool = ordered.filter((item) => {
+      const u = (imageMap || {})[item.sku_id];
+      return u && /^https?:/.test(u) && !/fallback|kh-logo/.test(u) && item.official !== false
+        && typeof item.msrp_jpy === 'number' && item.msrp_jpy > 0 && item.price_basis && item.price_basis !== 'none'
+        && !['game', 'console', 'book', 'music'].includes(lineTypeOf(item));
+    });
+    if (pool.length < 8) return;
+    const ROT = [-2.2, 1.6, -0.8, 2.4, 1.1, -1.9, 2.0, -1.2, -2.6, 0.9, 1.8, -1.4];
+    const picks = shuffled(pool).slice(0, 12);
+    board.innerHTML = picks.map((item, i) => {
+      const region = item.region === 'JP' ? 'JP' : item.region === 'EU' ? 'EU' : 'NA';
+      return `<button type="button" class="pin" data-sku="${escapeHtml(item.sku_id)}" style="--r:${ROT[i]}deg" aria-label="${escapeHtml(displayName(item, null))}">
+        <span class="ph"><img src="${escapeHtml(imageMap[item.sku_id])}" alt="" loading="lazy" onerror="this.closest('.pin').remove()"></span>
+        <span class="stamp${region === 'JP' ? '' : ' overseas'}">${escapeHtml(t('stamp' + region))}</span>
+        <span class="price-tag">${tagPrice(item)}</span>
+        <span class="cap">${escapeHtml(displayName(item, null))}</span>
+      </button>`;
+    }).join('') + `<div class="board-note">${escapeHtml(t('boardNote'))}</div>`;
+    board.hidden = false;
+    board.addEventListener('click', (e) => { const pin = e.target.closest('.pin[data-sku]'); if (pin) openItem(pin.dataset.sku); });
+  } catch { /* no board if the catalog can't be read; the grid shows the error */ }
+}
 els.panelRoll.addEventListener('click', rollSurprise);
 
 window.addEventListener('scroll', () => {
@@ -2129,6 +2291,8 @@ applyFilters();
 if (skuFromHash()) openItem(skuFromHash());
 renderSeasonShelf();
 initMusic();
+initGacha();
+renderBoard();
 initBatToggle();
 startBats();
 document.addEventListener('visibilitychange', () => { if (!document.hidden && batLayer) scheduleNextBat(); });
