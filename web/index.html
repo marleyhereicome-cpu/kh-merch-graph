@@ -109,6 +109,9 @@ if (location.hash.startsWith('#item=')) location.replace('/kingdomhearts/' + loc
   .series-card.soon .series-name { color: var(--ink-soft); }
   .soon-badge { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line-2); border-radius: 999px; padding: 3px 10px; }
   .soon-art { height: 112px; display: flex; align-items: center; justify-content: center; font-family: 'Shippori Mincho', serif; font-size: 30px; font-weight: 700; color: var(--line-2); background: repeating-linear-gradient(135deg, transparent 0 10px, rgba(201,187,160,0.12) 10px 20px); }
+  .banner-art { height: 112px; overflow: hidden; background: var(--line); }
+  .banner-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .series-card.soon .banner-art img { opacity: 0.85; }
   .suggest { margin-top: 18px; font-size: 13.5px; color: var(--ink-soft); }
 
   /* bands */
@@ -226,6 +229,8 @@ const LANG_KEY = 'khmerch-lang'; // shared with the series pages
 //   path    URL of the series page
 //   status  'live' = page is open · 'soon' = catalog in preparation (no link)
 //   images  photo map used for the card's strip (live series only)
+//   banner  card image for a series without product photos yet (web/hub/, supplied by Marley 2026-11-05;
+//           original artwork, no official logos or key art)
 //   tagline a one-line introduction to the series itself (story/genre), not
 //           to its merch, for visitors who don't know the series
 // No official logos or key art: titles are set in type, and the strip uses
@@ -244,12 +249,14 @@ const SERIES = [
     name: { en: 'Demon Slayer', ja: '鬼滅の刃' }, alt: { en: 'Kimetsu no Yaiba · 鬼滅の刃', ja: 'Demon Slayer: Kimetsu no Yaiba' },
     tagline: { en: 'Set in Taisho-era Japan, the story of a brother and sister fighting demons.', ja: '大正時代を舞台に、鬼と戦う竈門炭治郎と妹・禰豆子の物語。' },
     aliases: ['kimetsu', 'kimetsu no yaiba', '鬼滅', 'きめつ'],
+    banner: '/hub/kimetsu-no-yaiba.webp',
   },
   {
     ip: 'one-piece', path: '/one-piece/', status: 'soon', accent: '#C08A1E',
     name: { en: 'One Piece', ja: 'ONE PIECE' }, alt: { en: 'ワンピース', ja: 'ワンピース' },
     tagline: { en: 'The grand adventure of Luffy and his crew, chasing the title of Pirate King.', ja: '海賊王を目指すルフィと仲間たちの大冒険。' },
     aliases: ['onepiece', 'ワンピース', 'luffy', 'ルフィ'],
+    banner: '/hub/one-piece.webp',
   },
 ];
 const SEARCH_FROM = 8; // the series filter appears once there are this many series
@@ -344,7 +351,9 @@ function cardHtml(s, i) {
   const tag = s.tagline?.[LANG] || s.tagline?.en || '';
   if (s.status !== 'live') {
     return `<div class="series-card soon" style="--accent:${s.accent}" data-i="${i}">
-      <div class="soon-art" aria-hidden="true">${esc(s.name.ja || name)}</div>
+      ${s.banner
+        ? `<div class="banner-art" aria-hidden="true"><img src="${esc(s.banner)}" alt="" loading="lazy"></div>`
+        : `<div class="soon-art" aria-hidden="true">${esc(s.name.ja || name)}</div>`}
       <div class="series-body">
         <div class="series-name">${esc(name)}</div>
         ${alt ? `<div class="series-alt">${esc(alt)}</div>` : ''}
