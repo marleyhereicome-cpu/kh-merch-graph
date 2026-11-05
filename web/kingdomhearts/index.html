@@ -176,10 +176,12 @@
   .hero-split h1 .nw { display: inline-block; }
   .hero-split .lede { margin: 0 0 20px; max-width: none; line-height: 1.85; }
   .hero-split .search-form { margin: 0; max-width: none; justify-content: flex-start; padding: 8px; border-radius: 14px; }
-  @media (min-width: 861px) {
+  /* 1行に並べるのは左の列が十分広い画面だけ。狭いと入力欄の例文や「定価：指定なし」が見切れるので、
+     それ以下では定価の選択と検索ボタンを入力欄の下に回す（2026-11-05）。 */
+  @media (min-width: 1440px) {
     .hero-split .search-form { flex-wrap: nowrap; }
     .hero-split #character { flex: 1 1 auto; min-width: 0; }
-    .hero-split #budget { flex: 0 1 150px; min-width: 0; }
+    .hero-split #budget { flex: 0 0 auto; }
   }
   /* 詳細パネルの .facts（dl のグリッド）と同じクラス名なので、ヒーロー側は .hero-split を付けて上書きされないようにする */
   .hero-split .facts { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 14px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--ink-soft); }
@@ -608,7 +610,7 @@
     <h1 data-i18n-html="heroTitle">Kingdom Hearts merch your local shops never showed you.</h1>
     <p class="lede" data-i18n="heroLede">From Japanese lottery prizes and arcade plush to overseas-only figures and brand collabs. See what each one originally cost, and where fans actually get it today.</p>
   <form class="search-form" id="searchForm">
-    <input id="character" type="text" data-i18n-placeholder="searchPlaceholder" placeholder="Search a character or item, e.g. Sora, plush" autocomplete="off" />
+    <input id="character" type="text" data-i18n-placeholder="searchPlaceholder" placeholder="e.g. Sora, plush" aria-label="Search a character or item" autocomplete="off" />
     <select id="budget" aria-label="Original price">
       <option value="" data-i18n="priceAny">Any original price</option>
       <option value="25">Under ~$25</option>
@@ -738,7 +740,8 @@ const STRINGS = {
     p1Link: 'Show me something ›', p2Link: 'Check a listing you found ›', p3Link: 'Buying from Japan? ›',
     p3Name: 'Find', p3Text: 'Where fans actually get it today: still in shops, secondhand only, or event-exclusive.',
     statsTotal: '{n} items catalogued', statsJp: '{n} released in Japan', statsOverseas: '{n} released overseas',
-    searchPlaceholder: 'Search a character or item, e.g. Sora, plush',
+    // 入力欄が狭いので例だけにする（何を入れる欄かは aria-label と検索ボタンで伝える）。2026-11-05
+    searchPlaceholder: 'e.g. Sora, plush', searchLabel: 'Search a character or item',
     priceAny: 'Any original price', priceUnder: 'Under ~${v}',
     searchBtn: 'Search',
     catAny: 'Everything', catDisplay: 'Figures & plush', catWear: 'Apparel & bags', catOther: 'Accessories & stationery',
@@ -837,7 +840,7 @@ const STRINGS = {
     p1Link: 'おまかせで1つ見る ›', p2Link: '見つけた出品をチェック ›', p3Link: '代行サービスについて ›',
     p3Name: '手に入れる', p3Text: '新品、中古、イベント限定。ファンがいまどこで手に入れているかがわかります。',
     statsTotal: '掲載 {n}件', statsJp: '国内発売 {n}件', statsOverseas: '海外発売 {n}件',
-    searchPlaceholder: 'キャラ名・商品名で検索（例：ソラ、ぬいぐるみ）',
+    searchPlaceholder: '例：ソラ、ぬいぐるみ', searchLabel: 'キャラ名・商品名で検索',
     priceAny: '定価：指定なし', priceUnder: '定価：{v}円くらいまで',
     searchBtn: '検索',
     catAny: 'すべて', catDisplay: 'フィギュア・ぬいぐるみ', catWear: 'アパレル・バッグ', catOther: 'アクセサリー・文具',
@@ -962,6 +965,7 @@ function applyStaticStrings() {
   sw.textContent = JA ? 'English' : '日本語';
   sw.lang = otherLang;
   sw.addEventListener('click', () => storageSet(LANG_KEY, otherLang));
+  document.getElementById('character').setAttribute('aria-label', t('searchLabel'));
   if (!JA) return; // markup already carries the English text
   document.documentElement.lang = 'ja';
   document.title = 'Merchgraph | Kingdom Hearts';

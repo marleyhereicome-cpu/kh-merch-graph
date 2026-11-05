@@ -107,3 +107,19 @@ describe("seasonal effects and greeting", () => {
     expect(hub).toContain("海賊王を目指すルフィと仲間たちの大冒険。");
   });
 });
+
+// 2026-11-05：ハブの準備中の作品カードに Marley 提供の画像（公式ロゴ・キービジュアルではない）を出す。
+describe("hub banners and the KH search box", () => {
+  it("series in preparation show their banner image, and the files exist", () => {
+    const hub = readFileSync("web/index.html", "utf8");
+    for (const f of ["/hub/kimetsu-no-yaiba.webp", "/hub/one-piece.webp"]) {
+      expect(hub).toContain(`banner: '${f}'`);
+      expect(readFileSync(`web${f}`).length).toBeGreaterThan(1000);
+    }
+  });
+  it("the search placeholder is short enough not to be cut off (examples only)", () => {
+    const kh = readFileSync("web/kingdomhearts/index.html", "utf8");
+    expect(kh).toContain("searchPlaceholder: 'e.g. Sora, plush'");
+    expect(kh).toContain("searchPlaceholder: '例：ソラ、ぬいぐるみ'");
+  });
+});
