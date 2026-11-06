@@ -120,9 +120,20 @@ describe("resolve_listing with Demon Slayer in the catalog", () => {
     expect(ids("一番くじ KINGDOM HEARTS A賞 ソラ").some((s) => s.includes("-kny-"))).toBe(false);
   });
   it("Hashira group suggestion returns Demon Slayer items only", () => {
-    const g: any = discoverCatalog({ ip: "kimetsu-no-yaiba", character: "伊黒小芭内" });
+    // カタログの中身に左右されないよう、伊黒小芭内の単独商品を取り除いたデータで確かめる
+    // （第2便で柱9人全員に単独商品がそろったため、本物のカタログでは0件の柱がいない。2026-11-06）。
+    const noObanai = catalog.filter((s) => !/伊黒|obanai/i.test(`${s.character} ${s.character_en}`));
+    const g: any = discoverCatalog({ ip: "kimetsu-no-yaiba", character: "伊黒小芭内" }, noObanai);
+    expect(g.total_matches).toBe(0);
     expect(g.suggested_character_group?.suggest_label).toBe("Hashira");
     expect(g.suggested_total_matches).toBeGreaterThan(0);
-    expect(discoverCatalog({ ip: "kingdom-hearts", character: "伊黒小芭内" })).not.toHaveProperty("suggested_character_group");
+    expect(g.suggested_items.every((i: any) => i.sku_id.includes("kny"))).toBe(true);
+    expect(discoverCatalog({ ip: "kingdom-hearts", character: "伊黒小芭内" }, noObanai)).not.toHaveProperty("suggested_character_group");
+    // 単独商品があるときは提案しない（架空の1行を足して確かめる）
+    const base = catalog.find((s) => s.ip === "kimetsu-no-yaiba")!;
+    const withObanai = [...noObanai, { ...base, sku_id: "test-kny-obanai", character: "伊黒小芭内", character_en: "Obanai Iguro" }];
+    const solo: any = discoverCatalog({ ip: "kimetsu-no-yaiba", character: "伊黒小芭内" }, withObanai);
+    expect(solo.total_matches).toBe(1);
+    expect(solo).not.toHaveProperty("suggested_character_group");
   });
 });
