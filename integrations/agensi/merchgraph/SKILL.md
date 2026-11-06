@@ -29,7 +29,7 @@ Call `resolve_listing` with `{title: "一番くじ キングダムハーツ A賞
 - Which item it could be: several Ichiban Kuji series have a Prize A Sora statue (20th Anniversary, Linking Hearts, 25th Anniversary), so Merchgraph returns those candidates and suggests asking the seller which series it is. All are official merchandise.
 - Its original price context: a lottery prize (about ¥750 per draw), never sold on its own — so secondhand prices are set by the market.
 - What 箱なし means (no box) and any bootleg caution flags.
-- Mercari Japan doesn't ship internationally, so a shipping-forwarding service (Buyee, ZenMarket, etc.) is needed.
+- Mercari Japan doesn't ship internationally, so a shipping-forwarding service (Buyee, ZenMarket, etc.) is usually needed. Buyers in the US, Taiwan or Hong Kong may be able to use Mercari's official global app instead (the `shipping.direct_purchase_note_en` field says so).
 
 ## Known limitations
 - Prices shown are original/MSRP reference prices, not live marketplace prices. Each entry is marked verified or not; unverified prices are labeled as estimates.

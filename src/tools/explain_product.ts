@@ -24,7 +24,8 @@ export function registerExplainProductTool(server: McpServer): void {
         "to get the best match. Returns names (en/ja), product line (maker, line type, release date), characters, original " +
         "price (msrp_jpy, price_local, currency, price_basis), acquisition_type (retail, kuji, prize, …), availability " +
         "(hint + confidence), typical_channels, shipping (whether it is only sold at shops that ship within Japan, so a " +
-        "shipping-forwarding service is needed from abroad; costs are not calculated), size/weight, re-release dates, official (licensed or fan-made), verified " +
+        "shipping-forwarding service is needed from abroad; costs are not calculated; for Mercari/Suruga-ya items a note that " +
+        "Mercari's global app may allow direct purchase in some countries), size/weight, re-release dates, official (licensed or fan-made), verified " +
         "(checked against the source) and source_url.",
       inputSchema: {
         sku_id: z.string().optional().describe('Catalog SKU ID, e.g. "ichiban-kuji-kh-2018-a". Either sku_id or query is required.'),

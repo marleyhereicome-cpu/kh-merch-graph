@@ -227,6 +227,19 @@ export interface ShippingInfo {
   ships_abroad_channels: string[];
   note_en: string;
   forwarding_services?: { name: string; url: string }[];
+  /** メルカリ・駿河屋が含まれるとき：Mercari公式のグローバルアプリで代行なしに買える場合があるという留保つきの補足 */
+  direct_purchase_note_en?: string;
+}
+
+// ---- Mercari のグローバルアプリ（2026-11-06）----
+// Mercari 公式のグローバルアプリ（台湾・香港は2025年9月、米国は2026年6月から）は、メルカリ・メルカリShops・駿河屋の在庫を
+// 代行業者なしで直接買える。対象の国・在庫は変わっていくので「場合があります」の留保つきで添えるだけにし、
+// 「代行が必要」という判定（forwarding_service_needed）は変えない。ヤフオク・まんだらけ・e-STORE は対象外。
+export const GLOBAL_APP_CHANNELS = ["mercari", "surugaya"];
+export const GLOBAL_APP_NOTE_EN =
+  "For Mercari and Suruga-ya items, Mercari's official global app (available in the US, Taiwan and Hong Kong as of 2026) may let you buy directly without a forwarding service. Availability depends on your country and the item.";
+function globalAppNote(channelNames: string[]): { direct_purchase_note_en?: string } {
+  return channelNames.some((n) => GLOBAL_APP_CHANNELS.includes(n)) ? { direct_purchase_note_en: GLOBAL_APP_NOTE_EN } : {};
 }
 
 function channelNamesOf(sku: CatalogSku): string[] {
@@ -260,6 +273,7 @@ export function buildShippingInfo(
       ships_abroad_channels: [],
       note_en: `This listing is on ${listingChannel}, which ships within Japan only. To receive it outside Japan you'll need a shipping-forwarding service (listed for information only; not affiliated with any of them).`,
       forwarding_services: FORWARDING_SERVICES,
+      ...globalAppNote([listingChannel]),
     };
   }
   if (!sku) return null;
@@ -280,6 +294,6 @@ export function buildShippingInfo(
       : japanOnly.length > 0
         ? "Some shops listed ship within Japan only, but at least one ships abroad."
         : "No Japan-only shops are listed for this item.",
-    ...(needed ? { forwarding_services: FORWARDING_SERVICES } : {}),
+    ...(needed ? { forwarding_services: FORWARDING_SERVICES, ...globalAppNote(japanOnly) } : {}),
   };
 }

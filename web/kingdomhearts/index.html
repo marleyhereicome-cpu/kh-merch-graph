@@ -762,6 +762,7 @@ const STRINGS = {
     findIt: 'Find it',
     proxyNote: "Ships within Japan only — you'll need a shipping-forwarding service to receive this outside Japan.",
     proxyTry: 'Forwarding services:', proxyNeutral: "Listed for information only — we're not affiliated with any of them.", proxyWhat: "What's a forwarding service?",
+    proxyGlobalApp: "Note: for Mercari and Suruga-ya items, Mercari's official global app (available in the US, Taiwan and Hong Kong) may let you buy directly without a forwarding service.",
     seeDetails: 'Details ›',
     // gift
     giftOpen: 'Looking for a gift for a Kingdom Hearts fan?', giftTitle: 'Gift ideas',
@@ -872,6 +873,7 @@ const STRINGS = {
     gamePackageCredit: '公式パッケージ画像（© Disney / © Square Enix）',
     findIt: '探す',
     proxyNote: '国内発送のみの商品です。海外へ届けるには代行サービスが必要です。',
+    proxyGlobalApp: '※メルカリ・駿河屋の商品は、Mercari公式のグローバルアプリ（米国・台湾・香港など）を使えば、代行サービスなしで購入できる場合があります。',
     proxyTry: '主な代行サービス：', proxyNeutral: '参考として載せているもので、当サイトはいずれのサービスとも提携していません。', proxyWhat: '代行サービスとは？',
     seeDetails: '詳しく見る ›',
     giftOpen: 'キングダム ハーツ好きな人へのプレゼントを探していますか？', giftTitle: 'プレゼントを探す',
@@ -1127,9 +1129,9 @@ function badgeFor(hint, worldwideCheckout) {
 
 // jpName: true → search with the Japanese name (Japanese sites), false → English name.
 const CHANNELS = {
-  mercari: { label: 'Mercari', ja: 'メルカリ', template: 'https://jp.mercari.com/search?keyword={q}', proxy: true, marketplace: true, jpName: true },
+  mercari: { label: 'Mercari', ja: 'メルカリ', template: 'https://jp.mercari.com/search?keyword={q}', proxy: true, marketplace: true, jpName: true, globalApp: true },
   yahoo_auctions: { label: 'Yahoo Auctions', ja: 'ヤフオク', template: 'https://auctions.yahoo.co.jp/search/search?p={q}', proxy: true, marketplace: true, jpName: true },
-  surugaya: { label: 'Suruga-ya', ja: '駿河屋', template: 'https://www.suruga-ya.jp/search?category=&search_word={q}', proxy: true, marketplace: true, jpName: true },
+  surugaya: { label: 'Suruga-ya', ja: '駿河屋', template: 'https://www.suruga-ya.jp/search?category=&search_word={q}', proxy: true, marketplace: true, jpName: true, globalApp: true },
   mandarake: { label: 'Mandarake', ja: 'まんだらけ', template: 'https://order.mandarake.co.jp/order/listPage/list?keyword={q}', proxy: true, marketplace: true, jpName: true },
   amiami: { label: 'AmiAmi', ja: 'あみあみ', template: 'https://www.amiami.com/eng/search/list/?s_keywords={q}', proxy: false, jpName: true },
   'e-store': { label: 'Square Enix e-STORE', ja: 'スクエニ e-STORE', template: 'https://store.jp.square-enix.com/estore/g/search/?keyword={q}', proxy: true, jpName: true },
@@ -1883,12 +1885,16 @@ const FORWARDERS = [
   { label: 'Neokyo', url: 'https://neokyo.com/' },
   { label: 'FROM JAPAN', url: 'https://www.fromjapan.co.jp/en/' },
 ];
-function proxyNoteHtml() {
+// globalApp：メルカリ・駿河屋。Mercari 公式のグローバルアプリで代行なしに買える場合がある（2026-11-06）。
+// 対象の国・在庫は変わるので「場合があります」と添えるだけにする。ヤフオク・まんだらけ・e-STORE は対象外。
+function proxyNoteHtml(chans = []) {
   const links = FORWARDERS.map((f) => `<a href="${escapeHtml(f.url)}" target="_blank" rel="noopener nofollow">${escapeHtml(f.label)} ↗</a>`).join(' · ');
+  const globalApp = chans.some((ch) => ch.globalApp);
   return `<div class="proxy-note">
         <p class="sub"><strong>${escapeHtml(t('proxyNote'))}</strong></p>
         <p class="sub">${escapeHtml(t('proxyTry'))} ${links}</p>
         <p class="sub">${escapeHtml(t('proxyNeutral'))} <a href="#shipping-proxy-faq" data-close-panel>${escapeHtml(t('proxyWhat'))}</a></p>
+        ${globalApp ? `<p class="sub">${escapeHtml(t('proxyGlobalApp'))}</p>` : ''}
       </div>`;
 }
 function panelHtml(item, detail, imageMap, catalog) {
@@ -1947,7 +1953,7 @@ function panelHtml(item, detail, imageMap, catalog) {
         <div class="channel-links">${chans.map((ch) => `<a href="${escapeHtml(channelUrl(ch, detail, item))}" target="_blank" rel="noopener">${escapeHtml(JA ? ch.ja : ch.label)} ↗</a>`).join('')}</div>` : ''}
       ${otherChans.length ? `<p class="sub" style="margin-top:8px">${escapeHtml(t('alsoSoldAt'))} ${otherChans.map(escapeHtml).join(' · ')}</p>` : ''}
       ${showCheck ? `<p class="sub" style="margin-top:10px"><a href="${escapeHtml(checkerUrl())}">${escapeHtml(t('checkListing'))}</a></p>` : ''}
-      ${needsProxy ? proxyNoteHtml() : ''}
+      ${needsProxy ? proxyNoteHtml(chans) : ''}
     </div>
 
     ${(() => { const f = factsHtml(item, detail, catalog); return f ? `<div class="panel-section"><h3>${escapeHtml(t('secFacts'))}</h3>${f}</div>` : ''; })()}
