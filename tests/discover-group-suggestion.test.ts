@@ -2,11 +2,15 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { discoverCatalog } from "../src/tools/discover.js";
 import { CHARACTER_GROUPS } from "../src/lib/character-groups.js";
+import { catalog } from "../src/lib/store.js";
+
+// シグバールの単独商品が将来カタログに入ってもテストが崩れないよう、取り除いたデータで確かめる（2026-11-06）。
+const noXigbar = catalog.filter((s) => !/xigbar|シグバール/i.test(`${s.character} ${s.character_en}`));
 
 // ゼロ件誘導（2026-10-28）：AIエージェントが単独グッズの無いキャラで探したとき、グループの提案と候補を返す。
 describe("discover: zero-result group suggestion", () => {
   it("suggests Organization XIII and returns group items for a member with no solo merch", () => {
-    const r: any = discoverCatalog({ ip: "kingdom-hearts", character: "Xigbar", limit: 3 });
+    const r: any = discoverCatalog({ ip: "kingdom-hearts", character: "Xigbar", limit: 3 }, noXigbar);
     expect(r.total_matches).toBe(0);
     expect(r.suggested_character_group).toEqual({ suggest_keyword: "organization xiii", suggest_label: "Organization XIII" });
     expect(r.suggested_items.length).toBeGreaterThan(0);
@@ -18,7 +22,7 @@ describe("discover: zero-result group suggestion", () => {
   });
 
   it("works with the Japanese name too", () => {
-    const r: any = discoverCatalog({ ip: "kingdom-hearts", character: "シグバール" });
+    const r: any = discoverCatalog({ ip: "kingdom-hearts", character: "シグバール" }, noXigbar);
     expect(r.suggested_character_group?.suggest_label).toBe("Organization XIII");
   });
 

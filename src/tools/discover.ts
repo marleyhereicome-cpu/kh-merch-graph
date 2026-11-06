@@ -62,8 +62,12 @@ function itemSummary(s: CatalogSku, matchedTermsBySku?: Map<string, string[]>) {
 }
 
 // MCPツールの登録処理から独立させ、テストしやすくしてある。
-export function discoverCatalog({ ip, character, budget_jpy, purpose, limit, terms }: DiscoverInput) {
-  let results = catalog.filter((s) => s.ip === ip);
+// data はテスト用（カタログの中身に左右されないテストを書くため。2026-11-06）。省略時は本物のカタログ。
+export function discoverCatalog(
+  { ip, character, budget_jpy, purpose, limit, terms }: DiscoverInput,
+  data: CatalogSku[] = catalog
+) {
+  let results = data.filter((s) => s.ip === ip);
 
   if (character) {
     results = results.filter(
@@ -116,7 +120,7 @@ export function discoverCatalog({ ip, character, budget_jpy, purpose, limit, ter
   // 提案と一緒に、グループ名で探した結果の先頭も返す。エージェントがもう一度 discover を呼ばなくても候補を出せる。
   const labels = group ? groupMatchLabels(group) : [];
   const suggestedResults = group
-    ? catalog.filter(
+    ? data.filter(
         (s) =>
           s.ip === ip &&
           labels.some((label) => containsNormalized(s.character, label) || containsNormalized(s.character_en, label))
