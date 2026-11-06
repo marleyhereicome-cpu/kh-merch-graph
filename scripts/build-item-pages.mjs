@@ -97,6 +97,10 @@ const AVAILABILITY = {
 };
 const REGION = { JP: "Japan", NA: "North America", EU: "Europe", GLOBAL: "Worldwide" };
 const CURRENCY_SYMBOL = { JPY: "¥", USD: "$", GBP: "£", EUR: "€" };
+// Mercari 公式のグローバルアプリで代行なしに買える場合があるチャネル（2026-11-06。src/lib/acquisition.ts と同じ文）
+const GLOBAL_APP_KEYS = new Set(["mercari", "surugaya"]);
+const GLOBAL_APP_NOTE =
+  "For Mercari and Suruga-ya items, Mercari's official global app (available in the US, Taiwan and Hong Kong as of 2026) may let you buy directly without a forwarding service. Availability depends on your country and the item.";
 const CHANNEL_LABEL = {
   mercari: "Mercari", yahoo_auctions: "Yahoo! Auctions", surugaya: "Suruga-ya", mandarake: "Mandarake", amiami: "AmiAmi",
   "e-store": "Square Enix e-STORE", square_enix_estore: "Square Enix e-STORE", tokyo_otaku_mode: "Tokyo Otaku Mode",
@@ -331,6 +335,7 @@ ${img ? `<meta property="og:image" content="${esc(img.url)}" />\n<meta name="twi
     <p>${esc(AVAILABILITY[hint] || AVAILABILITY.unknown)}</p>
     ${channels.length ? `<p class="note">Typically found at: ${channels.map((c) => esc(c.label)).join(" · ")}</p>` : ""}
     ${japanOnly ? `<p class="note">Ships within Japan only — you'll need a shipping-forwarding service to receive this outside Japan. We're not affiliated with any of them.</p>` : ""}
+    ${japanOnly && channels.some((c) => GLOBAL_APP_KEYS.has(c.key)) ? `<p class="note">${esc(GLOBAL_APP_NOTE)}</p>` : ""}
   </section>
 
   ${facts.length ? `<section><h2>Details</h2><dl>${facts.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl></section>` : ""}

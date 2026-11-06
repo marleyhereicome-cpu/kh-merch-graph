@@ -32,4 +32,22 @@ describe("shipping (forwarding service needed?)", () => {
     const r2: any = await resolveListing({ title: "zzzz unknown thing", platform: "other" });
     expect(r2.shipping).toBeNull();
   });
+
+  // 2026-11-06：Mercari 公式のグローバルアプリ（米国・台湾・香港）は、メルカリ・駿河屋の在庫を代行なしで買える場合がある。
+  it("adds a hedged Mercari global app note for Mercari / Suruga-ya only", async () => {
+    const s = buildShippingInfo(sku("ichiban-kuji-kh-2018-a"), channels)!;
+    expect(s.forwarding_service_needed).toBe(true); // 判定そのものは変えない
+    expect(s.direct_purchase_note_en).toMatch(/may let you buy directly without a forwarding service/);
+    for (const platform of ["mercari", "surugaya"]) {
+      const r: any = await resolveListing({ title: "キングダムハーツ 一番くじ A賞 ソラ", platform });
+      expect(r.shipping.direct_purchase_note_en).toBeDefined();
+    }
+    for (const platform of ["yahoo", "mandarake"]) {
+      const r: any = await resolveListing({ title: "キングダムハーツ 一番くじ A賞 ソラ", platform });
+      expect(r.shipping.forwarding_service_needed).toBe(true);
+      expect(r.shipping.direct_purchase_note_en).toBeUndefined();
+    }
+    // e-STORE だけの商品には付けない
+    expect(buildShippingInfo(sku("kh-ost-hd15-remix-2024"), channels)!.direct_purchase_note_en).toBeUndefined();
+  });
 });

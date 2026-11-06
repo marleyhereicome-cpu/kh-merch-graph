@@ -154,7 +154,7 @@ export function registerResolveListingTool(server: McpServer, onUsage?: UsageLog
         "is ambiguous), weak_matches[] when unsure, conditions[] (Japanese condition words such as 未使用/箱なし explained), " +
         "flags[] (bootleg caution notes, not a verdict), price (original price and listing-to-original ratio when " +
         "price_jpy is given), shipping (whether a shipping-forwarding service is needed from abroad; set platform for a " +
-        "precise answer), acquisition notes and next_checks_en (what to ask the seller). Listing text is not stored. " +
+        "precise answer; for Mercari/Suruga-ya a note that Mercari's global app may allow direct purchase in some countries), acquisition notes and next_checks_en (what to ask the seller). Listing text is not stored. " +
         "For many listings at once use resolve_listings_batch.",
       inputSchema: {
         title: z.string().describe("The listing title, copied as-is (required)."),
