@@ -12,7 +12,7 @@ describe("catalog pages", () => {
   });
   it("the catalog shows the Kingdom Hearts logo as a fixed background, not in the header", () => {
     const html = readFileSync("web/kingdomhearts/index.html", "utf8");
-    expect(html).toMatch(/body::before \{[^}]*position: fixed;[^}]*url\('\.\/kh-logo\.png'\)/);
+    expect(html).toMatch(/body::before \{[^}]*position: fixed;[^}]*url\('\.\/kh-logo-mark\.png'\)/);
     expect(html).not.toContain('<img class="wordmark-img"');
   });
   for (const page of PAGES) {
@@ -49,7 +49,7 @@ describe("hub page (web/index.html)", () => {
   });
   it("keeps the non-affiliation notice and shows no official logo", () => {
     expect(html).toContain("Not affiliated with, endorsed or sponsored by the rights holders of any series listed here");
-    expect(html).not.toMatch(/kh-logo\.png['"]?\)/);
+    expect(html).not.toMatch(/kh-logo(-mark)?\.png['"]?\)/);
     expect(html).not.toContain("<img src=\"/kingdomhearts/kh-logo.png");
   });
   it("sends old root links with #item= to the Kingdom Hearts catalog", () => {
