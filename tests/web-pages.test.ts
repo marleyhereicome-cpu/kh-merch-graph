@@ -123,3 +123,17 @@ describe("hub banners and the KH search box", () => {
     expect(kh).toContain("searchPlaceholder: '例：ソラ、ぬいぐるみ'");
   });
 });
+
+// カードの棚の試作（2026-11-08）：/kingdomhearts/shelf で試す版。検索には出さず、免責と社名ロゴなしの透かしを守る。
+describe("card shelf trial (web/kingdomhearts/shelf.html)", () => {
+  const html = readFileSync("web/kingdomhearts/shelf.html", "utf8");
+  it("is noindex, keeps the non-affiliation notice and uses the logo without company names", () => {
+    expect(html).toContain('<meta name="robots" content="noindex">');
+    expect(html).toContain("Not affiliated with, endorsed or sponsored by Square Enix, Disney");
+    expect(html).toContain("/kingdomhearts/kh-logo-mark.png");
+    expect(html).not.toMatch(/kh-logo\.png/);
+  });
+  it("opens the item in the catalog", () => {
+    expect(html).toContain("#item=${encodeURIComponent(it.sku)}");
+  });
+});
