@@ -137,3 +137,47 @@ describe("card shelf trial (web/kingdomhearts/shelf.html)", () => {
     expect(html).toContain("#item=${encodeURIComponent(it.sku)}");
   });
 });
+
+// カードの棚の本番化（2026-11-08）：KHページのファーストビューを写真ボードからカードの棚に替えた。
+describe("card shelf in the Kingdom Hearts first view", () => {
+  const kh = readFileSync("web/kingdomhearts/index.html", "utf8");
+  const js = readFileSync("web/kingdomhearts/shelf-hero.js", "utf8");
+  it("puts the shelf section first and loads its script after the page script", () => {
+    expect(kh).toContain('<section class="sh-hero" id="shelfHero" data-src="./shelf.json" hidden></section>');
+    expect(kh.indexOf('id="shelfHero"')).toBeLessThan(kh.indexOf('<section class="hero hero-split" id="discover">'));
+    expect(kh).toContain('<script src="./shelf-hero.js" defer></script>');
+    expect(kh.lastIndexOf("</script>\n<script src=\"./shelf-hero.js\" defer>")).toBeGreaterThan(kh.indexOf("function openItem("));
+  });
+  it("the photo board is gone; the ✓ row sits right under the search box", () => {
+    expect(kh).not.toContain('id="board"');
+    expect(kh).not.toContain("renderBoard");
+    const hero = kh.slice(kh.indexOf('id="discover"'), kh.indexOf('<section class="hero-below">'));
+    expect(hero.indexOf('<ul class="facts">')).toBeGreaterThan(hero.indexOf("</form>"));
+  });
+  it("keeps the gacha / music / effects dock", () => {
+    expect(kh).toContain("initGacha();");
+    expect(kh).toContain("initMusic();");
+  });
+  it("the section is one screen tall and the logo is only a watermark", () => {
+    expect(kh).toMatch(/--S: max\(560px, calc\(100svh - var\(--hdr, 64px\)\)\)/);
+    expect(kh).toMatch(/\.sh-logobg \{[^}]*url\('\.\/kh-logo-mark\.png'\)[^}]*opacity: \.075/);
+    expect(js).not.toMatch(/kh-logo\.png/);
+  });
+  it("opens items through the page's own panel (#item=<sku>)", () => {
+    expect(js).toContain("href=\"#item=${encodeURIComponent(it.sku)}\"");
+    expect(js).toContain("openItem(a.dataset.sku);");
+  });
+  it("does not trap vertical scrolling, and stops when off screen", () => {
+    expect(js).toContain("if (Math.abs(dx) <= Math.abs(e.shiftKey ? 0 : e.deltaY)) return;");
+    expect(js).toContain("IntersectionObserver");
+    expect(js).toContain("prefers-reduced-motion: reduce");
+  });
+  it("hides itself when shelf.json is missing or too short", () => {
+    expect(js).toContain("const MIN_ITEMS = 8;");
+    expect(js).toContain("if (items.length < MIN_ITEMS) return;");
+  });
+  it("has a 'continues below' cue pointing at the search", () => {
+    expect(js).toContain('<a class="sh-more" href="#discover">');
+    expect(js).toContain("下に続く");
+  });
+});

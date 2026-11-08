@@ -19,7 +19,7 @@
 <!-- 「このサイトについて」のFAQの構造化データ。FAQ の文を変えたらここも合わせる（tests/web-pages.test.ts が一致を確認）。 -->
 <script type="application/ld+json" id="ld-faq">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is Kingdom Hearts?", "acceptedAnswer": {"@type": "Answer", "text": "Kingdom Hearts is a long-running action RPG series from Square Enix and Disney, weaving Disney's worlds and characters together with an original cast (and the occasional Final Fantasy face). It's been running since 2002 across more than a dozen games, and it's the reason this much merch exists in the first place. More on Wikipedia ↗"}}, {"@type": "Question", "name": "What's a shipping proxy?", "acceptedAnswer": {"@type": "Answer", "text": "Most Japanese shops and marketplaces (Mercari, Yahoo Auctions, the Square Enix store) only ship inside Japan. A shipping proxy is a paid service (Buyee and ZenMarket are two well-known ones) that buys the item on your behalf with a Japanese address, then forwards it to you. They add a service fee plus international shipping on top of the item's price. We're NOT affiliated with either. This isn't something we do ourselves; we just point you to where an item shows up and let you take it from there."}}, {"@type": "Question", "name": "What does \"original price\" mean?", "acceptedAnswer": {"@type": "Answer", "text": "It's the price an item had when it was first released, in the currency of the country it was released in (approximate conversions are shown in brackets, using a fixed rate, not a live one). Lottery prizes show the price of one draw, since the prize itself was never sold. Resale prices today can be far above or below the original; the original price is there so you have something to compare against."}}, {"@type": "Question", "name": "How is the information on this site checked?", "acceptedAnswer": {"@type": "Answer", "text": "Each item marked “verified” has had its price, release date and product code checked directly against at least one of: the maker’s official site, an authorized retailer, or reliable press (4Gamer, Famitsu and the like). When the official information is outdated or can only be confirmed indirectly, the item shows an “estimated” reference price and the basis is noted. Listing photos and prices from marketplaces (eBay, Mercari and so on) are never used as evidence."}}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
 <style>
   :root {
     color-scheme: light;
@@ -165,63 +165,173 @@
   .gift-note { font-size: 11.5px; color: var(--muted); }
 
 
-  /* ---------- hero: text on the left, a board of real product photos on the right (2026-11 plan A) ---------- */
-  .hero.hero-split {
-    max-width: 1200px; padding: 34px 24px 26px; text-align: left;
-    display: grid; grid-template-columns: minmax(300px, 5fr) 7fr; gap: 44px; align-items: center;
-  }
-  .hero-split .stats { text-align: left; font-size: 12px; letter-spacing: 0.04em; margin: 0 0 12px; }
-  .hero-split h1 { font-size: clamp(26px, 2.9vw, 38px); line-height: 1.45; text-wrap: initial; }
-  html[lang="ja"] .hero-split h1 { font-size: clamp(25px, 2.8vw, 36px); line-height: 1.5; }
+  /* ---------- hero: カードの棚の下に置く、検索と見出しの1列（2026-11-08。それまでは右に写真ボード） ---------- */
+  .hero.hero-split { max-width: 820px; padding: 40px 24px 22px; text-align: center; scroll-margin-top: calc(var(--hdr, 64px) + 8px); }
+  .hero-split .stats { font-size: 12px; letter-spacing: 0.04em; margin: 0 0 12px; }
+  .hero-split h1 { font-size: clamp(26px, 3.2vw, 38px); line-height: 1.45; }
+  html[lang="ja"] .hero-split h1 { font-size: clamp(25px, 3vw, 36px); line-height: 1.5; }
   .hero-split h1 .nw { display: inline-block; }
-  .hero-split .lede { margin: 0 0 20px; max-width: none; line-height: 1.85; }
-  .hero-split .search-form { margin: 0; max-width: none; justify-content: flex-start; padding: 8px; border-radius: 14px; }
-  /* 1行に並べるのは左の列が十分広い画面だけ。狭いと入力欄の例文や「定価：指定なし」が見切れるので、
+  .hero-split .lede { margin: 0 auto 20px; line-height: 1.85; }
+  .hero-split .search-form { margin: 0 auto; padding: 8px; border-radius: 14px; }
+  /* 1行に並べるのは十分広い画面だけ。狭いと入力欄の例文や「定価：指定なし」が見切れるので、
      それ以下では定価の選択と検索ボタンを入力欄の下に回す（2026-11-05）。 */
-  @media (min-width: 1440px) {
+  @media (min-width: 720px) {
     .hero-split .search-form { flex-wrap: nowrap; }
     .hero-split #character { flex: 1 1 auto; min-width: 0; }
     .hero-split #budget { flex: 0 0 auto; }
   }
   /* 詳細パネルの .facts（dl のグリッド）と同じクラス名なので、ヒーロー側は .hero-split を付けて上書きされないようにする */
-  .hero-split .facts { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 14px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--ink-soft); }
+  .hero-split .facts { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; margin: 14px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--ink-soft); }
   .hero-split .facts li::before { content: '✓'; color: var(--gold); font-weight: 700; margin-right: 6px; }
   .hero-below { max-width: 1000px; margin: 0 auto; padding: 0 24px 6px; text-align: center; }
   .hero-below .category-row { margin-top: 0; }
 
-  /* the board: real catalog photos, each with its original-price tag (the price tag is the site's motif) */
-  .board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px 16px; padding: 8px 6px 4px; }
-  .board[hidden] { display: none; }
-  .pin {
-    position: relative; display: block; background: #FFFFFF; padding: 8px 8px 12px; border: none; border-radius: 3px; cursor: pointer;
-    font: inherit; color: var(--ink); text-align: left;
-    box-shadow: 0 1px 0 rgba(28,27,41,0.06), 0 6px 16px rgba(28,27,41,0.07);
-    transform: rotate(var(--r)); transition: transform 0.18s ease, box-shadow 0.18s ease;
+  /* ---------- カードの棚（ファーストビュー、2026-11-08 本番化） ----------
+     /kingdomhearts/shelf の試作を、このページの最初の1画面に入れたもの。動きは shelf-hero.js。
+     - 商品写真は加工しない。自前のカードの枠に、写真を長方形のまま収める（切り抜き・合成なし）。
+     - 公式ロゴは透かしだけ。紋章・キービジュアルは使わない。
+     - クラスはすべて sh- で始める（ページ側の .card・.cap などとぶつけない）。 */
+  .sh-hero {
+    --S: max(560px, calc(100svh - var(--hdr, 64px)));   /* セクションの高さ＝ヘッダーを除いた1画面 */
+    /* カードの高さ：画面の高さ・幅の両方に収め、下のキャプション（約120px）と年表（約110px）の場所を残す */
+    --H: min(calc(var(--S) * .44), 34vw, calc((var(--S) * .6 - 262px) / .53));
+    --cy: 40%;                       /* 棚の中心線（セクションの高さに対する位置） */
+    --sh-ink: #F3EFE6; --sh-soft: rgba(243,239,230,.72); --sh-faint: rgba(243,239,230,.45);
+    --kraft: #E8D5AC; --kraft-ink: #3B2F1B; --kraft-edge: #C9B282;
+    --num: "Barlow Condensed", "Zen Kaku Gothic New", sans-serif;
+    position: relative; overflow: hidden; isolation: isolate;
+    height: var(--S);
+    background: radial-gradient(120% 90% at 50% 38%, #22306A 0%, #16204A 42%, #0B1024 100%);
+    color: var(--sh-ink); font-family: 'Zen Kaku Gothic New', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased; user-select: none; -webkit-user-select: none;
   }
-  .pin:hover, .pin:focus-visible { transform: rotate(0deg) translateY(-4px) scale(1.04); box-shadow: 0 14px 30px rgba(28,27,41,0.16); z-index: 2; outline: none; }
-  .pin .ph { aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-  .pin .ph img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
-  .pin .stamp {
-    position: absolute; top: 6px; left: 6px; width: 30px; height: 30px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center; font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em;
-    color: #B23A48; border: 1.5px solid #B23A48; background: rgba(255,255,255,0.75); transform: rotate(-12deg); opacity: 0.85;
+  .sh-hero[hidden] { display: none; }
+  .sh-hero button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; padding: 0; }
+  .sh-hero h2 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .sh-grain { position: absolute; inset: 0; z-index: 40; pointer-events: none; opacity: .35; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  /* 作品ロゴは透かしとして薄く敷くだけ（主役にしない） */
+  .sh-logobg { position: absolute; left: 50%; top: calc(var(--cy) - var(--H)*.08); width: min(92vw, calc(var(--H)*2.3)); aspect-ratio: 458/273;
+    transform: translate(-50%,-50%); z-index: 0; pointer-events: none;
+    background: url('./kh-logo-mark.png') center/contain no-repeat;
+    filter: grayscale(1) brightness(1.5); opacity: .075; mix-blend-mode: screen; }
+  .sh-yearbg { position: absolute; left: 0; right: 0; top: calc(var(--cy) - var(--H)*.62); z-index: 1;
+    height: calc(var(--H)*.62); overflow: hidden; pointer-events: none; text-align: center; }
+  .sh-yearbg span { display: block; font-family: var(--num); font-weight: 700; font-size: calc(var(--H)*.74); line-height: .84; letter-spacing: .02em;
+    color: transparent; -webkit-background-clip: text; background-clip: text;
+    background-image: radial-gradient(circle at 50% 50%, rgba(150,172,255,.42) 0 34%, transparent 40%), linear-gradient(rgba(120,140,220,.10), rgba(120,140,220,.10));
+    background-size: 4px 4px, 100% 100%; position: absolute; left: 0; right: 0; top: 0; }
+  .sh-floor { position: absolute; left: 50%; top: calc(var(--cy) + var(--H)*.44); width: min(110vw, calc(var(--H)*5)); height: calc(var(--H)*.32);
+    transform: translateX(-50%); z-index: 5; pointer-events: none;
+    background: radial-gradient(50% 50% at 50% 40%, rgba(0,0,0,.45), rgba(0,0,0,.14) 55%, transparent 72%); }
+  .sh-shelf { position: absolute; left: 0; right: 0; top: calc(var(--cy) - var(--H)/2 - 70px); height: calc(var(--H) + 140px);
+    perspective: 1500px; perspective-origin: 50% 45%; z-index: 10; touch-action: pan-y; cursor: grab; }
+  .sh-shelf.dragging { cursor: grabbing; }
+  .sh-stage { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; }
+  .sh-card { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-style: preserve-3d; }
+  .sh-face { position: absolute; height: var(--H); width: calc(var(--H)*100/146); left: calc(var(--H)*-50/146); top: calc(var(--H)/-2);
+    backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+  .sh-face svg { display: block; width: 100%; height: 100%; overflow: visible; }
+  .sh-face.back { transform: rotateY(180deg); }
+  .sh-face .shade { position: absolute; inset: 0; pointer-events: none; }
+  .sh-card .hit { position: absolute; left: calc(var(--H)*-50/146); top: calc(var(--H)*-.38); width: calc(var(--H)*100/146); height: calc(var(--H)*.88);
+    border-radius: 6px; transform: translateZ(1px); }
+  .sh-card .hit:focus-visible { outline: 2px solid var(--sh-ink); outline-offset: 6px; }
+  /* 値札：カードの左の穴にひもで結ばれて下がる（値札はこのサイトのモチーフ） */
+  .sh-tagwrap { position: absolute; left: calc(var(--H)*-50/146 + var(--H)*100/146*.31); top: calc(var(--H)*-.5 + var(--H)*33.7/146);
+    width: 0; height: 0; transform: translateZ(2px); pointer-events: none; opacity: 0; }
+  .sh-card.on .sh-tagwrap { opacity: 1; }
+  .sh-swing { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+  .sh-string { position: absolute; left: -1px; top: -1px; overflow: visible; }
+  .sh-ptag { position: absolute; left: calc(var(--H)*-.36); top: calc(var(--H)*.12); min-width: calc(var(--H)*.36);
+    background: var(--kraft); color: var(--kraft-ink); padding: calc(var(--H)*.022) calc(var(--H)*.03) calc(var(--H)*.024) calc(var(--H)*.058);
+    clip-path: polygon(calc(var(--H)*.034) 0, 100% 0, 100% 100%, calc(var(--H)*.034) 100%, 0 50%);
+    box-shadow: 0 10px 18px -8px rgba(0,0,0,.6); transform: rotate(-8deg); transform-origin: 12% 50%;
+    background-image: linear-gradient(180deg, rgba(255,255,255,.25), rgba(255,255,255,0) 40%), linear-gradient(90deg, rgba(0,0,0,.06), rgba(0,0,0,0) 30%); }
+  .sh-ptag::before { content: ""; position: absolute; left: calc(var(--H)*.026); top: 50%; width: calc(var(--H)*.016); height: calc(var(--H)*.016); margin-top: calc(var(--H)*-.008);
+    border-radius: 50%; background: #16204A; box-shadow: inset 0 0 0 1px var(--kraft-edge); }
+  .sh-ptag small { display: block; font-size: max(9px, calc(var(--H)*.026)); letter-spacing: .12em; opacity: .75; white-space: nowrap; }
+  .sh-ptag strong { display: block; font-family: var(--num); font-weight: 600; font-size: calc(var(--H)*.062); line-height: 1.02; letter-spacing: .01em; white-space: nowrap; }
+  .sh-ptag strong em { font-style: normal; font-family: 'Zen Kaku Gothic New', sans-serif; font-weight: 500; font-size: .5em; margin-left: .15em; }
+  /* キャプション */
+  .sh-cap { position: absolute; left: 50%; transform: translateX(-50%); top: calc(var(--cy) + var(--H)*.53 + 2.2vh); z-index: 20;
+    width: min(52vw, 620px); display: grid; justify-items: center; gap: 10px; text-align: center; }
+  .sh-mask { position: relative; overflow: hidden; width: 100%; }
+  .sh-mask > span { display: block; }
+  .sh-mask > span + span { position: absolute; left: 0; right: 0; top: 0; }
+  .sh-title { font-size: clamp(18px, 1.9vw, 25px); font-weight: 700; line-height: 1.35; height: 2.7em; display: flex; align-items: center; justify-content: center; }
+  .sh-title > span { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .sh-meta > span { font-size: 12px; letter-spacing: .08em; color: var(--sh-soft); display: flex !important; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; }
+  .sh-suit { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px 3px 7px; border-radius: 99px; background: rgba(243,239,230,.08); border: 1px solid rgba(243,239,230,.16); color: var(--sh-ink); }
+  .sh-suit i { width: 8px; height: 8px; border-radius: 2px; display: block; }
+  .sh-row { display: flex; gap: 14px; align-items: center; justify-content: center; flex-wrap: wrap; }
+  .sh-avail { font-size: 12px; letter-spacing: .06em; color: var(--sh-soft); width: auto; }
+  .sh-avail b { font-weight: 500; color: var(--sh-ink); }
+  .sh-hero .sh-open { font-size: 11px; letter-spacing: .14em; padding: 6px 14px; border: 1px solid rgba(243,239,230,.4); border-radius: 99px; transition: background .3s, color .3s; }
+  .sh-hero .sh-open:hover { background: var(--sh-ink); color: #0B1024; }
+  .sh-hero .sh-arrow { position: absolute; top: calc(var(--cy) + var(--H)*.53 + 2.2vh + 4px); z-index: 21; width: 46px; height: 46px; border-radius: 50%;
+    border: 1px solid rgba(243,239,230,.3); display: grid; place-items: center; transition: background .3s, border-color .3s; }
+  .sh-hero .sh-arrow:hover { background: rgba(243,239,230,.1); border-color: rgba(243,239,230,.6); }
+  .sh-arrow svg { width: 22px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.3; }
+  .sh-arrow.prev { left: calc(50% - min(31vw, 440px) - 23px); }
+  .sh-arrow.next { right: calc(50% - min(31vw, 440px) - 23px); }
+  .sh-arrow[disabled] { opacity: .25; cursor: default; }
+  /* 発売年の年表 */
+  /* 左下にはガチャ・音楽のボタン（固定）があるので、年表はその右から始める */
+  .sh-tl { position: absolute; left: 170px; right: 36px; bottom: 64px; height: 44px; z-index: 20; }
+  .sh-tl .line { position: absolute; left: 0; right: 0; top: 14px; height: 1px; background: rgba(243,239,230,.45); }
+  .sh-tl .yr { position: absolute; top: 8px; width: 1px; height: 13px; background: rgba(243,239,230,.6); }
+  .sh-tl .yr span { position: absolute; top: 18px; left: 0; transform: translateX(-50%); font-family: var(--num); font-size: 12px; letter-spacing: .06em; color: var(--sh-soft); }
+  .sh-tl .it { position: absolute; top: 10px; width: 3px; height: 9px; margin-left: -1.5px; border-radius: 1px; opacity: .8; }
+  .sh-tl .dot { position: absolute; top: 14px; width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; border-radius: 50%; background: var(--sh-ink); box-shadow: 0 0 0 4px rgba(243,239,230,.14); }
+  .sh-tl .hitbar { position: absolute; left: -10px; right: -10px; top: -6px; height: 40px; cursor: pointer; }
+  .sh-tl .lab { position: absolute; left: 0; top: -14px; font-size: 10px; letter-spacing: .16em; color: var(--sh-faint); }
+  /* 「下に続く」：ここから下が検索とカタログ全体 */
+  .sh-hero .sh-more { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 22;
+    display: inline-flex; align-items: center; gap: 8px; font-size: 12px; letter-spacing: .12em; color: var(--sh-soft); padding: 6px 12px; text-decoration: none; }
+  .sh-more .short { display: none; }
+  @media (max-width: 767px) { .sh-more .short { display: inline; } }
+  .sh-hero .sh-more:hover { color: var(--sh-ink); }
+  .sh-more i { display: block; width: 9px; height: 9px; border-right: 1.4px solid currentColor; border-bottom: 1.4px solid currentColor; transform: translateY(-3px) rotate(45deg); animation: sh-nudge 1.8s ease-in-out infinite; }
+  @keyframes sh-nudge { 0%, 100% { transform: translateY(-3px) rotate(45deg); } 50% { transform: translateY(1px) rotate(45deg); } }
+  /* 詳細シート：正面のカードから紙が広がる */
+  .sh-detail { position: fixed; inset: 0; z-index: 60; background: #F5F1E8; color: #1C1B29; display: none; overflow: auto; user-select: text; }
+  .sh-detail.open { display: block; }
+  .sh-detail button { font: inherit; color: inherit; background: none; cursor: pointer; }
+  .sh-d-close { position: fixed; left: 28px; top: 22px; z-index: 2; font-size: 11px; letter-spacing: .16em; padding: 8px 14px; border: 1px solid rgba(28,27,41,.5); border-radius: 99px; background: #F5F1E8 !important; }
+  .sh-d-grid { min-height: 100%; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 5vw; padding: 96px 7vw 56px; align-items: center; }
+  .sh-d-media { display: grid; place-items: center; }
+  .sh-d-media .sh-face { position: relative; left: auto; top: auto; height: min(72vh, 62vw); width: calc(min(72vh, 62vw)*100/146); backface-visibility: visible; }
+  .sh-d-text { display: grid; gap: 16px; max-width: 520px; }
+  .sh-d-kicker { font-size: 11px; letter-spacing: .18em; color: #6D6655; }
+  .sh-d-title { font-family: 'Zen Kaku Gothic New', sans-serif; font-size: clamp(22px, 2.6vw, 34px); font-weight: 700; line-height: 1.4; }
+  .sh-d-rows { display: grid; grid-template-columns: auto 1fr; gap: 10px 22px; font-size: 14px; border-top: 1px solid #D9CFBA; padding-top: 16px; margin: 0; }
+  .sh-d-rows dt { color: #6D6655; font-size: 12px; letter-spacing: .08em; padding-top: 2px; }
+  .sh-d-rows dd { font-weight: 500; margin: 0; }
+  .sh-d-note { font-size: 13px; line-height: 1.8; color: #4A4536; }
+  .sh-d-links { display: flex !important; gap: 12px; flex-wrap: wrap; padding: 2px; }
+  .sh-d-links a { font-size: 12px; letter-spacing: .12em; padding: 11px 18px; border: 1px solid #1C1B29; border-radius: 99px; text-decoration: none; color: #1C1B29; }
+  .sh-d-links a.primary { background: #1C1B29; color: #F5F1E8; }
+  .sh-d-credit { font-size: 11px; color: #8A806B; }
+  /* タブレットの縦向き：幅のわりに高さがあるので、カードを大きめにして中心を少し下げる */
+  @media (min-width: 768px) and (max-width: 1100px) and (orientation: portrait) {
+    .sh-hero { --H: min(calc(var(--S) * .44), 46vw, calc((var(--S) * .6 - 262px) / .53)); --cy: 42%; }
   }
-  .pin .stamp.overseas { color: var(--navy); border-color: var(--navy); }
-  .price-tag {
-    position: absolute; right: -6px; bottom: -10px; display: inline-flex; align-items: baseline; gap: 2px;
-    background: #E8D5AC; color: #3B2F1A; font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap;
-    padding: 4px 9px 4px 16px; clip-path: polygon(9px 0, 100% 0, 100% 100%, 9px 100%, 0 50%);
-    transform: rotate(4deg); box-shadow: 0 2px 0 rgba(59,47,26,0.12);
+  @media (max-width: 767px) {
+    .sh-hero { --H: min(60vw, calc(var(--S) * .4)); --cy: 36%; }
+    .sh-more .long { display: none; }
+    .sh-cap { top: calc(var(--cy) + var(--H)*.53 + 1.4vh); width: calc(100vw - 40px); gap: 8px; }
+    .sh-title { font-size: 16px; }
+    .sh-hero .sh-open { display: none; }
+    .sh-hero .sh-arrow { top: calc(var(--cy) - 23px); width: 40px; height: 40px; background: rgba(11,16,36,.55); }
+    .sh-arrow.prev { left: 8px; } .sh-arrow.next { right: 8px; }
+    .sh-tl { left: 20px; right: 20px; bottom: 58px; }
+    .sh-tl .yr.alt span { display: none; }
+    .sh-d-grid { grid-template-columns: 1fr; padding: 72px 22px 40px; gap: 28px; }
+    .sh-d-media .sh-face { height: min(58svh, 96vw); width: calc(min(58svh, 96vw)*100/146); }
   }
-  .price-tag::before { content: ''; position: absolute; left: 6px; top: 50%; width: 5px; height: 5px; margin-top: -2.5px; border-radius: 50%; background: #FFFFFF; }
-  .price-tag small { font-size: 10px; font-weight: 500; opacity: 0.8; }
-  .pin .cap {
-    position: absolute; left: 0; right: 0; top: 100%; margin-top: 14px; font-size: 11.5px; line-height: 1.45;
-    background: #FFFFFF; border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; box-shadow: 0 6px 14px rgba(28,27,41,0.1);
-    opacity: 0; pointer-events: none; transition: opacity 0.15s ease; z-index: 3;
-  }
-  .pin:hover .cap, .pin:focus-visible .cap { opacity: 1; }
-  .board-note { grid-column: 1 / -1; text-align: right; font-size: 11px; color: var(--muted); margin-top: 6px; }
+  @media (prefers-reduced-motion: reduce) { .sh-hero .sh-open, .sh-hero .sh-arrow { transition: none; } .sh-more i { animation: none; } }
+  body.sh-locked { overflow: hidden; }
 
   /* gacha (the "surprise me" button, in the bottom-left dock with music and effects) */
   .fx-btn.gacha-btn { background: #C9A227; color: #1C1B29; border-color: #C9A227; font-weight: 700; display: inline-flex; align-items: center; gap: 7px; }
@@ -240,12 +350,7 @@
   @keyframes cap-spark { 0% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(255,230,140,0.9); } 100% { opacity: 0; transform: scale(5); box-shadow: 0 0 0 30px rgba(255,230,140,0); } }
 
   @media (max-width: 860px) {
-    .hero.hero-split { grid-template-columns: 1fr; gap: 22px; padding: 18px 16px 18px; }
-    .board { order: -1; grid-template-columns: repeat(3, 1fr); gap: 14px 10px; }
-    .board .pin:nth-of-type(n+7) { display: none; }
-    .price-tag { font-size: 11px; padding: 3px 7px 3px 14px; }
-    .pin .stamp { width: 24px; height: 24px; font-size: 8px; }
-    .pin .cap { display: none; }
+    .hero.hero-split { padding: 26px 16px 18px; }
     .hero-below { padding: 0 16px 6px; }
   }
 
@@ -604,7 +709,9 @@
   </nav>
 </header>
 
-<section class="hero hero-split">
+<section class="sh-hero" id="shelfHero" data-src="./shelf.json" hidden></section>
+
+<section class="hero hero-split" id="discover">
   <div class="hero-text">
     <p class="stats" id="stats" aria-live="polite"></p>
     <h1 data-i18n-html="heroTitle">Kingdom Hearts merch your local shops never showed you.</h1>
@@ -622,7 +729,6 @@
   </form>
     <ul class="facts"><li data-i18n="fact1">Original price</li><li data-i18n="fact2">Where to get it now</li><li data-i18n="fact3">Every source linked</li><li data-i18n="fact4">Nothing is sold here</li></ul>
   </div>
-  <div class="board" id="board" hidden></div>
 </section>
 
 <section class="hero-below">
@@ -734,7 +840,7 @@ const STRINGS = {
     heroTitle: 'Kingdom Hearts merch your local shops never showed you.',
     heroLede: 'From Japanese lottery prizes and arcade plush to overseas-only figures and brand collabs. See what each one originally cost, and where fans actually get it today.',
     fact1: 'Original price', fact2: 'Where to get it now', fact3: 'Every source linked', fact4: 'Nothing is sold here',
-    gacha: 'Spin the gacha', tagApprox: '~', tagPerDraw: '/draw', boardNote: 'Tags show the original price · a new random pick from the catalog every visit', stampJP: 'JP', stampNA: 'US', stampEU: 'EU',
+    gacha: 'Spin the gacha',
     p1Name: 'Discover', p1Text: "Things that never reached your country's shops, and things you didn't know were made at all.",
     p2Name: 'Know', p2Text: 'Official or fan-made, and what it cost when it first came out, so you can tell a fair price from a markup.',
     p1Link: 'Show me something ›', p2Link: 'Check a listing you found ›', p3Link: 'Buying from Japan? ›',
@@ -835,7 +941,7 @@ const STRINGS = {
     heroTitle: '<span class="nw">まだ知らない</span><span class="nw">キングダム ハーツの</span><span class="nw">グッズが、</span><span class="nw">世界には</span><span class="nw">こんなにある。</span>',
     heroLede: '日本のくじ景品やプライズから、海外限定のフィギュア、ブランドコラボまで。気になるグッズの発売時の定価と、いまどこで手に入るかがわかります。',
     fact1: '発売時の定価', fact2: 'いまの入手方法', fact3: '情報の出典つき', fact4: '販売はしていません',
-    gacha: 'ガチャを回す', tagApprox: '約', tagPerDraw: '/回', boardNote: '値札は発売時の定価 ・ 開くたびにカタログからランダムに表示',
+    gacha: 'ガチャを回す',
     p1Name: '出会う', p1Text: '日本未発売の海外グッズや、存在すら知らなかったレアものまで。',
     p2Name: '値段を知る', p2Text: '公式かファンメイドか、発売時の定価はいくらか。出品価格が妥当かを見極める目安になります。',
     p1Link: 'おまかせで1つ見る ›', p2Link: '見つけた出品をチェック ›', p3Link: '代行サービスについて ›',
@@ -2248,42 +2354,6 @@ function initGacha() {
   fxDock().prepend(btn);
 }
 
-// The board: 12 real catalog photos (8 on phones), picked at random every visit.
-// Only official items with a photo and a known price; games, books and music are
-// left out so the board shows merch rather than covers. Clicking opens the item.
-function tagPrice(item) {
-  const money = escapeHtml(fmtMoney(localAmount(item), currencyFor(item)));
-  const pre = item.price_basis === 'estimated' ? escapeHtml(t('tagApprox')) : '';
-  const post = item.price_basis === 'draw_price' ? `<small>${escapeHtml(t('tagPerDraw'))}</small>` : '';
-  return `${pre}${money}${post}`;
-}
-async function renderBoard() {
-  const board = document.getElementById('board');
-  if (!board) return;
-  try {
-    const [{ ordered }, imageMap] = await Promise.all([loadCatalog(), imageMapPromise]);
-    const pool = ordered.filter((item) => {
-      const u = (imageMap || {})[item.sku_id];
-      return u && /^https?:/.test(u) && !/fallback|kh-logo/.test(u) && item.official !== false
-        && typeof item.msrp_jpy === 'number' && item.msrp_jpy > 0 && item.price_basis && item.price_basis !== 'none'
-        && !['game', 'console', 'book', 'music'].includes(lineTypeOf(item));
-    });
-    if (pool.length < 8) return;
-    const ROT = [-2.2, 1.6, -0.8, 2.4, 1.1, -1.9, 2.0, -1.2, -2.6, 0.9, 1.8, -1.4];
-    const picks = shuffled(pool).slice(0, 12);
-    board.innerHTML = picks.map((item, i) => {
-      const region = item.region === 'JP' ? 'JP' : item.region === 'EU' ? 'EU' : 'NA';
-      return `<button type="button" class="pin" data-sku="${escapeHtml(item.sku_id)}" style="--r:${ROT[i]}deg" aria-label="${escapeHtml(displayName(item, null))}">
-        <span class="ph"><img src="${escapeHtml(imageMap[item.sku_id])}" alt="" loading="lazy" onerror="this.closest('.pin').remove()"></span>
-        <span class="stamp${region === 'JP' ? '' : ' overseas'}">${escapeHtml(t('stamp' + region))}</span>
-        <span class="price-tag">${tagPrice(item)}</span>
-        <span class="cap">${escapeHtml(displayName(item, null))}</span>
-      </button>`;
-    }).join('') + `<div class="board-note">${escapeHtml(t('boardNote'))}</div>`;
-    board.hidden = false;
-    board.addEventListener('click', (e) => { const pin = e.target.closest('.pin[data-sku]'); if (pin) openItem(pin.dataset.sku); });
-  } catch { /* no board if the catalog can't be read; the grid shows the error */ }
-}
 els.panelRoll.addEventListener('click', rollSurprise);
 
 window.addEventListener('scroll', () => {
@@ -2302,7 +2372,6 @@ if (skuFromHash()) openItem(skuFromHash());
 renderSeasonShelf();
 initMusic();
 initGacha();
-renderBoard();
 initBatToggle();
 startBats();
 document.addEventListener('visibilitychange', () => { if (!document.hidden && batLayer) scheduleNextBat(); });
@@ -2332,5 +2401,6 @@ const GREETINGS = [
   box.hidden = false;
 })();
 </script>
+<script src="./shelf-hero.js" defer></script>
 </body>
 </html>
