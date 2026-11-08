@@ -12,3 +12,5 @@ dist
 # 商品ごとの静的ページと sitemap（scripts/build-item-pages.mjs がデプロイ時に作る生成物）
 web/*/item/
 web/sitemap.xml
+# カードの棚のデータ（scripts/build-shelf.mjs がデプロイ時に作る生成物）
+web/*/shelf.json

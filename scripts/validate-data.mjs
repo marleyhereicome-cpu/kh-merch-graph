@@ -97,6 +97,63 @@ const ENUMS = {
   },
 };
 
+// ---------------------------------------------------------------------------
+// 値の分布のチェック（KAI-004 型、2026-11-08）
+// 主要列の値を数え、(1) 決まった語彙から外れた値、(2) 大文字小文字・空白・ハイフン・アンダースコアの違いだけの
+// 「表記ゆれ疑い」（例: "Kingdom Hearts" と "kingdom-hearts"）を見つける。
+// 依頼：claude/コーディングセッション引き継ぎ_カードの棚本番化とKAI-004チェック_2026-11-08.md（Python 版の設計を JS に移したもの）。
+// - 語彙外の値は ENUMS の checkEnums が既にエラーにしているので、ここでは ip（作品）だけを見る。
+// - 表記ゆれ疑いは警告（すぐには止めない）。
+// - edition はゲーム行だけ（acquisition_type=game）。ゲーム機とソフトのセット（set で platform あり）も
+//   これまでどおり認める。それ以外の行の edition は従来どおり警告（既存の2行があるため、エラーにはしていない）。
+
+// カタログに入っている・入れる予定の作品。新しい作品に着手するときは必ずここに足す
+// （scripts/build-item-pages.mjs の SERIES と同じ並び。tests/validate-data.test.ts で一致を確かめる）。
+export const KNOWN_IPS = ["kingdom-hearts", "kimetsu-no-yaiba", "one-piece"];
+export const DISTRIBUTION_COLUMNS = ["ip", "official", "verified", "region", "acquisition_type", "price_basis", "availability_hint"];
+
+const variantKey = (v) => String(v).trim().toLowerCase().replace(/[\s\-_]+/g, "");
+
+/**
+ * 行の配列（CSV を読んだもの）を受け取り、問題の一覧を返す。
+ * 種類: unknown_ip（エラー）、possible_variant（警告）。
+ */
+export function checkValueDistributions(rows, columns = DISTRIBUTION_COLUMNS, knownIps = KNOWN_IPS) {
+  const issues = [];
+  for (const col of columns) {
+    const counts = new Map();
+    for (const r of rows) {
+      const v = r[col] ?? "";
+      if (v !== "") counts.set(v, (counts.get(v) ?? 0) + 1);
+    }
+    if (col === "ip") {
+      for (const [value, count] of counts) {
+        if (!knownIps.includes(value)) issues.push({ type: "unknown_ip", column: col, value, count });
+      }
+    }
+    const groups = new Map();
+    for (const value of counts.keys()) {
+      const k = variantKey(value);
+      if (!groups.has(k)) groups.set(k, []);
+      groups.get(k).push(value);
+    }
+    for (const variants of groups.values()) {
+      if (variants.length > 1) {
+        variants.sort((a, b) => counts.get(b) - counts.get(a));
+        issues.push({ type: "possible_variant", column: col, variants, counts: Object.fromEntries(variants.map((v) => [v, counts.get(v)])) });
+      }
+    }
+  }
+  return issues;
+}
+
+function formatDistributionIssue(i) {
+  if (i.type === "unknown_ip") {
+    return `  ✗ ip="${i.value}"（${i.count}行）は登録されていない作品です。表記ゆれでなければ scripts/validate-data.mjs の KNOWN_IPS に足してください: ${KNOWN_IPS.join(", ")}`;
+  }
+  return `  ! ${i.column} に表記ゆれの疑いがあります: ${i.variants.map((v) => `"${v}"（${i.counts[v]}行）`).join(" / ")}`;
+}
+
 function checkEnums(filename, records) {
   const errors = [];
   const fields = ENUMS[filename];
@@ -373,6 +430,23 @@ function main() {
     }
   }
 
+  // 値の分布（KAI-004 型）：作品名の登録漏れと表記ゆれ。catalog.csv と product_lines.csv の両方を見る。
+  for (const filename of ["catalog.csv", "product_lines.csv"]) {
+    if (!loaded[filename]) continue;
+    const { records } = loaded[filename];
+    const cols = DISTRIBUTION_COLUMNS.filter((c) => loaded[filename].header.includes(c));
+    const issues = checkValueDistributions(records, cols);
+    const noIp = filename === "product_lines.csv" ? records.filter((r) => !r.ip).map((r) => r.line_id) : [];
+    if (issues.length > 0 || noIp.length > 0) {
+      console.log(`## ${filename} の値の分布（作品名・表記ゆれ）`);
+      issues.forEach((i) => console.log(formatDistributionIssue(i)));
+      if (noIp.length > 0) console.log(`  ! ip が空欄のラインが ${noIp.length} 行あります（商品の ip との突き合わせができません）: ${noIp.join(", ")}`);
+      errorCount += issues.filter((i) => i.type === "unknown_ip").length;
+      warningCount += issues.filter((i) => i.type !== "unknown_ip").length + (noIp.length > 0 ? 1 : 0);
+      console.log("");
+    }
+  }
+
   // typical_channels の値が channels.csv の channel_name にあるか（販路の表記ゆれを早めに見つけるため）。
   // Web版（discover.html）の別名対応表は表示側の応急処置なので、データ側のずれはここで知らせる。
   if (loaded["catalog.csv"] && loaded["channels.csv"]) {
@@ -415,6 +489,9 @@ function main() {
   if (errorCount === 0 && warningCount === 0) {
     console.log("問題は見つかりませんでした。");
   }
+  // エラーがあれば終了コードを 1 にする（deploy.yml の「validate が落ちたら公開しない」を実際に効かせる。2026-11-08 まではいつも 0 だった）
+  if (errorCount > 0) process.exitCode = 1;
 }
 
-main();
+// テストから関数だけを読み込めるよう、直接実行したときだけ動かす
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) main();
