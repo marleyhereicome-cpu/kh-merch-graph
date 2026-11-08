@@ -36,12 +36,19 @@ const testLines = [...productLines, opLine];
 const testTerms = [...ipTerms, opIpTerm];
 
 describe("other_ip_keywords: カタログに入った作品の語は自動で外す", () => {
-  it("今のカタログ（キングダム ハーツ＋鬼滅の刃、2026-11-03〜）では、鬼滅は外れ、ワンピースは他作品のまま", () => {
-    const words = otherIpKeywords.map((k) => k.keyword);
-    expect(words).not.toContain("鬼滅の刃");
-    expect(words).not.toContain("きめつのやいば");
-    expect(words).toContain("ワンピース");
-    expect(words).toContain("ドラゴンボール");
+  // カタログの中身（どの作品が入っているか）に左右されないよう、ip 列のある語を1つずつ確かめる
+  // （2026-11-08、ONE PIECE 第1便で「ワンピースは他作品のまま」という前提が崩れたため一般化。伊黒小芭内のとき（PR #77）と同じ考え方）。
+  it("今のカタログに商品がある作品の語は外れ、商品が無い作品の語は他作品のまま残る", () => {
+    const inCatalog = new Set(catalog.map((s) => s.ip));
+    const active = new Set(otherIpKeywords.map((k) => k.keyword));
+    const withIp = otherIpKeywordsAll.filter((k) => k.ip);
+    expect(withIp.length).toBeGreaterThan(0);
+    for (const k of withIp) {
+      expect({ keyword: k.keyword, kept: active.has(k.keyword) }).toEqual({ keyword: k.keyword, kept: !inCatalog.has(k.ip!) });
+    }
+    // 鬼滅の刃（2026-11-03〜カタログにある）は外れ、カタログに入る予定のない作品は残る
+    expect(active).not.toContain("鬼滅の刃");
+    expect(active).toContain("ドラゴンボール");
   });
 
   it("ONE PIECE の商品が入ると、ip 列が one-piece の語（ワンピース・ONE PIECE）も外れる", () => {
