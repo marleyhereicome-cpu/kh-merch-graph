@@ -26,3 +26,4 @@ kingdom-hearts,ドナルド,ドナルドダック,Donald Duck,character,
 kingdom-hearts,グーフィー,,Goofy,character,
 kingdom-hearts,シャドウ,,Shadow,character,ハートレスの一種（catalog.csvのcharacter列由来）
 kimetsu-no-yaiba,鬼滅の刃,鬼滅|きめつのやいば|Kimetsu no Yaiba|KIMETSU NO YAIBA,Demon Slayer,other,作品名。IPアンカー語（出品文にこれがあれば鬼滅の刃関連とみなす）。2026-11-03 第1便のマージ時に追加
+one-piece,ワンピース,ONE PIECE|One Piece|ONEPIECE|ワンピ,One Piece,other,作品名。IPアンカー語（出品文にこれがあればONE PIECE関連とみなす）。2026-11-08 第1便のマージ時に追加
