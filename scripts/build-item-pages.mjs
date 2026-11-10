@@ -110,6 +110,44 @@ const CHANNEL_LABEL = {
 // 日本国内にしか発送しないショップ（カタログページの CHANNELS で proxy: true のもの）
 const JAPAN_ONLY = new Set(["mercari", "yahoo_auctions", "surugaya", "mandarake", "e-store", "square_enix_estore"]);
 
+// ---- ページ共通の見た目（商品ページ・まとめページ） ----
+const PAGE_CSS = `  :root { color-scheme: light; --paper: #F7F3EC; --ink: #1C1B29; --ink-soft: #5A5646; --muted: #8A806B; --line: #E4DCC8; --line-2: #C9BBA0; --navy: #3D4A73; --gold: #C9A227; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif; background: var(--paper); color: var(--ink); line-height: 1.7; }
+  a { color: var(--navy); } a:hover { color: var(--gold); }
+  header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 24px; border-bottom: 1px solid var(--line); }
+  .brand { font-family: Georgia, "Hiragino Mincho ProN", serif; font-size: 22px; font-weight: 700; color: var(--ink); text-decoration: none; }
+  nav a { font-size: 13px; margin-left: 14px; }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 24px 40px; }
+  .crumbs { font-size: 12px; color: var(--muted); }
+  h1 { font-family: Georgia, "Hiragino Mincho ProN", serif; font-size: clamp(22px, 4vw, 30px); line-height: 1.35; margin: 8px 0 4px; }
+  .ja { color: var(--ink-soft); margin: 0; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+  .tag { font-size: 12px; border: 1px solid var(--line); background: #fff; border-radius: 4px; padding: 2px 8px; }
+  .tag.fan { background: #EFEAF6; color: #4A3B73; border-color: #DDD3EE; }
+  .photo { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px; max-width: 320px; margin: 16px 0 4px; }
+  .photo img { width: 100%; height: auto; display: block; }
+  .credit { font-size: 11px; color: var(--muted); }
+  section { border-top: 1px solid var(--line); margin-top: 18px; padding-top: 12px; }
+  h2 { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+  p { margin: 0 0 6px; }
+  .price { font-size: 19px; font-weight: 700; }
+  dl { display: grid; grid-template-columns: 130px 1fr; gap: 4px 12px; margin: 0; font-size: 14px; }
+  dt { color: var(--muted); } dd { margin: 0; }
+  .note { font-size: 13px; color: var(--ink-soft); }
+  .cta { display: inline-block; margin-top: 18px; background: var(--ink); color: var(--paper); text-decoration: none; border-radius: 999px; padding: 10px 20px; font-size: 14px; }
+  .cta:hover { background: var(--navy); color: var(--paper); }
+  footer { max-width: 760px; margin: 0 auto; padding: 18px 24px 40px; border-top: 1px solid var(--line); font-size: 11px; color: var(--muted); }
+  @media (max-width: 640px) { header, main, footer { padding-left: 16px; padding-right: 16px; } dl { grid-template-columns: 100px 1fr; } }
+  .related ul, .list ul { list-style: none; margin: 0; padding: 0; }
+  .related li, .list li { padding: 6px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
+  .related li:last-child, .list li:last-child { border-bottom: 0; }
+  .related .more, .list .meta { font-size: 12px; color: var(--muted); }
+  .lead { font-size: 15px; color: var(--ink-soft); }
+  .cols { columns: 2 220px; column-gap: 24px; }
+  .cols li { break-inside: avoid; }
+`;
+
 // ---- 小さな道具 ----
 const esc = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -200,7 +238,7 @@ export function titleSuffixes(items, lines) {
 }
 
 // ---- 1商品ぶんのページ ----
-function renderItem(s, line, images, series, titleSuffix = "") {
+function renderItem(s, line, images, series, titleSuffix = "", related = "") {
   const CATALOG_PATH = series.path;
   const official = isTrue(s.official);
   const verified = isTrue(s.verified);
@@ -311,35 +349,7 @@ ${img ? `<meta property="og:image" content="${esc(img.url)}" />\n<meta name="twi
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 <script type="application/ld+json">${ldText}</script>
 <style>
-  :root { color-scheme: light; --paper: #F7F3EC; --ink: #1C1B29; --ink-soft: #5A5646; --muted: #8A806B; --line: #E4DCC8; --line-2: #C9BBA0; --navy: #3D4A73; --gold: #C9A227; }
-  * { box-sizing: border-box; }
-  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif; background: var(--paper); color: var(--ink); line-height: 1.7; }
-  a { color: var(--navy); } a:hover { color: var(--gold); }
-  header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 24px; border-bottom: 1px solid var(--line); }
-  .brand { font-family: Georgia, "Hiragino Mincho ProN", serif; font-size: 22px; font-weight: 700; color: var(--ink); text-decoration: none; }
-  nav a { font-size: 13px; margin-left: 14px; }
-  main { max-width: 760px; margin: 0 auto; padding: 24px 24px 40px; }
-  .crumbs { font-size: 12px; color: var(--muted); }
-  h1 { font-family: Georgia, "Hiragino Mincho ProN", serif; font-size: clamp(22px, 4vw, 30px); line-height: 1.35; margin: 8px 0 4px; }
-  .ja { color: var(--ink-soft); margin: 0; }
-  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
-  .tag { font-size: 12px; border: 1px solid var(--line); background: #fff; border-radius: 4px; padding: 2px 8px; }
-  .tag.fan { background: #EFEAF6; color: #4A3B73; border-color: #DDD3EE; }
-  .photo { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px; max-width: 320px; margin: 16px 0 4px; }
-  .photo img { width: 100%; height: auto; display: block; }
-  .credit { font-size: 11px; color: var(--muted); }
-  section { border-top: 1px solid var(--line); margin-top: 18px; padding-top: 12px; }
-  h2 { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
-  p { margin: 0 0 6px; }
-  .price { font-size: 19px; font-weight: 700; }
-  dl { display: grid; grid-template-columns: 130px 1fr; gap: 4px 12px; margin: 0; font-size: 14px; }
-  dt { color: var(--muted); } dd { margin: 0; }
-  .note { font-size: 13px; color: var(--ink-soft); }
-  .cta { display: inline-block; margin-top: 18px; background: var(--ink); color: var(--paper); text-decoration: none; border-radius: 999px; padding: 10px 20px; font-size: 14px; }
-  .cta:hover { background: var(--navy); color: var(--paper); }
-  footer { max-width: 760px; margin: 0 auto; padding: 18px 24px 40px; border-top: 1px solid var(--line); font-size: 11px; color: var(--muted); }
-  @media (max-width: 640px) { header, main, footer { padding-left: 16px; padding-right: 16px; } dl { grid-template-columns: 100px 1fr; } }
-</style>
+${PAGE_CSS}</style>
 </head>
 <body>
 <header>
@@ -381,6 +391,8 @@ ${img ? `<meta property="og:image" content="${esc(img.url)}" />\n<meta name="twi
     ${sources.length ? `<ul>${sources.map((u) => `<li><a href="${esc(u)}" rel="noopener nofollow">${esc(hostOf(u))}</a></li>`).join("")}</ul>` : ""}
   </section>
 
+  ${related}
+
   <a class="cta" href="${esc(catalogLink)}">See it in the catalog (search links, share, report a mistake) ›</a>
 </main>
 <footer>
@@ -392,6 +404,269 @@ ${img ? `<meta property="og:image" content="${esc(img.url)}" />\n<meta name="twi
 `;
 }
 
+// ---- まとめページと、商品ページどうしのリンク（2026-11-10） ----
+// 商品ページへ届く道を作る。カタログ（例: /kingdomhearts/）は JS でカードを描くので、配信 HTML から商品ページへのリンクが無かった。
+//   <作品>/series/<line_id>       商品ライン（例：一番くじの各弾）ごと。商品が MIN_COLLECTION 件以上のときだけ
+//   <作品>/character/<slug>       キャラクター（catalog.csv の character_en、| 区切り）ごと。同じく MIN_COLLECTION 件以上
+//   <作品>/browse                 上の一覧と、全商品へのリンク（どのまとめにも入らない商品もここから辿れる）
+// 冒頭の文はデータの列から組み立てる（書き下ろしの文章は入れない）。構造化データは ItemList。どれも sitemap に載せる。
+export const MIN_COLLECTION = 3;
+const RELATED_PER_GROUP = 6;
+
+export const slugOf = (v) =>
+  String(v).normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+const seriesPagePath = (series, lineId) => `${series.path}series/${encodeURIComponent(lineId)}`;
+const characterPagePath = (series, slug) => `${series.path}character/${encodeURIComponent(slug)}`;
+const browsePath = (series) => `${series.path}browse`;
+const charactersOf = (s) => splitPipe(s.character_en);
+const nameOf = (s) => s.name_en || s.name_ja || s.sku_id;
+const yearOf = (d) => (/^\d{4}/.test(d || "") ? d.slice(0, 4) : "");
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+function fmtDate(d) {
+  const [y, m, dd] = String(d || "").split("-");
+  if (!y) return "";
+  if (!m) return y;
+  return dd ? `${MONTHS[+m - 1]} ${+dd}, ${y}` : `${MONTHS[+m - 1]} ${y}`;
+}
+
+// 作品ごとのまとめ（ライン・キャラクター）を作る。どちらも商品の並びは catalog.csv の順。
+export function collectionsFor(items, lines, series) {
+  const byLine = new Map();
+  const byChar = new Map();
+  for (const s of items) {
+    if (!byLine.has(s.line_id)) byLine.set(s.line_id, []);
+    byLine.get(s.line_id).push(s);
+    for (const c of charactersOf(s)) {
+      const slug = slugOf(c);
+      if (!slug) continue;
+      if (!byChar.has(slug)) byChar.set(slug, { names: new Map(), items: [] });
+      const g = byChar.get(slug);
+      g.names.set(c, (g.names.get(c) ?? 0) + 1);
+      if (!g.items.includes(s)) g.items.push(s);
+    }
+  }
+  const seriesPages = [...byLine.entries()]
+    // ラインに名前（name_en か name_ja）が無いものは、見出しが作れないので作らない
+    .filter(([id, v]) => id && v.length >= MIN_COLLECTION && (lines.get(id)?.name_en || lines.get(id)?.name_ja))
+    .map(([id, v]) => ({ kind: "series", id, line: lines.get(id), items: v, path: seriesPagePath(series, id) }));
+  const characterPages = [...byChar.entries()]
+    .filter(([, g]) => g.items.length >= MIN_COLLECTION)
+    .map(([slug, g]) => ({
+      kind: "character",
+      id: slug,
+      // 表記が複数あるときは、いちばん多い書き方を見出しに使う
+      name: [...g.names.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0][0],
+      items: g.items,
+      path: characterPagePath(series, slug),
+    }));
+  return { seriesPages, characterPages };
+}
+
+const priceRange = (items) => {
+  const prices = items.map((s) => ({ s, p: priceInfo(s) })).filter((x) => x.p.amount);
+  if (prices.length === 0) return "";
+  const draws = prices.filter((x) => x.s.price_basis === "draw_price");
+  if (draws.length === prices.length) {
+    const set = [...new Set(draws.map((x) => money(x.p.amount, x.p.currency)))];
+    return set.length === 1 ? `One draw cost ${set[0]}.` : `One draw cost ${set.join(" or ")}.`;
+  }
+  const yen = prices.map((x) => Number(x.s.msrp_jpy)).filter((n) => n > 0).sort((a, b) => a - b);
+  const lo = Math.round(yen[0]), hi = Math.round(yen[yen.length - 1]);
+  const fmt = (n) => `¥${n.toLocaleString("en-US")}`;
+  return lo === hi ? `Original price: ${fmt(lo)}${prices.length > 1 ? " each" : ""}.` : `Original prices range from ${fmt(lo)} to ${fmt(hi)}.`;
+};
+
+// まとめページの冒頭の2〜3文（データの列だけで組み立てる）
+export function collectionIntro(page, series, lines) {
+  const n = page.items.length;
+  if (page.kind === "series") {
+    const l = page.line;
+    const acq = l.acquisition_type || page.items[0]?.acquisition_type || "";
+    const isKuji = acq === "kuji";
+    const ja = l.name_ja && l.name_ja !== l.name_en ? ` (${l.name_ja})` : "";
+    const by = l.maker ? ` by ${l.maker}` : "";
+    const first = isKuji
+      ? `${l.name_en || l.name_ja}${ja} is a ${series.name} lottery-style draw (Ichiban Kuji)${by}${l.release_date ? `, released ${fmtDate(l.release_date)}` : ""}.`
+      : `${l.name_en || l.name_ja}${ja} is a ${series.name} product line${by}${ACQ_LABEL[acq] ? ` (${ACQ_LABEL[acq]})` : ""}${l.release_date ? `, first released ${fmtDate(l.release_date)}` : ""}.`;
+    const count = isKuji ? `It has ${n} prizes listed here.` : `${n} items are listed here.`;
+    return [first, [priceRange(page.items), count].filter(Boolean).join(" ")].join(" ");
+  }
+  const lineIds = new Set(page.items.map((s) => s.line_id));
+  const years = page.items.map((s) => yearOf(lines.get(s.line_id)?.release_date)).filter(Boolean).sort();
+  const span = years.length ? (years[0] === years[years.length - 1] ? `, released in ${years[0]}` : `, released between ${years[0]} and ${years[years.length - 1]}`) : "";
+  const official = page.items.filter((s) => isTrue(s.official)).length;
+  return `${n} ${series.name} items featuring ${page.name}, from ${lineIds.size} product ${lineIds.size === 1 ? "line" : "lines"}${span}. ${official === n ? "All are official merchandise." : `${official} are official merchandise; the rest are fan-made and labelled as such.`}`;
+}
+
+function itemListLi(s, series, lines) {
+  const line = lines.get(s.line_id);
+  const p = priceInfo(s);
+  const meta = [
+    isTrue(s.official) ? ACQ_LABEL[s.acquisition_type] : "Unofficial · fan-made",
+    line?.release_date ? yearOf(line.release_date) : "",
+    p.amount ? p.text.replace(/ \(the prize itself was not sold separately\)$/, "") : "",
+  ].filter(Boolean);
+  return `<li><a href="${esc(itemPathIn(series, s.sku_id))}">${esc(nameOf(s))}</a>${meta.length ? ` <span class="meta">· ${esc(meta.join(" · "))}</span>` : ""}</li>`;
+}
+
+function pageShell({ series, title, description, url, ld, crumbs, body }) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>${esc(title)}</title>
+<meta name="description" content="${esc(description)}" />
+<link rel="canonical" href="${esc(url)}" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Merchgraph" />
+<meta property="og:title" content="${esc(title)}" />
+<meta property="og:description" content="${esc(description)}" />
+<meta property="og:url" content="${esc(url)}" />
+<meta name="twitter:card" content="summary" />
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}</script>
+<style>
+${PAGE_CSS}</style>
+</head>
+<body>
+<header>
+  <a class="brand" href="/">Merchgraph</a>
+  <nav><a href="${series.path}">Browse the catalog</a><a href="${series.path}check?src=item">Check a listing</a></nav>
+</header>
+<main>
+  <div class="crumbs">${crumbs.map(([n, h]) => (h ? `<a href="${esc(h)}">${esc(n)}</a>` : esc(n))).join(" › ")}</div>
+${body}
+</main>
+<footer>
+  <p>An independent fan project. Not affiliated with, endorsed or sponsored by ${esc(series.rights)}, or any maker, shop, marketplace or shipping service mentioned here. Nothing is sold on this site.</p>
+  <p>${esc(series.name)} and all related names, characters, logos and artwork belong to their respective owners. Prices and availability are for reference and may be out of date. Rights holders: legal@merchgraph.app</p>
+</footer>
+</body>
+</html>
+`;
+}
+
+const breadcrumbLd = (list) => ({
+  "@type": "BreadcrumbList",
+  itemListElement: list.map(([name, item], i) => ({ "@type": "ListItem", position: i + 1, name, item })),
+});
+const itemListLd = (name, url, items, series) => ({
+  "@type": "ItemList",
+  "@id": `${url}#list`,
+  name,
+  url,
+  numberOfItems: items.length,
+  itemListElement: items.map((s, i) => ({ "@type": "ListItem", position: i + 1, url: ORIGIN + itemPathIn(series, s.sku_id), name: nameOf(s) })),
+});
+
+function renderCollection(page, series, lines) {
+  const url = ORIGIN + page.path;
+  const heading = page.kind === "series"
+    ? page.line.name_en || page.line.name_ja
+    : `${page.name} merchandise`;
+  const intro = collectionIntro(page, series, lines);
+  const title = `${heading} | Merchgraph | ${series.name}`;
+  const browse = ORIGIN + browsePath(series);
+  const ld = {
+    "@context": "https://schema.org",
+    "@graph": [
+      itemListLd(heading, url, page.items, series),
+      breadcrumbLd([["Merchgraph", `${ORIGIN}/`], [series.name, ORIGIN + series.path], ["Browse", browse], [heading, url]]),
+    ],
+  };
+  const ja = page.kind === "series" && page.line.name_ja && page.line.name_ja !== page.line.name_en ? `<p class="ja" lang="ja">${esc(page.line.name_ja)}</p>` : "";
+  const body = `  <h1>${esc(heading)}</h1>
+  ${ja}
+  <p class="lead">${esc(intro)}</p>
+  <section class="list">
+    <h2>${page.kind === "series" && (page.line.acquisition_type === "kuji") ? "Prizes" : "Items"} (${page.items.length})</h2>
+    <ul>${page.items.map((s) => itemListLi(s, series, lines)).join("")}</ul>
+  </section>
+  <p class="note"><a href="${esc(browsePath(series))}">Browse all ${esc(series.name)} series and characters ›</a></p>`;
+  return pageShell({
+    series, title, description: intro, url, ld, body,
+    crumbs: [["Merchgraph", "/"], [series.name, series.path], ["Browse", browsePath(series)], [heading, ""]],
+  });
+}
+
+function renderBrowse(series, items, lines, { seriesPages, characterPages }) {
+  const url = ORIGIN + browsePath(series);
+  const title = `Browse all ${series.name} merchandise | Merchgraph`;
+  const intro = `${items.length} ${series.name} items in the catalog: ${seriesPages.length} product lines and ${characterPages.length} characters with ${MIN_COLLECTION} or more items each have their own page, and every item is listed below.`;
+  const sortedSeries = [...seriesPages].sort((a, b) => (b.line.release_date || "").localeCompare(a.line.release_date || "") || a.id.localeCompare(b.id));
+  const sortedChars = [...characterPages].sort((a, b) => b.items.length - a.items.length || a.name.localeCompare(b.name));
+  // 全商品：商品の種類（ライン の line_type）ごと、名前順
+  const byType = new Map();
+  for (const s of items) {
+    const t = lines.get(s.line_id)?.line_type || "other";
+    if (!byType.has(t)) byType.set(t, []);
+    byType.get(t).push(s);
+  }
+  const types = [...byType.keys()].sort();
+  const ld = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "ItemList",
+        "@id": `${url}#collections`,
+        name: `${series.name} product lines and characters`,
+        numberOfItems: seriesPages.length + characterPages.length,
+        itemListElement: [...sortedSeries.map((p) => [p.line.name_en || p.line.name_ja, p.path]), ...sortedChars.map((p) => [`${p.name} merchandise`, p.path])]
+          .map(([name, path], i) => ({ "@type": "ListItem", position: i + 1, url: ORIGIN + path, name })),
+      },
+      breadcrumbLd([["Merchgraph", `${ORIGIN}/`], [series.name, ORIGIN + series.path], ["Browse", url]]),
+    ],
+  };
+  const body = `  <h1>Browse all ${esc(series.name)} merchandise</h1>
+  <p class="lead">${esc(intro)}</p>
+  <section class="list" id="series">
+    <h2>By product line (${sortedSeries.length})</h2>
+    <ul class="cols">${sortedSeries.map((p) => `<li><a href="${esc(p.path)}">${esc(p.line.name_en || p.line.name_ja)}</a> <span class="meta">· ${p.items.length}${p.line.release_date ? ` · ${yearOf(p.line.release_date)}` : ""}</span></li>`).join("")}</ul>
+  </section>
+  <section class="list" id="characters">
+    <h2>By character (${sortedChars.length})</h2>
+    <ul class="cols">${sortedChars.map((p) => `<li><a href="${esc(p.path)}">${esc(p.name)}</a> <span class="meta">· ${p.items.length}</span></li>`).join("")}</ul>
+  </section>
+  <section class="list" id="items">
+    <h2>Every item (${items.length})</h2>
+    ${types.map((t) => `<h3 class="note">${esc(t)} (${byType.get(t).length})</h3><ul class="cols">${byType.get(t).slice().sort((a, b) => nameOf(a).localeCompare(nameOf(b))).map((s) => `<li><a href="${esc(itemPathIn(series, s.sku_id))}">${esc(nameOf(s))}</a></li>`).join("")}</ul>`).join("\n    ")}
+  </section>`;
+  return pageShell({ series, title, description: intro, url, ld, body, crumbs: [["Merchgraph", "/"], [series.name, series.path], ["Browse", ""]] });
+}
+
+// 商品ページの「同じシリーズ」「同じキャラクター」。並びの中で自分の次から数件（最後まで行ったら先頭へ）を選ぶ。
+// こうすると、どの商品も同じ組の誰かから必ずリンクされる。
+function neighbors(list, s, k) {
+  const i = list.indexOf(s);
+  const out = [];
+  for (let j = 1; j < list.length && out.length < k; j++) out.push(list[(i + j) % list.length]);
+  return out;
+}
+export function relatedFor(s, ctx) {
+  const { series, lines, byLine, byCharSlug, pageByLine, pageByChar } = ctx;
+  const groups = [];
+  const shown = new Set([s.sku_id]);
+  const lineItems = byLine.get(s.line_id) ?? [];
+  if (lineItems.length > 1) {
+    const pick = neighbors(lineItems, s, RELATED_PER_GROUP);
+    pick.forEach((x) => shown.add(x.sku_id));
+    const line = lines.get(s.line_id);
+    groups.push({ title: `More from ${line?.name_en || line?.name_ja || "this series"}`, items: pick, all: pageByLine.get(s.line_id), total: lineItems.length });
+  }
+  for (const c of charactersOf(s).slice(0, 2)) {
+    const slug = slugOf(c);
+    const pool = (byCharSlug.get(slug) ?? []);
+    const pick = neighbors(pool, s, RELATED_PER_GROUP + shown.size).filter((x) => !shown.has(x.sku_id)).slice(0, RELATED_PER_GROUP);
+    if (pick.length === 0) continue;
+    pick.forEach((x) => shown.add(x.sku_id));
+    groups.push({ title: `More with ${c}`, items: pick, all: pageByChar.get(slug), total: pool.length });
+  }
+  if (groups.length === 0) return "";
+  return groups.map((g) => `<section class="related"><h2>${esc(g.title)}</h2><ul>${g.items.map((x) => `<li><a href="${esc(itemPathIn(series, x.sku_id))}">${esc(nameOf(x))}</a></li>`).join("")}</ul>${g.all ? `<p class="more"><a href="${esc(g.all.path)}">See all ${g.total} ›</a></p>` : ""}</section>`).join("\n  ");
+}
+
 // ---- 実行 ----
 export function buildItemPages({ write = true, series = SERIES } = {}) {
   const catalog = readJson("src/data/catalog.json");
@@ -399,14 +674,41 @@ export function buildItemPages({ write = true, series = SERIES } = {}) {
   const live = series.filter((x) => x.publish);
 
   const pages = [];
+  const collections = [];
   // ルート（/）は作品を選ぶハブページ（2026-11-02〜）。
   const urls = [`${ORIGIN}/`];
   for (const x of live) {
     const images = readJsonOr(x.images, {});
     const items = catalog.filter((s) => s.ip === x.ip);
     const suffixes = titleSuffixes(items, lines);
-    for (const s of items) pages.push({ sku: s.sku_id, series: x, html: renderItem(s, lines.get(s.line_id), images, x, suffixes.get(s.sku_id)) });
-    urls.push(`${ORIGIN}${x.path}`, `${ORIGIN}${x.path}check`, ...items.map((s) => ORIGIN + itemPathIn(x, s.sku_id)));
+    const cols = collectionsFor(items, lines, x);
+    const byLine = new Map();
+    const byCharSlug = new Map();
+    for (const s of items) {
+      if (!byLine.has(s.line_id)) byLine.set(s.line_id, []);
+      byLine.get(s.line_id).push(s);
+      for (const c of charactersOf(s)) {
+        const slug = slugOf(c);
+        if (!slug) continue;
+        if (!byCharSlug.has(slug)) byCharSlug.set(slug, []);
+        if (!byCharSlug.get(slug).includes(s)) byCharSlug.get(slug).push(s);
+      }
+    }
+    const ctx = {
+      series: x, lines, byLine, byCharSlug,
+      pageByLine: new Map(cols.seriesPages.map((p) => [p.id, p])),
+      pageByChar: new Map(cols.characterPages.map((p) => [p.id, p])),
+    };
+    for (const s of items) {
+      pages.push({ sku: s.sku_id, series: x, html: renderItem(s, lines.get(s.line_id), images, x, suffixes.get(s.sku_id), relatedFor(s, ctx)) });
+    }
+    const collectionPages = [...cols.seriesPages, ...cols.characterPages].map((p) => ({ ...p, series: x, html: renderCollection(p, x, lines) }));
+    collections.push(...collectionPages, { kind: "browse", id: "browse", path: browsePath(x), series: x, html: renderBrowse(x, items, lines, cols) });
+    urls.push(
+      `${ORIGIN}${x.path}`, `${ORIGIN}${x.path}check`, ORIGIN + browsePath(x),
+      ...collectionPages.map((p) => ORIGIN + p.path),
+      ...items.map((s) => ORIGIN + itemPathIn(x, s.sku_id)),
+    );
   }
   const today = new Date().toISOString().slice(0, 10);
   const sitemap =
@@ -416,16 +718,32 @@ export function buildItemPages({ write = true, series = SERIES } = {}) {
 
   if (write) {
     // 準備中の作品の古い生成物も消す（公開をやめた作品の商品ページが残らないように）。
-    for (const x of series) rmSync(itemDirOf(x), { recursive: true, force: true });
+    for (const x of series) {
+      rmSync(itemDirOf(x), { recursive: true, force: true });
+      rmSync(join(ROOT, "web", x.path, "series"), { recursive: true, force: true });
+      rmSync(join(ROOT, "web", x.path, "character"), { recursive: true, force: true });
+      rmSync(join(ROOT, "web", x.path, "browse.html"), { force: true });
+    }
     for (const x of live) mkdirSync(itemDirOf(x), { recursive: true });
     for (const p of pages) writeFileSync(join(itemDirOf(p.series), `${p.sku}.html`), p.html);
+    for (const c of collections) {
+      const file = join(ROOT, "web", `${decodeURIComponent(c.path)}.html`);
+      mkdirSync(dirname(file), { recursive: true });
+      writeFileSync(file, c.html);
+    }
     writeFileSync(join(ROOT, "web/sitemap.xml"), sitemap);
   }
-  return { pages: pages.map(({ sku, series: x, html }) => ({ sku, ip: x.ip, html })), sitemap };
+  return {
+    pages: pages.map(({ sku, series: x, html }) => ({ sku, ip: x.ip, html })),
+    collections: collections.map(({ kind, id, path, series: x, html, items }) => ({ kind, id, path, ip: x.ip, html, count: items?.length ?? 0 })),
+    sitemap,
+  };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const { pages } = buildItemPages();
+  const { pages, collections } = buildItemPages();
   const dirs = SERIES.filter((x) => x.publish).map((x) => `web${x.path}item/`).join(", ");
+  const n = (k) => collections.filter((c) => c.kind === k).length;
   console.log(`✓ ${pages.length} item pages → ${dirs}, sitemap → web/sitemap.xml`);
+  console.log(`✓ collection pages: ${n("series")} series, ${n("character")} characters, ${n("browse")} browse`);
 }

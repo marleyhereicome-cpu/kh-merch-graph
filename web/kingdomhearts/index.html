@@ -550,6 +550,7 @@
   footer a { color: inherit; }
   footer .legal { font-size: 11px; line-height: 1.7; color: var(--faint); }
   footer .legal p { margin: 0 0 6px; }
+  footer .browse-links { margin: 0 0 10px; }
 
   .to-top {
     position: fixed; right: 20px; bottom: 20px; z-index: 6;
@@ -800,6 +801,8 @@
 </section>
 
 <footer>
+  <!-- 商品ページへ JS なしでも辿れる道（2026-11-10）。一覧ページは scripts/build-item-pages.mjs がデプロイ時に作る。 -->
+  <nav class="browse-links" aria-label="Browse"><span data-i18n="browseLabel">Browse every item:</span> <a href="/kingdomhearts/browse#series" data-i18n="browseSeries">by series</a> · <a href="/kingdomhearts/browse#characters" data-i18n="browseCharacters">by character</a> · <a href="/kingdomhearts/browse#items" data-i18n="browseAll">full list</a></nav>
   <div class="legal">
     <p data-i18n="legal1">An independent fan project. Not affiliated with, endorsed or sponsored by Square Enix, Disney, or any maker, shop, marketplace or shipping service mentioned here. Nothing is sold on this site.</p>
     <p data-i18n-html="legal2">Kingdom Hearts and all related names, characters, logos and artwork belong to their respective owners. Product photos are shown only to identify items, with their source credited. Fan-made items are labelled separately from official merchandise. Prices and availability are for reference and may be out of date.</p>
@@ -972,6 +975,7 @@ const STRINGS = {
     aboutVerifyA: '「確認済み（verified）」の商品は、メーカーの公式サイト、正規販売店、または信頼できるゲームメディア（ファミ通、4Gamerなど）で、価格・発売日・型番を直接確かめています。公式の情報が古い場合や、間接的にしか確かめられない場合は「推定（estimated）」として参考価格を載せ、根拠になった情報源を記しています。メルカリやeBayなど、フリマやオークションの出品写真・価格は根拠にしていません。',
     aboutPriceQ: '「定価」とは？',
     aboutPriceA: '発売時の価格を、発売された国の通貨で表示しています（カッコ内は固定レートで換算した参考値で、最新の為替ではありません）。くじ景品のように単品で売られていないものは、くじ1回分の価格を載せています。いまの中古相場は定価から大きく上下していることが多いので、出品価格が妥当かを判断する目安としてお使いください。',
+    browseLabel: 'すべての商品を見る：', browseSeries: 'シリーズ別', browseCharacters: 'キャラクター別', browseAll: '一覧（英語）',
     legal1: '当サイトはファンが運営する非公式のプロジェクトです。スクウェア・エニックス、ディズニー、およびサイト内で紹介しているメーカー・ショップ・フリマサイト・代行サービスとは一切関係がなく、提携・公認・協賛を受けていません。当サイトでは商品を販売していません。',
     legal2: '「キングダム ハーツ」および関連する名称、キャラクター、ロゴ、イラスト等の権利は、各権利者に帰属します。商品画像は商品を識別する目的に限り、出典を明記して掲載しています。ファンメイドの商品は、公式グッズと区別して表示しています。価格や入手状況は参考情報で、最新ではない場合があります。',
     legal3: '掲載内容の誤りは、各商品の詳細にある報告フォーム、または <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">GitHubのIssue</a> からお知らせください。取材や提携のご相談は <a href="/contact">お問い合わせフォーム</a> から、権利者の方は legal@merchgraph.app までご連絡ください（画像の削除は <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues/new?template=image-takedown.yml" target="_blank" rel="noopener">削除依頼フォーム</a> からも受け付けています）。いずれも速やかに対応します。',

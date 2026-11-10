@@ -1,11 +1,12 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 // @ts-expect-error -- plain .mjs build script without type declarations
-import { buildItemPages, SERIES, titleSuffixes } from "../scripts/build-item-pages.mjs";
+import { buildItemPages, MIN_COLLECTION, SERIES, slugOf, titleSuffixes } from "../scripts/build-item-pages.mjs";
 import { catalog } from "../src/lib/store.js";
 
 // 商品ごとの静的ページ（2026-10-28）：検索エンジン・AI が商品単位で読めるページ。
-const { pages, sitemap } = buildItemPages({ write: false }) as { pages: { sku: string; html: string }[]; sitemap: string };
+type Collection = { kind: string; id: string; path: string; html: string; count: number };
+const { pages, sitemap, collections } = buildItemPages({ write: false }) as { pages: { sku: string; html: string }[]; sitemap: string; collections: Collection[] };
 const ldOf = (html: string) => JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)![1]);
 
 describe("item pages", () => {
@@ -102,5 +103,64 @@ describe("item page titles", () => {
     expect(out.get("b1")).toBe("b1");
     expect(out.has("c1")).toBe(false);
     expect(out.get("d1")).toBe("d1"); // 片方しか埋まっていない列では分けない
+  });
+});
+
+// 商品ページへ届く道（2026-11-10）：まとめページ（ライン・キャラクター）、全商品の一覧、商品ページどうしのリンク。
+describe("collection pages and internal links", () => {
+  const kh = catalog.filter((s) => s.ip === "kingdom-hearts");
+  const browse = collections.find((c) => c.kind === "browse")!;
+  it("there are series and character pages, each with at least MIN_COLLECTION items, in the sitemap", () => {
+    const series = collections.filter((c) => c.kind === "series");
+    const chars = collections.filter((c) => c.kind === "character");
+    expect(series.length).toBeGreaterThan(10);
+    expect(chars.length).toBeGreaterThan(5);
+    for (const c of [...series, ...chars]) {
+      expect(c.count).toBeGreaterThanOrEqual(MIN_COLLECTION);
+      expect(sitemap).toContain(`<loc>https://merchgraph.app${c.path}</loc>`);
+      expect(c.html).toContain(`<link rel="canonical" href="https://merchgraph.app${c.path}" />`);
+      const graph = ldOf(c.html)["@graph"];
+      const list = graph.find((n: any) => n["@type"] === "ItemList");
+      expect(list.numberOfItems).toBe(c.count);
+      expect(list.itemListElement[0].url).toMatch(/^https:\/\/merchgraph\.app\/kingdomhearts\/item\//);
+      expect(c.html).toMatch(/<p class="lead">[^<]{40,}<\/p>/);
+    }
+    expect(sitemap).toContain("<loc>https://merchgraph.app/kingdomhearts/browse</loc>");
+  });
+  it("a lottery series page answers what it is, when, how much per draw and how many prizes", () => {
+    const kuji = collections.find((c) => c.id === "ichiban-kuji-kh-2018")!;
+    expect(kuji.html).toMatch(/is a Kingdom Hearts lottery-style draw \(Ichiban Kuji\) by [^,]+, released [A-Z][a-z]+ \d+, 2018\. One draw cost ¥[\d,]+\. It has \d+ prizes listed here\./);
+  });
+  it("every Kingdom Hearts item page is linked from the browse page (reachable without JS)", () => {
+    for (const s of kh) expect(browse.html).toContain(`href="/kingdomhearts/item/${encodeURIComponent(s.sku_id)}"`);
+    for (const c of collections.filter((c) => c.kind !== "browse")) expect(browse.html).toContain(`href="${c.path}"`);
+  });
+  it("the catalog page links to the browse page in plain HTML", () => {
+    const html = readFileSync("web/kingdomhearts/index.html", "utf8");
+    expect(html).toContain('href="/kingdomhearts/browse#series"');
+    expect(html).toContain('href="/kingdomhearts/browse#characters"');
+    expect(html).toContain('href="/kingdomhearts/browse#items"');
+  });
+  it("item pages link to others in the same series / with the same character", () => {
+    const page = pages.find((p) => p.sku === "ichiban-kuji-kh-2018-a")!;
+    expect(page.html).toContain("<h2>More from Ichiban Kuji Kingdom Hearts (2018)</h2>");
+    expect(page.html).toContain('href="/kingdomhearts/item/ichiban-kuji-kh-2018-b"');
+    expect(page.html).toMatch(/<h2>More with [^<]+<\/h2>/);
+    expect(page.html).toContain('href="/kingdomhearts/series/ichiban-kuji-kh-2018"');
+    // 自分自身へのリンクは入れない
+    const related = page.html.slice(page.html.indexOf('class="related"'));
+    expect(related).not.toContain('href="/kingdomhearts/item/ichiban-kuji-kh-2018-a"');
+  });
+  it("every item in a series with 2+ items is linked from at least one sibling page", () => {
+    const linked = new Set<string>();
+    for (const p of pages) for (const m of p.html.matchAll(/class="related">.*?<\/section>/gs)) for (const h of m[0].matchAll(/href="\/kingdomhearts\/item\/([^"]+)"/g)) linked.add(decodeURIComponent(h[1]));
+    const counts = new Map<string, number>();
+    for (const s of kh) counts.set(s.line_id, (counts.get(s.line_id) ?? 0) + 1);
+    for (const s of kh) if ((counts.get(s.line_id) ?? 0) > 1) expect(linked.has(s.sku_id)).toBe(true);
+  });
+  it("slugs are URL-safe", () => {
+    expect(slugOf("Sora (Monsters, Inc.)")).toBe("sora-monsters-inc");
+    expect(slugOf("Chip 'n Dale")).toBe("chip-n-dale");
+    expect(slugOf("Naminé")).toBe("namine");
   });
 });
