@@ -14,3 +14,7 @@ web/*/item/
 web/sitemap.xml
 # カードの棚のデータ（scripts/build-shelf.mjs がデプロイ時に作る生成物）
 web/*/shelf.json
+# 商品ラインごと・キャラクターごとのまとめページと一覧（build-item-pages.mjs がデプロイ時に作る生成物）
+web/*/series/
+web/*/character/
+web/*/browse.html
