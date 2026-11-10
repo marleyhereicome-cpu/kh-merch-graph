@@ -210,6 +210,18 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 - 出品文に `unofficial` の語があり、カタログの非公式品にも一致した場合は、その非公式品の候補だけを残す（例:「fan made」と書かれた Six On の出品）。
 - 入手経路（`acquisition_type`）は新設しない。非公式品は `official=false` で区別し、入手経路は実態に合わせる（ブランドの通販なら `retail`）。
 - Web版（discover.html）は `official=false` の商品に「Unofficial · fan-made」／「非公式・ファンメイド」のバッジを付け、詳細パネルで公式品ではない旨を説明する。出品チェッカー（index.html）は非公式品の候補に同じバッジを付ける。
+### 2.15 `redirects.csv` — 消えた・変わった URL の転送表（2026-11-10）
+Web版（merchgraph.app）の Worker が、`from_path` へのアクセスを `to_path` へ 301 で転送する。商品の `sku_id` を変えたり統合したりして商品ページ（`/<作品>/item/<sku_id>`）の URL が消えるときに1行足す。
+
+| 列 | 内容 |
+|---|---|
+| from_path | 転送元のパス（`/` で始める。例: `/kingdomhearts/item/old-sku`） |
+| to_path | 転送先のパス（`/` で始める。例: 統合先の商品ページ、無くなったならその作品のカタログ `/kingdomhearts/`） |
+| note | 理由（例: `統合（PR #88）`） |
+
+- 公開中の作品の商品が catalog.csv から消えたのに、ここに行が無いと、デプロイ前のデータ消失チェック（`scripts/check-data-removal.mjs`）が止める。
+- 転送先がまた転送される行（連鎖）、今ある商品ページを転送元にする行、カタログに無い商品ページへの転送は、`npm run validate` がエラーにする。
+
 ## 3. MCPツール
 
 ### 3.1 `resolve_listing`

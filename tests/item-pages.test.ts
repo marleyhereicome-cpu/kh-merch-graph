@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 // @ts-expect-error -- plain .mjs build script without type declarations
-import { buildItemPages, SERIES } from "../scripts/build-item-pages.mjs";
+import { buildItemPages, SERIES, titleSuffixes } from "../scripts/build-item-pages.mjs";
 import { catalog } from "../src/lib/store.js";
 
 // 商品ごとの静的ページ（2026-10-28）：検索エンジン・AI が商品単位で読めるページ。
@@ -79,5 +79,28 @@ describe("catalog page FAQ structured data", () => {
     const about = html.slice(start, html.indexOf("</section>", start));
     const shown = [...about.matchAll(/<summary[^>]*>(.*?)<\/summary>/g)].map((m) => m[1].replace(/&quot;/g, '"').replace(/&#39;/g, "'"));
     expect(ld.mainEntity.map((q: any) => q.name)).toEqual(shown);
+  });
+});
+
+// 同じ名前の商品でも title が重複しないように（2026-11-10、Search Console の重複対策）。
+describe("item page titles", () => {
+  it("no two item pages share a <title>", () => {
+    const titles = pages.map((p) => p.html.match(/<title>(.*?)<\/title>/)![1]);
+    expect(new Set(titles).size).toBe(titles.length);
+  });
+  it("adds the first column that tells same-named items apart, falling back to the sku_id", () => {
+    const lines = new Map([["l1", { maker: "Shop A" }], ["l2", { maker: "Shop B" }], ["l3", { maker: "Shop A" }]]);
+    const s = (sku_id: string, name_en: string, line_id: string, extra = {}) => ({ sku_id, name_en, line_id, ...extra });
+    const out = titleSuffixes([
+      s("a1", "Socks", "l1"), s("a2", "Socks", "l2"),
+      s("b1", "Pin", "l1"), s("b2", "Pin", "l3"),
+      s("c1", "Unique", "l1"),
+      s("d1", "OST", "l1", { variant: "2014年版" }), s("d2", "OST", "l1", { catalog_number: "X-2" }),
+    ], lines);
+    expect(out.get("a1")).toBe("Shop A");
+    expect(out.get("a2")).toBe("Shop B");
+    expect(out.get("b1")).toBe("b1");
+    expect(out.has("c1")).toBe(false);
+    expect(out.get("d1")).toBe("d1"); // 片方しか埋まっていない列では分けない
   });
 });

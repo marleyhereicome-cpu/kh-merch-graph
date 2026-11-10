@@ -12,6 +12,7 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
 import { parseCsv } from "./lib/csv.mjs";
+import { SERIES, itemPath } from "./build-item-pages.mjs";
 
 export const FILES = [
   { path: "data/catalog.csv", label: "catalog.csv", id: "sku_id" },
@@ -47,6 +48,34 @@ export function compareIds(label, baseIds, currentIds) {
   return { label, base: baseIds.size, current: currentIds.size, added, removed, limit, ok: removed.length <= limit };
 }
 
+// 商品ページの URL が消えるときは、転送表（data/redirects.csv）に行があること（2026-11-10）。
+// 比較元で公開していた商品（catalog.csv の行のうち、SERIES で publish: true の作品のもの）が今のカタログに無ければ、
+// その商品ページの URL（/<作品>/item/<sku_id>）が redirects.csv の from_path にあるかを確かめる。
+// sitemap は生成物でリポジトリに無いので、「前回の sitemap にあった商品 URL」をこの方法で求める。
+// sku_id の変更・統合（例：PR #88 の鬼滅 B賞の統合）で、商品ページが黙って 404 になるのを防ぐ。
+// [allow-data-removal] があっても、こちらは止める（大量の削除と、URL を消すことは別の話）。
+export function publishedItemUrls(catalogText, series = SERIES) {
+  const rows = parseCsv(catalogText);
+  const [head, ...body] = rows;
+  const iSku = head.indexOf("sku_id"), iIp = head.indexOf("ip");
+  const live = new Set(series.filter((x) => x.publish).map((x) => x.ip));
+  const urls = new Map();
+  for (const r of body) {
+    const sku = (r[iSku] ?? "").trim(), ip = (r[iIp] ?? "").trim();
+    if (sku && live.has(ip)) urls.set(itemPath(sku, ip), sku);
+  }
+  return urls;
+}
+
+export function missingRedirects(baseCatalogText, currentCatalogText, redirectsText, series = SERIES) {
+  const before = publishedItemUrls(baseCatalogText, series);
+  const now = publishedItemUrls(currentCatalogText, series);
+  const rows = redirectsText ? parseCsv(redirectsText) : [["from_path"]];
+  const iFrom = rows[0].indexOf("from_path");
+  const covered = new Set(rows.slice(1).map((r) => (r[iFrom] ?? "").trim()).filter(Boolean));
+  return [...before.keys()].filter((u) => !now.has(u) && !covered.has(u));
+}
+
 function gitShow(ref, path) {
   try {
     return execFileSync("git", ["show", `${ref}:${path}`], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024, stdio: ["ignore", "pipe", "ignore"] });
@@ -77,6 +106,22 @@ function main() {
     if (!r.ok) {
       failed = true;
       console.log(`  消えた ID の例: ${r.removed.slice(0, 15).join(", ")}${r.removed.length > 15 ? " …" : ""}`);
+    }
+  }
+
+  // 消えた商品ページの転送
+  const baseCatalog = gitShow(baseRef, "data/catalog.csv");
+  if (baseCatalog !== null && existsSync("data/catalog.csv")) {
+    const redirectsText = existsSync("data/redirects.csv") ? readFileSync("data/redirects.csv", "utf8") : "";
+    const missing = missingRedirects(baseCatalog, readFileSync("data/catalog.csv", "utf8"), redirectsText);
+    if (missing.length === 0) {
+      console.log("✓ 消えた商品ページの転送: 転送表に無いものはありません");
+    } else {
+      console.log(`✗ 消えた商品ページの転送: ${missing.length} 件が data/redirects.csv にありません`);
+      missing.slice(0, 30).forEach((u) => console.log(`  ${u}`));
+      console.log("  統合・名前の変更なら移った先の商品ページ、無くなったならその作品のカタログ（例: /kingdomhearts/）へ転送する行を足してください。");
+      console.log("  例: /kingdomhearts/item/old-sku,/kingdomhearts/item/new-sku,統合（PR #00）");
+      process.exitCode = 1;
     }
   }
 

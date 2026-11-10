@@ -50,6 +50,8 @@ const SCHEMAS = {
   "out_of_scope_keywords.csv": ["keyword", "reason", "message_en", "notes"],
   "ip_terms.csv": ["ip", "term_ja", "variants", "term_en", "term_type", "notes"],
   "fx_rates.csv": ["currency", "jpy_per_unit", "as_of", "source_url", "notes"],
+  // 消えた・変わった URL の転送表（2026-11-10）。Web版の Worker が from_path を to_path へ 301 で転送する。
+  "redirects.csv": ["from_path", "to_path", "note"],
 };
 
 // 列の値がSPEC.mdで定義された選択肢のいずれかであることを確認する。
@@ -145,6 +147,37 @@ export function checkValueDistributions(rows, columns = DISTRIBUTION_COLUMNS, kn
     }
   }
   return issues;
+}
+
+/**
+ * 転送表（redirects.csv）の行を確かめる（2026-11-10）。エラーの文の配列を返す。
+ * - from_path・to_path は / で始まる（to_path は https://merchgraph.app/... も可）
+ * - from_path は重複しない。転送先がまた転送される（連鎖）のは不可
+ * - from_path が今ある商品ページなら不可（その商品ページが見えなくなる）
+ * - to_path が商品ページなら、その商品が今のカタログにあること
+ * itemUrls: 今の商品ページの URL（/<作品>/item/<sku_id>）の集合
+ */
+export function checkRedirects(rows, itemUrls, itemPrefixes = ["/kingdomhearts/item/"]) {
+  const errors = [];
+  const seen = new Set();
+  const froms = new Set(rows.map((r) => (r.from_path || "").trim()));
+  rows.forEach((r, i) => {
+    const at = `${i + 2}行目`;
+    const from = (r.from_path || "").trim();
+    const to = (r.to_path || "").trim().replace(/^https:\/\/merchgraph\.app(?=\/)/, "");
+    if (!from.startsWith("/")) errors.push(`${at}: from_path は / で始めてください（"${from}"）`);
+    if (!to.startsWith("/")) errors.push(`${at}: to_path は / か https://merchgraph.app/ で始めてください（"${r.to_path}"）`);
+    if (seen.has(from)) errors.push(`${at}: from_path "${from}" が重複しています`);
+    seen.add(from);
+    if (from === to) errors.push(`${at}: 転送元と転送先が同じです（"${from}"）`);
+    if (froms.has(to)) errors.push(`${at}: 転送先 "${to}" がまた転送されます。最終的な転送先を直接書いてください`);
+    if (itemUrls.has(from)) errors.push(`${at}: from_path "${from}" は今ある商品ページです（転送すると見えなくなります）`);
+    const toPath = to.split(/[?#]/)[0];
+    if (itemPrefixes.some((p) => toPath.startsWith(p)) && !itemUrls.has(toPath)) {
+      errors.push(`${at}: 転送先の商品ページ "${toPath}" がカタログにありません`);
+    }
+  });
+  return errors;
 }
 
 function formatDistributionIssue(i) {
@@ -428,6 +461,17 @@ function main() {
       warningCount += suspicious.length;
       console.log("");
     }
+  }
+
+  // 転送表（redirects.csv）
+  if (loaded["redirects.csv"] && loaded["catalog.csv"]) {
+    const itemUrls = new Set(loaded["catalog.csv"].records.filter((r) => r.ip === "kingdom-hearts").map((r) => `/kingdomhearts/item/${encodeURIComponent(r.sku_id)}`));
+    const errs = checkRedirects(loaded["redirects.csv"].records, itemUrls);
+    console.log("## redirects.csv の転送先");
+    if (errs.length === 0) console.log(`  ✓ ${loaded["redirects.csv"].records.length} 行、問題なし`);
+    errs.forEach((e) => console.log(`  ✗ ${e}`));
+    errorCount += errs.length;
+    console.log("");
   }
 
   // 値の分布（KAI-004 型）：作品名の登録漏れと表記ゆれ。catalog.csv と product_lines.csv の両方を見る。

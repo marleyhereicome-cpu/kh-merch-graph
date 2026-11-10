@@ -2,7 +2,7 @@
 // 全体貼り付けして475ラインが消えた事故の再発防止。デプロイ前（deploy.yml）と PR（data-guard.yml）で走る。
 import { describe, it, expect } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
-import { FILES, allowedRemovals, compareIds, idsOf } from "../scripts/check-data-removal.mjs";
+import { FILES, allowedRemovals, compareIds, idsOf, missingRedirects } from "../scripts/check-data-removal.mjs";
 
 const ids = (n: number, prefix = "id") => new Set(Array.from({ length: n }, (_, i) => `${prefix}-${i}`));
 
@@ -37,5 +37,24 @@ describe("check-data-removal", () => {
       const set = idsOf(f, readFileSync(f.path, "utf8"));
       expect(set.size, f.label).toBeGreaterThan(100);
     }
+  });
+});
+
+// 商品ページの URL が消えるときは転送表（data/redirects.csv）に行が要る（2026-11-10）。
+describe("missingRedirects", () => {
+  const cat = (rows: string[][]) => ["sku_id,ip", ...rows.map((r) => r.join(","))].join("\n");
+  const base = cat([["kh-a", "kingdom-hearts"], ["kh-b", "kingdom-hearts"], ["kny-a", "kimetsu-no-yaiba"]]);
+  it("公開中の作品の商品が消えて、転送表に行が無ければ挙げる", () => {
+    const now = cat([["kh-a", "kingdom-hearts"]]);
+    expect(missingRedirects(base, now, "from_path,to_path,note\n")).toEqual(["/kingdomhearts/item/kh-b"]);
+    expect(missingRedirects(base, now, "from_path,to_path,note\n/kingdomhearts/item/kh-b,/kingdomhearts/item/kh-a,統合\n")).toEqual([]);
+  });
+  it("準備中の作品（商品ページが無い）の削除は対象外", () => {
+    const now = cat([["kh-a", "kingdom-hearts"], ["kh-b", "kingdom-hearts"]]);
+    expect(missingRedirects(base, now, "")).toEqual([]);
+  });
+  it("今のデータには転送の足りない行が無い（main と比べる）", () => {
+    const text = readFileSync("data/catalog.csv", "utf8");
+    expect(missingRedirects(text, text, readFileSync("data/redirects.csv", "utf8"))).toEqual([]);
   });
 });

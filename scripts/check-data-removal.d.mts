@@ -8,3 +8,5 @@ export function compareIds(
   baseIds: Set<string>,
   currentIds: Set<string>
 ): { label: string; base: number; current: number; added: number; removed: string[]; limit: number; ok: boolean };
+export function publishedItemUrls(catalogText: string, series?: unknown[]): Map<string, string>;
+export function missingRedirects(baseCatalogText: string, currentCatalogText: string, redirectsText: string, series?: unknown[]): string[];
