@@ -20,7 +20,8 @@
     "worker:deploy": "wrangler deploy",
     "check-urls": "node scripts/check-urls.mjs",
     "sample-rows": "node scripts/sample-rows.mjs",
-    "fx:apply": "node scripts/fx-apply.mjs"
+    "fx:apply": "node scripts/fx-apply.mjs",
+    "triage": "python3 -I scripts/triage.py"
   },
   "keywords": [],
   "author": "",
