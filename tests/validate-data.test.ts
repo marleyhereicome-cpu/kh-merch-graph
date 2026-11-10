@@ -1,7 +1,7 @@
 // データ検証の「値の分布」チェック（KAI-004 型、2026-11-08）。
 import { describe, expect, it } from "vitest";
 // @ts-expect-error -- JS の検証スクリプト（型定義なし）
-import { checkValueDistributions, KNOWN_IPS } from "../scripts/validate-data.mjs";
+import { checkRedirects, checkValueDistributions, KNOWN_IPS } from "../scripts/validate-data.mjs";
 // @ts-expect-error -- JS のビルドスクリプト（型定義なし）
 import { SERIES } from "../scripts/build-item-pages.mjs";
 import { catalog, productLines } from "../src/lib/store.js";
@@ -29,5 +29,26 @@ describe("checkValueDistributions", () => {
   });
   it("KNOWN_IPS matches the series the site knows about", () => {
     expect([...KNOWN_IPS].sort()).toEqual(SERIES.map((s: { ip: string }) => s.ip).sort());
+  });
+});
+
+describe("checkRedirects（data/redirects.csv）", () => {
+  const items = new Set(["/kingdomhearts/item/kh-a", "/kingdomhearts/item/kh-b"]);
+  it("正しい行は通る", () => {
+    expect(checkRedirects([{ from_path: "/kingdomhearts/item/old", to_path: "/kingdomhearts/item/kh-a" }, { from_path: "/kingdomhearts/item/gone", to_path: "https://merchgraph.app/kingdomhearts/" }], items)).toEqual([]);
+  });
+  it("連鎖・重複・今ある商品ページの転送・無い商品への転送・形の誤りを止める", () => {
+    const errs = checkRedirects([
+      { from_path: "/kingdomhearts/item/x", to_path: "/kingdomhearts/item/y" },
+      { from_path: "/kingdomhearts/item/y", to_path: "/kingdomhearts/item/kh-a" },
+      { from_path: "/kingdomhearts/item/y", to_path: "/kingdomhearts/" },
+      { from_path: "/kingdomhearts/item/kh-b", to_path: "/kingdomhearts/" },
+      { from_path: "kingdomhearts/item/z", to_path: "kingdomhearts" },
+    ], items);
+    expect(errs.some((e: string) => e.includes("また転送されます"))).toBe(true);
+    expect(errs.some((e: string) => e.includes("重複"))).toBe(true);
+    expect(errs.some((e: string) => e.includes("今ある商品ページ"))).toBe(true);
+    expect(errs.some((e: string) => e.includes("カタログにありません"))).toBe(true);
+    expect(errs.filter((e: string) => e.includes("で始めてください"))).toHaveLength(2);
   });
 });

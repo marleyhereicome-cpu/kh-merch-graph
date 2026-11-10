@@ -164,8 +164,43 @@ function imageFor(sku, images, series) {
   return { url: `${ORIGIN}${series.path}${v.replace(/^\.?\//, "")}`, credit: series.packageCredit };
 }
 
+// ---- 同じ名前の商品の見分け（2026-11-10） ----
+// 名前が同じ商品が同じ作品に2つ以上あると、ページの title が重複し、検索エンジンが別の商品だと分からない。
+// そこで、その組の中で全部が埋まっていて互いに違う列を1つ選び、title の名前の後ろに（ ）で添える。
+// 候補の列を上から順に試し、どれでも分けられなければ sku_id を使う。文言はデータの列からだけ作る。
+const TITLE_DISTINGUISHERS = [
+  (s) => s.variant,
+  (s, line) => line?.maker,
+  (s) => s.edition,
+  (s) => s.platform,
+  (s) => s.character_en,
+  (s) => s.catalog_number,
+  (s) => s.sku_id,
+];
+export function titleSuffixes(items, lines) {
+  const groups = new Map();
+  for (const s of items) {
+    const n = s.name_en || s.name_ja || s.sku_id;
+    if (!groups.has(n)) groups.set(n, []);
+    groups.get(n).push(s);
+  }
+  const out = new Map();
+  for (const group of groups.values()) {
+    if (group.length < 2) continue;
+    for (const pick of TITLE_DISTINGUISHERS) {
+      const vals = group.map((s) => String(pick(s, lines.get(s.line_id)) ?? "").trim());
+      const last = pick === TITLE_DISTINGUISHERS[TITLE_DISTINGUISHERS.length - 1];
+      if (vals.every((v) => v && (last || v.length <= 40)) && new Set(vals).size === vals.length) {
+        group.forEach((s, i) => out.set(s.sku_id, vals[i]));
+        break;
+      }
+    }
+  }
+  return out;
+}
+
 // ---- 1商品ぶんのページ ----
-function renderItem(s, line, images, series) {
+function renderItem(s, line, images, series, titleSuffix = "") {
   const CATALOG_PATH = series.path;
   const official = isTrue(s.official);
   const verified = isTrue(s.verified);
@@ -256,7 +291,7 @@ function renderItem(s, line, images, series) {
     ],
   };
   const ldText = JSON.stringify(ld).replace(/</g, "\\u003c");
-  const title = `${name} | Merchgraph | ${series.name}`;
+  const title = `${name}${titleSuffix ? ` (${titleSuffix})` : ""} | Merchgraph | ${series.name}`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -369,7 +404,8 @@ export function buildItemPages({ write = true, series = SERIES } = {}) {
   for (const x of live) {
     const images = readJsonOr(x.images, {});
     const items = catalog.filter((s) => s.ip === x.ip);
-    for (const s of items) pages.push({ sku: s.sku_id, series: x, html: renderItem(s, lines.get(s.line_id), images, x) });
+    const suffixes = titleSuffixes(items, lines);
+    for (const s of items) pages.push({ sku: s.sku_id, series: x, html: renderItem(s, lines.get(s.line_id), images, x, suffixes.get(s.sku_id)) });
     urls.push(`${ORIGIN}${x.path}`, `${ORIGIN}${x.path}check`, ...items.map((s) => ORIGIN + itemPathIn(x, s.sku_id)));
   }
   const today = new Date().toISOString().slice(0, 10);

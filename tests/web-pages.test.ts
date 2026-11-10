@@ -124,20 +124,6 @@ describe("hub banners and the KH search box", () => {
   });
 });
 
-// カードの棚の試作（2026-11-08）：/kingdomhearts/shelf で試す版。検索には出さず、免責と社名ロゴなしの透かしを守る。
-describe("card shelf trial (web/kingdomhearts/shelf.html)", () => {
-  const html = readFileSync("web/kingdomhearts/shelf.html", "utf8");
-  it("is noindex, keeps the non-affiliation notice and uses the logo without company names", () => {
-    expect(html).toContain('<meta name="robots" content="noindex">');
-    expect(html).toContain("Not affiliated with, endorsed or sponsored by Square Enix, Disney");
-    expect(html).toContain("/kingdomhearts/kh-logo-mark.png");
-    expect(html).not.toMatch(/kh-logo\.png/);
-  });
-  it("opens the item in the catalog", () => {
-    expect(html).toContain("#item=${encodeURIComponent(it.sku)}");
-  });
-});
-
 // カードの棚の本番化（2026-11-08）：KHページのファーストビューを写真ボードからカードの棚に替えた。
 describe("card shelf in the Kingdom Hearts first view", () => {
   const kh = readFileSync("web/kingdomhearts/index.html", "utf8");
@@ -179,5 +165,17 @@ describe("card shelf in the Kingdom Hearts first view", () => {
   it("has a 'continues below' cue pointing at the search", () => {
     expect(js).toContain('<a class="sh-more" href="#discover">');
     expect(js).toContain("下に続く");
+  });
+});
+
+// 見つからないページ（2026-11-10）：Worker がステータス 404 のまま返す。
+describe("404 page", () => {
+  const html = readFileSync("web/404.html", "utf8");
+  it("is noindex and links back to the hub and the catalog with root-relative paths", () => {
+    expect(html).toContain('<meta name="robots" content="noindex" />');
+    expect(html).toContain('href="/"');
+    expect(html).toContain('href="/kingdomhearts/"');
+    expect(html).toContain('href="/kingdomhearts/check"');
+    expect(html).not.toMatch(/(src|href)="\.\.?\//);
   });
 });

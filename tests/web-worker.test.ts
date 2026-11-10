@@ -8,8 +8,16 @@ vi.mock("../web-worker/email.js", () => ({
   },
 }));
 
+// 転送表（data/redirects.csv → src/data/redirects.json）の代わり。
+vi.mock("../src/data/redirects.json", () => ({
+  default: [
+    { from_path: "/kingdomhearts/item/old-sku", to_path: "/kingdomhearts/item/ichiban-kuji-kh-2018-a", note: "統合" },
+    { from_path: "/kingdomhearts/item/gone-sku", to_path: "/kingdomhearts/", note: "削除" },
+  ],
+}));
+
 const { default: worker } = await import("../web-worker/index.js");
-const { legacyPath } = await import("../web-worker/routes.js");
+const { legacyPath, redirectTable, SECURITY_HEADERS } = await import("../web-worker/routes.js");
 const { buildMime, validateContact } = await import("../web-worker/contact.js");
 
 // web/ 以下のファイルの代わり。Workers の静的ファイルと同じく、x.html は /x で返し、/x.html は /x へ転送する。
@@ -23,6 +31,7 @@ const FILES = new Set([
   "/llms.txt",
   "/contact.html",
   "/kh-fallback-logo.png",
+  "/404.html",
 ]);
 const ASSETS = {
   async fetch(req: Request) {
@@ -49,10 +58,11 @@ describe("URL の振り分け（merchgraph.app）", () => {
     expect(await body(await get("https://merchgraph.app/"))).toBe("file:/index.html");
     expect(await body(await get("https://merchgraph.app/?lang=ja"))).toBe("file:/index.html");
   });
-  it("ハブ化前の旧リンク（/check・/item/<sku>）は引き続き Kingdom Hearts の中身を返す", async () => {
-    expect(await body(await get("https://merchgraph.app/check"))).toBe("file:/kingdomhearts/check.html");
+  // 2026-11-10〜：中身を返すのではなく、/kingdomhearts/ の同じパスへ 301 転送する（同じ中身の URL を2つにしない）。
+  it("ハブ化前の旧リンク（/check・/item/<sku>）は /kingdomhearts/ の同じパスへ 301", async () => {
+    expect(await body(await get("https://merchgraph.app/check"))).toBe("301 https://merchgraph.app/kingdomhearts/check");
     expect(await body(await get("https://merchgraph.app/item/ichiban-kuji-kh-2018-a"))).toBe(
-      "file:/kingdomhearts/item/ichiban-kuji-kh-2018-a.html"
+      "301 https://merchgraph.app/kingdomhearts/item/ichiban-kuji-kh-2018-a"
     );
     expect((await get("https://merchgraph.app/item/no-such-sku")).status).toBe(404);
   });
@@ -64,23 +74,58 @@ describe("URL の振り分け（merchgraph.app）", () => {
       "file:/kingdomhearts/item/ichiban-kuji-kh-2018-a.html"
     );
   });
-  it("ルート直下の相対パスも /kingdomhearts/ の同名を返す（URLは変えない）", async () => {
-    expect(await body(await get("https://merchgraph.app/check?src=discover"))).toBe("file:/kingdomhearts/check.html");
-    expect(await body(await get("https://merchgraph.app/images.json"))).toBe("file:/kingdomhearts/images.json");
+  it("ルート直下の相対パスも /kingdomhearts/ の同名へ 301（クエリは残す）", async () => {
+    expect(await body(await get("https://merchgraph.app/check?src=discover"))).toBe("301 https://merchgraph.app/kingdomhearts/check?src=discover");
+    expect(await body(await get("https://merchgraph.app/images.json"))).toBe("301 https://merchgraph.app/kingdomhearts/images.json");
     expect(await body(await get("https://merchgraph.app/images/games/kh1-ps2-standard-jp.png"))).toBe(
-      "file:/kingdomhearts/images/games/kh1-ps2-standard-jp.png"
+      "301 https://merchgraph.app/kingdomhearts/images/games/kh1-ps2-standard-jp.png"
     );
   });
-  it("別名で取り出したファイルの転送先に /kingdomhearts を出さない", async () => {
-    expect(await body(await get("https://merchgraph.app/check.html?src=x"))).toBe("307 /check?src=x");
+  it("/check.html も1回の転送で /kingdomhearts/check へ", async () => {
+    expect(await body(await get("https://merchgraph.app/check.html?src=x"))).toBe("301 https://merchgraph.app/kingdomhearts/check?src=x");
   });
   it("ルート直下に実在するファイルはそのまま返す", async () => {
     expect(await body(await get("https://merchgraph.app/llms.txt"))).toBe("file:/llms.txt");
     expect(await body(await get("https://merchgraph.app/contact"))).toBe("file:/contact.html");
     expect(await body(await get("https://merchgraph.app/kh-fallback-logo.png"))).toBe("file:/kh-fallback-logo.png");
   });
-  it("無いものは 404", async () => {
-    expect((await get("https://merchgraph.app/nope")).status).toBe(404);
+  it("無いものは 404。本文は専用の 404 ページ（ステータスは 404 のまま）", async () => {
+    for (const u of ["https://merchgraph.app/nope", "https://merchgraph.app/kingdomhearts/item/", "https://merchgraph.app/kingdomhearts/nope", "https://merchgraph.app/404"]) {
+      const r = await get(u);
+      expect(r.status).toBe(404);
+      expect(await r.text()).toBe("file:/404.html");
+      expect(r.headers.get("Content-Type")).toContain("text/html");
+    }
+  });
+  it("カードの棚の試用版は KH のトップへ 301", async () => {
+    expect(await body(await get("https://merchgraph.app/kingdomhearts/shelf"))).toBe("301 https://merchgraph.app/kingdomhearts/");
+    expect(await body(await get("https://merchgraph.app/kingdomhearts/shelf.html"))).toBe("301 https://merchgraph.app/kingdomhearts/");
+  });
+  it("転送表（data/redirects.csv）の行は 301", async () => {
+    expect(await body(await get("https://merchgraph.app/kingdomhearts/item/old-sku"))).toBe("301 https://merchgraph.app/kingdomhearts/item/ichiban-kuji-kh-2018-a");
+    expect(await body(await get("https://merchgraph.app/kingdomhearts/item/gone-sku?lang=ja"))).toBe("301 https://merchgraph.app/kingdomhearts/?lang=ja");
+    expect(await body(await get("https://kh-merch-graph-web.fandex.workers.dev/kingdomhearts/item/old-sku"))).toBe(
+      "301 https://merchgraph.app/kingdomhearts/item/ichiban-kuji-kh-2018-a"
+    );
+    expect(redirectTable([{ from_path: "nope", to_path: "/x" }, { from_path: "/a", to_path: "" }]).size).toBe(0);
+  });
+  it("http:// は https:// へ 301", async () => {
+    expect(await body(await get("http://merchgraph.app/kingdomhearts/check?src=x"))).toBe("301 https://merchgraph.app/kingdomhearts/check?src=x");
+  });
+  it("すべての応答にセキュリティ関連のヘッダーを付ける（CSP は Report-Only、frame-ancestors だけ有効）", async () => {
+    for (const u of ["https://merchgraph.app/", "https://merchgraph.app/kingdomhearts/", "https://merchgraph.app/nope", "https://merchgraph.app/check"]) {
+      const r = await get(u);
+      for (const [k, v] of Object.entries(SECURITY_HEADERS)) expect(r.headers.get(k)).toBe(v);
+    }
+    expect(SECURITY_HEADERS["Strict-Transport-Security"]).toMatch(/max-age=\d{8}/);
+    expect(SECURITY_HEADERS["Content-Security-Policy"]).toBe("frame-ancestors 'none'");
+    expect(SECURITY_HEADERS["Content-Security-Policy-Report-Only"]).toContain("report-uri /api/csp-report");
+  });
+  it("CSP の違反報告を受け取る（204）", async () => {
+    const rep = { "csp-report": { "violated-directive": "img-src", "blocked-uri": "http://x", "document-uri": "https://merchgraph.app/" } };
+    const r = await worker.fetch(new Request("https://merchgraph.app/api/csp-report", { method: "POST", body: JSON.stringify(rep) }), env() as never);
+    expect(r.status).toBe(204);
+    expect((await get("https://merchgraph.app/api/csp-report")).status).toBe(405);
   });
   it("旧ファイル名は新しい場所へ 301", async () => {
     expect(await body(await get("https://merchgraph.app/discover.html?src=share"))).toBe("301 https://merchgraph.app/kingdomhearts/?src=share");

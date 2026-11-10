@@ -22,6 +22,8 @@ const FILES = [
   "out_of_scope_keywords.csv",
   "ip_terms.csv",
   "fx_rates.csv",
+  // 消えた・変わった URL の転送表（2026-11-10）。Web版の Worker（web-worker/index.ts）が 301 で返す。
+  "redirects.csv",
 ];
 
 function main() {
