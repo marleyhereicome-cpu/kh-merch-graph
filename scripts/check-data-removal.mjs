@@ -13,14 +13,15 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
 import { parseCsv } from "./lib/csv.mjs";
 import { SERIES, itemPath } from "./build-item-pages.mjs";
+import { loadIps } from "./lib/ips.mjs";
 
 export const FILES = [
   { path: "data/catalog.csv", label: "catalog.csv", id: "sku_id" },
   { path: "data/product_lines.csv", label: "product_lines.csv", id: "line_id" },
-  { path: "web/kingdomhearts/images.json", label: "kingdomhearts/images.json", id: null },
-  // 準備中の作品（2026-11-02〜）。ファイルができるまでは「対象外」と表示されるだけ。
-  { path: "web/demon-slayer/images.json", label: "demon-slayer/images.json", id: null },
-  { path: "web/one-piece/images.json", label: "one-piece/images.json", id: null },
+  // 作品ごとの写真の対応表（data/ips.csv の images。2026-11-11〜。ファイルができるまでは「対象外」と表示されるだけ）
+  ...loadIps()
+    .filter((x) => x.status !== "hidden")
+    .map((x) => ({ path: `web${x.images}`, label: x.images.replace(/^\//, ""), id: null })),
 ];
 
 // 許容する消失数：5件、または比較元の件数の2%の大きい方。

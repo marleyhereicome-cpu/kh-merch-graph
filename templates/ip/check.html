@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Listing check | Merchgraph | Kingdom Hearts</title>
-<meta name="description" content="Found a Kingdom Hearts item on Mercari, Yahoo! Auctions or Suruga-ya? Paste the listing title to see which official item it is, what the condition words mean, signs of a bootleg, and how the price compares to the original." />
+<title>Listing check | Merchgraph | {{name_en}}</title>
+<meta name="description" content="{{en.checkDescription}}" />
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Listing check | Merchgraph | Kingdom Hearts" />
+<meta property="og:title" content="Listing check | Merchgraph | {{name_en}}" />
 <meta property="og:site_name" content="Merchgraph" />
 <meta property="og:description" content="Paste a Japanese listing title: which official item it is, what the condition words mean, bootleg warning signs, and the original price." />
 <meta name="twitter:card" content="summary" />
@@ -15,7 +15,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 <link rel="manifest" href="/site.webmanifest" />
-<link rel="canonical" href="https://merchgraph.app/kingdomhearts/check" />
+<link rel="canonical" href="{{url}}check" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
 <style>
@@ -153,7 +153,7 @@
       <span class="site-name">Merchgraph</span>
     </a>
     <span class="crumb-sep" aria-hidden="true">/</span>
-    <a class="series-link" href="/kingdomhearts/">Kingdom Hearts</a>
+    <a class="series-link" href="{{path}}">{{name_en}}</a>
   </div>
   <nav class="site-nav" aria-label="Main">
     <a href="./" data-i18n="navDiscover">Discover</a>
@@ -174,13 +174,8 @@
 
   <form class="form-card" id="checkForm" novalidate>
     <label for="title" data-i18n="titleLabel">Listing title</label>
-    <textarea id="title" rows="3" data-i18n-placeholder="titlePh" placeholder="Paste the title here, e.g. 一番くじ キングダムハーツ A賞 ソラ フィギュア"></textarea>
-    <div class="examples">
-      <span data-i18n="tryExample">Try an example:</span>
-      <button type="button" class="example-chip" data-example="0" data-i18n="ex0">Prize plush, tags on</button>
-      <button type="button" class="example-chip" data-example="1" data-i18n="ex1">Lottery figure, no box, unbranded</button>
-    </div>
-
+    <textarea id="title" rows="3" data-i18n-placeholder="titlePh" placeholder="{{en.titlePh}}"></textarea>
+{{file:check-examples.html}}
     <details class="more" id="more">
       <summary data-i18n="moreDetails">Add the price and description for a better check (optional)</summary>
       <div class="more-grid">
@@ -216,7 +211,7 @@
   <section class="howto" id="howto">
     <h2 data-i18n="howTitle">How it works</h2>
     <ol>
-      <li data-i18n="how1">The title is matched against a catalog of Kingdom Hearts merchandise, every entry linked to its source.</li>
+      <li data-i18n="how1">{{en.how1}}</li>
       <li data-i18n="how2">Japanese condition words (未使用, 箱なし, タグ付き…) are explained, and wording that often signals a bootleg is flagged.</li>
       <li data-i18n="how3">If you add the price, it's compared with the item's original price. When the match isn't confident, we say so instead of guessing.</li>
     </ol>
@@ -225,8 +220,8 @@
 
 <footer>
   <div class="legal">
-    <p data-i18n="legal1">An independent fan project. Not affiliated with, endorsed or sponsored by Square Enix, Disney, or any maker, shop, marketplace or shipping service mentioned here. Nothing is sold on this site.</p>
-    <p data-i18n-html="legal2">Kingdom Hearts and all related names, characters, logos and artwork belong to their respective owners. Results are for reference only and are not a guarantee of authenticity; always check with the seller before buying.</p>
+    <p data-i18n="legal1">{{en.legal1}}</p>
+    <p data-i18n-html="legal2">{{en.checkLegal2}}</p>
     <p data-i18n-html="legal3">Spotted a mistake? Use the report form in the item’s details, or <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">open an issue on GitHub</a>. Press, partnerships and other enquiries: <a href="/contact">contact form</a>. Rights holders: please write to legal@merchgraph.app (image removals can also be requested with <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues/new?template=image-takedown.yml" target="_blank" rel="noopener">this form</a>); requests are handled promptly.</p>
   </div>
 </footer>
@@ -238,10 +233,7 @@ const LANG_KEY = 'khmerch-lang'; // shared with the catalog page (kingdomhearts/
 // Traffic-source tag for measurement (e.g. ?src=reddit). The server logs only src and time.
 const SRC = new URLSearchParams(location.search).get('src') || undefined;
 
-const EXAMPLES = [
-  { title: 'キングダムハーツ フリュー ぬいぐるみマスコット テラ プライズ 未使用 タグ付き', price: 4500, platform: 'mercari' },
-  { title: '一番くじ キングダムハーツ A賞 ソラ＆キングミッキー フィギュア 箱なし 海外製 ノーブランド', price: 1500, platform: '' },
-];
+{{file:check-examples.js}}
 
 const STRINGS = {
   en: {
@@ -250,7 +242,7 @@ const STRINGS = {
     title: 'Found one on Mercari? Check it before you buy.',
     lede: "Paste the title of a Japanese secondhand listing (Mercari, Yahoo! Auctions, Suruga-ya, Mandarake…). You'll see which official item it most likely is, what the condition words mean, any signs of a bootleg, and how the price compares to the original.",
     privacy: 'We only read the text you paste. We never open the listing or store it.',
-    titleLabel: 'Listing title', titlePh: 'Paste the title here, e.g. 一番くじ キングダムハーツ A賞 ソラ フィギュア',
+    titleLabel: 'Listing title', titlePh: '{{en.titlePh}}',
     tryExample: 'Try an example:', ex0: 'Prize plush, tags on', ex1: 'Lottery figure, no box, unbranded',
     moreDetails: 'Add the price and description for a better check (optional)',
     priceLabel: 'Listing price (yen)', platformLabel: 'Where is it listed?', platformAny: 'Not sure / other',
@@ -265,13 +257,13 @@ const STRINGS = {
     vWeak: 'Not sure yet', vWeakTitle: "We can't tell exactly which item this is",
     vWeakText: "The title doesn't have enough detail. A few possibilities are listed below; asking the seller for the full product name usually settles it.",
     vNone: 'No match', vNoneTitle: "This doesn't match anything in the catalog",
-    vNoneText: "It may not be Kingdom Hearts merchandise, or it isn't in the catalog yet. If you know what it is, tell us via GitHub and we'll add it.",
+    vNoneText: "{{en.vNoneText}}",
     outOfScope: 'Note',
     // sections
     sMatches: 'Possible matches', sOther: 'Other possibilities', sWarnings: 'Warnings', sTerms: 'What the listing says',
     sPrice: 'Price', sHow: 'How this item is normally obtained', sNext: 'Before you buy', sVariety: 'Comes in several designs',
     strengthHigh: 'Strong match', strengthMid: 'Possible match', strengthLow: 'Weak match',
-    unofficialBadge: 'Unofficial · fan-made', unofficialNote: 'This is a fan-made product in our catalog, not official merchandise (not licensed by Square Enix or Disney).',
+    unofficialBadge: 'Unofficial · fan-made', unofficialNote: '{{en.unofficialNote}}',
     viewItem: 'See this item ›', source: 'Source ↗',
     priceListing: 'Listing price', priceOriginal: 'Original price', pricePerDraw: 'Price of one draw',
     priceRatio: 'The listing is {r}× the original price.', priceNoMaker: 'No maker price (never sold in shops)',
@@ -284,7 +276,7 @@ const STRINGS = {
     title: 'その出品、買う前にチェック。',
     lede: 'メルカリ、ヤフオク!、駿河屋、まんだらけなどの出品タイトルを貼り付けてください。どの公式商品か、状態を表す言葉の意味、海賊版の疑い、定価と比べて高いか安いかがわかります。',
     privacy: '貼り付けた文章を読み取るだけです。出品ページを開いたり、内容を保存したりはしません。',
-    titleLabel: '出品タイトル', titlePh: 'ここに出品タイトルを貼り付け（例：一番くじ キングダムハーツ A賞 ソラ フィギュア）',
+    titleLabel: '出品タイトル', titlePh: '{{ja.titlePh}}',
     tryExample: '例で試す：', ex0: 'プライズのぬいぐるみ（タグ付き）', ex1: 'くじのフィギュア（箱なし・ノーブランド）',
     moreDetails: '価格や説明文も入れると、より詳しくチェックできます（任意）',
     priceLabel: '出品価格（円）', platformLabel: '出品先', platformAny: 'わからない・その他',
@@ -298,22 +290,22 @@ const STRINGS = {
     vWeak: 'まだ特定できません', vWeakTitle: 'どの商品か特定できませんでした',
     vWeakText: 'タイトルだけでは情報が足りません。考えられる候補を下に挙げました。出品者に正式な商品名を聞けば、たいてい特定できます。',
     vNone: '該当なし', vNoneTitle: 'カタログに該当する商品がありません',
-    vNoneText: 'キングダム ハーツのグッズではないか、まだカタログに載っていない商品かもしれません。ご存じの商品でしたら、GitHubでお知らせください。',
+    vNoneText: '{{ja.vNoneText}}',
     outOfScope: '補足',
     sMatches: '候補', sOther: 'その他の可能性', sWarnings: '注意点', sTerms: '出品文に出てくる言葉',
     sPrice: '価格', sHow: 'この商品の入手方法', sNext: '購入前に確認したいこと', sVariety: 'デザイン違いがあります',
     strengthHigh: '一致度：高', strengthMid: '一致度：中', strengthLow: '一致度：低',
-    unofficialBadge: '非公式（ファンメイド）', unofficialNote: 'カタログに載せているファンメイド商品です。スクウェア・エニックス／ディズニーのライセンス品ではありません。',
+    unofficialBadge: '非公式（ファンメイド）', unofficialNote: '{{ja.unofficialNote}}',
     viewItem: '商品ページを見る ›', source: '出典 ↗',
     priceListing: '出品価格', priceOriginal: '定価', pricePerDraw: 'くじ1回の価格',
     priceRatio: '出品価格は定価の{r}倍です。', priceNoMaker: 'メーカー定価なし（店頭販売なし）',
     effDown: '価値が下がる', effUp: '価値が上がる', effRisk: '要確認',
     variety: '全{n}種類。', enNote: '※解説文は現在、英語のみです。',
-    legal1: '当サイトはファンが運営する非公式のプロジェクトです。スクウェア・エニックス、ディズニー、およびサイト内で紹介しているメーカー・ショップ・フリマサイト・代行サービスとは一切関係がなく、提携・公認・協賛を受けていません。当サイトでは商品を販売していません。',
-    legal2: '「キングダム ハーツ」および関連する名称、キャラクター、ロゴ、イラスト等の権利は、各権利者に帰属します。チェック結果は参考情報で、本物であることを保証するものではありません。購入の前に、必ず出品者に確認してください。',
+    legal1: '{{ja.legal1}}',
+    legal2: '{{ja.checkLegal2}}',
     legal3: '掲載内容の誤りは、各商品の詳細にある報告フォーム、または <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">GitHubのIssue</a> からお知らせください。取材や提携のご相談は <a href="/contact">お問い合わせフォーム</a> から、権利者の方は legal@merchgraph.app までご連絡ください（画像の削除は <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues/new?template=image-takedown.yml" target="_blank" rel="noopener">削除依頼フォーム</a> からも受け付けています）。いずれも速やかに対応します。',
     howTitle: '仕組み',
-    how1: '出品タイトルを、出典付きのキングダム ハーツ グッズのカタログと照らし合わせます。',
+    how1: '{{ja.how1}}',
     how2: '状態を表す言葉（未使用、箱なし、タグ付きなど）を解説し、海賊版によく使われる表現があれば注意を出します。',
     how3: '価格を入れると、その商品の定価と比べます。一致度が低いときは無理に特定せず、そのようにお伝えします。',
   },
@@ -347,7 +339,7 @@ function applyStaticStrings() {
   sw.addEventListener('click', () => storageSet(LANG_KEY, otherLang));
   if (!JA) return;
   document.documentElement.lang = 'ja';
-  document.title = '出品チェック | Merchgraph | Kingdom Hearts';
+  document.title = '出品チェック | Merchgraph | {{name_en}}';
   document.querySelectorAll('[data-i18n]').forEach((el) => { if (STRINGS.ja[el.dataset.i18n] !== undefined) el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-html]').forEach((el) => { if (STRINGS.ja[el.dataset.i18nHtml] !== undefined) el.innerHTML = t(el.dataset.i18nHtml); });
   document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => { el.placeholder = t(el.dataset.i18nPlaceholder); });

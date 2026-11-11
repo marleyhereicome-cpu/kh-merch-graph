@@ -24,6 +24,8 @@ const FILES = [
   "fx_rates.csv",
   // 消えた・変わった URL の転送表（2026-11-10）。Web版の Worker（web-worker/index.ts）が 301 で返す。
   "redirects.csv",
+  // 作品マスタ（2026-11-11）。MCP のツール説明・llms.txt の対応作品一覧と、Web版の Worker の URL が読む。
+  "ips.csv",
 ];
 
 function main() {

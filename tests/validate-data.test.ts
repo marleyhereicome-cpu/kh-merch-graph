@@ -27,7 +27,7 @@ describe("checkValueDistributions", () => {
     expect(checkValueDistributions(catalog)).toEqual([]);
     expect(checkValueDistributions(productLines, ["ip", "acquisition_type"])).toEqual([]);
   });
-  it("KNOWN_IPS matches the series the site knows about", () => {
+  it("KNOWN_IPS is the ip column of data/ips.csv, which also drives SERIES", () => {
     expect([...KNOWN_IPS].sort()).toEqual(SERIES.map((s: { ip: string }) => s.ip).sort());
   });
 });

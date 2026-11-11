@@ -1,0 +1,9 @@
+  /* Kingdom Hearts 公式ロゴを、画面中央に薄く固定表示する背景（スクロールしても動かない）。
+     iPhone の Safari は background-attachment: fixed が効かないため、position: fixed の疑似要素で出す。
+     z-index: -1 で本文の下に置き、クリックは拾わない。 */
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background: url('./kh-logo-mark.png') center / min(72vw, 640px) auto no-repeat;
+    opacity: 0.1;
+  }
+

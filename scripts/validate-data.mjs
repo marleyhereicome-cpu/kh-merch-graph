@@ -6,6 +6,8 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadCsv as loadCsvShared } from "./lib/csv.mjs";
 import { loadFxRates, deriveMsrpJpy, currencyOf } from "./lib/fx.mjs";
+import { IP_COVERAGES, IP_STATUSES, loadIpConfig, loadIps } from "./lib/ips.mjs";
+import { validateIpConfig } from "./lib/ip-pages.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, "..", "data");
@@ -52,6 +54,8 @@ const SCHEMAS = {
   "fx_rates.csv": ["currency", "jpy_per_unit", "as_of", "source_url", "notes"],
   // 消えた・変わった URL の転送表（2026-11-10）。Web版の Worker が from_path を to_path へ 301 で転送する。
   "redirects.csv": ["from_path", "to_path", "note"],
+  // 作品マスタ（2026-11-11）。ハブ・作品ページ・商品ページ・sitemap・MCP の対応作品一覧が読む。
+  "ips.csv": ["ip", "path", "status", "coverage", "sort", "name_en", "name_ja", "alt_en", "alt_ja", "aliases", "tagline_en", "tagline_ja", "rights_holders_en", "rights_holders_ja", "accent", "launched", "images", "banner", "path_aliases"],
 };
 
 // 列の値がSPEC.mdで定義された選択肢のいずれかであることを確認する。
@@ -109,9 +113,9 @@ const ENUMS = {
 // - edition はゲーム行だけ（acquisition_type=game）。ゲーム機とソフトのセット（set で platform あり）も
 //   これまでどおり認める。それ以外の行の edition は従来どおり警告（既存の2行があるため、エラーにはしていない）。
 
-// カタログに入っている・入れる予定の作品。新しい作品に着手するときは必ずここに足す
-// （scripts/build-item-pages.mjs の SERIES と同じ並び。tests/validate-data.test.ts で一致を確かめる）。
-export const KNOWN_IPS = ["kingdom-hearts", "kimetsu-no-yaiba", "one-piece"];
+// カタログに入っている・入れる予定の作品＝作品マスタ（data/ips.csv）の ip（2026-11-11〜。それまではここに直書き）。
+// 新しい作品に着手するときは data/ips.csv に1行足す（status=soon なら、ページは出ずにデータだけ入れられる）。
+export const KNOWN_IPS = loadIps().map((x) => x.ip);
 export const DISTRIBUTION_COLUMNS = ["ip", "official", "verified", "region", "acquisition_type", "price_basis", "availability_hint"];
 
 const variantKey = (v) => String(v).trim().toLowerCase().replace(/[\s\-_]+/g, "");
@@ -180,9 +184,42 @@ export function checkRedirects(rows, itemUrls, itemPrefixes = ["/kingdomhearts/i
   return errors;
 }
 
+/**
+ * 作品マスタ（ips.csv）の行を確かめる（2026-11-11）。エラーの文の配列を返す。
+ * ip・path の重複、status・coverage の値、path の形（/xxx/）、表示名に ' " < > & を含まないこと
+ * （作品ページの JS の文字列や HTML にそのまま入るため）、別名のパスが他の作品のパスとぶつからないこと。
+ */
+export function checkIps(rows) {
+  const errors = [];
+  const seenIp = new Set();
+  const seenPath = new Set();
+  const paths = new Set(rows.map((r) => r.path));
+  rows.forEach((r, i) => {
+    const at = `${i + 2}行目（${r.ip || "?"}）`;
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(r.ip || "")) errors.push(`${at}: ip は英小文字・数字・ハイフンで書いてください`);
+    if (seenIp.has(r.ip)) errors.push(`${at}: ip が重複しています`);
+    seenIp.add(r.ip);
+    if (!/^\/[a-z0-9-]+\/$/.test(r.path || "")) errors.push(`${at}: path は /xxx/ の形で書いてください（"${r.path}"）`);
+    if (seenPath.has(r.path)) errors.push(`${at}: path が重複しています`);
+    seenPath.add(r.path);
+    if (!IP_STATUSES.includes(r.status)) errors.push(`${at}: status は ${IP_STATUSES.join(" / ")} のどれか`);
+    if (!IP_COVERAGES.includes(r.coverage)) errors.push(`${at}: coverage は ${IP_COVERAGES.join(" / ")} のどれか`);
+    for (const k of ["name_en", "name_ja", "alt_en", "alt_ja", "tagline_en", "tagline_ja", "rights_holders_en", "rights_holders_ja"]) {
+      if (/['"<>&]/.test(r[k] || "")) errors.push(`${at}: ${k} に ' " < > & は使えません（作品ページの文字列にそのまま入るため）`);
+    }
+    if (!r.name_en) errors.push(`${at}: name_en が空です`);
+    if (r.status === "live" && !r.rights_holders_en) errors.push(`${at}: 公開する作品（status=live）は rights_holders_en が要ります`);
+    for (const a of String(r.path_aliases || "").split("|").map((x) => x.trim()).filter(Boolean)) {
+      if (!/^\/[a-z0-9-]+\/$/.test(a)) errors.push(`${at}: path_aliases の "${a}" は /xxx/ の形で書いてください`);
+      if (paths.has(a)) errors.push(`${at}: path_aliases の "${a}" は別の作品の path です`);
+    }
+  });
+  return errors;
+}
+
 function formatDistributionIssue(i) {
   if (i.type === "unknown_ip") {
-    return `  ✗ ip="${i.value}"（${i.count}行）は登録されていない作品です。表記ゆれでなければ scripts/validate-data.mjs の KNOWN_IPS に足してください: ${KNOWN_IPS.join(", ")}`;
+    return `  ✗ ip="${i.value}"（${i.count}行）は登録されていない作品です。表記ゆれでなければ data/ips.csv に作品の行を足してください: ${KNOWN_IPS.join(", ")}`;
   }
   return `  ! ${i.column} に表記ゆれの疑いがあります: ${i.variants.map((v) => `"${v}"（${i.counts[v]}行）`).join(" / ")}`;
 }
@@ -461,6 +498,17 @@ function main() {
       warningCount += suspicious.length;
       console.log("");
     }
+  }
+
+  // 作品マスタ（ips.csv）と作品ごとの設定（ip-config/）
+  if (loaded["ips.csv"]) {
+    const errs = checkIps(loaded["ips.csv"].records);
+    for (const x of loadIps()) errs.push(...validateIpConfig(x, loadIpConfig(x.ip)));
+    console.log("## ips.csv（作品マスタ）と ip-config/");
+    if (errs.length === 0) console.log(`  ✓ ${loaded["ips.csv"].records.length} 作品、問題なし`);
+    errs.forEach((e) => console.log(`  ✗ ${e}`));
+    errorCount += errs.length;
+    console.log("");
   }
 
   // 転送表（redirects.csv）

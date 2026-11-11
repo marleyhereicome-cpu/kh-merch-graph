@@ -18,3 +18,8 @@ web/*/shelf.json
 web/*/series/
 web/*/character/
 web/*/browse.html
+# 作品ページ・作品一覧・llms.txt（scripts/build-ip-pages.mjs が templates/ と data/ips.csv から作る生成物。2026-11-11〜）
+web/*/index.html
+web/*/check.html
+web/ips.json
+web/llms.txt

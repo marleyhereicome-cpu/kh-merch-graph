@@ -17,7 +17,7 @@ vi.mock("../src/data/redirects.json", () => ({
 }));
 
 const { default: worker } = await import("../web-worker/index.js");
-const { legacyPath, redirectTable, SECURITY_HEADERS } = await import("../web-worker/routes.js");
+const { legacyPath, redirectTable, SECURITY_HEADERS, IP_PREFIXES, ipAliasPath } = await import("../web-worker/routes.js");
 const { buildMime, validateContact } = await import("../web-worker/contact.js");
 
 // web/ 以下のファイルの代わり。Workers の静的ファイルと同じく、x.html は /x で返し、/x.html は /x へ転送する。
@@ -108,6 +108,27 @@ describe("URL の振り分け（merchgraph.app）", () => {
       "301 https://merchgraph.app/kingdomhearts/item/ichiban-kuji-kh-2018-a"
     );
     expect(redirectTable([{ from_path: "nope", to_path: "/x" }, { from_path: "/a", to_path: "" }]).size).toBe(0);
+  });
+  it("作品のパスは data/ips.csv から。別名のパスは正式なパスへ 301（2026-11-11）", async () => {
+    expect(IP_PREFIXES).toContain("/kingdomhearts");
+    expect(IP_PREFIXES).toContain("/demon-slayer");
+    expect(ipAliasPath("/kimetsu-no-yaiba/")).toBe("/demon-slayer/");
+    expect(ipAliasPath("/kimetsu-no-yaiba")).toBe("/demon-slayer/");
+    expect(ipAliasPath("/onepiece/item/x")).toBe("/one-piece/item/x");
+    expect(ipAliasPath("/kimetsu-no-yaibaX")).toBeNull();
+    expect(await body(await get("https://merchgraph.app/kingdom-hearts/?lang=ja"))).toBe("301 https://merchgraph.app/kingdomhearts/?lang=ja");
+    expect(await body(await get("https://merchgraph.app/kingdom-hearts/item/ichiban-kuji-kh-2018-a"))).toBe(
+      "301 https://merchgraph.app/kingdomhearts/item/ichiban-kuji-kh-2018-a"
+    );
+  });
+  it("PR のプレビュー（workers.dev の pr-<番号>-…）は転送せず、noindex を付ける", async () => {
+    const r = await get("https://pr-92-kh-merch-graph-web.fandex.workers.dev/kingdomhearts/");
+    expect(await r.text()).toBe("file:/kingdomhearts/index.html");
+    expect(r.headers.get("X-Robots-Tag")).toBe("noindex");
+    expect((await get("https://0a1b2c3d-kh-merch-graph-web.fandex.workers.dev/")).status).toBe(200);
+    // 旧ドメインそのものは従来どおり転送
+    expect((await get("https://kh-merch-graph-web.fandex.workers.dev/")).status).toBe(301);
+    expect((await get("https://merchgraph.app/kingdomhearts/")).headers.get("X-Robots-Tag")).toBeNull();
   });
   it("http:// は https:// へ 301", async () => {
     expect(await body(await get("http://merchgraph.app/kingdomhearts/check?src=x"))).toBe("301 https://merchgraph.app/kingdomhearts/check?src=x");

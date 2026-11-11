@@ -1,4 +1,9 @@
 // URL の振り分けの設定（index.ts から使う。テストからも読む）。
+import ipsJson from "../src/data/ips.json" with { type: "json" };
+
+interface IpRow { ip: string; path: string; status: string; path_aliases?: string }
+const IPS = (ipsJson as unknown as IpRow[]).filter((r) => r.ip && r.path && r.status !== "hidden");
+const noSlash = (p: string) => p.replace(/\/+$/, "");
 // ルート（/）に返すページ。null なら web/index.html（作品を選ぶハブページ、2026-11-02〜）をそのまま返す。
 // IP のパス（例: "/kingdomhearts"）を入れると、ルートでその IP のトップを URL を変えずに返す（ハブ化前の動き）。
 export const ROOT_PAGE: string | null = null;
@@ -7,8 +12,21 @@ export const ROOT_PAGE: string | null = null;
 // （2026-11-10〜。それまでは URL を変えずに中身を返していたが、検索エンジンから見ると同じ中身の URL が2つになるため）。
 // null にすると、ルート直下で見つからないものはそのまま 404 になる。
 export const LEGACY_FALLBACK: string | null = "/kingdomhearts";
-// IP ごとのパス。ここに並べたパスの下は、そのまま静的ファイルとして返す。
-export const IP_PREFIXES = ["/kingdomhearts"];
+// IP ごとのパス（data/ips.csv の path。hidden 以外）。ここに並べたパスの下は、そのまま静的ファイルとして返す。
+export const IP_PREFIXES = IPS.map((r) => noSlash(r.path));
+
+// 作品のパスの別名（data/ips.csv の path_aliases。例: /kimetsu-no-yaiba/ → /demon-slayer/）。
+// 別名の下のパスも、そのまま正式なパスの下へ 301 転送する（/kingdom-hearts/item/x → /kingdomhearts/item/x）。
+export const IP_PATH_ALIASES: [string, string][] = IPS.flatMap((r) =>
+  String(r.path_aliases ?? "").split("|").map((a) => a.trim()).filter(Boolean).map((a) => [noSlash(a), noSlash(r.path)] as [string, string])
+);
+export function ipAliasPath(path: string): string | null {
+  for (const [from, to] of IP_PATH_ALIASES) {
+    if (path === from || path === `${from}/`) return `${to}/`;
+    if (path.startsWith(`${from}/`)) return to + path.slice(from.length);
+  }
+  return null;
+}
 
 // 旧ファイル名から新しい場所へ（2026-10-23 の構造変更前に共有されたリンクを生かすため）。
 // 戻り値が null なら旧URLではない。

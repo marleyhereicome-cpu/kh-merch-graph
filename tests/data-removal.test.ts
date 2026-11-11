@@ -44,14 +44,19 @@ describe("check-data-removal", () => {
 describe("missingRedirects", () => {
   const cat = (rows: string[][]) => ["sku_id,ip", ...rows.map((r) => r.join(","))].join("\n");
   const base = cat([["kh-a", "kingdom-hearts"], ["kh-b", "kingdom-hearts"], ["kny-a", "kimetsu-no-yaiba"]]);
+  // 作品の公開状況（data/ips.csv）に左右されないよう、作品の表を決めて渡す
+  const series = [
+    { ip: "kingdom-hearts", path: "/kingdomhearts/", publish: true },
+    { ip: "kimetsu-no-yaiba", path: "/demon-slayer/", publish: false },
+  ];
   it("公開中の作品の商品が消えて、転送表に行が無ければ挙げる", () => {
     const now = cat([["kh-a", "kingdom-hearts"]]);
-    expect(missingRedirects(base, now, "from_path,to_path,note\n")).toEqual(["/kingdomhearts/item/kh-b"]);
-    expect(missingRedirects(base, now, "from_path,to_path,note\n/kingdomhearts/item/kh-b,/kingdomhearts/item/kh-a,統合\n")).toEqual([]);
+    expect(missingRedirects(base, now, "from_path,to_path,note\n", series)).toEqual(["/kingdomhearts/item/kh-b"]);
+    expect(missingRedirects(base, now, "from_path,to_path,note\n/kingdomhearts/item/kh-b,/kingdomhearts/item/kh-a,統合\n", series)).toEqual([]);
   });
   it("準備中の作品（商品ページが無い）の削除は対象外", () => {
     const now = cat([["kh-a", "kingdom-hearts"], ["kh-b", "kingdom-hearts"]]);
-    expect(missingRedirects(base, now, "")).toEqual([]);
+    expect(missingRedirects(base, now, "", series)).toEqual([]);
   });
   it("今のデータには転送の足りない行が無い（main と比べる）", () => {
     const text = readFileSync("data/catalog.csv", "utf8");

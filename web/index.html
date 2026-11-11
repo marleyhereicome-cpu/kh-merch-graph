@@ -185,7 +185,7 @@ if (location.hash.startsWith('#item=')) location.replace('/kingdomhearts/' + loc
       <input id="seriesSearch" type="search" autocomplete="off" data-i18n-placeholder="searchPh" placeholder="Find a series" aria-label="Find a series" />
     </div>
     <div class="series-grid" id="seriesGrid"></div>
-    <p class="suggest" data-i18n-html="suggest">Is there a series we should add next? <a href="/contact">Tell us</a>.</p>
+    <p class="suggest" data-i18n-html="suggest">Is there a series we should add next? <a href="/contact?topic=series">Tell us</a>.</p>
   </section>
 
   <div class="bands">
@@ -222,9 +222,9 @@ const MCP_URL = 'https://mcp.merchgraph.app/mcp';
 const LANG_KEY = 'khmerch-lang'; // shared with the series pages
 
 // ---------------------------------------------------------------------------
-// The list of series. For the MVP it lives here; the plan is to generate it
-// from data/ips.csv into /ips.json at build time (one source of truth for this
-// page, the series pages, sitemap and the MCP server) and fetch that instead.
+// The list of series comes from /ips.json, built from data/ips.csv at deploy time
+// (one source of truth for this page, the series pages, sitemap and the MCP server; 2026-11-11).
+// To add a series, add a row to data/ips.csv — nothing here needs to change.
 //   ip      catalog id (the `ip` column in catalog.csv, the MCP `ip` parameter)
 //   path    URL of the series page
 //   status  'live' = page is open · 'soon' = catalog in preparation (no link)
@@ -236,29 +236,7 @@ const LANG_KEY = 'khmerch-lang'; // shared with the series pages
 // No official logos or key art: titles are set in type, and the strip uses
 // the same identification-only product photos the catalog already shows.
 // ---------------------------------------------------------------------------
-const SERIES = [
-  {
-    ip: 'kingdom-hearts', path: '/kingdomhearts/', status: 'live', accent: '#3D5A80',
-    name: { en: 'Kingdom Hearts', ja: 'キングダム ハーツ' }, alt: { en: 'キングダム ハーツ', ja: 'Kingdom Hearts' },
-    tagline: { en: 'An action RPG series co-created by Disney and Square Enix.', ja: 'ディズニーとスクウェア・エニックスによるアクションRPGシリーズ。' },
-    aliases: ['kh', 'キンハー', 'kingdom hearts', 'キングダムハーツ'],
-    images: '/kingdomhearts/images.json',
-  },
-  {
-    ip: 'kimetsu-no-yaiba', path: '/demon-slayer/', status: 'soon', accent: '#B23A48',
-    name: { en: 'Demon Slayer', ja: '鬼滅の刃' }, alt: { en: 'Kimetsu no Yaiba · 鬼滅の刃', ja: 'Demon Slayer: Kimetsu no Yaiba' },
-    tagline: { en: 'Set in Taisho-era Japan, the story of a brother and sister fighting demons.', ja: '大正時代を舞台に、鬼と戦う竈門炭治郎と妹・禰豆子の物語。' },
-    aliases: ['kimetsu', 'kimetsu no yaiba', '鬼滅', 'きめつ'],
-    banner: '/hub/kimetsu-no-yaiba.webp',
-  },
-  {
-    ip: 'one-piece', path: '/one-piece/', status: 'soon', accent: '#C08A1E',
-    name: { en: 'One Piece', ja: 'ONE PIECE' }, alt: { en: 'ワンピース', ja: 'ワンピース' },
-    tagline: { en: 'The grand adventure of Luffy and his crew, chasing the title of Pirate King.', ja: '海賊王を目指すルフィと仲間たちの大冒険。' },
-    aliases: ['onepiece', 'ワンピース', 'luffy', 'ルフィ'],
-    banner: '/hub/one-piece.webp',
-  },
-];
+let SERIES = [];
 const SEARCH_FROM = 8; // the series filter appears once there are this many series
 
 const STRINGS = {
@@ -276,7 +254,7 @@ const STRINGS = {
     p2: '値段を知る', p2t: '発売時の定価がわかるので、その出品価格が妥当か、転売価格かを見分けられます。',
     p3: '手に入れる', p3t: 'いまどこで売っているか、海外から買うなら代行サービスが必要かまでわかります。',
     seriesTitle: '作品から探す', searchPh: '作品名で絞り込む',
-    suggest: '取り上げてほしい作品があれば、<a href="/contact">お気軽にお知らせください</a>。',
+    suggest: '取り上げてほしい作品があれば、<a href="/contact?topic=series">お気軽にお知らせください</a>。',
     agentsTitle: 'AIアシスタントからも使えます',
     agentsText: '同じデータを、MCPという仕組みでAIアシスタントやエージェントから呼び出せます。出品タイトルから商品を特定したり、定価を調べたり、日本から買うときに代行サービスが要るかを確かめたりできます。',
     agentsDocs: 'エージェント向けの使い方 ›', agentsSite: 'サイトの概要（llms.txt） ›',
@@ -335,7 +313,7 @@ async function itemCount(ip) {
     return JSON.parse(body.result.content[0].text).total_matches ?? null;
   } catch { return null; }
 }
-const FALLBACK_IMG = /fallback-logo|kh-logo/;
+const FALLBACK_IMG = /fallback-logo|kh-logo|no-photo/;
 async function stripPhotos(url) {
   try {
     const map = await (await fetch(url)).json();
@@ -397,6 +375,12 @@ async function fillLiveCards() {
     if (s.images) {
       if (!photoCache[s.ip]) photoCache[s.ip] = stripPhotos(s.images);
       photoCache[s.ip].then((photos) => {
+        // 公開したばかりで写真の対応表がまだ無い作品は、準備中のときと同じカード画像（banner）を出す（2026-11-11）
+        if (!photos.length && s.banner) {
+          const strip = card.querySelector('.strip');
+          if (strip) strip.outerHTML = `<div class="banner-art" aria-hidden="true"><img src="${esc(s.banner)}" alt="" loading="lazy"></div>`;
+          return;
+        }
         const cells = card.querySelectorAll('.strip div');
         photos.forEach((u, k) => {
           if (!cells[k]) return;
@@ -420,12 +404,18 @@ async function renderMeta() {
 }
 
 applyStrings();
-if (SERIES.length >= SEARCH_FROM) {
-  document.getElementById('seriesSearchWrap').classList.add('show');
-  document.getElementById('seriesSearch').addEventListener('input', (e) => render(e.target.value));
-}
-render();
-renderMeta();
+fetch('/ips.json')
+  .then((r) => (r.ok ? r.json() : []))
+  .catch(() => [])
+  .then((list) => {
+    SERIES = Array.isArray(list) ? list.filter((x) => x && x.ip && x.status !== 'hidden') : [];
+    if (SERIES.length >= SEARCH_FROM) {
+      document.getElementById('seriesSearchWrap').classList.add('show');
+      document.getElementById('seriesSearch').addEventListener('input', (e) => render(e.target.value));
+    }
+    render();
+    renderMeta();
+  });
 // ---------------------------------------------------------------------------
 // New Year greeting: a short thank-you band, shown only between the dates
 // (visitor's local date, both ends inclusive). No items are filtered.

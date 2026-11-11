@@ -64,6 +64,7 @@
       <select name="topic">
         <option value="press" data-i18n="topicPress">Press / interview</option>
         <option value="partnership" data-i18n="topicPartner">Partnership / collaboration</option>
+        <option value="series" data-i18n="topicSeries">Request a series</option>
         <option value="other" data-i18n="topicOther" selected>Something else</option>
       </select>
     </label>
@@ -89,7 +90,7 @@ const STRINGS = {
     lead: '取材や提携のご相談などは、こちらからお送りください。メールでお返事します。',
     noteData: '掲載内容の誤りは、各商品の詳細にある報告フォームからお知らせいただくのが確実です。',
     noteRights: '権利者の方は legal@merchgraph.app までご連絡ください。',
-    topic: 'ご用件', topicPress: '取材', topicPartner: '提携・コラボレーション', topicOther: 'その他',
+    topic: 'ご用件', topicPress: '取材', topicPartner: '提携・コラボレーション', topicSeries: '作品のリクエスト', topicOther: 'その他',
     name: 'お名前', optional: '（任意）', email: 'メールアドレス（お返事用）', message: '内容', send: '送信する',
   },
   msg: {
@@ -113,6 +114,12 @@ if (LANG === 'ja') {
   document.querySelectorAll('[data-i18n]').forEach((el) => { const v = STRINGS.ja[el.dataset.i18n]; if (v !== undefined) el.textContent = v; });
   const sw = document.getElementById('langSwitch'); sw.textContent = 'English'; sw.href = '?lang=en'; sw.lang = 'en';
 }
+// ?topic=series などで用件を選んだ状態で開く（ハブの「次に追加してほしい作品は？」から。2026-11-11）
+(function preselectTopic() {
+  const want = new URLSearchParams(location.search).get('topic');
+  const sel = document.querySelector('select[name="topic"]');
+  if (want && sel && [...sel.options].some((o) => o.value === want)) sel.value = want;
+})();
 const shownAt = Date.now();
 const form = document.getElementById('contactForm');
 const out = document.getElementById('out');

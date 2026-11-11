@@ -222,6 +222,27 @@ Web版（merchgraph.app）の Worker が、`from_path` へのアクセスを `to
 - 公開中の作品の商品が catalog.csv から消えたのに、ここに行が無いと、デプロイ前のデータ消失チェック（`scripts/check-data-removal.mjs`）が止める。
 - 転送先がまた転送される行（連鎖）、今ある商品ページを転送元にする行、カタログに無い商品ページへの転送は、`npm run validate` がエラーにする。
 
+### 2.16 `ips.csv` — 作品マスタ（2026-11-11）
+1作品1行。ハブ（`/ips.json`）・作品ページ（`templates/ip/` から生成）・商品ページ・まとめページ・sitemap・Web版の URL（`IP_PREFIXES`）・MCP の対応作品一覧（ツール説明・llms.txt）が、すべてこれを読む。新しい作品を出すときは、この表に1行足し（status=live）、`ip_terms.csv` に作品名とキャラクター名を足すだけ。季節企画・BGM・検索の対訳表など作品固有の部品は `ip-config/<ip>/` に置く（任意）。
+
+| 列 | 内容 |
+|---|---|
+| ip | 内部ID。catalog.csv の ip・MCP の ip と同じ（変えない） |
+| path | 公開URL（例: `/demon-slayer/`）。英語の通称をハイフンでつなぐ |
+| status | `live`（公開）／`soon`（ハブに「準備中」で出す。ページは作らない）／`hidden`（どこにも出さない） |
+| coverage | `deep`（深掘り）／`partial`（一部のみ収録。作品ページとまとめページの冒頭に1行出す） |
+| sort | ハブの並び順（小さい順） |
+| name_en / name_ja | 表示名 |
+| alt_en / alt_ja | 併記名 |
+| aliases | ハブの作品検索の別名（`|` 区切り） |
+| tagline_en / tagline_ja | 作品の一言紹介（ハブのカード、作品ページの「〜とは？」の既定の答え） |
+| rights_holders_en / _ja | 権利者（`|` 区切り）。作品ページの法務表記・商品ページに出る |
+| accent | ハブのカードの差し色 |
+| launched | 公開日（記録用） |
+| images | 写真の対応表のパス（例: `/kingdomhearts/images.json`） |
+| banner | 写真がまだ無い作品のカード画像（`/hub/…`） |
+| path_aliases | 別名のパス（`|` 区切り。例: `/kimetsu-no-yaiba/`）。正式な path へ 301 転送する |
+
 ## 3. MCPツール
 
 ### 3.1 `resolve_listing`
