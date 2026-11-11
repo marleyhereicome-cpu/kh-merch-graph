@@ -2,3 +2,9 @@ from_path,to_path,note
 /kingdomhearts/character/mickey,/kingdomhearts/character/king-mickey,キャラ表記の統一（Mickey → King Mickey、2026-11-11 データ整備）
 /kingdomhearts/character/mickey-mouse,/kingdomhearts/character/king-mickey,キャラ表記の統一（Mickey Mouse → King Mickey、2026-11-11 データ整備）
 /kingdomhearts/character/shadow,/kingdomhearts/character/shadow-heartless,キャラ表記の統一（Shadow → Shadow Heartless、2026-11-11 データ整備）
+/kingdomhearts/item/dst-select-s3-wave3-set-of-3-multipacks-2019,/kingdomhearts/item/dst-select-wave3-set3-multipacks-2019,統合（2026-11-11 データ整備 依頼3）
+/kingdomhearts/item/loungefly-kh-stainedglass-blindbox-pin-hottopic,/kingdomhearts/item/loungefly-kh-stained-glass-blindbox-pin-hottopic,統合（2026-11-11 データ整備 依頼3）
+/kingdomhearts/item/heruniverse-kh-sora-crossbody-bag-2026,/kingdomhearts/item/her-universe-kh-sora-crossbody-bag,統合（2026-11-11 データ整備 依頼3）
+/kingdomhearts/item/gamestop-kh-oathkeeper-keychain-monogram,/kingdomhearts/item/gamestop-kh-oathkeeper-keychain,統合（2026-11-11 データ整備 依頼3）
+/kingdomhearts/item/gamestop-kh-sora-keyblade-keychain-monogram,/kingdomhearts/item/gamestop-kh-sora-keyblade-keychain,統合（2026-11-11 データ整備 依頼3）
+/kingdomhearts/item/gamestop-kh-sleeping-lion-keychain-monogram,/kingdomhearts/item/gamestop-kh-sleeping-lion-keyblade-keychain,統合（2026-11-11 データ整備 依頼3）
