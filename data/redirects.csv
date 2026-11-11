@@ -1,1 +1,4 @@
 from_path,to_path,note
+/kingdomhearts/character/mickey,/kingdomhearts/character/king-mickey,キャラ表記の統一（Mickey → King Mickey、2026-11-11 データ整備）
+/kingdomhearts/character/mickey-mouse,/kingdomhearts/character/king-mickey,キャラ表記の統一（Mickey Mouse → King Mickey、2026-11-11 データ整備）
+/kingdomhearts/character/shadow,/kingdomhearts/character/shadow-heartless,キャラ表記の統一（Shadow → Shadow Heartless、2026-11-11 データ整備）
