@@ -1,0 +1,59 @@
+# PR ごとの Web版のプレビュー（2026-11-11、段階1）。本番には出さない。
+# PR を開く・更新するたびに、web/ を作り直して Cloudflare に「版（version）」だけを上げ、
+# https://pr-<PR番号>-kh-merch-graph-web.<アカウント>.workers.dev のプレビューURLを PR にコメントする。
+# 本番（merchgraph.app）は deploy.yml がマージ後に更新するまで変わらない。
+# プレビューは検索エンジンに載らないよう、Worker が X-Robots-Tag: noindex を付ける（web-worker/index.ts）。
+name: Preview
+
+on:
+  pull_request:
+    paths:
+      - "web/**"
+      - "web-worker/**"
+      - "templates/**"
+      - "ip-config/**"
+      - "data/**"
+      - "scripts/**"
+      - ".github/workflows/preview.yml"
+
+concurrency:
+  group: preview-${{ github.event.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    # 秘密の値（Cloudflare のトークン）を使うので、このリポジトリのブランチからの PR だけ
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build:data
+      - run: npm run build:pages
+      - name: Upload a preview version
+        id: up
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx wrangler versions upload --config web-worker/wrangler.jsonc \
+            --preview-alias "pr-${{ github.event.number }}" \
+            --message "PR #${{ github.event.number }} preview" 2>&1 | tee upload.log
+          URL=$(grep -oE 'https://pr-${{ github.event.number }}-[a-z0-9.-]+\.workers\.dev' upload.log | head -1)
+          if [ -z "$URL" ]; then URL=$(grep -oE 'https://[a-z0-9-]+-kh-merch-graph-web\.[a-z0-9.-]+\.workers\.dev' upload.log | head -1); fi
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+      - name: Comment the preview URL
+        if: steps.up.outputs.url != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr comment "${{ github.event.number }}" --edit-last --body "プレビュー（本番には出ていません）: ${{ steps.up.outputs.url }}/ （更新: ${{ github.event.pull_request.head.sha }}）" \
+            || gh pr comment "${{ github.event.number }}" --body "プレビュー（本番には出ていません）: ${{ steps.up.outputs.url }}/ （更新: ${{ github.event.pull_request.head.sha }}）"

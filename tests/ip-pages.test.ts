@@ -76,7 +76,7 @@ describe("a new series added to ips.csv gets the whole set of pages", () => {
     expect(list.map((x: { ip: string }) => x.ip)).toContain("test-series");
     expect(list.find((x: { ip: string }) => x.ip === "test-series")).toMatchObject({ status: "live", path: "/test-series/", images: "/test-series/images.json" });
     expect(llms).toContain("### Test Series (live)");
-    expect(llms).toContain("Kingdom Hearts and Test Series are live");
+    expect(llms).toMatch(/Kingdom Hearts(, [A-Za-z ]+)* and Test Series are live/);
     expect(llms).toContain("for Test Series: Test Studio, Test Publisher");
   });
   it("item pages, collection pages and sitemap entries", () => {

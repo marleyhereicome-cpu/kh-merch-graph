@@ -375,6 +375,12 @@ async function fillLiveCards() {
     if (s.images) {
       if (!photoCache[s.ip]) photoCache[s.ip] = stripPhotos(s.images);
       photoCache[s.ip].then((photos) => {
+        // 公開したばかりで写真の対応表がまだ無い作品は、準備中のときと同じカード画像（banner）を出す（2026-11-11）
+        if (!photos.length && s.banner) {
+          const strip = card.querySelector('.strip');
+          if (strip) strip.outerHTML = `<div class="banner-art" aria-hidden="true"><img src="${esc(s.banner)}" alt="" loading="lazy"></div>`;
+          return;
+        }
         const cells = card.querySelectorAll('.strip div');
         photos.forEach((u, k) => {
           if (!cells[k]) return;

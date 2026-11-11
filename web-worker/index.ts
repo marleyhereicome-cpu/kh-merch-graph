@@ -35,6 +35,11 @@ function isUnder(path: string, prefix: string): boolean {
   return path === prefix || path.startsWith(`${prefix}/`);
 }
 
+// PR のプレビューの URL（例: pr-92-kh-merch-graph-web.xxx.workers.dev、0a1b2c3d-kh-merch-graph-web.xxx.workers.dev）
+export function isPreviewHost(hostname: string): boolean {
+  return /^(pr-\d+|[0-9a-f]{8})-[a-z0-9-]+\.[a-z0-9-]+\.workers\.dev$/.test(hostname);
+}
+
 function redirect(url: URL, to: string): Response {
   const target = new URL(to, url.origin);
   if (target.search === "" && !/[?]/.test(to)) target.search = url.search;
@@ -81,7 +86,8 @@ async function route(request: Request, env: Env): Promise<Response> {
   const path = url.pathname;
 
   // 旧ドメイン（*.workers.dev）→ 正式ドメインへ。パスは新しい構造に読み替える。
-  if (env.CANONICAL_HOST && url.hostname !== env.CANONICAL_HOST && url.hostname.endsWith(".workers.dev")) {
+  // ただし PR のプレビュー（pr-<番号>-… や <版のID>-… の workers.dev。.github/workflows/preview.yml）は転送しない。
+  if (env.CANONICAL_HOST && url.hostname !== env.CANONICAL_HOST && url.hostname.endsWith(".workers.dev") && !isPreviewHost(url.hostname)) {
     const to = new URL(`https://${env.CANONICAL_HOST}`);
     to.pathname = REDIRECTS.get(path) ?? legacyPath(path) ?? ipAliasPath(path) ?? path;
     to.search = url.search;
@@ -136,6 +142,9 @@ async function route(request: Request, env: Env): Promise<Response> {
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    return withSecurityHeaders(await route(request, env));
+    const res = withSecurityHeaders(await route(request, env));
+    // プレビューは検索エンジンに載せない
+    if (isPreviewHost(new URL(request.url).hostname)) res.headers.set("X-Robots-Tag", "noindex");
+    return res;
   },
 };

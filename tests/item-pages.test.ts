@@ -5,8 +5,12 @@ import { buildItemPages, MIN_COLLECTION, SERIES, slugOf, titleSuffixes } from ".
 import { catalog } from "../src/lib/store.js";
 
 // 商品ごとの静的ページ（2026-10-28）：検索エンジン・AI が商品単位で読めるページ。
-type Collection = { kind: string; id: string; path: string; html: string; count: number };
-const { pages, sitemap, collections } = buildItemPages({ write: false }) as { pages: { sku: string; html: string }[]; sitemap: string; collections: Collection[] };
+type Collection = { kind: string; id: string; path: string; html: string; count: number; ip: string };
+// 公開中の作品が増えても落ちないよう、作品ごとに絞って確かめる（2026-11-11）
+const built = buildItemPages({ write: false }) as { pages: { sku: string; ip: string; html: string }[]; sitemap: string; collections: Collection[] };
+const { sitemap } = built;
+const pages = built.pages.filter((p) => p.ip === "kingdom-hearts");
+const collections = built.collections.filter((c) => c.ip === "kingdom-hearts");
 const ldOf = (html: string) => JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)![1]);
 
 describe("item pages", () => {
@@ -17,6 +21,12 @@ describe("item pages", () => {
     expect(sitemap).toContain("<loc>https://merchgraph.app/kingdomhearts/</loc>");
     // ルートは作品を選ぶハブページ（2026-11-02〜）
     expect(sitemap).toContain("<loc>https://merchgraph.app/</loc>");
+    // 公開中のどの作品も、商品の数だけ商品ページがある
+    for (const x of SERIES.filter((x: any) => x.publish)) {
+      const n = catalog.filter((s) => s.ip === x.ip).length;
+      expect(built.pages.filter((p) => p.ip === x.ip)).toHaveLength(n);
+      expect(sitemap).toContain(`<loc>https://merchgraph.app${x.path}</loc>`);
+    }
   });
 
   it("series that are not published yet get no item pages or sitemap entries", () => {
