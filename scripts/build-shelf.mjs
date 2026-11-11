@@ -9,32 +9,29 @@
 //   3. 種類（line_type＝カードの枠色）をならす：すでに多い種類・くじ景品は後回しにする。
 //   4. 同じラインからは1点まで（くじは賞違いがあるので2点まで）。同じメーカーの同じ日の発売（コラボの一斉発売）は2点まで。
 //   5. 迷ったら試用版（/kingdomhearts/shelf、2026-11-10 に削除）の19点を優先し、それでも同じなら sku_id 順（毎回同じ結果になる）。
-// 作品を増やすときは SHELVES に1行足す。
+// 作品を増やすときは ip-config/<ip>/shelf.json を置く（下の SHELVES）。
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadIpConfig, loadIps } from "./lib/ips.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const readJson = (p) => JSON.parse(readFileSync(join(ROOT, p), "utf8"));
 
-export const SHELVES = [
-  {
-    ip: "kingdom-hearts",
-    images: "web/kingdomhearts/images.json",
-    out: "web/kingdomhearts/shelf.json",
-    size: 24,
-    // 試用版（2026-11-08）の19点。条件を満たす限り優先して残す。
-    prefer: [
-      "ichiban-kuji-kh-2018-b", "ichiban-kuji-kh-2018-d-mickey", "ichiban-kuji-kh-second-memory-b-mickey",
-      "ichiban-kuji-kh-second-memory-a", "ichiban-kuji-kh-20th-anniversary-h-others", "ichiban-kuji-kh-20th-anniversary-d-goofy",
-      "kh-x-tamagotchi-light-mode", "ichiban-kuji-kh-linking-hearts-c", "kh2-acrylic-stand-soukai",
-      "kh-acrylic-stand-kyusoku-hiru", "kh-long-hoodie-halloweentown-m", "kh-furyu-prize-plush-vol3-ventus",
-      "kh3-pets-dogwear-sora", "kh2-plush-sora-osuwari", "kh2-form-ism-roxas", "kh-shimamura-towel-handkerchief",
-      "kh-shimamura-charm", "kh-avail-shopping-bag-shadow", "kh-avail-tote-2way",
-    ],
-  },
-];
+// 棚を出す作品＝ ip-config/<ip>/shelf.json がある公開中（data/ips.csv の status=live）の作品（2026-11-11〜）。
+// shelf.json: { "size": 24, "prefer": [迷ったら優先して残す sku_id] }。ページに棚を出すには、同じ作品の shelf.html・shelf-script.html も置く。
+export const SHELVES = loadIps()
+  .filter((x) => x.status === "live")
+  .map((x) => ({ x, cfg: loadIpConfig(x.ip) }))
+  .filter(({ cfg }) => cfg.shelf)
+  .map(({ x, cfg }) => ({
+    ip: x.ip,
+    images: `web${x.images}`,
+    out: `web${x.path}shelf.json`,
+    size: cfg.shelf.size ?? 24,
+    prefer: cfg.shelf.prefer ?? [],
+  }));
 
 const EXCLUDED_TYPES = new Set(["game", "console", "book", "music"]);
 const PER_YEAR_FIRST_PASS = 2;

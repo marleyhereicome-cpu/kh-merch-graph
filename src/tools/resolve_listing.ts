@@ -27,6 +27,7 @@ import {
 import { applyOutOfScope, detectOutOfScope } from "../lib/out-of-scope.js";
 import { isTrue } from "../lib/types.js";
 import { catalogIps } from "../lib/ip-terms.js";
+import { liveSeriesNames } from "../lib/ips.js";
 
 function buildNextChecks(
   candidates: ResolveCandidate[],
@@ -148,7 +149,7 @@ export function registerResolveListingTool(server: McpServer, onUsage?: UsageLog
     {
       title: "Resolve listing",
       description:
-        "Identify a Kingdom Hearts item from a marketplace listing (Mercari, Yahoo! Auctions, Suruga-ya, Mandarake, eBay…). " +
+        `Identify a ${liveSeriesNames()} item from a marketplace listing (Mercari, Yahoo! Auctions, Suruga-ya, Mandarake, eBay…). ` +
         "Paste the listing title as-is (Japanese or English), e.g. {title: \"一番くじ キングダムハーツ A賞 ソラ フィギュア 箱なし\", " +
         "price_jpy: 4500}. Returns candidates[] (sku_id, name_en, confidence 0-1, why, source_url; several when the title " +
         "is ambiguous), weak_matches[] when unsure, conditions[] (Japanese condition words such as 未使用/箱なし explained), " +

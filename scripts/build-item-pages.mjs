@@ -6,13 +6,14 @@
 //   web/sitemap.xml                       → https://merchgraph.app/sitemap.xml
 // として配る。どちらもデプロイのたびに作り直す生成物なので、リポジトリには入れない（.gitignore）。
 //
-// 作品（IP）ごとの設定は下の SERIES にまとめてある（2026-11-02〜）。新しい作品を公開するときは、
-// その作品の publish を true にするだけで、商品ページと sitemap の行が作られる。
+// 作品（IP）ごとの設定は data/ips.csv（2026-11-11〜）。新しい作品を公開するときは、
+// その作品の status を live にするだけで、商品ページ・まとめページ・sitemap の行が作られる。
 //
 // 使い方: npm run build:data のあとに npm run build:pages（デプロイの workflow でも同じ順に実行する）。
 // 入力: src/data/catalog.json・product_lines.json（build:data の出力）と、各作品の images.json。
 
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { FALLBACK_IMAGE_RE, loadIps, seriesFromIps } from "./lib/ips.mjs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -27,36 +28,10 @@ const ORIGIN = "https://merchgraph.app";
 //   packageCredit  リポジトリに置いた公式パッケージ画像（images/games/…）のクレジット
 //   images       商品写真の対応表（無ければ写真なしで作る）
 //   publish      true のときだけ商品ページと sitemap の行を作る（準備中の作品は false のまま）
-// 作品ページ（トップのハブ web/index.html の SERIES）と同じ ip・path にそろえること。
-export const SERIES = [
-  {
-    ip: "kingdom-hearts",
-    path: "/kingdomhearts/",
-    name: "Kingdom Hearts",
-    rights: "Square Enix, Disney",
-    packageCredit: "Official product packaging — © Disney / © Square Enix",
-    images: "web/kingdomhearts/images.json",
-    publish: true,
-  },
-  {
-    ip: "kimetsu-no-yaiba",
-    path: "/demon-slayer/",
-    name: "Demon Slayer",
-    rights: "the rights holders of Demon Slayer: Kimetsu no Yaiba",
-    packageCredit: "Official product packaging",
-    images: "web/demon-slayer/images.json",
-    publish: false,
-  },
-  {
-    ip: "one-piece",
-    path: "/one-piece/",
-    name: "One Piece",
-    rights: "the rights holders of One Piece",
-    packageCredit: "Official product packaging",
-    images: "web/one-piece/images.json",
-    publish: false,
-  },
-];
+//   coverage     partial なら、まとめページの冒頭に「一部の商品のみ収録」の1行を出す
+// 作品の表は data/ips.csv から作る（2026-11-11、段階1）。status=live の作品だけページを作る（publish: true）。
+// 表示名・権利者・写真の置き場もそこから。ゲームのパッケージ写真の表記は ip-config/<ip>/strings.json の en.gamePackageCredit。
+export const SERIES = seriesFromIps(loadIps());
 const seriesOf = (ip) => SERIES.find((x) => x.ip === ip);
 const itemDirOf = (series) => join(ROOT, "web", series.path, "item");
 
@@ -196,7 +171,7 @@ function channelsOf(s) {
 
 function imageFor(sku, images, series) {
   const v = images[sku];
-  if (!v || /(^|\/)kh-fallback-logo\.png$/.test(v.split(/[?#]/)[0])) return null;
+  if (!v || FALLBACK_IMAGE_RE.test(v.split(/[?#]/)[0])) return null;
   if (/^https?:\/\//.test(v)) return { url: v, credit: `photo: ${hostOf(v)}` };
   // リポジトリに置いたゲームのパッケージ画像（images/games/…）。CLAUDE.md の例外。
   return { url: `${ORIGIN}${series.path}${v.replace(/^\.?\//, "")}`, credit: series.packageCredit };
@@ -365,7 +340,7 @@ ${PAGE_CSS}</style>
     <span class="tag">${esc(region)} release</span>
     ${characters ? `<span class="tag">${esc(characters)}</span>` : ""}
   </div>
-  ${img ? `<div class="photo"><img src="${esc(img.url)}" alt="${esc(name)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='/kh-fallback-logo.png';var c=document.getElementById('credit');if(c)c.textContent='';" /></div><div class="credit" id="credit">${esc(img.credit)}</div>` : ""}
+  ${img ? `<div class="photo"><img src="${esc(img.url)}" alt="${esc(name)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${esc(series.fallbackImage)}';var c=document.getElementById('credit');if(c)c.textContent='';" /></div><div class="credit" id="credit">${esc(img.credit)}</div>` : ""}
 
   <section>
     <h2>Original price</h2>
@@ -552,10 +527,15 @@ const breadcrumbLd = (list) => ({
   "@type": "BreadcrumbList",
   itemListElement: list.map(([name, item], i) => ({ "@type": "ListItem", position: i + 1, name, item })),
 });
+// 「一部の商品のみ収録」（data/ips.csv の coverage=partial）。作品ページ（templates/ip/index.html）と同じ文。
+const coverageNoteText = (series) => `Only some ${series.name} items are listed so far: the ones we could confirm from official sources.`;
+const coverageNoteHtml = (series) => (series.coverage === "partial" ? `\n  <p class="note coverage-note">${esc(coverageNoteText(series))}</p>` : "");
+
 const itemListLd = (name, url, items, series) => ({
   "@type": "ItemList",
   "@id": `${url}#list`,
   name,
+  ...(series.coverage === "partial" ? { description: coverageNoteText(series) } : {}),
   url,
   numberOfItems: items.length,
   itemListElement: items.map((s, i) => ({ "@type": "ListItem", position: i + 1, url: ORIGIN + itemPathIn(series, s.sku_id), name: nameOf(s) })),
@@ -578,7 +558,7 @@ function renderCollection(page, series, lines) {
   };
   const ja = page.kind === "series" && page.line.name_ja && page.line.name_ja !== page.line.name_en ? `<p class="ja" lang="ja">${esc(page.line.name_ja)}</p>` : "";
   const body = `  <h1>${esc(heading)}</h1>
-  ${ja}
+  ${ja}${coverageNoteHtml(series)}
   <p class="lead">${esc(intro)}</p>
   <section class="list">
     <h2>${page.kind === "series" && (page.line.acquisition_type === "kuji") ? "Prizes" : "Items"} (${page.items.length})</h2>
@@ -619,7 +599,7 @@ function renderBrowse(series, items, lines, { seriesPages, characterPages }) {
       breadcrumbLd([["Merchgraph", `${ORIGIN}/`], [series.name, ORIGIN + series.path], ["Browse", url]]),
     ],
   };
-  const body = `  <h1>Browse all ${esc(series.name)} merchandise</h1>
+  const body = `  <h1>Browse all ${esc(series.name)} merchandise</h1>${coverageNoteHtml(series)}
   <p class="lead">${esc(intro)}</p>
   <section class="list" id="series">
     <h2>By product line (${sortedSeries.length})</h2>
@@ -668,8 +648,7 @@ export function relatedFor(s, ctx) {
 }
 
 // ---- 実行 ----
-export function buildItemPages({ write = true, series = SERIES } = {}) {
-  const catalog = readJson("src/data/catalog.json");
+export function buildItemPages({ write = true, series = SERIES, catalog = readJson("src/data/catalog.json") } = {}) {
   const lines = new Map(readJson("src/data/product_lines.json").map((l) => [l.line_id, l]));
   const live = series.filter((x) => x.publish);
 

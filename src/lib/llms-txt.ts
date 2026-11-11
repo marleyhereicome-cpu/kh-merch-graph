@@ -2,10 +2,13 @@
 // AIエージェントがこのMCPサーバーを自力で見つけたときに、人手を介さず
 // 「何をするサーバーか」「どう繋ぐか」「どのツールがあるか」を読み取れるようにするための静的テキスト。
 // baseUrl はリクエストごとに request.url の origin から組み立てる（ドメインをここに固定しない）。
+// 対応作品の一覧は data/ips.csv（status=live）から作る（2026-11-11）。
+import { liveIpList, liveSeriesNames } from "./ips.js";
+
 export function buildLlmsTxt(baseUrl: string, maxBatchListings: number): string {
   return `# KH Merch Graph MCP Server
 
-> An MCP (Model Context Protocol) server that turns a Japanese secondhand-listing title/description for Kingdom Hearts merchandise into a canonical SKU match, condition-term explanation, bootleg caution flags, and a price/landed-cost estimate.
+> An MCP (Model Context Protocol) server that turns a Japanese secondhand-listing title/description for ${liveSeriesNames()} merchandise into a canonical SKU match, condition-term explanation, bootleg caution flags, and a price/landed-cost estimate.
 
 ## What makes this different
 
@@ -31,7 +34,7 @@ export function buildLlmsTxt(baseUrl: string, maxBatchListings: number): string 
 
 ## Scope and limits
 
-- Supported IP today: Kingdom Hearts only (\`ip = "kingdom-hearts"\`). Requests naming other franchises are noted (by keyword only) to help prioritize what to add next — they are not silently ignored, but they are also not answered yet.
+- Supported series today (pass as \`ip\`): ${liveIpList()}. Requests naming other franchises are noted (by keyword only) to help prioritize what to add next — they are not silently ignored, but they are also not answered yet.
 - Authenticity notes are caution flags for the calling agent to weigh, not a verdict that an item is genuine or fake.
 - Prices and landed-cost totals are estimates for planning, not quotes or appraisals.
 - \`msrp_jpy\` is always in yen. For items released outside Japan it is the original price (\`price_local\` + \`currency\`, e.g. 39.99 USD) converted at a fixed, periodically refreshed rate (\`discover\` returns the rates it used as \`fx_rates_to_jpy\`), so \`budget_jpy\` compares like with like.

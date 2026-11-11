@@ -63,7 +63,16 @@ tests/           vitest
 docs/            SPEC.md, GLOSSARY.md, PIPELINE.md（GitHub Actions の使い方）
 prompts/         各Stepの指示
 .github/workflows/  claude.yml（@claude）, deploy.yml（main へ push で本番デプロイ）, weekly.yml（週次点検）
+web/             Web版（merchgraph.app）の静的ファイル。web-worker/ が URL を振り分ける
+templates/ip/    作品ページ（カタログ・出品チェック）の共通の本体
+ip-config/<ip>/  作品ごとの設定（文言の差分・季節企画・BGM・検索の対訳表・カードの棚など。任意）
 ```
+
+### 作品ページは生成物（2026-11-11〜）
+- `web/<作品>/index.html`・`check.html`・`web/ips.json`・`web/llms.txt` は `npm run build:pages` が作る（リポジトリには入れない）。
+  **直すときは `templates/ip/` か `ip-config/<ip>/`**。`web/kingdomhearts/index.html` を直接直しても消える。
+- 作品の一覧は `data/ips.csv`（1作品1行、列は docs/SPEC.md §2.16）。新しい作品を出すときは、ここに1行足して status=live、`data/ip_terms.csv` に作品名とキャラ名を足すだけ。
+  ハブ・作品ページ・商品ページ・まとめページ・sitemap・llms.txt・Worker の URL・MCP の対応作品一覧に出る。
 
 ## 各Stepの終わり方
 - そのStepで作った・変えたファイルを箇条書きで示し、次にユーザーが自分でやること（あれば）を1〜3行で書く。

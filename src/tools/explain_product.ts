@@ -6,6 +6,7 @@ import { buildAvailabilityInfo, buildRegionInfo, buildShippingInfo } from "../li
 import { resolveCandidates } from "../lib/resolve.js";
 import { splitPipe, isTrue } from "../lib/types.js";
 import { localPriceOf } from "../lib/price.js";
+import { liveSeriesNames } from "../lib/ips.js";
 
 function numOrNull(value: string): number | null {
   if (value === "") return null;
@@ -19,7 +20,7 @@ export function registerExplainProductTool(server: McpServer): void {
     {
       title: "Explain product",
       description:
-        "Get the full record for one Kingdom Hearts catalog item. Pass a sku_id from discover/resolve_listing " +
+        `Get the full record for one catalog item (${liveSeriesNames()}). Pass a sku_id from discover/resolve_listing ` +
         "(e.g. {sku_id: \"ichiban-kuji-kh-2018-a\"}), or a free-text query such as {query: \"Sora Bring Arts Halloween Town\"} " +
         "to get the best match. Returns names (en/ja), product line (maker, line type, release date), characters, original " +
         "price (msrp_jpy, price_local, currency, price_basis), acquisition_type (retail, kuji, prize, …), availability " +

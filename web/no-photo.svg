@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="No photo">
+  <!-- 写真が無い・読めないときの代わりの絵（作品に関係しない共通のもの。2026-11-11）。値札はサイトのモチーフ。 -->
+  <rect width="400" height="400" fill="#F7F3EC"/>
+  <g fill="none" stroke="#C9BBA0" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M150 130h120a14 14 0 0 1 14 14v112a14 14 0 0 1-14 14H150l-46-70z"/>
+    <circle cx="146" cy="200" r="11"/>
+    <path d="M190 182h64M190 218h44"/>
+  </g>
+</svg>

@@ -14,7 +14,7 @@
 // - すべての応答にセキュリティ関連のヘッダーを付ける（routes.ts の SECURITY_HEADERS）。
 // - /api/contact は問い合わせフォームの送信先（contact.ts）、/api/csp-report は CSP 違反の報告の受け口。
 import { handleContact, type ContactEnv } from "./contact.js";
-import { IP_PREFIXES, LEGACY_FALLBACK, ROOT_PAGE, SECURITY_HEADERS, legacyPath, redirectTable } from "./routes.js";
+import { IP_PREFIXES, LEGACY_FALLBACK, ROOT_PAGE, SECURITY_HEADERS, ipAliasPath, legacyPath, redirectTable } from "./routes.js";
 import redirectsJson from "../src/data/redirects.json" with { type: "json" };
 
 const REDIRECTS = redirectTable(redirectsJson as { from_path: string; to_path: string }[]);
@@ -83,7 +83,7 @@ async function route(request: Request, env: Env): Promise<Response> {
   // 旧ドメイン（*.workers.dev）→ 正式ドメインへ。パスは新しい構造に読み替える。
   if (env.CANONICAL_HOST && url.hostname !== env.CANONICAL_HOST && url.hostname.endsWith(".workers.dev")) {
     const to = new URL(`https://${env.CANONICAL_HOST}`);
-    to.pathname = REDIRECTS.get(path) ?? legacyPath(path) ?? path;
+    to.pathname = REDIRECTS.get(path) ?? legacyPath(path) ?? ipAliasPath(path) ?? path;
     to.search = url.search;
     return Response.redirect(to.toString(), 301);
   }
@@ -95,7 +95,7 @@ async function route(request: Request, env: Env): Promise<Response> {
     return Response.redirect(to.toString(), 301);
   }
 
-  const moved = REDIRECTS.get(path) ?? legacyPath(path);
+  const moved = REDIRECTS.get(path) ?? legacyPath(path) ?? ipAliasPath(path);
   if (moved) return redirect(url, moved);
 
   if (path === "/api/contact") return handleContact(request, env);

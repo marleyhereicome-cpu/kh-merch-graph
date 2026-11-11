@@ -45,7 +45,10 @@ describe("hub page (web/index.html)", () => {
   it("is the canonical root with the site name and a link to each live series", () => {
     expect(html).toContain('<link rel="canonical" href="https://merchgraph.app/" />');
     expect(html).toContain('class="brand" href="/">Merchgraph</a>');
-    expect(html).toContain("path: '/kingdomhearts/', status: 'live'");
+    // 作品の一覧は data/ips.csv から作る /ips.json（2026-11-11〜）
+    expect(html).toContain("fetch('/ips.json')");
+    const ips = JSON.parse(readFileSync("web/ips.json", "utf8"));
+    expect(ips.find((x: any) => x.ip === "kingdom-hearts")).toMatchObject({ path: "/kingdomhearts/", status: "live" });
   });
   it("keeps the non-affiliation notice and shows no official logo", () => {
     expect(html).toContain("Not affiliated with, endorsed or sponsored by the rights holders of any series listed here");
@@ -102,18 +105,19 @@ describe("seasonal effects and greeting", () => {
     }
   });
   it("hub series cards introduce the series itself, not its merch", () => {
-    expect(hub).toContain("ディズニーとスクウェア・エニックスによるアクションRPGシリーズ。");
-    expect(hub).toContain("大正時代を舞台に、鬼と戦う竈門炭治郎と妹・禰豆子の物語。");
-    expect(hub).toContain("海賊王を目指すルフィと仲間たちの大冒険。");
+    const ipsCsv = readFileSync("data/ips.csv", "utf8");
+    expect(ipsCsv).toContain("ディズニーとスクウェア・エニックスによるアクションRPGシリーズ。");
+    expect(ipsCsv).toContain("大正時代を舞台に、鬼と戦う竈門炭治郎と妹・禰豆子の物語。");
+    expect(ipsCsv).toContain("海賊王を目指すルフィと仲間たちの大冒険。");
   });
 });
 
 // 2026-11-05：ハブの準備中の作品カードに Marley 提供の画像（公式ロゴ・キービジュアルではない）を出す。
 describe("hub banners and the KH search box", () => {
   it("series in preparation show their banner image, and the files exist", () => {
-    const hub = readFileSync("web/index.html", "utf8");
+    const ips = JSON.parse(readFileSync("web/ips.json", "utf8"));
     for (const f of ["/hub/kimetsu-no-yaiba.webp", "/hub/one-piece.webp"]) {
-      expect(hub).toContain(`banner: '${f}'`);
+      expect(ips.some((x: any) => x.banner === f)).toBe(true);
       expect(readFileSync(`web${f}`).length).toBeGreaterThan(1000);
     }
   });

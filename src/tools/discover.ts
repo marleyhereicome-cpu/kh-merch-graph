@@ -9,6 +9,7 @@ import { buildUsageLogEntry, type UsageLogger } from "../lib/usage-log.js";
 import { localPriceOf, fxRatesToJpy } from "../lib/price.js";
 import { findCharacterGroup, groupMatchLabels } from "../lib/character-groups.js";
 import type { CatalogSku } from "../lib/types.js";
+import { liveIpList, liveSeriesNames } from "../lib/ips.js";
 
 const PURPOSE_LINE_TYPES: Record<string, string[]> = {
   display: ["figure", "prize", "kuji", "acrylic", "plush", "other"],
@@ -154,7 +155,7 @@ export function registerDiscoverTool(server: McpServer, onUsage?: UsageLogger): 
     {
       title: "Discover",
       description:
-        "Browse the Kingdom Hearts merchandise catalog by character, budget and purpose. Use it to answer " +
+        `Browse the merchandise catalog of one series (${liveSeriesNames()}) by character, budget and purpose. Use it to answer ` +
         "\"what merch exists for X?\" or \"gift ideas under ¥5,000\". Example: {ip: \"kingdom-hearts\", character: \"Sora\", " +
         "budget_jpy: 5000, purpose: \"display\"}. Returns items[] (sku_id, name_en/name_ja, official, original price " +
         "msrp_jpy plus price_local/currency, price_basis, region, availability_hint, typical_channels, source_url) and " +
@@ -162,7 +163,7 @@ export function registerDiscoverTool(server: McpServer, onUsage?: UsageLogger): 
         "and suggested_items for their group (e.g. Organization XIII). Lists catalog entries only; it does not mean " +
         "anything is for sale right now. Use explain_product with a sku_id for full details.",
       inputSchema: {
-        ip: z.string().describe('Franchise ID. Currently only "kingdom-hearts".'),
+        ip: z.string().describe(`Series ID. Live series: ${liveIpList()}.`),
         character: z.string().optional().describe('Character name in English or Japanese, e.g. "Sora", "ソラ", "Organization XIII". Partial match. Optional.'),
         budget_jpy: z.number().optional().describe("Maximum original price in Japanese yen (overseas items are compared at a fixed rate), e.g. 5000. Optional."),
         purpose: z

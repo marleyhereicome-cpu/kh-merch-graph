@@ -16,7 +16,8 @@ export interface ContactEnv {
   CONTACT_LIMITER?: RateLimiter;
 }
 
-export const TOPICS = ["press", "partnership", "other"] as const;
+// series = 作品のリクエスト（2026-11-11。ハブの「次に追加してほしい作品は？」から /contact?topic=series で来る）
+export const TOPICS = ["press", "partnership", "series", "other"] as const;
 const MAX_MESSAGE = 5000;
 const MIN_MESSAGE = 10;
 const MIN_FILL_MS = 3000;
