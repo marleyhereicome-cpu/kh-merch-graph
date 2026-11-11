@@ -126,6 +126,7 @@
   }
   .category-chip:hover { border-color: var(--navy); }
   .category-chip.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .category-chip[hidden] { display: none; }
 
   /* ---------- gift ---------- */
   .gift-open {
@@ -1449,6 +1450,7 @@ function loadCatalog() {
       if (r.fx_rates_to_jpy?.rates) FX_TO_JPY = { ...FX_TO_JPY, ...r.fx_rates_to_jpy.rates };
       refreshBudgetLabels();
       renderGiftBudgets();
+      hideEmptyCategories(r.items);
       return {
         ordered: r.items,
         browse: shuffled(r.items),
@@ -1520,6 +1522,16 @@ function keywordVariants(kw) {
   return [...out];
 }
 
+// その作品で1件も無い分類のボタンは出さない（例: 音楽・書籍・ゲームの無い作品。全作品共通、2026-11-11）。
+// 選んでいる分類のボタンは、0件でも隠さない（URL などで選ばれた状態を外さないため）。
+function hideEmptyCategories(items) {
+  const has = new Set(items.map(lineTypeOf));
+  els.categoryRow.querySelectorAll('.category-chip').forEach((c) => {
+    const group = CATEGORY_GROUPS[c.dataset.cat];
+    if (!group || c.classList.contains('active')) return;
+    c.hidden = !group.some((t) => has.has(t));
+  });
+}
 function matchesCategory(item, cat) {
   if (!cat || cat === 'any') return true;
   const group = CATEGORY_GROUPS[cat];

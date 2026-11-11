@@ -140,3 +140,12 @@ describe("contact: request a series", () => {
     expect(readFileSync("web/index.html", "utf8")).toContain('<a href="/contact?topic=series">');
   });
 });
+
+describe("category buttons with no items are hidden (every series)", () => {
+  const tpl = readFileSync("templates/ip/index.html", "utf8");
+  it("the shared template hides empty category buttons once the catalog is loaded", () => {
+    expect(tpl).toContain("hideEmptyCategories(r.items);");
+    expect(tpl).toContain("c.hidden = !group.some((t) => has.has(t));");
+    expect(tpl).toContain(".category-chip[hidden] { display: none; }");
+  });
+});
