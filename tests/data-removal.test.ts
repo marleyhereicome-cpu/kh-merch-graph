@@ -33,9 +33,17 @@ describe("check-data-removal", () => {
   it("実際のファイルから ID を読める（まだ無い準備中の作品のファイルは除く）", () => {
     expect(FILES.map((f) => f.path)).toContain("web/demon-slayer/images.json");
     expect(FILES.map((f) => f.path)).toContain("web/one-piece/images.json");
+    // 下限100件は、KH の写真の対応表と catalog.csv・product_lines.csv だけ。
+    // 公開したばかりの作品の対応表は数十件から始まるので、「1件以上読める」「キーがカタログの sku_id」だけを確かめる（2026-11-11）。
+    const catalogFile = FILES.find((x) => x.path === "data/catalog.csv")!;
+    const skus = idsOf(catalogFile, readFileSync(catalogFile.path, "utf8"));
     for (const f of FILES.filter((x) => existsSync(x.path))) {
       const set = idsOf(f, readFileSync(f.path, "utf8"));
-      expect(set.size, f.label).toBeGreaterThan(100);
+      const big = f.path === "web/kingdomhearts/images.json" || !f.path.startsWith("web/");
+      expect(set.size, f.label).toBeGreaterThan(big ? 100 : 0);
+      if (f.path.startsWith("web/")) {
+        expect([...set].filter((k) => !skus.has(k)), `${f.label}: カタログに無い sku_id`).toEqual([]);
+      }
     }
   });
 });
