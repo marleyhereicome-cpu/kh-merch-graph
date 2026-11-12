@@ -33,6 +33,11 @@ describe("shelfCandidates", () => {
     expect(got.map((c: Cand) => c.sku)).toEqual(["ok"]);
     expect(got[0]).toMatchObject({ year: 2024, date: "2024-05-01", lt: "plush", price: 1000, maker: "M", img: img("ok") });
   });
+  it("skips photos on servers that refuse to be shown from other sites (2026-11-12: image.gamer.ne.jp)", () => {
+    const catalog = [{ ...base, sku_id: "ok" }, { ...base, sku_id: "blocked" }];
+    const images = { ok: img("ok"), blocked: "https://image.gamer.ne.jp/news/2023/x/o/6.jpg" };
+    expect(shelfCandidates(catalog, lines, images, "kingdom-hearts").map((c: Cand) => c.sku)).toEqual(["ok"]);
+  });
 });
 
 describe("pickShelf", () => {

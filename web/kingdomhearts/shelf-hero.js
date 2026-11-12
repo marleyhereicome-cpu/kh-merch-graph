@@ -95,8 +95,6 @@
   <rect x="8.5" y="39.5" width="83" height="94" rx="3.4" fill="#10162E"/>
   <rect x="10.5" y="41.5" width="79" height="90" rx="2.2" fill="#F4F1EA"/>
   <g clip-path="url(#${id}w)"><image href="${esc(safeUrl(it.img))}" x="13.5" y="44.5" width="73" height="84" preserveAspectRatio="xMidYMid meet" data-img/></g>
-  <text x="6.2" y="23.4" font-family="Barlow Condensed,sans-serif" font-weight="700" font-size="7.2" fill="#fff" fill-opacity=".92">’${yy}</text>
-  <rect x="6.6" y="25.4" width="3.2" height="3.2" rx=".7" fill="#fff" fill-opacity=".85" transform="rotate(45 8.2 27)"/>
   <circle cx="84.5" cy="128.5" r="10.6" fill="#fff"/>
   <circle cx="84.5" cy="128.5" r="10.6" fill="none" stroke="${shade(s.c, -.35)}" stroke-width="1.1"/>
   <text x="84.5" y="132.6" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-weight="700" font-size="11.6" fill="#141a33">${yy}</text>
@@ -126,7 +124,6 @@
     root.innerHTML = `
       <h2>${esc(s_('title'))}</h2>
       <div class="sh-grain" aria-hidden="true"></div>
-      <div class="sh-logobg" aria-hidden="true"></div>
       <div class="sh-yearbg" aria-hidden="true"></div>
       <div class="sh-floor" aria-hidden="true"></div>
       <div class="sh-shelf" aria-roledescription="carousel" aria-label="${esc(s_('shelfAria'))}"><div class="sh-stage"></div></div>
@@ -405,13 +402,33 @@
     start();
   }
 
+  const PRELOAD_WAIT_MS = 4000;
+  function preloadImages(items) {
+    const state = items.map(() => 'loading');
+    const tries = items.map((it, i) => new Promise((done) => {
+      const im = new Image();
+      im.decoding = 'async';
+      im.onload = () => { state[i] = im.naturalWidth > 1 ? 'ok' : 'bad'; done(); };
+      im.onerror = () => { state[i] = 'bad'; done(); };
+      im.src = safeUrl(it.img);
+    }));
+    const timeout = new Promise((done) => setTimeout(done, PRELOAD_WAIT_MS));
+    return Promise.race([Promise.all(tries), timeout]).then(() => items.filter((_, i) => state[i] !== 'bad'));
+  }
+
   fetch(root.dataset.src || './shelf.json')
     .then((r) => (r.ok ? r.json() : null))
     .then((data) => {
       const items = (data && Array.isArray(data.items) ? data.items : [])
         .filter((it) => it && it.sku && /^\d{4}/.test(it.date || '') && safeUrl(it.img) && +it.price > 0);
       if (items.length < MIN_ITEMS) return; // 少なすぎるときは棚を出さない（下のヒーローがそのままファーストビューになる）
-      build(items);
+      // 写真が読み込めない商品（リンク切れ・直リンク禁止のサイトなど）は棚に並べない（2026-11-12）。
+      // 先に全部の写真を読み込んでみて、失敗したものを外してから組み立てる。
+      // 回線が遅いときに待たせすぎないよう、最大 PRELOAD_WAIT_MS で打ち切る（その時点で読み込み中のものは残す）。
+      return preloadImages(items).then((ok) => {
+        if (ok.length < MIN_ITEMS) return;
+        build(ok);
+      });
     })
     .catch(() => { /* 棚なし。ページの他の部分には影響させない */ });
 })();

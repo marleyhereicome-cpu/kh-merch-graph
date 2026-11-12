@@ -82,6 +82,9 @@ export function loadIpConfig(ip, root = ROOT) {
     } else if (f === "shelf.json") {
       // カードの棚（scripts/build-shelf.mjs）の設定：{ size, prefer }
       out.shelf = JSON.parse(text);
+    } else if (f === "design.json") {
+      // 作品ごとのデザインシート（2026-11-12〜）。docs/IP_DESIGN.md の項目。cardStyle をページに差し込む
+      out.design = JSON.parse(text);
     } else if (f === "page.json") {
       // ページの設定（文言以外）。fallbackImage: 写真が無いときの代わりの絵（既定は /no-photo.svg）
       out.page = JSON.parse(text);

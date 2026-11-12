@@ -122,6 +122,7 @@ export function pageVars(x, cfg) {
     name_en: x.name.en,
     name_ja: x.name.ja,
     fallback_image: cfg.page?.fallbackImage || DEFAULT_FALLBACK_IMAGE,
+    card_style: cfg.design?.cardStyle || "plain",
   };
   vars.fallback_re = vars.fallback_image.split("/").pop().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return { strings, vars, files: { ...DEFAULT_FILES, ...cfg.files } };
@@ -159,6 +160,21 @@ export function validateIpConfig(x, cfg) {
   }
   for (const [k, v] of Object.entries(cfg.strings.en ?? {})) {
     if (/<script/i.test(v)) errs.push(`ip-config/${x.ip}/strings.json: en.${k} に <script があります`);
+  }
+  // デザインシート（docs/IP_DESIGN.md）。公開中の作品は必須。王冠型は KH 専用
+  const CARD_STYLES = ["plain", "crown"];
+  if (x.status === "live" && !cfg.design) errs.push(`ip-config/${x.ip}/design.json がありません（公開する作品はデザインシートが必要です。docs/IP_DESIGN.md）`);
+  if (cfg.design) {
+    const d = cfg.design;
+    if (!CARD_STYLES.includes(d.cardStyle)) errs.push(`ip-config/${x.ip}/design.json: cardStyle は ${CARD_STYLES.join(" / ")} のどれかにしてください（いま: ${d.cardStyle}）`);
+    if (d.cardStyle === "crown" && x.ip !== "kingdom-hearts") errs.push(`ip-config/${x.ip}/design.json: cardStyle "crown" は Kingdom Hearts 専用です`);
+    if (!["draft", "approved"].includes(d.status)) errs.push(`ip-config/${x.ip}/design.json: status は draft か approved にしてください`);
+    // 2026-11-12 より後に公開する作品は、デザインが決まって（approved）から status=live にする。
+    // それ以前に公開済みの作品（鬼滅の刃・ONE PIECE）は、決まるまで draft のまま（既定の plain カード）で出しておける。
+    const grandfathered = x.launched && x.launched <= "2026-11-12";
+    if (x.status === "live" && d.status !== "approved" && !grandfathered && x.ip !== "kingdom-hearts") {
+      errs.push(`ip-config/${x.ip}/design.json: デザインが未承認（draft）のまま公開しようとしています。Marley の承認後に status を approved にしてください`);
+    }
   }
   for (const f of Object.keys(cfg.files)) {
     if (!(f in DEFAULT_FILES) && !["faq-ld.json", "page.json", "shelf.json"].includes(f)) errs.push(`ip-config/${x.ip}/${f}: 知らないファイルです（使える名前: ${Object.keys(DEFAULT_FILES).join(", ")}, faq-ld.json, page.json, shelf.json）`);

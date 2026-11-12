@@ -1,0 +1,19 @@
+{
+  "status": "approved",
+  "approved_on": "2026-11-08",
+  "cardStyle": "crown",
+  "motif": "作中のカード（王冠型の上辺と2つの穴）に着想を得た自前の図形。ハートと王冠の紋章そのものは使わない",
+  "hero": "card-shelf",
+  "palette": {
+    "stage": "#16204A",
+    "ink": "#F3EFE6",
+    "tag": "#E8D5AC"
+  },
+  "texture": "紙の粒子（ごく薄く）",
+  "watermark": "kh-logo-mark.png をページ背景にだけ薄く（棚の中には出さない。2026-11-12）",
+  "music": "KH の楽曲（Spotify 埋め込み、押したときだけ読み込む）",
+  "legal_notes": "公式ロゴは弁護士確認のうえ透かしでのみ使用（CLAUDE.md）。キービジュアルは使わない",
+  "docs": [
+    "claude/カードの棚_試作メモ_2026-11-08.md"
+  ]
+}

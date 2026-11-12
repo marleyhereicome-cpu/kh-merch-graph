@@ -34,6 +34,12 @@ export const SHELVES = loadIps()
   }));
 
 const EXCLUDED_TYPES = new Set(["game", "console", "book", "music"]);
+// 他のサイトからの表示（直リンク）を断る画像サーバー。ここの写真は merchgraph.app では空白になるので、棚に選ばない（2026-11-12）。
+// 例：image.gamer.ne.jp（4Gamer）。本番の棚の真ん中に来た「クッションカバー アクセル」の写真が空白になっていた。
+// 画像のURLそのものは data 側で公式の商品ページなどに差し替える（別依頼）。差し替えが済んだらここから外してよい。
+// 見ている側のブラウザでも、読み込めなかった写真のカードは外している（web/kingdomhearts/shelf-hero.js の preloadImages）。
+export const HOTLINK_BLOCKED_HOSTS = ["image.gamer.ne.jp"];
+const hostOf = (u) => { try { return new URL(u).hostname; } catch { return ""; } };
 const PER_YEAR_FIRST_PASS = 2;
 const firstUrl = (s) => String(s || "").split(" ; ").map((u) => u.trim()).find((u) => /^https?:\/\//.test(u)) || "";
 
@@ -44,6 +50,7 @@ export function shelfCandidates(catalog, lines, images, ip) {
     if (s.ip !== ip || String(s.official).toLowerCase() !== "true") continue;
     const img = images[s.sku_id];
     if (typeof img !== "string" || !/^https?:\/\//.test(img) || /fallback|kh-logo/.test(img)) continue;
+    if (HOTLINK_BLOCKED_HOSTS.includes(hostOf(img))) continue;
     const line = lineById.get(s.line_id) || {};
     const date = String(line.release_date || "");
     if (!/^\d{4}(-\d{2}(-\d{2})?)?$/.test(date)) continue;

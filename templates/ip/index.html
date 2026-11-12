@@ -203,11 +203,6 @@
   .sh-hero h2 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   .sh-grain { position: absolute; inset: 0; z-index: 40; pointer-events: none; opacity: .35; mix-blend-mode: overlay;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
-  /* 作品ロゴは透かしとして薄く敷くだけ（主役にしない） */
-  .sh-logobg { position: absolute; left: 50%; top: calc(var(--cy) - var(--H)*.08); width: min(92vw, calc(var(--H)*2.3)); aspect-ratio: 458/273;
-    transform: translate(-50%,-50%); z-index: 0; pointer-events: none;
-    background: url('./kh-logo-mark.png') center/contain no-repeat;
-    filter: grayscale(1) brightness(1.5); opacity: .075; mix-blend-mode: screen; }
   .sh-yearbg { position: absolute; left: 0; right: 0; top: calc(var(--cy) - var(--H)*.62); z-index: 1;
     height: calc(var(--H)*.62); overflow: hidden; pointer-events: none; text-align: center; }
   .sh-yearbg span { display: block; font-family: var(--num); font-weight: 700; font-size: calc(var(--H)*.74); line-height: .84; letter-spacing: .02em;
@@ -326,21 +321,24 @@
   @media (prefers-reduced-motion: reduce) { .sh-hero .sh-open, .sh-hero .sh-arrow { transition: none; } .sh-more i { animation: none; } }
   body.sh-locked { overflow: hidden; }
 
-  /* gacha (the "surprise me" button, in the bottom-left dock with music and effects) */
+  /* random pick (the "show me a random item" button, in the bottom-left dock with music and effects).
+     Was a gacha capsule until 2026-11-12: nothing is sold or given away here, so it now looks like
+     shuffling a few cards and turning one over, not like winning a prize. (Class names kept.) */
   .fx-btn.gacha-btn { background: #C9A227; color: #1C1B29; border-color: #C9A227; font-weight: 700; display: inline-flex; align-items: center; gap: 7px; }
   .fx-btn.gacha-btn:hover { background: #B4921F; color: #1C1B29; border-color: #B4921F; }
-  .cap-ico { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid #1C1B29; background: linear-gradient(rgba(255,255,255,0.85) 0 50%, #3D5A80 50% 100%); display: inline-block; flex: 0 0 auto; }
+  .cap-ico { width: 15px; height: 15px; display: inline-block; flex: 0 0 auto; background: no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231C1B29' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5'/%3E%3C/svg%3E"); }
   .gacha-stage { position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(28,27,41,0.22); pointer-events: none; }
-  .capsule { position: relative; width: 104px; height: 104px; animation: cap-drop 0.35s cubic-bezier(.3,1.45,.6,1) both, cap-shake 0.42s 0.35s ease-in-out both; }
-  .capsule .half { position: absolute; left: 0; width: 104px; height: 52px; border: 2px solid rgba(28,27,41,0.55); box-sizing: border-box; }
-  .capsule .top { top: 0; border-radius: 52px 52px 0 0; background: radial-gradient(circle at 34% 34%, rgba(255,255,255,0.95) 0 9px, rgba(255,255,255,0.55) 10px 100%); box-shadow: inset 0 -6px 12px rgba(28,27,41,0.08); animation: cap-open-top 0.32s 0.8s ease-out both; }
-  .capsule .bottom { top: 50px; height: 54px; border-radius: 0 0 52px 52px; background: var(--cap); box-shadow: inset 0 8px 0 rgba(255,255,255,0.18); animation: cap-open-bottom 0.32s 0.8s ease-out both; }
-  .capsule .spark { position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px; border-radius: 50%; background: #FFF6CF; box-shadow: 0 0 0 0 rgba(255,230,140,0.9); opacity: 0; animation: cap-spark 0.4s 0.86s ease-out forwards; }
-  @keyframes cap-drop { from { transform: translateY(-60vh) rotate(-200deg); } to { transform: translateY(0) rotate(0); } }
-  @keyframes cap-shake { 0%,100% { transform: rotate(0); } 20% { transform: rotate(-14deg); } 45% { transform: rotate(12deg); } 70% { transform: rotate(-7deg); } }
-  @keyframes cap-open-top { to { transform: translate(-18px, -46px) rotate(-28deg); opacity: 0; } }
-  @keyframes cap-open-bottom { to { transform: translate(14px, 34px) rotate(14deg); opacity: 0; } }
-  @keyframes cap-spark { 0% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(255,230,140,0.9); } 100% { opacity: 0; transform: scale(5); box-shadow: 0 0 0 30px rgba(255,230,140,0); } }
+  .shuffle { position: relative; width: 150px; height: 120px; }
+  .shuffle .sc { position: absolute; left: 50%; top: 50%; width: 64px; height: 88px; margin: -44px 0 0 -32px; border-radius: 8px;
+    background: #FFFFFF; border: 2px solid var(--sc, #3D5A80); box-shadow: 0 8px 20px rgba(28,27,41,0.22); }
+  .shuffle .sc::after { content: ''; position: absolute; inset: 7px; border-radius: 4px; background: var(--sc, #3D5A80); opacity: .16; }
+  .shuffle .s1 { animation: shuf-a 0.75s ease-in-out both; }
+  .shuffle .s2 { animation: shuf-b 0.75s ease-in-out both; }
+  .shuffle .s3 { animation: shuf-c 0.75s ease-in-out both, shuf-pick 0.3s 0.75s ease-out both; }
+  @keyframes shuf-a { 0%,100% { transform: translateX(0) rotate(0); } 30% { transform: translateX(-52px) rotate(-10deg); } 65% { transform: translateX(34px) rotate(6deg); } }
+  @keyframes shuf-b { 0%,100% { transform: translateX(0) rotate(0); } 30% { transform: translateX(48px) rotate(9deg); } 65% { transform: translateX(-30px) rotate(-6deg); } }
+  @keyframes shuf-c { 0%,100% { transform: translateY(0); } 30% { transform: translateY(-14px); } 65% { transform: translateY(8px); } }
+  @keyframes shuf-pick { to { transform: translateY(-18px) scale(1.12); opacity: 0; } }
 
   @media (max-width: 860px) {
     .hero.hero-split { padding: 26px 16px 18px; }
@@ -433,6 +431,27 @@
   .badge.unknown .dot { background: #A79A7B; }
   .badge-row { display: flex; flex-wrap: wrap; gap: 6px; }
   .card-more { font-size: 12px; color: var(--navy); margin-top: 4px; }
+
+  /* カードの形は作品ごと（ip-config/<ip>/design.json の cardStyle。2026-11-12〜）。
+     crown＝KH 専用の王冠型。plain＝上に作品の色の帯がある、ふつうの角丸カード（既定）。
+     ほかの形を足すときは、ここに .card.<名前> の規則を足し、renderCard の CARD_STYLE 分岐を足す。 */
+  .card.plain .card-rect { margin-top: 0; border-top: 3px solid var(--accent); border-radius: 8px; }
+  .card.plain .card-art { margin-top: 16px; }
+
+  /* スマホでは一度にたくさん見られるよう、横3列の小さなカードにする（2026-11-12〜）。
+     カードには写真・名前・定価だけを残し、種類・入手方法などは開いたパネルで見せる。 */
+  @media (max-width: 640px) {
+    #grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 8px; }
+    .card-crown { height: 20px; padding: 2px 2px 0 2px; }
+    .card-rect { border-width: 2px; border-radius: 0 0 6px 6px; }
+    .card.plain .card-rect { border-top-width: 3px; border-radius: 6px; }
+    .card-art, .card.plain .card-art { width: 86%; margin: 7px auto 0; }
+    .photo-credit { font-size: 8px; margin-top: 3px; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-body { padding: 5px 6px 8px; gap: 3px; }
+    .card-tags, .card-eyebrow, .badge-row, .card-more { display: none; }
+    .card-title { font-size: 11.5px; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-price { font-size: 10.5px; line-height: 1.4; }
+  }
 
   .state-msg { grid-column: 1 / -1; text-align: center; padding: 48px 16px; color: var(--muted); font-size: 14px; }
   .suggest-chip {
@@ -819,6 +838,7 @@
 <script>
 const MCP_URL = "https://mcp.merchgraph.app/mcp";
 const IP = "{{ip}}";
+const CARD_STYLE = "{{card_style}}"; // ip-config/<ip>/design.json の cardStyle（crown は KH 専用）
 const GRID_LIMIT = 16;
 const LANG_KEY = 'khmerch-lang';
 
@@ -834,7 +854,7 @@ const STRINGS = {
     heroTitle: '{{en.heroTitle}}',
     heroLede: 'From Japanese lottery prizes and arcade plush to overseas-only figures and brand collabs. See what each one originally cost, and where fans actually get it today.',
     fact1: 'Original price', fact2: 'Where to get it now', fact3: 'Every source linked', fact4: 'Nothing is sold here',
-    gacha: 'Spin the gacha',
+    gacha: 'Show me a random item',
     p1Name: 'Discover', p1Text: "Things that never reached your country's shops, and things you didn't know were made at all.",
     p2Name: 'Know', p2Text: 'Official or fan-made, and what it cost when it first came out, so you can tell a fair price from a markup.',
     p1Link: 'Show me something ›', p2Link: 'Check a listing you found ›', p3Link: 'Buying from Japan? ›',
@@ -935,7 +955,7 @@ const STRINGS = {
     heroTitle: '{{ja.heroTitle}}',
     heroLede: '日本のくじ景品やプライズから、海外限定のフィギュア、ブランドコラボまで。気になるグッズの発売時の定価と、いまどこで手に入るかがわかります。',
     fact1: '発売時の定価', fact2: 'いまの入手方法', fact3: '情報の出典つき', fact4: '販売はしていません',
-    gacha: 'ガチャを回す',
+    gacha: 'ランダムに1つ見る',
     p1Name: '出会う', p1Text: '日本未発売の海外グッズや、存在すら知らなかったレアものまで。',
     p2Name: '値段を知る', p2Text: '公式かファンメイドか、発売時の定価はいくらか。出品価格が妥当かを見極める目安になります。',
     p1Link: 'おまかせで1つ見る ›', p2Link: '見つけた出品をチェック ›', p3Link: '代行サービスについて ›',
@@ -1387,8 +1407,8 @@ function renderCard(item, detail, imageMap) {
   const isUnofficial = detail && detail.official === false;
   const a = artHtml(item, imageMap);
   return `
-    <div class="card" style="--accent:${borderColorFor(item.sku_id)}" data-sku="${escapeHtml(item.sku_id)}" tabindex="0" role="button" aria-label="${escapeHtml(displayName(item, detail))}">
-      <div class="card-crown"><div class="card-crown-fill"></div></div>
+    <div class="card ${CARD_STYLE}" style="--accent:${borderColorFor(item.sku_id)}" data-sku="${escapeHtml(item.sku_id)}" tabindex="0" role="button" aria-label="${escapeHtml(displayName(item, detail))}">
+      ${CARD_STYLE === 'crown' ? '<div class="card-crown"><div class="card-crown-fill"></div></div>' : ''}
       <div class="card-rect">
         <div class="card-art">${a.art}</div>
         <div class="photo-credit">${escapeHtml(a.credit)}</div>
@@ -2275,7 +2295,8 @@ async function rollSurprise() {
   }
 }
 
-// Gacha: the surprise pick, as a capsule that drops, shakes and pops open (about 1.2s).
+// Random pick: three cards shuffle and one lifts away (about 1s), then a random item opens.
+// Until 2026-11-12 this was a gacha capsule; changed because nothing is sold or won here.
 // Visitors who asked their device for less motion get the item straight away.
 let gachaBusy = false;
 async function spinGacha() {
@@ -2283,13 +2304,12 @@ async function spinGacha() {
   const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduce) { rollSurprise(); return; }
   gachaBusy = true;
-  const colors = ['#B23A48', '#3D5A80', '#C9A227', '#4C7A5E', '#8A4FA0'];
   const stage = document.createElement('div');
   stage.className = 'gacha-stage';
-  stage.innerHTML = `<div class="capsule" style="--cap:${colors[Math.floor(Math.random() * colors.length)]}"><div class="half top"></div><div class="half bottom"></div><div class="spark"></div></div>`;
+  stage.innerHTML = '<div class="shuffle" style="--sc:' + (getComputedStyle(document.documentElement).getPropertyValue('--navy').trim() || '#3D5A80') + '"><div class="sc s1"></div><div class="sc s2"></div><div class="sc s3"></div></div>';
   document.body.appendChild(stage);
   loadCatalog().catch(() => {});
-  setTimeout(() => { stage.remove(); gachaBusy = false; rollSurprise(); }, 1200);
+  setTimeout(() => { stage.remove(); gachaBusy = false; rollSurprise(); }, 1000);
 }
 function initGacha() {
   const btn = document.createElement('button');
