@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 // 公式ロゴを使う条件（CLAUDE.md「Kingdom Hearts 公式ロゴ」）: 非提携の表記を必ず残す。
@@ -197,4 +197,14 @@ describe("404 page", () => {
     expect(html).toContain('href="/kingdomhearts/check"');
     expect(html).not.toMatch(/(src|href)="\.\.?\//);
   });
+});
+
+describe("series logo watermark (2026-11-12): Demon Slayer and One Piece follow Kingdom Hearts", () => {
+  for (const [dir, file] of [["demon-slayer", "kny-logo.png"], ["one-piece", "op-logo.png"]]) {
+    it(`${dir} shows its logo as a fixed, faint background behind the page`, () => {
+      const html = readFileSync(`web/${dir}/index.html`, "utf8");
+      expect(html).toMatch(new RegExp(`body::before \\{[^}]*position: fixed;[^}]*url\\('\\./${file.replace(".", "\\.")}'\\)[^}]*opacity: 0\\.1;`));
+      expect(existsSync(`web/${dir}/${file}`)).toBe(true);
+    });
+  }
 });

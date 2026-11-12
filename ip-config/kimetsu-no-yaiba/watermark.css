@@ -1,0 +1,9 @@
+  /* 鬼滅の刃 の公式ロゴを、画面中央に薄く固定表示する背景（スクロールしても動かない。KH と同じ作り、2026-11-12〜）。
+     ロゴは Marley の指示で掲載（CLAUDE.md「作品の公式ロゴ」）。色・形は加工せず、余白の切り詰めと圧縮だけ。
+     iPhone の Safari は background-attachment: fixed が効かないため、position: fixed の疑似要素で出す。
+     z-index: -1 で本文の下に置き、クリックは拾わない。 */
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background: url('./kny-logo.png') center / min(72vw, 640px) auto no-repeat;
+    opacity: 0.1;
+  }
