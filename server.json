@@ -1,8 +1,8 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.marleyhereicome-cpu/kh-merch-graph",
-  "title": "KH Merch Graph",
-  "description": "Identifies Kingdom Hearts merch from Japanese listing titles: SKU, condition terms, bootleg flags.",
+  "name": "io.github.marleyhereicome-cpu/merchgraph",
+  "title": "Merchgraph",
+  "description": "Anime & game merch catalog: identify listings, release prices, official status, how to buy.",
   "version": "1.0.1",
   "websiteUrl": "https://merchgraph.app",
   "repository": {

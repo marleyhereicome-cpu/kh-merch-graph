@@ -12,7 +12,8 @@ export function registerReportCorrectionTool(server: McpServer, store: Correctio
   server.registerTool(
     "report_correction",
     {
-      title: "Report correction",
+      title: "Report a catalog mistake",
+      annotations: { title: "Report a catalog mistake", readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
       description:
         "Report a mistake or missing item in the catalog (reviewed by hand before anything changes). Example: " +
         "{sku_id: \"ichiban-kuji-kh-2018-a\", field: \"msrp_jpy\", proposed_value: \"750\", source_url: \"https://…\"}. " +

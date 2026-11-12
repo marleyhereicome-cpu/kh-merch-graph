@@ -1,7 +1,8 @@
-# KH Merch Graph
+# Merchgraph MCP Server
 
-An MCP (Model Context Protocol) server that turns a **Japanese secondhand-listing title** for Kingdom Hearts
-merchandise (Mercari, Yahoo! Auctions, Suruga-ya, Mandarake, …) into: the likely official SKU, what the
+[Merchgraph](https://merchgraph.app) is a sourced catalog of anime and game merchandise (Kingdom Hearts, Demon Slayer,
+One Piece). This is its MCP (Model Context Protocol) server (formerly "KH Merch Graph"). It turns a
+**Japanese secondhand-listing title** (Mercari, Yahoo! Auctions, Suruga-ya, Mandarake, …) into: the likely official SKU, what the
 condition wording actually means, bootleg-caution flags, a price-to-MSRP ratio, and a landed-cost estimate to
 your country. Point any MCP-capable AI agent at it and hand it listing text — it does the rest.
 
@@ -9,10 +10,10 @@ your country. Point any MCP-capable AI agent at it and hand it listing text — 
 
 ## Why this is different
 
-1. **Sourced catalog, not scraped or guessed.** Every SKU in the catalog is tied to a primary source (an
-   official product page, a maker's press release, etc.) and marked `verified` or not — the source URL is attached to
-   every entry and returned with every match, so you can check it yourself. Nothing is inferred by an LLM
-   inside the server.
+1. **Sourced catalog, not guessed.** Every catalog entry links to a primary source (the maker's or official shop's
+   page, or reliable press) in `source_url`, and is marked `verified` or not. Every item also has `page_url`, its
+   page on merchgraph.app. Marketplace listings are never collected: this server only interprets listing text you
+   pass in. Nothing is inferred by an LLM inside the server.
 2. **No confident guess, no candidate.** When the match confidence is low, this server does not present a
    guess as an answer. Low-confidence matches are returned separately as `weak_matches`, never mixed into
    `candidates` — an empty `candidates` array means "probably not in the catalog," not "best effort."

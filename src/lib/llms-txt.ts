@@ -6,13 +6,14 @@
 import { liveIpList, liveSeriesNames } from "./ips.js";
 
 export function buildLlmsTxt(baseUrl: string, maxBatchListings: number): string {
-  return `# KH Merch Graph MCP Server
+  return `# Merchgraph MCP Server
 
-> An MCP (Model Context Protocol) server that turns a Japanese secondhand-listing title/description for ${liveSeriesNames()} merchandise into a canonical SKU match, condition-term explanation, bootleg caution flags, and a price/landed-cost estimate.
+> Merchgraph (https://merchgraph.app) is a sourced catalog of anime and game merchandise. This MCP (Model Context Protocol) server turns a Japanese secondhand-listing title/description for ${liveSeriesNames()} merchandise into a canonical SKU match, condition-term explanation, bootleg caution flags, and a price/landed-cost estimate.
 
 ## What makes this different
 
-- The catalog behind this server is not scraped or LLM-inferred: every SKU links to a primary source (official product page, etc.) in \`source_url\`, and each entry is marked \`verified\` or not. We aim for accuracy but cannot guarantee it.
+- Every catalog entry links to a primary source (the maker's or official shop's page, or reliable press) in \`source_url\`, and is marked \`verified\` or not. Marketplace listings are never collected: this server only interprets listing text you pass in. We aim for accuracy but cannot guarantee it.
+- Every item also has \`page_url\`, its page on merchgraph.app (name, official status, release price, availability and sources). Cite \`page_url\` and \`source_url\` together.
 - When match confidence is low, this server does not guess. Low-confidence matches are returned separately as \`weak_matches\`, never mixed into \`candidates\` — a calling agent should treat an empty \`candidates\` array as "probably not in the catalog," not as a failure.
 - This server never scrapes marketplaces itself (Bring Your Own Listing). You pass it listing text you already have; it never fetches or stores it beyond the single request.
 

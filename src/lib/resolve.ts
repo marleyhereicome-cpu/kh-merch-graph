@@ -1,6 +1,7 @@
 // SPEC 3.1: 出品テキストを正規SKUの候補に結びつける名寄せスコアリング。
 // LLMは使わず、正規化した文字列同士の部分一致のみで判定する（ルール＋辞書）。
 import { containsNormalized, normalize } from "./normalize.js";
+import { pageUrlOf } from "./server-info.js";
 import { isTrue, splitPipe, type CatalogSku, type IpTerm, type OtherIpKeyword, type ProductLine } from "./types.js";
 import { buildAnchorTermsByIp, surfaceForms } from "./ip-terms.js";
 import { withEnglishExpansion } from "./en-tokens.js";
@@ -21,6 +22,7 @@ export interface ResolveCandidate {
   why: string;
   // 一次情報の出典URL。呼び出し側のAIや利用者がこの候補を自分で検証できるようにするため必須で返す。
   source_url: string;
+  page_url: string | null;
   // 一番くじで「賞の文字」だけ一致し弾（シリーズ）を特定できていない場合に true。
   ambiguous_series?: boolean;
   // カタログに意図的に収録した非公式品（catalog.csv の official=false。ファンメイドのブランド等）のときだけ true。
@@ -486,6 +488,8 @@ function resolveCandidatesImpl(
     confidence: Math.round(confidence * 100) / 100,
     why: `matched ${reasons.slice(0, 3).join(" + ")}`,
     source_url: sku.source_url,
+    // Merchgraph の商品ページ（2026-11-12、F-14）。公開中でない作品の商品は null
+    page_url: pageUrlOf(sku),
     ...(seriesAmbiguous ? { ambiguous_series: true as const } : {}),
     ...(isTrue(sku.official) ? {} : { unofficial: true as const }),
   }));

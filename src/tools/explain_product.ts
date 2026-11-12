@@ -7,6 +7,8 @@ import { resolveCandidates } from "../lib/resolve.js";
 import { splitPipe, isTrue } from "../lib/types.js";
 import { localPriceOf } from "../lib/price.js";
 import { liveSeriesNames } from "../lib/ips.js";
+import { pageUrlOf, priceNoteOf } from "../lib/server-info.js";
+import { buildUsageLogEntry, type UsageLogger } from "../lib/usage-log.js";
 
 function numOrNull(value: string): number | null {
   if (value === "") return null;
@@ -14,11 +16,12 @@ function numOrNull(value: string): number | null {
   return Number.isNaN(n) ? null : n;
 }
 
-export function registerExplainProductTool(server: McpServer): void {
+export function registerExplainProductTool(server: McpServer, onUsage?: UsageLogger): void {
   server.registerTool(
     "explain_product",
     {
-      title: "Explain product",
+      title: "Look up one item",
+      annotations: { title: "Look up one item", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
       description:
         `Get the full record for one catalog item (${liveSeriesNames()}). Pass a sku_id from discover/resolve_listing ` +
         "(e.g. {sku_id: \"ichiban-kuji-kh-2018-a\"}), or a free-text query such as {query: \"Sora Bring Arts Halloween Town\"} " +
@@ -27,7 +30,7 @@ export function registerExplainProductTool(server: McpServer): void {
         "(hint + confidence), typical_channels, shipping (whether it is only sold at shops that ship within Japan, so a " +
         "shipping-forwarding service is needed from abroad; costs are not calculated; for Mercari/Suruga-ya items a note that " +
         "Mercari's global app may allow direct purchase in some countries), size/weight, re-release dates, official (licensed or fan-made), verified " +
-        "(checked against the source) and source_url.",
+        "(checked against the source), source_url (primary source) and page_url (the item's page on merchgraph.app; cite both).",
       inputSchema: {
         sku_id: z.string().optional().describe('Catalog SKU ID, e.g. "ichiban-kuji-kh-2018-a". Either sku_id or query is required.'),
         query: z.string().optional().describe('Free-text product name in English or Japanese when you have no sku_id, e.g. "一番くじ キングダムハーツ A賞".'),
@@ -58,6 +61,9 @@ export function registerExplainProductTool(server: McpServer): void {
           isError: true,
         };
       }
+
+      // 利用ログ（2026-11-12〜）：ツール名と SKU だけ。Web版で詳細を開いた回数もここに入る
+      if (onUsage) await onUsage(buildUsageLogEntry("explain_product", { skuCandidates: [sku.sku_id] }));
 
       const line = productLines.find((l) => l.line_id === sku!.line_id);
 
@@ -90,6 +96,8 @@ export function registerExplainProductTool(server: McpServer): void {
         price_local: localPriceOf(sku)?.amount ?? null,
         currency: sku.currency || "JPY",
         price_basis: sku.price_basis,
+        // くじ・ガチャは「1回の値段」（2026-11-12、F-15）
+        ...(priceNoteOf(sku) ? { price_note_en: priceNoteOf(sku) } : {}),
         acquisition_type: sku.acquisition_type,
         region: buildRegionInfo(sku),
         platform: sku.platform || null,
@@ -107,6 +115,8 @@ export function registerExplainProductTool(server: McpServer): void {
         verified: isTrue(sku.verified),
         notes: sku.notes,
         source_url: sku.source_url,
+        // Merchgraph の商品ページ（2026-11-12、F-14）
+        page_url: pageUrlOf(sku),
       };
 
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };

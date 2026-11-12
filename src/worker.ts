@@ -11,9 +11,10 @@ import { registerEstimateLandedCostTool } from "./tools/estimate_landed_cost.js"
 import { registerReportCorrectionTool } from "./tools/report_correction.js";
 import { registerResolveListingsBatchTool, parseMaxBatchListings } from "./tools/resolve_listings_batch.js";
 import { createKvCorrectionStore } from "./lib/correction-store.kv.js";
-import type { UsageLogEntry } from "./lib/usage-log.js";
+import { clientLabel, type UsageLogEntry } from "./lib/usage-log.js";
 import { buildLlmsTxt } from "./lib/llms-txt.js";
 import { buildOpenApiDocument } from "./lib/openapi.js";
+import { SERVER_NAME, SERVER_TITLE, SERVER_VERSION, serverInstructions } from "./lib/server-info.js";
 
 // web/index.html など、Worker とは別ドメイン（Cloudflare Pages等）から fetch で呼ぶための最小限のCORS設定。
 // 認証を持たない読み取り専用の公開APIなので Origin を絞らずすべて許可する。
@@ -49,12 +50,14 @@ export interface Env {
 // 利用ログの保存期間（秒）。90日を過ぎたら自動で消える。
 const USAGE_LOG_TTL_SECONDS = 60 * 60 * 24 * 90;
 
-function buildServer(env: Env): McpServer {
-  const server = new McpServer({ name: "kh-merch-graph", version: "1.0.0" });
+function buildServer(env: Env, client: string): McpServer {
+  // 名前は Merchgraph（2026-11-12〜。以前は kh-merch-graph）。版は公式レジストリとそろえる（src/lib/server-info.ts）
+  const server = new McpServer({ name: SERVER_NAME, title: SERVER_TITLE, version: SERVER_VERSION }, { instructions: serverInstructions() });
 
+  // クライアントの大まかな名前（usage-log.ts の clientLabel）を各エントリに添える（2026-11-12〜）
   const onUsage = async (entry: UsageLogEntry) => {
     const key = `usage:${entry.at}:${crypto.randomUUID()}`;
-    await env.KH_KV.put(key, JSON.stringify(entry), { expirationTtl: USAGE_LOG_TTL_SECONDS });
+    await env.KH_KV.put(key, JSON.stringify({ ...entry, client }), { expirationTtl: USAGE_LOG_TTL_SECONDS });
   };
 
   // バッチ版は数百件分のログを1つのKVキー（値はエントリの配列）にまとめて書く。
@@ -62,13 +65,13 @@ function buildServer(env: Env): McpServer {
   // scripts/weekly-report.mjs は配列の値も展開して集計する。
   const onUsageBatch = async (entries: UsageLogEntry[]) => {
     const key = `usage:${entries[0].at}:${crypto.randomUUID()}`;
-    await env.KH_KV.put(key, JSON.stringify(entries), { expirationTtl: USAGE_LOG_TTL_SECONDS });
+    await env.KH_KV.put(key, JSON.stringify(entries.map((e) => ({ ...e, client }))), { expirationTtl: USAGE_LOG_TTL_SECONDS });
   };
 
   registerResolveListingTool(server, onUsage);
   registerResolveListingsBatchTool(server, onUsageBatch, parseMaxBatchListings(env.MAX_BATCH_LISTINGS));
-  registerExplainProductTool(server);
-  registerDiscoverTool(server, onUsage);
+  registerExplainProductTool(server, onUsage);
+  registerDiscoverTool(server, onUsage, { forWebsite: client === "merchgraph-web" });
   registerEstimateLandedCostTool(server, onUsage);
   registerReportCorrectionTool(server, createKvCorrectionStore(env.KH_KV));
 
@@ -162,7 +165,7 @@ export default {
     }
 
     // Workers はリクエストごとにインスタンスが使い捨てのため、サーバーもリクエストごとに作る（ステートレス）。
-    const server = buildServer(env);
+    const server = buildServer(env, clientLabel(request.headers.get("user-agent"), request.headers.get("origin")));
     const transport = new WebStandardStreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
       enableJsonResponse: true,
