@@ -40,6 +40,9 @@
 - 動きは `prefers-reduced-motion` で止める。スマホで重くしない（ぼかしの多用を避ける）。
 
 ## 作品別メモ
+### Kingdom Hearts（`kingdom-hearts`）— 承認済み（2026-11-08）
+- カード（`cardStyle: crown`）：一覧のカードも、カードの棚（`web/kingdomhearts/shelf-hero.js`）と同じ枠にそろえた（2026-11-12）。種類ごとの色の王冠型の札・2つの穴・紺の縁の紙の窓。形は棚の SHAPE をマスクで切り抜いたもの。
+
 ### 鬼滅の刃（`kimetsu-no-yaiba`）— A案「大正の木札」を選定（2026-11-12）
 - カード（`cardStyle: kifuda`）：縦長の木の札。上の角を落とし、ひもを通す穴、木目。写真は和紙色の窓。ひもの色は種類ごとの色。
 - ファーストビュー（`web/rail-hero.js`、`data-skin="kifuda"`）：夜の紺色の中、梁から木札が下がって並び、正面の1枚が大きくなる。動かすと札がひもで揺れる。

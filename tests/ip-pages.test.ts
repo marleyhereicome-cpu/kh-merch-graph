@@ -173,6 +173,18 @@ describe("the design sheet (ip-config/<ip>/design.json, 2026-11-12)", () => {
     expect(index("one-piece")).toContain('data-skin="wanted"');
     expect(index("one-piece")).toContain('<script src="/rail-hero.js" defer></script>');
   });
+  it("KH grid cards use the same frame as the card shelf (crown top, two holes, paper window), not the old line-drawn crown", () => {
+    const { pages } = buildIpPages({ write: false }) as { pages: Page[] };
+    const kh = pages.find((p) => p.ip === "kingdom-hearts" && p.file.endsWith("index.html"))!.html;
+    // 棚の SHAPE（web/kingdomhearts/shelf-hero.js）と同じ上辺の山形と穴を、マスクで切り抜く
+    const shelfJs = readFileSync("web/kingdomhearts/shelf-hero.js", "utf8");
+    expect(shelfJs).toContain("L22.6,30.5 A9,9 0 0 1 39.4,30.5 L50,1.2 L60.6,30.5 A9,9 0 0 1 77.4,30.5 L98,11");
+    expect(kh).toContain("L22.6,30.5 A9,9 0 0 1 39.4,30.5 L50,1.2 L60.6,30.5 A9,9 0 0 1 77.4,30.5 L98,11");
+    expect(kh).toMatch(/\.card\.crown \.card-rect \{[^}]*mask: var\(--cap\)/);
+    expect(kh).toContain('<div class="card-rect"><div class="card-win">');
+    expect(kh).toContain("--suit:${suitColorFor(item)}");
+    expect(kh).not.toContain("card-crown");
+  });
   it("a series launched after 2026-11-12 can't go live until its design is approved", () => {
     const later = normalizeIp({ ...fakeRow, ip: "test-series-2", path: "/test-series-2/", path_aliases: "", launched: "2026-12-01" });
     mkdirSync("ip-config/test-series-2", { recursive: true });

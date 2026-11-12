@@ -456,19 +456,6 @@
   .card { display: flex; flex-direction: column; cursor: pointer; }
   .card:hover .card-title { color: var(--navy); }
   .card:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; border-radius: 8px; }
-  .card-crown {
-    position: relative; height: 52px; flex-shrink: 0; box-sizing: border-box;
-    padding: 3px 3px 0 3px; background: var(--accent);
-    clip-path: polygon(0% 0%, 22% 58%, 50% 0%, 78% 58%, 100% 0%, 100% 100%, 0% 100%);
-  }
-  .card-crown-fill {
-    width: 100%; height: 100%; background: #FFFFFF;
-    clip-path: polygon(0% 0%, 22% 58%, 50% 0%, 78% 58%, 100% 0%, 100% 100%, 0% 100%);
-  }
-  /* The crown and the card body are two shapes. At fractional pixel positions
-     (browser zoom, some screen scales) the browser blends their shared edge
-     into a faint line, row by row. Overlapping the body 2px onto the crown
-     hides that edge entirely. */
   .card-rect {
     position: relative; margin-top: -2px;
     border: 3px solid var(--accent); border-top: none; border-radius: 0 0 8px 8px;
@@ -489,7 +476,7 @@
   .tag.origin { background: #fff; }
   .tag.fan { background: #EFEAF6; color: #4A3B73; border-color: #DDD3EE; }
   .card-eyebrow { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--navy); }
-  .card-title { font-family: 'Shippori Mincho', serif; font-size: 15px; line-height: 1.4; color: var(--ink); }
+  .card-title { font-family: 'Shippori Mincho', serif; font-size: 15px; line-height: 1.4; color: var(--ink); overflow-wrap: anywhere; }
   .card-price { font-size: 12.5px; color: var(--ink); }
   .card-price .basis, .card-price .approx { color: var(--muted); }
   .card-spacer { flex-grow: 1; }
@@ -517,6 +504,26 @@
      ほかの形を足すときは、ここに .card.<名前> の規則を足し、renderCard の CARD_STYLE 分岐を足す。 */
   .card.plain .card-rect { margin-top: 0; border-top: 3px solid var(--accent); border-radius: 8px; }
   .card.plain .card-art { margin-top: 16px; }
+
+  /* ---------- KH：カードの棚と同じ枠（crown、2026-11-12〜） ----------
+     web/kingdomhearts/shelf-hero.js の frontSVG と同じ形：種類ごとの色の王冠型の札・2つの穴・紺の縁の紙の窓。
+     形は SVG のマスク（上辺の山形と穴）＋長方形のマスクで切り抜く。寸法はカードの幅（cqw）に比例させるので、スマホの3列でも同じ形になる。
+     上辺の形は棚の SHAPE（viewBox 0 0 100 146）の上 40 を、左右 2 ずつ切って 96 幅にしたもの（高さ 40/96＝41.67cqw）。 */
+  .card.crown { container-type: inline-size; filter: drop-shadow(0 6px 10px rgba(16,22,46,0.22)); }
+  .card.crown .card-rect {
+    --cap: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='2 0 96 40'%3E%3Cpath fill-rule='evenodd' d='M2,11 L22.6,30.5 A9,9 0 0 1 39.4,30.5 L50,1.2 L60.6,30.5 A9,9 0 0 1 77.4,30.5 L98,11 L98,40 L2,40 Z M26.7,33.7 a4.3,4.3 0 1,0 8.6,0 a4.3,4.3 0 1,0 -8.6,0 M64.7,33.7 a4.3,4.3 0 1,0 8.6,0 a4.3,4.3 0 1,0 -8.6,0'/%3E%3C/svg%3E");
+    margin-top: 0; border: 0; border-radius: 0 0 4.7cqw 4.7cqw; overflow: visible;
+    padding: 39.4cqw 6.8cqw 7.4cqw;
+    background:
+      linear-gradient(160deg, rgba(255,255,255,0.30), rgba(255,255,255,0.05) 38%, rgba(255,255,255,0) 39%),
+      linear-gradient(135deg, color-mix(in srgb, var(--suit) 88%, #fff), var(--suit) 55%, color-mix(in srgb, var(--suit) 72%, #000));
+    -webkit-mask: var(--cap) left top / 100% auto no-repeat, linear-gradient(#000 0 0) left 0 top 41cqw / 100% calc(100% - 41cqw) no-repeat;
+    mask: var(--cap) left top / 100% auto no-repeat, linear-gradient(#000 0 0) left 0 top 41cqw / 100% calc(100% - 41cqw) no-repeat; }
+  .card.crown .card-win { display: flex; flex-direction: column; flex-grow: 1; background: #F4F1EA; border: max(1.5px, 2.1cqw) solid #10162E; border-radius: 2.3cqw; overflow: hidden; }
+  .card.crown .card-art { width: 84%; margin: 6cqw auto 0; }
+  .card.crown .card-body { padding: 10px 14px 14px; }
+  .card.crown:hover .card-title { color: var(--navy); }
+  .card-win { display: contents; } /* crown 以外の形では、窓の箱は無いのと同じ */
 
   /* ---------- 鬼滅の刃：木札（kifuda、2026-11-12 Marley 承認のA案） ----------
      縦長の木の札。上の角を落とし、ひもを通す穴をあける。写真は和紙色の窓に無加工で収める。
@@ -571,7 +578,8 @@
      カードには写真・名前・定価だけを残し、種類・入手方法などは開いたパネルで見せる。 */
   @media (max-width: 640px) {
     #grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 8px; }
-    .card-crown { height: 20px; padding: 2px 2px 0 2px; }
+    .card.crown .card-body { padding: 5px 6px 8px; }
+    .card.crown .card-art { margin-top: 5cqw; }
     .card-rect { border-width: 2px; border-radius: 0 0 6px 6px; }
     .card.plain .card-rect { border-top-width: 3px; border-radius: 6px; }
     .card-art, .card.plain .card-art { width: 86%; margin: 7px auto 0; }
@@ -1383,6 +1391,15 @@ function borderColorFor(seed) {
   return BORDER_COLORS[h % BORDER_COLORS.length];
 }
 
+// KH のカードの色（カードの棚と同じ、種類ごとの色。web/kingdomhearts/shelf-hero.js の SUITS に合わせる）。
+// 棚に出ない種類（ゲーム・本・音楽など）は、棚の色と重ならない落ち着いた色にする。
+const SUIT_COLORS = {
+  kuji: '#C8373F', apparel: '#2F5AD0', acrylic: '#2E9A5A', accessory: '#41465C', plush: '#D97A2B',
+  bag: '#6D4DC4', figure: '#16898A', other: '#A88426', stationery: '#A88426', novelty: '#A88426',
+  game: '#24336E', console: '#24336E', book: '#7A4A2A', music: '#9A3468',
+};
+function suitColorFor(item) { return SUIT_COLORS[lineTypeOf(item)] || SUIT_COLORS.other; }
+
 function badgeFor(hint, worldwideCheckout) {
   if (hint === 'jp_retail_new' && worldwideCheckout) return { cls: 'good', label: t('av_ww_checkout') };
   // For a Japanese visitor a Japan-only checkout is not a problem.
@@ -1550,9 +1567,8 @@ function renderCard(item, detail, imageMap) {
   const isUnofficial = detail && detail.official === false;
   const a = artHtml(item, imageMap);
   return `
-    <div class="card ${CARD_STYLE}" style="--accent:${borderColorFor(item.sku_id)}" data-sku="${escapeHtml(item.sku_id)}" tabindex="0" role="button" aria-label="${escapeHtml(displayName(item, detail))}">
-      ${CARD_STYLE === 'crown' ? '<div class="card-crown"><div class="card-crown-fill"></div></div>' : ''}
-      <div class="card-rect">
+    <div class="card ${CARD_STYLE}" style="--accent:${borderColorFor(item.sku_id)};--suit:${suitColorFor(item)}" data-sku="${escapeHtml(item.sku_id)}" tabindex="0" role="button" aria-label="${escapeHtml(displayName(item, detail))}">
+      <div class="card-rect"><div class="card-win">
         ${CARD_STYLE === 'wanted' ? '<div class="wanted-head" aria-hidden="true">WANTED</div>' : ''}
         <div class="card-art">${a.art}</div>
         <div class="photo-credit">${escapeHtml(a.credit)}</div>
@@ -1568,7 +1584,7 @@ function renderCard(item, detail, imageMap) {
           <div class="badge-row"><div class="badge ${badge.cls}"><span class="dot"></span>${escapeHtml(badge.label)}</div></div>
           <div class="card-more">${escapeHtml(t('seeDetails'))}</div>
         </div>
-      </div>
+      </div></div>
     </div>
   `;
 }
