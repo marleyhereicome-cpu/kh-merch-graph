@@ -81,6 +81,10 @@ const CHANNEL_LABEL = {
   "e-store": "Square Enix e-STORE", square_enix_estore: "Square Enix e-STORE", tokyo_otaku_mode: "Tokyo Otaku Mode",
   ebay: "eBay", hot_topic: "Hot Topic", buyee: "Buyee", zenmarket: "ZenMarket", graniph: "graniph", gamestop: "GameStop",
   bigbadtoystore: "BigBadToyStore", boxlunch: "BoxLunch", walmart: "Walmart",
+  // 2026-11-12（F-02）：catalog.csv の typical_channels に出てくる内部 ID の表示名
+  sugoi_collection: "Sugoi Collection", six_on_clothing: "SIX ON Clothing", samantha_thavasa: "Samantha Thavasa",
+  figpin_official: "FiGPiN", supergroupies_official: "SuperGroupies", crunchyroll_store: "Crunchyroll Store", fo_online: "F.O.Online Store",
+  amazon_us: "Amazon.com", disneyland_resort: "Disneyland Resort", walt_disney_world: "Walt Disney World",
 };
 // 日本国内にしか発送しないショップ（カタログページの CHANNELS で proxy: true のもの）
 const JAPAN_ONLY = new Set(["mercari", "yahoo_auctions", "surugaya", "mandarake", "e-store", "square_enix_estore"]);
@@ -140,7 +144,19 @@ function money(amount, currency) {
 }
 
 // 発売国の通貨での定価と、円の目安。カタログページの priceParts() と同じ考え方。
-function priceInfo(s) {
+// くじ・ガチャ（カプセル）の値段は「1回の値段」。price_basis が draw_price でない行も同じに扱う（2026-11-12、F-01）
+const DRAW_TYPES = new Set(["kuji", "capsule"]);
+export const isDrawPrice = (s) => s.price_basis === "draw_price" || DRAW_TYPES.has(s.acquisition_type);
+// くじ・プライズ・ガチャの商品には「定価を大きく上回る出品は転売価格」の文を出さない（人気の賞は1回の値段より高く取引されるのが普通）
+const NO_MARKUP_NOTE_TYPES = new Set(["kuji", "prize", "capsule"]);
+export function priceNote(s, price) {
+  if (price.amount && isDrawPrice(s)) return "This is the price of one draw, not the price of the prize. Popular prizes normally resell for more than this.";
+  if (!price.amount && s.acquisition_type === "prize") return "This item was a crane-game prize and had no retail price.";
+  if (price.amount && !NO_MARKUP_NOTE_TYPES.has(s.acquisition_type)) return "Use this as a yardstick: listings far above it are resale markups.";
+  return "";
+}
+
+export function priceInfo(s) {
   const yen = Number(s.msrp_jpy);
   const currency = s.currency || "JPY";
   const local = s.price_local !== "" && s.price_local != null ? Number(s.price_local) : yen;
@@ -150,10 +166,18 @@ function priceInfo(s) {
   }
   let text = money(local, currency);
   if (currency !== "JPY") text += ` (about ¥${Math.round(yen).toLocaleString("en-US")})`;
-  if (s.price_basis === "draw_price") text += " per draw (the prize itself was not sold separately)";
+  if (isDrawPrice(s)) text += " per draw (the prize itself was not sold separately)";
   else if (s.price_basis === "set_price") text += " (set price)";
   else if (s.price_basis === "estimated") text += " (approximate; the exact original price is not confirmed yet)";
   return { text, amount: local, currency };
+}
+
+// 表に無いチャネルの登録名のうち、内部 ID（例: sugoi_collection）は読める名前にする（2026-11-12、F-02）。
+// 「Walmart限定」「general retail」のような普通の文はそのまま。
+export function channelDisplayName(name) {
+  const s = String(name);
+  if (!/^[a-z0-9]+(_[a-z0-9]+)+$/.test(s)) return s;
+  return s.split("_").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 }
 
 function channelsOf(s) {
@@ -162,7 +186,7 @@ function channelsOf(s) {
     for (const part of raw.split(",")) {
       const p = part.trim();
       if (!p || ["jp", "us"].includes(p.toLowerCase())) continue;
-      const label = CHANNEL_LABEL[p] || CHANNEL_LABEL[p.toLowerCase()] || p;
+      const label = CHANNEL_LABEL[p] || CHANNEL_LABEL[p.toLowerCase()] || channelDisplayName(p);
       if (!names.some((n) => n.label === label)) names.push({ key: p, label });
     }
   }
@@ -345,7 +369,7 @@ ${PAGE_CSS}</style>
   <section>
     <h2>Original price</h2>
     <p class="price">${esc(price.text)}</p>
-    ${price.amount ? `<p class="note">Use this as a yardstick: listings far above it are resale markups.</p>` : ""}
+    ${priceNote(s, price) ? `<p class="note">${esc(priceNote(s, price))}</p>` : ""}
   </section>
 
   ${howText ? `<section><h2>How it came out</h2><p>${esc(howText)}</p></section>` : ""}
@@ -363,7 +387,7 @@ ${PAGE_CSS}</style>
   <section>
     <h2>Where this was checked</h2>
     <p>${verified ? "✓ Verified against the source." : "Being checked (not yet verified)."}</p>
-    ${sources.length ? `<ul>${sources.map((u) => `<li><a href="${esc(u)}" rel="noopener nofollow">${esc(hostOf(u))}</a></li>`).join("")}</ul>` : ""}
+    ${sources.length ? `<ul>${sources.map((u) => `<li><a href="${esc(u)}" rel="noopener nofollow" data-out="source">${esc(hostOf(u))}</a></li>`).join("")}</ul>` : ""}
   </section>
 
   ${related}
@@ -374,9 +398,27 @@ ${PAGE_CSS}</style>
   <p>An independent fan project. Not affiliated with, endorsed or sponsored by ${esc(series.rights)}, or any maker, shop, marketplace or shipping service mentioned here. Nothing is sold on this site.</p>
   <p>${esc(series.name)} and all related names, characters, logos and artwork belong to their respective owners. Prices and availability are for reference and may be out of date. Rights holders: legal@merchgraph.app</p>
 </footer>
+${outboundClickScript(series.ip)}
 </body>
 </html>
 `;
+}
+
+// 外部リンク（data-out の付いたリンク）のクリックを数える小さなスクリプト（2026-11-12、F-21。作品ページと同じ送り方）。
+// 送るのはリンクの種類・行き先のドメイン・作品だけ。集計は /api/clicks（web-worker/clicks.ts）。
+export function outboundClickScript(ip) {
+  return `<script>
+(function () {
+  function report(e) {
+    if (e.type === 'auxclick' && e.button !== 1) return;
+    var a = e.target && e.target.closest ? e.target.closest('a[data-out]') : null;
+    if (!a || !navigator.sendBeacon) return;
+    try { navigator.sendBeacon('/api/click', new Blob([JSON.stringify({ k: a.getAttribute('data-out'), d: new URL(a.href).hostname, ip: ${JSON.stringify(ip)} })], { type: 'application/json' })); } catch (err) {}
+  }
+  document.addEventListener('click', report, true);
+  document.addEventListener('auxclick', report, true);
+})();
+</script>`;
 }
 
 // ---- まとめページと、商品ページどうしのリンク（2026-11-10） ----

@@ -23,3 +23,6 @@ web/*/index.html
 web/*/check.html
 web/ips.json
 web/llms.txt
+# ハブ（トップ）と 404 ページ（templates/hub.html・templates/404.html から作る生成物。2026-11-12〜）
+web/index.html
+web/404.html

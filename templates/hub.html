@@ -179,12 +179,12 @@ if (location.hash.startsWith('#item=')) location.replace('/kingdomhearts/' + loc
   <section class="section" id="series" aria-labelledby="seriesTitle">
     <div class="section-head">
       <h2 id="seriesTitle" data-i18n="seriesTitle">Choose a series</h2>
-      <span class="meta" id="seriesMeta"></span>
+      <span class="meta" id="seriesMeta">{{static_meta}}</span>
     </div>
     <div class="series-search" id="seriesSearchWrap">
       <input id="seriesSearch" type="search" autocomplete="off" data-i18n-placeholder="searchPh" placeholder="Find a series" aria-label="Find a series" />
     </div>
-    <div class="series-grid" id="seriesGrid"></div>
+    <div class="series-grid" id="seriesGrid">{{static_series}}</div>
     <p class="suggest" data-i18n-html="suggest">Is there a series we should add next? <a href="/contact?topic=series">Tell us</a>.</p>
   </section>
 

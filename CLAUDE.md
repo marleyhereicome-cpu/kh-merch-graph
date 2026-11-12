@@ -76,6 +76,8 @@ ip-config/<ip>/  作品ごとの設定（文言の差分・季節企画・BGM・
 ### 作品ページは生成物（2026-11-11〜）
 - `web/<作品>/index.html`・`check.html`・`web/ips.json`・`web/llms.txt` は `npm run build:pages` が作る（リポジトリには入れない）。
   **直すときは `templates/ip/` か `ip-config/<ip>/`**。`web/kingdomhearts/index.html` を直接直しても消える。
+- ハブ（トップ、`web/index.html`）と 404 ページ（`web/404.html`）も生成物（2026-11-12〜）。直すときは `templates/hub.html`・`templates/404.html`。
+  作品のリンク・件数・作品ページの商品の一覧（JavaScript が動かないとき用）は、ビルド時にデータから書き込む（`scripts/lib/static-content.mjs`）。
 - 作品の一覧は `data/ips.csv`（1作品1行、列は docs/SPEC.md §2.16）。新しい作品を出すときは、ここに1行足して status=live、`data/ip_terms.csv` に作品名とキャラ名を足すだけ。
   ハブ・作品ページ・商品ページ・まとめページ・sitemap・llms.txt・Worker の URL・MCP の対応作品一覧に出る。
 - **作品の見た目はデザインシート `ip-config/<ip>/design.json` で決める（2026-11-12〜、docs/IP_DESIGN.md）**。

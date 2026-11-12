@@ -10,6 +10,7 @@
 //   web/<path>/index.html・web/<path>/check.html   作品ページ
 //   web/ips.json                                     ハブ（web/index.html）が読む作品一覧
 //   web/llms.txt                                     サイトの概要（作品の一覧は ips.csv から）
+//   web/index.html・web/404.html                     ハブ（トップ）と 404 ページ（templates/hub.html・templates/404.html から。2026-11-12〜）
 //
 // 作品ページの見た目・動きを変えるときは templates/ip/ を直す（web/kingdomhearts/index.html は生成物）。
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -17,6 +18,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ROOT, joinList, loadIpConfig, loadIps, publicIps } from "./lib/ips.mjs";
 import { ORIGIN, renderIpPage, validateIpConfig } from "./lib/ip-pages.mjs";
+import { loadCatalogRows, seriesLinksHtml, staticItemsHtml, staticMetaText, staticSeriesHtml } from "./lib/static-content.mjs";
 
 export function llmsTxt(template, ips) {
   const live = ips.filter((x) => x.status === "live");
@@ -43,7 +45,7 @@ export function llmsTxt(template, ips) {
   return template.replace("{{seriesStatus}}", status).replace("{{rights}}", rights).replace("{{seriesSections}}", sections);
 }
 
-export function buildIpPages({ write = true, ips = loadIps(), root = ROOT } = {}) {
+export function buildIpPages({ write = true, ips = loadIps(), root = ROOT, catalogRows = loadCatalogRows(root) } = {}) {
   const tpl = (f) => readFileSync(join(root, "templates", "ip", f), "utf8");
   const templates = { "index.html": tpl("index.html"), "check.html": tpl("check.html") };
   const pages = [];
@@ -51,11 +53,19 @@ export function buildIpPages({ write = true, ips = loadIps(), root = ROOT } = {}
   for (const x of ips.filter((r) => r.status === "live")) {
     const cfg = loadIpConfig(x.ip, root);
     errors.push(...validateIpConfig(x, cfg));
-    for (const [f, t] of Object.entries(templates)) pages.push({ ip: x.ip, file: join("web", x.path, f), html: renderIpPage(t, x, cfg, { file: `${x.ip}/${f}` }) });
+    // JavaScript が動かないとき用の商品の一覧（2026-11-12、F-12）
+    const extra = { static_items: staticItemsHtml(x, catalogRows) };
+    for (const [f, t] of Object.entries(templates)) pages.push({ ip: x.ip, file: join("web", x.path, f), html: renderIpPage(t, x, cfg, { file: `${x.ip}/${f}`, extra }) });
   }
   if (errors.length) throw new Error(errors.join("\n"));
   const ipsJson = JSON.stringify(publicIps(ips), null, 1) + "\n";
   const llms = llmsTxt(readFileSync(join(root, "templates", "llms.txt"), "utf8"), ips);
+  // ハブ（トップ）と 404 ページ（2026-11-12〜 templates/ から作る）。作品のリンクと件数を、JavaScript なしでも読めるように書き込む
+  const hub = renderShared(readFileSync(join(root, "templates", "hub.html"), "utf8"), {
+    static_series: staticSeriesHtml(ips, catalogRows),
+    static_meta: staticMetaText(ips, catalogRows),
+  }, "templates/hub.html");
+  const notFound = renderShared(readFileSync(join(root, "templates", "404.html"), "utf8"), { series_links: seriesLinksHtml(ips) }, "templates/404.html");
   if (write) {
     for (const p of pages) {
       mkdirSync(join(root, p.file, ".."), { recursive: true });
@@ -63,8 +73,18 @@ export function buildIpPages({ write = true, ips = loadIps(), root = ROOT } = {}
     }
     writeFileSync(join(root, "web", "ips.json"), ipsJson);
     writeFileSync(join(root, "web", "llms.txt"), llms);
+    writeFileSync(join(root, "web", "index.html"), hub);
+    writeFileSync(join(root, "web", "404.html"), notFound);
   }
-  return { pages, ipsJson, llms };
+  return { pages, ipsJson, llms, hub, notFound };
+}
+
+// ハブ・404 の差し込み（{{名前}} を値に）。値の無い差し込みが残っていたら止める。
+function renderShared(template, vars, file) {
+  const out = template.replace(/\{\{([a-z_]+)\}\}/g, (m, k) => (k in vars ? vars[k] : m));
+  const left = out.match(/\{\{[a-z_]+\}\}/g);
+  if (left) throw new Error(`${file}: 差し込む値がありません: ${[...new Set(left)].join(", ")}`);
+  return out;
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {

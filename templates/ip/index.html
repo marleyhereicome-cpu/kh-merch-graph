@@ -18,6 +18,7 @@
 <link rel="canonical" href="{{url}}" />
 <!-- 「このサイトについて」のFAQの構造化データ。FAQ の文を変えたらここも合わせる（tests/web-pages.test.ts が一致を確認）。 -->
 <script type="application/ld+json" id="ld-faq">{{faqLd}}</script>
+<script>document.documentElement.classList.add('js');</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
 {{design_fonts}}
@@ -451,6 +452,11 @@
 
   /* ---------- grid & cards ---------- */
   main { max-width: 1100px; margin: 0 auto; padding: 20px 24px 24px; }
+  /* JavaScript が動かないとき（検索エンジン・AI のクローラーなど）だけ見える、商品の一覧（2026-11-12、F-12）。
+     ビルド時に scripts/build-ip-pages.mjs が先頭30件ほどを書き込む。JavaScript が動けば隠れて、いつものカードの表示になる。 */
+  .js .static-list { display: none; }
+  .static-list { margin: 24px 0; font-size: 14px; }
+  .static-list ul { margin: 8px 0; padding-left: 18px; }
   #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 22px; }
 
   .card { display: flex; flex-direction: column; cursor: pointer; }
@@ -936,6 +942,7 @@
 
 <main>
   <div id="grid"><div class="state-msg" data-i18n="loading">Loading the catalog…</div></div>
+{{static_items}}
   <div class="load-more-row hidden" id="loadMoreRow"><button type="button" id="loadMoreBtn" data-i18n="showMore">Show more</button></div>
 </main>
 
@@ -1041,7 +1048,8 @@ const STRINGS = {
     giftNote: "Lottery prizes are left out: they can't be bought directly.", giftAnyone: 'Not sure',
     giftBudget: 'Up to ~${v}',
     // price lines
-    priceOriginal: 'Original price', priceApproxOriginal: 'Originally about', pricePerDraw: 'per draw · prize not sold separately',
+    priceOriginal: 'Original price', priceApproxOriginal: 'Originally about', pricePerDraw: '/ draw',
+    priceDrawExplain: 'This is the price of one draw, not the price of the prize. Popular prizes normally resell for more than this.',
     priceSet: 'Set price', priceNone: 'Original price not recorded yet', priceNotSold: 'Never sold in shops',
     // origin
     originJP: 'Japan release', originNA: 'North America release', originEU: 'Europe release',
@@ -1153,7 +1161,8 @@ const STRINGS = {
     giftStep1: '1　予算', giftStep2: '2　好きなキャラクター（任意）', giftGo: '候補を見る',
     giftNote: 'くじ景品は直接買えないため、候補から外しています。', giftAnyone: 'わからない',
     giftBudget: '{v}円くらいまで',
-    priceOriginal: '定価', priceApproxOriginal: '定価（目安）', pricePerDraw: '（くじ1回分。景品の単品販売はありません）',
+    priceOriginal: '定価', priceApproxOriginal: '定価（目安）', pricePerDraw: '/ 1回',
+    priceDrawExplain: '一番くじなどを1回引くときの価格で、景品そのものの値段ではありません。人気の賞は、この価格より高く取引されるのが普通です。',
     priceSet: 'セット価格', priceNone: '定価の情報なし', priceNotSold: '非売品',
     originJP: '日本発売', originNA: '北米発売', originEU: '欧州発売',
     acq_retail: '通常販売', acq_western_license: '海外公式ライセンス品', acq_jp_collab: 'コラボ商品',
@@ -1410,22 +1419,22 @@ function badgeFor(hint, worldwideCheckout) {
 
 // jpName: true → search with the Japanese name (Japanese sites), false → English name.
 const CHANNELS = {
-  mercari: { label: 'Mercari', ja: 'メルカリ', template: 'https://jp.mercari.com/search?keyword={q}', proxy: true, marketplace: true, jpName: true, globalApp: true },
-  yahoo_auctions: { label: 'Yahoo Auctions', ja: 'ヤフオク', template: 'https://auctions.yahoo.co.jp/search/search?p={q}', proxy: true, marketplace: true, jpName: true },
-  surugaya: { label: 'Suruga-ya', ja: '駿河屋', template: 'https://www.suruga-ya.jp/search?category=&search_word={q}', proxy: true, marketplace: true, jpName: true, globalApp: true },
-  mandarake: { label: 'Mandarake', ja: 'まんだらけ', template: 'https://order.mandarake.co.jp/order/listPage/list?keyword={q}', proxy: true, marketplace: true, jpName: true },
-  amiami: { label: 'AmiAmi', ja: 'あみあみ', template: 'https://www.amiami.com/eng/search/list/?s_keywords={q}', proxy: false, jpName: true },
-  'e-store': { label: 'Square Enix e-STORE', ja: 'スクエニ e-STORE', template: 'https://store.jp.square-enix.com/estore/g/search/?keyword={q}', proxy: true, jpName: true },
-  tokyo_otaku_mode: { label: 'Tokyo Otaku Mode', ja: 'Tokyo Otaku Mode', template: 'https://otakumode.com/shop/search?q={q}', proxy: false, jpName: false },
-  ebay: { label: 'eBay', ja: 'eBay', template: 'https://www.ebay.com/sch/i.html?_nkw={q}', proxy: false, jpName: false },
-  hot_topic: { label: 'Hot Topic', ja: 'Hot Topic', template: 'https://www.hottopic.com/search?query={q}', proxy: false, jpName: false },
-  buyee: { label: 'Buyee', ja: 'Buyee', template: 'https://buyee.jp/item/search/query/{q}', proxy: false, jpName: true },
-  zenmarket: { label: 'ZenMarket', ja: 'ZenMarket', template: 'https://zenmarket.jp/en/search?q={q}', proxy: false, jpName: true },
-  graniph: { label: 'graniph', ja: 'graniph', template: 'https://www.graniph.com/item?keyword={q}', proxy: false, worldwideCheckout: true, jpName: true },
-  gamestop: { label: 'GameStop', ja: 'GameStop', template: 'https://www.gamestop.com/search/?q={q}', proxy: false, jpName: false },
-  bigbadtoystore: { label: 'BigBadToyStore', ja: 'BigBadToyStore', template: 'https://www.bigbadtoystore.com/Search?SearchText={q}', proxy: false, jpName: false },
-  boxlunch: { label: 'BoxLunch', ja: 'BoxLunch', template: 'https://www.boxlunch.com/search?q={q}', proxy: false, jpName: false },
-  walmart: { label: 'Walmart', ja: 'Walmart', template: 'https://www.walmart.com/search?q={q}', proxy: false, jpName: false },
+  mercari: { kind: 'market', label: 'Mercari', ja: 'メルカリ', template: 'https://jp.mercari.com/search?keyword={q}', proxy: true, marketplace: true, jpName: true, globalApp: true },
+  yahoo_auctions: { kind: 'market', label: 'Yahoo Auctions', ja: 'ヤフオク', template: 'https://auctions.yahoo.co.jp/search/search?p={q}', proxy: true, marketplace: true, jpName: true },
+  surugaya: { kind: 'market', label: 'Suruga-ya', ja: '駿河屋', template: 'https://www.suruga-ya.jp/search?category=&search_word={q}', proxy: true, marketplace: true, jpName: true, globalApp: true },
+  mandarake: { kind: 'market', label: 'Mandarake', ja: 'まんだらけ', template: 'https://order.mandarake.co.jp/order/listPage/list?keyword={q}', proxy: true, marketplace: true, jpName: true },
+  amiami: { kind: 'shop', label: 'AmiAmi', ja: 'あみあみ', template: 'https://www.amiami.com/eng/search/list/?s_keywords={q}', proxy: false, jpName: true },
+  'e-store': { kind: 'shop', label: 'Square Enix e-STORE', ja: 'スクエニ e-STORE', template: 'https://store.jp.square-enix.com/estore/g/search/?keyword={q}', proxy: true, jpName: true },
+  tokyo_otaku_mode: { kind: 'shop', label: 'Tokyo Otaku Mode', ja: 'Tokyo Otaku Mode', template: 'https://otakumode.com/shop/search?q={q}', proxy: false, jpName: false },
+  ebay: { kind: 'market', label: 'eBay', ja: 'eBay', template: 'https://www.ebay.com/sch/i.html?_nkw={q}', proxy: false, jpName: false },
+  hot_topic: { kind: 'shop', label: 'Hot Topic', ja: 'Hot Topic', template: 'https://www.hottopic.com/search?query={q}', proxy: false, jpName: false },
+  buyee: { kind: 'proxy', label: 'Buyee', ja: 'Buyee', template: 'https://buyee.jp/item/search/query/{q}', proxy: false, jpName: true },
+  zenmarket: { kind: 'proxy', label: 'ZenMarket', ja: 'ZenMarket', template: 'https://zenmarket.jp/en/search?q={q}', proxy: false, jpName: true },
+  graniph: { kind: 'shop', label: 'graniph', ja: 'graniph', template: 'https://www.graniph.com/item?keyword={q}', proxy: false, worldwideCheckout: true, jpName: true },
+  gamestop: { kind: 'shop', label: 'GameStop', ja: 'GameStop', template: 'https://www.gamestop.com/search/?q={q}', proxy: false, jpName: false },
+  bigbadtoystore: { kind: 'shop', label: 'BigBadToyStore', ja: 'BigBadToyStore', template: 'https://www.bigbadtoystore.com/Search?SearchText={q}', proxy: false, jpName: false },
+  boxlunch: { kind: 'shop', label: 'BoxLunch', ja: 'BoxLunch', template: 'https://www.boxlunch.com/search?q={q}', proxy: false, jpName: false },
+  walmart: { kind: 'shop', label: 'Walmart', ja: 'Walmart', template: 'https://www.walmart.com/search?q={q}', proxy: false, jpName: false },
 };
 
 function monogramFor(label) {
@@ -1463,6 +1472,18 @@ function splitChannels(detail) {
   return { known, other };
 }
 function channelsFor(detail) { return splitChannels(detail).known; }
+// 登録名がそのまま出ないよう、内部 ID（例: sugoi_collection）は読める名前にする（2026-11-12、F-02）
+const CHANNEL_NAMES = {
+  sugoi_collection: 'Sugoi Collection', six_on_clothing: 'SIX ON Clothing', samantha_thavasa: 'Samantha Thavasa',
+  figpin_official: 'FiGPiN', supergroupies_official: 'SuperGroupies', crunchyroll_store: 'Crunchyroll Store', fo_online: 'F.O.Online Store',
+  amazon_us: 'Amazon.com', disneyland_resort: 'Disneyland Resort', walt_disney_world: 'Walt Disney World',
+};
+function channelDisplayName(name) {
+  const s = String(name);
+  if (CHANNEL_NAMES[s]) return CHANNEL_NAMES[s];
+  if (!/^[a-z0-9]+(_[a-z0-9]+)+$/.test(s)) return s;
+  return s.split('_').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+}
 
 // ---------------------------------------------------------------------------
 // Prices. discover() returns msrp_jpy (always yen — overseas prices converted
@@ -1504,8 +1525,14 @@ function approxNote(item) {
   return ` <span class="approx">(~$${Math.max(1, Math.round(yenOf(item) / FX_TO_JPY.USD))})</span>`;
 }
 const NOT_SOLD_TYPES = ['prize', 'novelty', 'bonus', 'furoku'];
+// くじ・ガチャ（カプセル）は、値段が「1回の値段」。price_basis が draw_price でない行（定価として登録された行）も
+// 1回の値段として見せる（2026-11-12、Fable監修 F-01：「定価を大きく上回る出品は転売価格」と誤って案内していた）。
+const DRAW_TYPES = ['kuji', 'capsule'];
+function isDrawPrice(item, detail) {
+  return item.price_basis === 'draw_price' || DRAW_TYPES.includes(detail?.acquisition_type || item.acquisition_type);
+}
 function priceParts(item, detail) {
-  const basis = item.price_basis;
+  const basis = isDrawPrice(item, detail) && item.price_basis !== 'none' ? 'draw_price' : item.price_basis;
   const v = item.msrp_jpy;
   if (typeof v !== 'number' || v <= 0 || basis === 'none' || !basis) {
     return { label: t(NOT_SOLD_TYPES.includes(detail?.acquisition_type) ? 'priceNotSold' : 'priceNone'), money: '' };
@@ -2124,7 +2151,7 @@ const FORWARDERS = [
 // globalApp：メルカリ・駿河屋。Mercari 公式のグローバルアプリで代行なしに買える場合がある（2026-11-06）。
 // 対象の国・在庫は変わるので「場合があります」と添えるだけにする。ヤフオク・まんだらけ・e-STORE は対象外。
 function proxyNoteHtml(chans = []) {
-  const links = FORWARDERS.map((f) => `<a href="${escapeHtml(f.url)}" target="_blank" rel="noopener nofollow">${escapeHtml(f.label)} ↗</a>`).join(' · ');
+  const links = FORWARDERS.map((f) => `<a href="${escapeHtml(f.url)}" target="_blank" rel="noopener nofollow" data-out="proxy">${escapeHtml(f.label)} ↗</a>`).join(' · ');
   const globalApp = chans.some((ch) => ch.globalApp);
   return `<div class="proxy-note">
         <p class="sub"><strong>${escapeHtml(t('proxyNote'))}</strong></p>
@@ -2177,7 +2204,8 @@ function panelHtml(item, detail, imageMap, catalog) {
       <p class="big-price">${price.label && !price.money ? escapeHtml(price.label) : `${price.money}${price.suffix ? ` <span class="approx">${escapeHtml(price.suffix)}</span>` : ''}`}</p>
       ${price.money && item.price_basis === 'estimated' ? `<p class="sub">${escapeHtml(t('priceEstimatedNote'))}</p>` : ''}
       ${price.money && item.price_basis === 'set_price' ? `<p class="sub">${escapeHtml(t('priceSet'))}</p>` : ''}
-      ${price.money && item.price_basis !== 'draw_price' ? `<p class="sub">${escapeHtml(t('priceExplain'))}</p>` : ''}
+      ${price.money && isDrawPrice(item, detail) ? `<p class="sub">${escapeHtml(t('priceDrawExplain'))}</p>` : ''}
+      ${price.money && !isDrawPrice(item, detail) && !NOT_SOLD_TYPES.includes(detail?.acquisition_type) ? `<p class="sub">${escapeHtml(t('priceExplain'))}</p>` : ''}
     </div>
 
     ${howKey ? `<div class="panel-section"><h3>${escapeHtml(t('secHow'))}</h3><p>${escapeHtml(t(howKey))}</p></div>` : ''}
@@ -2186,8 +2214,8 @@ function panelHtml(item, detail, imageMap, catalog) {
       <h3>${escapeHtml(t('secWhere'))}</h3>
       <div class="badge ${badge.cls}"><span class="dot"></span>${escapeHtml(badge.label)}</div>
       ${chans.length ? `<p class="sub" style="margin-top:10px">${escapeHtml(t('searchOn'))}</p>
-        <div class="channel-links">${chans.map((ch) => `<a href="${escapeHtml(channelUrl(ch, detail, item))}" target="_blank" rel="noopener">${escapeHtml(JA ? ch.ja : ch.label)} ↗</a>`).join('')}</div>` : ''}
-      ${otherChans.length ? `<p class="sub" style="margin-top:8px">${escapeHtml(t('alsoSoldAt'))} ${otherChans.map(escapeHtml).join(' · ')}</p>` : ''}
+        <div class="channel-links">${chans.map((ch) => `<a href="${escapeHtml(channelUrl(ch, detail, item))}" target="_blank" rel="noopener" data-out="${ch.kind}">${escapeHtml(JA ? ch.ja : ch.label)} ↗</a>`).join('')}</div>` : ''}
+      ${otherChans.length ? `<p class="sub" style="margin-top:8px">${escapeHtml(t('alsoSoldAt'))} ${otherChans.map((c) => escapeHtml(channelDisplayName(c))).join(' · ')}</p>` : ''}
       ${showCheck ? `<p class="sub" style="margin-top:10px"><a href="${escapeHtml(checkerUrl())}">${escapeHtml(t('checkListing'))}</a></p>` : ''}
       ${needsProxy ? proxyNoteHtml(chans) : ''}
     </div>
@@ -2198,8 +2226,8 @@ function panelHtml(item, detail, imageMap, catalog) {
       ${verifiedLine(detail)}
       <p class="sub">${sourceUrls.map((u) => escapeHtml(creditFor(u))).join(' · ')}${detail?.line?.maker ? ` · ${escapeHtml(detail.line.maker)}` : ''}</p>
       ${sourceUrls.length === 1
-        ? `<a href="${escapeHtml(sourceUrls[0])}" target="_blank" rel="noopener">${escapeHtml(t('sourceLink'))}</a>`
-        : `<ul class="source-list">${sourceUrls.map((u) => `<li><a href="${escapeHtml(u)}" target="_blank" rel="noopener">${escapeHtml(creditFor(u))} ↗</a></li>`).join('')}</ul>`}</div>` : ''}
+        ? `<a href="${escapeHtml(sourceUrls[0])}" target="_blank" rel="noopener" data-out="source">${escapeHtml(t('sourceLink'))}</a>`
+        : `<ul class="source-list">${sourceUrls.map((u) => `<li><a href="${escapeHtml(u)}" target="_blank" rel="noopener" data-out="source">${escapeHtml(creditFor(u))} ↗</a></li>`).join('')}</ul>`}</div>` : ''}
 
     <div class="panel-section">
       <h3>${escapeHtml(t('secShare'))}</h3>
@@ -2498,6 +2526,24 @@ if (skuFromHash()) openItem(skuFromHash());
 renderSeasonShelf();
 initMusic();
 initGacha();
+
+// ---------------------------------------------------------------------------
+// 外部リンクのクリックを数える（2026-11-12、Fable監修 F-21）。
+// data-out の付いたリンク（source=出典、market=フリマの検索、proxy=代行サービス、shop=公式ショップ・小売）だけ。
+// 送るのはリンクの種類・行き先のドメイン・作品の3つだけ。日時はサーバーが付ける。個人を特定する情報は送らない。
+// 集計は https://merchgraph.app/api/clicks（web-worker/clicks.ts）。
+// ---------------------------------------------------------------------------
+function reportOutboundClick(e) {
+  if (e.type === 'auxclick' && e.button !== 1) return;
+  const a = e.target && e.target.closest ? e.target.closest('a[data-out]') : null;
+  if (!a) return;
+  try {
+    const body = JSON.stringify({ k: a.dataset.out, d: new URL(a.href).hostname, ip: IP });
+    if (navigator.sendBeacon) navigator.sendBeacon('/api/click', new Blob([body], { type: 'application/json' }));
+  } catch {}
+}
+document.addEventListener('click', reportOutboundClick, true);
+document.addEventListener('auxclick', reportOutboundClick, true);
 initBatToggle();
 startBats();
 document.addEventListener('visibilitychange', () => { if (!document.hidden && batLayer) scheduleNextBat(); });

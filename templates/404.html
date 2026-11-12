@@ -49,8 +49,7 @@
   <p class="lead" data-i18n="lead">The link may be old, or the item may have moved. Try one of these instead.</p>
   <ul class="links">
     <li><a href="/"><span data-i18n="hub">Merchgraph home</span><small data-i18n="hubNote">Pick a series</small></a></li>
-    <li><a href="/kingdomhearts/"><span data-i18n="kh">Kingdom Hearts catalog</span><small data-i18n="khNote">Search official merch by character or item</small></a></li>
-    <li><a href="/kingdomhearts/check"><span data-i18n="check">Check a listing</span><small data-i18n="checkNote">Paste a listing title to see what it is and what it cost new</small></a></li>
+{{series_links}}
   </ul>
 </main>
 <script>
@@ -59,7 +58,6 @@ const STRINGS = {
     title: 'このページは見つかりませんでした',
     lead: 'リンクが古いか、商品の場所が変わった可能性があります。こちらからお探しください。',
     hub: 'Merchgraph トップ', hubNote: '作品を選ぶ',
-    kh: 'キングダム ハーツのカタログ', khNote: 'キャラクターや商品名で公式グッズを探す',
     check: '出品チェック', checkNote: '出品のタイトルを貼り付けると、何の商品か・発売時の定価が分かります',
   },
 };
@@ -75,6 +73,8 @@ if (getLang() === 'ja') {
   document.documentElement.lang = 'ja';
   document.title = 'ページが見つかりません | Merchgraph';
   document.querySelectorAll('[data-i18n]').forEach((el) => { const v = STRINGS.ja[el.dataset.i18n]; if (v !== undefined) el.textContent = v; });
+  // 作品ごとのリンク（ビルド時に data/ips.csv から作る）は、日本語の文を data-ja に持っている
+  document.querySelectorAll('[data-ja]').forEach((el) => { el.textContent = el.dataset.ja; });
   const sw = document.getElementById('langSwitch'); sw.textContent = 'English'; sw.href = '?lang=en'; sw.lang = 'en';
   document.querySelectorAll('.links a').forEach((a) => { a.href = a.getAttribute('href') + '?lang=ja'; });
 }
