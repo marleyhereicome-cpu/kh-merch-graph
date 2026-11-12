@@ -1,6 +1,6 @@
 // 段階1「作品追加を設定だけにする」（2026-11-11）：data/ips.csv＋ip-config/ から作品ページ一式が出ること。
-import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import { afterAll, describe, expect, it } from "vitest";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 // @ts-expect-error -- JS のビルドスクリプト（型定義なし）
 import { normalizeIp, loadIps, seriesFromIps, publicIps } from "../scripts/lib/ips.mjs";
 // @ts-expect-error -- JS のビルドスクリプト（型定義なし）
@@ -25,6 +25,13 @@ const fakeRow = {
   accent: "#123456", launched: "", images: "/test-series/images.json", banner: "", path_aliases: "/testseries/",
 };
 const fake = normalizeIp(fakeRow);
+
+// 公開する作品にはデザインシート（ip-config/<ip>/design.json、docs/IP_DESIGN.md）が要る（2026-11-12〜）。
+// 架空の作品の分は、テストの間だけ置いて、終わったら消す。
+const FAKE_CFG = "ip-config/test-series";
+mkdirSync(FAKE_CFG, { recursive: true });
+writeFileSync(`${FAKE_CFG}/design.json`, JSON.stringify({ status: "approved", cardStyle: "plain" }));
+afterAll(() => rmSync(FAKE_CFG, { recursive: true, force: true }));
 const fakeCatalog = catalog
   .filter((s) => s.ip === "kimetsu-no-yaiba")
   .slice(0, 8)
@@ -147,5 +154,29 @@ describe("category buttons with no items are hidden (every series)", () => {
     expect(tpl).toContain("hideEmptyCategories(r.items);");
     expect(tpl).toContain("c.hidden = !group.some((t) => has.has(t));");
     expect(tpl).toContain(".category-chip[hidden] { display: none; }");
+  });
+});
+
+describe("the design sheet (ip-config/<ip>/design.json, 2026-11-12)", () => {
+  it("only Kingdom Hearts uses the crown-shaped card; other series get the plain card", () => {
+    const { pages } = buildIpPages({ write: false }) as { pages: Page[] };
+    const index = (ip: string) => pages.find((p) => p.ip === ip && p.file.endsWith("index.html"))!.html;
+    expect(index("kingdom-hearts")).toContain('const CARD_STYLE = "crown";');
+    expect(index("kimetsu-no-yaiba")).toContain('const CARD_STYLE = "plain";');
+    expect(index("one-piece")).toContain('const CARD_STYLE = "plain";');
+  });
+  it("a series launched after 2026-11-12 can't go live until its design is approved", () => {
+    const later = normalizeIp({ ...fakeRow, ip: "test-series-2", path: "/test-series-2/", path_aliases: "", launched: "2026-12-01" });
+    mkdirSync("ip-config/test-series-2", { recursive: true });
+    try {
+      writeFileSync("ip-config/test-series-2/design.json", JSON.stringify({ status: "draft", cardStyle: "plain" }));
+      expect(() => buildIpPages({ write: false, ips: [...realIps, later] })).toThrow(/未承認/);
+      writeFileSync("ip-config/test-series-2/design.json", JSON.stringify({ status: "approved", cardStyle: "crown" }));
+      expect(() => buildIpPages({ write: false, ips: [...realIps, later] })).toThrow(/Kingdom Hearts 専用/);
+      rmSync("ip-config/test-series-2/design.json");
+      expect(() => buildIpPages({ write: false, ips: [...realIps, later] })).toThrow(/design\.json がありません/);
+    } finally {
+      rmSync("ip-config/test-series-2", { recursive: true, force: true });
+    }
   });
 });

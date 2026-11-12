@@ -148,10 +148,25 @@ describe("card shelf in the Kingdom Hearts first view", () => {
     expect(kh).toContain("initGacha();");
     expect(kh).toContain("initMusic();");
   });
-  it("the section is one screen tall and the logo is only a watermark", () => {
+  it("the section is one screen tall, with no logo inside the shelf (2026-11-12: page watermark only)", () => {
     expect(kh).toMatch(/--S: max\(560px, calc\(100svh - var\(--hdr, 64px\)\)\)/);
-    expect(kh).toMatch(/\.sh-logobg \{[^}]*url\('\.\/kh-logo-mark\.png'\)[^}]*opacity: \.075/);
-    expect(js).not.toMatch(/kh-logo\.png/);
+    expect(kh).not.toContain("sh-logobg");
+    expect(js).not.toContain("sh-logobg");
+    expect(js).not.toMatch(/kh-logo/);
+  });
+  it("cards show the release year only in the bottom-right circle (no top-left index)", () => {
+    expect(js).not.toContain("rotate(45 8.2 27)");
+    expect(js).not.toContain("’${yy}");
+  });
+  it("leaves out cards whose photo doesn't load", () => {
+    expect(js).toContain("function preloadImages(items)");
+    expect(js).toContain("build(ok);");
+  });
+  it("the random pick says what it does (not a gacha: nothing is sold or won)", () => {
+    expect(kh).toContain("gacha: 'Show me a random item',");
+    expect(kh).toContain("gacha: 'ランダムに1つ見る',");
+    expect(kh).not.toContain("ガチャを回す");
+    expect(kh).not.toContain('class="capsule"');
   });
   it("opens items through the page's own panel (#item=<sku>)", () => {
     expect(js).toContain("href=\"#item=${encodeURIComponent(it.sku)}\"");

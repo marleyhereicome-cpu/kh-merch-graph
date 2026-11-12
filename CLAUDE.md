@@ -73,6 +73,9 @@ ip-config/<ip>/  作品ごとの設定（文言の差分・季節企画・BGM・
   **直すときは `templates/ip/` か `ip-config/<ip>/`**。`web/kingdomhearts/index.html` を直接直しても消える。
 - 作品の一覧は `data/ips.csv`（1作品1行、列は docs/SPEC.md §2.16）。新しい作品を出すときは、ここに1行足して status=live、`data/ip_terms.csv` に作品名とキャラ名を足すだけ。
   ハブ・作品ページ・商品ページ・まとめページ・sitemap・llms.txt・Worker の URL・MCP の対応作品一覧に出る。
+- **作品の見た目はデザインシート `ip-config/<ip>/design.json` で決める（2026-11-12〜、docs/IP_DESIGN.md）**。
+  王冠型のカード（cardStyle: crown）とカードの棚は KH 専用。ほかの作品は既定の plain か、その作品用に決めた形。
+  2026-11-12 より後に公開する作品は、design.json が approved（Marley 承認済み）でないとビルドが止まる。
 
 ## 各Stepの終わり方
 - そのStepで作った・変えたファイルを箇条書きで示し、次にユーザーが自分でやること（あれば）を1〜3行で書く。
