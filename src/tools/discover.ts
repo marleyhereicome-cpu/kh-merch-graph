@@ -9,7 +9,8 @@ import { buildUsageLogEntry, type UsageLogger } from "../lib/usage-log.js";
 import { localPriceOf, fxRatesToJpy } from "../lib/price.js";
 import { findCharacterGroup, groupMatchLabels } from "../lib/character-groups.js";
 import type { CatalogSku } from "../lib/types.js";
-import { liveIpList, liveSeriesNames } from "../lib/ips.js";
+import { liveIpList, liveSeriesNames, liveIps } from "../lib/ips.js";
+import { pageUrlOf, priceNoteOf, supportedSeries } from "../lib/server-info.js";
 
 const PURPOSE_LINE_TYPES: Record<string, string[]> = {
   display: ["figure", "prize", "kuji", "acrylic", "plush", "other"],
@@ -25,7 +26,8 @@ function lineTypeFor(lineId: string): string | undefined {
 }
 
 export interface DiscoverInput {
-  ip: string;
+  /** 省略すると公開中の全作品が対象（2026-11-12〜） */
+  ip?: string;
   character?: string;
   budget_jpy?: number;
   purpose?: "display" | "wear" | "read" | "play" | "any";
@@ -34,7 +36,7 @@ export interface DiscoverInput {
 }
 
 // 一覧1件分の形。カード表示に必要な項目まで含める（Web版がカードごとに explain_product を呼ばずに済む）。
-function itemSummary(s: CatalogSku, matchedTermsBySku?: Map<string, string[]>) {
+function itemSummary(s: CatalogSku, matchedTermsBySku?: Map<string, string[]>, withPageUrl = true) {
   return {
     sku_id: s.sku_id,
     // 英語名が未記入の行（約15行）は、sku_id ではなく日本語名を表示名に使う。
@@ -48,6 +50,8 @@ function itemSummary(s: CatalogSku, matchedTermsBySku?: Map<string, string[]>) {
     price_local: localPriceOf(s)?.amount ?? null,
     currency: s.currency || "JPY",
     price_basis: s.price_basis,
+    // くじ・ガチャは「1回の値段」（2026-11-12、F-15）
+    ...(priceNoteOf(s) ? { price_note_en: priceNoteOf(s) } : {}),
     region: s.region || "JP",
     platform: s.platform || null,
     edition: s.edition || null,
@@ -59,6 +63,8 @@ function itemSummary(s: CatalogSku, matchedTermsBySku?: Map<string, string[]>) {
     typical_channels: splitPipe(s.typical_channels),
     ...(matchedTermsBySku?.has(s.sku_id) ? { matched_terms: matchedTermsBySku.get(s.sku_id) } : {}),
     source_url: s.source_url,
+    // Merchgraph の商品ページ（2026-11-12、F-14）。Web版（自分で URL を作る）への全件の応答では省く（応答の大きさと CPU 時間を増やさないため）
+    ...(withPageUrl ? { page_url: pageUrlOf(s) } : {}),
   };
 }
 
@@ -66,9 +72,13 @@ function itemSummary(s: CatalogSku, matchedTermsBySku?: Map<string, string[]>) {
 // data はテスト用（カタログの中身に左右されないテストを書くため。2026-11-06）。省略時は本物のカタログ。
 export function discoverCatalog(
   { ip, character, budget_jpy, purpose, limit, terms }: DiscoverInput,
-  data: CatalogSku[] = catalog
+  data: CatalogSku[] = catalog,
+  { withPageUrl = true }: { withPageUrl?: boolean } = {}
 ) {
-  let results = data.filter((s) => s.ip === ip);
+  // ip を省略したら公開中の全作品。カタログに無い作品なら、対象の作品の一覧と説明を返す（2026-11-12、F-15）
+  const liveIds = liveIps.map((r) => r.ip);
+  const unsupported = ip !== undefined && !data.some((s) => s.ip === ip);
+  let results = data.filter((s) => (ip === undefined ? liveIds.includes(s.ip) : s.ip === ip));
 
   if (character) {
     results = results.filter(
@@ -96,7 +106,7 @@ export function discoverCatalog(
   const matchedTermsBySku = new Map<string, string[]>();
   let termsNote: string | undefined;
   if (terms && ((terms.types?.length ?? 0) > 0 || (terms.names?.length ?? 0) > 0)) {
-    const selected = selectTerms(ipTerms, ip, terms);
+    const selected = ip === undefined ? liveIds.flatMap((x) => selectTerms(ipTerms, x, terms)) : selectTerms(ipTerms, ip, terms);
     if (selected.length === 0) {
       results = [];
       termsNote = "No matching terms in the ip_terms dictionary for this ip/type/name filter.";
@@ -110,13 +120,13 @@ export function discoverCatalog(
   }
 
   const lim = limit ?? 10;
-  const items = results.slice(0, lim).map((s) => itemSummary(s, matchedTermsBySku));
+  const items = results.slice(0, lim).map((s) => itemSummary(s, matchedTermsBySku, withPageUrl));
 
   // ゼロ件かつキャラ名指定ありの場合のみ、グループ名での再検索を提案する
   // （予算・用途・terms で絞り込みすぎて0件になったケースは対象外 —
   // その場合はキャラ自体は見つかっているはずなので誤誘導になるため）。
   // グループは作品（ip）ごと。この ip のグループだけを提案する。
-  const group = results.length === 0 ? findCharacterGroup(character, ip) : null;
+  const group = results.length === 0 && ip !== undefined ? findCharacterGroup(character, ip) : null;
   const suggestion = group ? { suggest_keyword: group.suggestKeyword, suggest_label: group.suggestLabel } : null;
   // 提案と一緒に、グループ名で探した結果の先頭も返す。エージェントがもう一度 discover を呼ばなくても候補を出せる。
   const labels = group ? groupMatchLabels(group) : [];
@@ -137,33 +147,39 @@ export function discoverCatalog(
     ...(suggestion
       ? {
           suggested_character_group: suggestion,
-          suggested_items: suggestedResults.slice(0, lim).map((s) => itemSummary(s)),
+          suggested_items: suggestedResults.slice(0, lim).map((s) => itemSummary(s, undefined, withPageUrl)),
           suggested_total_matches: suggestedResults.length,
           suggestion_note_en: `No solo merch found for "${character}" yet. It belongs to ${suggestion.suggest_label}: suggested_items lists group merch that may feature them (${suggestedResults.length} in total; search character="${suggestion.suggest_label}" for all of them).`,
         }
       : {}),
-    note_en:
-      "This lists catalog SKUs only. It does not confirm that any item is currently listed for sale anywhere.",
+    ...(unsupported ? { supported_series: supportedSeries() } : {}),
+    note_en: unsupported
+      ? `This series is not in the catalog yet. Covered: ${liveIps.map((r) => r.name_en).join(", ")}. Pass one of the supported ip values, or omit ip to search all of them.`
+      : "This lists catalog SKUs only. It does not confirm that any item is currently listed for sale anywhere.",
   };
 
   return result;
 }
 
-export function registerDiscoverTool(server: McpServer, onUsage?: UsageLogger): void {
+// forWebsite: merchgraph.app の Web版からの呼び出し（worker.ts が Origin で判定）。page_url を省く
+export function registerDiscoverTool(server: McpServer, onUsage?: UsageLogger, { forWebsite = false }: { forWebsite?: boolean } = {}): void {
   server.registerTool(
     "discover",
     {
-      title: "Discover",
+      title: "Browse the catalog",
+      annotations: { title: "Browse the catalog", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
       description:
-        `Browse the merchandise catalog of one series (${liveSeriesNames()}) by character, budget and purpose. Use it to answer ` +
+        `Browse the merchandise catalog (${liveSeriesNames()}) by series, character, budget and purpose. Use it to answer ` +
         "\"what merch exists for X?\" or \"gift ideas under ¥5,000\". Example: {ip: \"kingdom-hearts\", character: \"Sora\", " +
-        "budget_jpy: 5000, purpose: \"display\"}. Returns items[] (sku_id, name_en/name_ja, official, original price " +
-        "msrp_jpy plus price_local/currency, price_basis, region, availability_hint, typical_channels, source_url) and " +
-        "total_matches. If a character has no solo merch (e.g. Xigbar), the result also has suggested_character_group " +
+        "budget_jpy: 5000, purpose: \"display\"}. Omit ip to search every series. Returns items[] (sku_id, name_en/name_ja, official, original price " +
+        "msrp_jpy plus price_local/currency, price_basis, price_note_en for per-draw prices, region, availability_hint, typical_channels, " +
+        "source_url, page_url = the item's page on merchgraph.app) and " +
+        "total_matches. For a series that is not covered, items is empty and supported_series lists the covered ones. " +
+        "If a character has no solo merch (e.g. Xigbar), the result also has suggested_character_group " +
         "and suggested_items for their group (e.g. Organization XIII). Lists catalog entries only; it does not mean " +
         "anything is for sale right now. Use explain_product with a sku_id for full details.",
       inputSchema: {
-        ip: z.string().describe(`Series ID. Live series: ${liveIpList()}.`),
+        ip: z.string().optional().describe(`Series ID. Live series: ${liveIpList()}. Optional: omit to search all of them.`),
         character: z.string().optional().describe('Character name in English or Japanese, e.g. "Sora", "ソラ", "Organization XIII". Partial match. Optional.'),
         budget_jpy: z.number().optional().describe("Maximum original price in Japanese yen (overseas items are compared at a fixed rate), e.g. 5000. Optional."),
         purpose: z
@@ -189,12 +205,12 @@ export function registerDiscoverTool(server: McpServer, onUsage?: UsageLogger): 
     async ({ ip, character, budget_jpy, purpose, limit, terms }) => {
       // カタログに存在しないipが指定された場合、それが「次に対応すべきIP」の手がかりになる。
       // タイトル等の出品テキストは関わらないため、ip名だけをそのままログに残す。
-      const ipIsKnown = productLines.some((l) => l.ip === ip);
+      const ipIsKnown = ip === undefined || productLines.some((l) => l.ip === ip);
       if (!ipIsKnown && onUsage) {
         await onUsage(buildUsageLogEntry("discover", { requestedIp: ip }));
       }
 
-      const result = discoverCatalog({ ip, character, budget_jpy, purpose, limit, terms });
+      const result = discoverCatalog({ ip, character, budget_jpy, purpose, limit, terms }, catalog, { withPageUrl: !forWebsite });
       // 整形（インデント）しない。全件取得（Web版は limit 2000 で1回呼ぶ）だと結果が数百KBになり、
       // 整形の空白・改行が MCP の応答の中でさらにエスケープされて、サイズとCPU時間がほぼ倍になるため。中身は同じ。
       return { content: [{ type: "text", text: JSON.stringify(result) }] };

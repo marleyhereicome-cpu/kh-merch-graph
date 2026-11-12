@@ -1,4 +1,4 @@
-// KH Merch Graph MCPサーバー（ローカル版・stdioトランスポート）。
+// Merchgraph MCPサーバー（ローカル版・stdioトランスポート）。
 // Claude Desktop から呼ばれ、SPEC.md 3章のツール群を提供する。
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -10,11 +10,9 @@ import { registerEstimateLandedCostTool } from "./tools/estimate_landed_cost.js"
 import { registerReportCorrectionTool } from "./tools/report_correction.js";
 import { registerResolveListingsBatchTool, parseMaxBatchListings } from "./tools/resolve_listings_batch.js";
 import { fileCorrectionStore } from "./lib/correction-store.node.js";
+import { SERVER_NAME, SERVER_TITLE, SERVER_VERSION, serverInstructions } from "./lib/server-info.js";
 
-const server = new McpServer({
-  name: "kh-merch-graph",
-  version: "1.0.0",
-});
+const server = new McpServer({ name: SERVER_NAME, title: SERVER_TITLE, version: SERVER_VERSION }, { instructions: serverInstructions() });
 
 registerResolveListingTool(server);
 // ローカル版も、環境変数 MAX_BATCH_LISTINGS があればその値、無ければ本番と同じ既定値を使う。

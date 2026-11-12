@@ -126,12 +126,16 @@ async function main() {
   const inWindow = entries.filter((e) => e.at && Date.parse(e.at) >= since);
 
   const skuCounter = new Map();
+  const toolCounter = new Map();
+  const clientCounter = new Map(); // 2026-11-12〜 の記録だけに client がある（それより前は "(記録なし)"）
   const destCounter = new Map();
   const unresolvedTokenCounter = new Map();
   const unresolvedIpCounter = new Map();
   const bySrc = new Map(); // src -> { resolveCalls, activeDays: Set<YYYY-MM-DD> }
 
   for (const e of inWindow) {
+    bump(toolCounter, e.tool ?? "?");
+    bump(clientCounter, e.client ?? "(記録なし)");
     for (const sku of e.sku_candidates ?? []) bump(skuCounter, sku);
     if (e.dest_country) bump(destCounter, e.dest_country);
     for (const tok of e.unresolved_tokens ?? []) bump(unresolvedTokenCounter, tok);
@@ -163,6 +167,8 @@ async function main() {
       "流入元チャネル単位の粗いシグナル）。"
   );
 
+  printTable("ツール別", topN(toolCounter, 20));
+  printTable("クライアント別（User-Agent の製品名。merchgraph-web は Web版）", topN(clientCounter, 20));
   printTable("上位SKU", topN(skuCounter, 10));
   printTable("仕向国", topN(destCounter, 10));
   printTable("未解決トークン 上位20（次にカタログへ足す商品の手がかり）", topN(unresolvedTokenCounter, 20));
