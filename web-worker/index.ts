@@ -13,8 +13,10 @@
 // - 見つからないときは専用の 404 ページ（web/404.html）を、ステータス 404 のまま返す。
 // - すべての応答にセキュリティ関連のヘッダーを付ける（routes.ts の SECURITY_HEADERS）。
 // - /api/contact は問い合わせフォームの送信先（contact.ts）、/api/csp-report は CSP 違反の報告の受け口。
+// - /api/click・/api/clicks は外部リンクのクリックの記録と集計（clicks.ts、2026-11-12）。
 import { handleContact, type ContactEnv } from "./contact.js";
-import { IP_PREFIXES, LEGACY_FALLBACK, ROOT_PAGE, SECURITY_HEADERS, ipAliasPath, legacyPath, redirectTable } from "./routes.js";
+import { clickSummary, recordClick, type ClicksEnv } from "./clicks.js";
+import { IP_PREFIXES, LIVE_IPS, LEGACY_FALLBACK, ROOT_PAGE, SECURITY_HEADERS, ipAliasPath, legacyPath, redirectTable } from "./routes.js";
 import redirectsJson from "../src/data/redirects.json" with { type: "json" };
 
 const REDIRECTS = redirectTable(redirectsJson as { from_path: string; to_path: string }[]);
@@ -25,7 +27,7 @@ interface AssetsBinding {
   fetch(request: Request): Promise<Response>;
 }
 
-interface Env extends ContactEnv {
+interface Env extends ContactEnv, ClicksEnv {
   ASSETS: AssetsBinding;
   // 正式なホスト名（例: merchgraph.app）。これ以外の *.workers.dev で来たアクセスはここへ転送する。
   CANONICAL_HOST?: string;
@@ -106,6 +108,9 @@ async function route(request: Request, env: Env): Promise<Response> {
 
   if (path === "/api/contact") return handleContact(request, env);
   if (path === "/api/csp-report") return cspReport(request);
+  // 外部リンクのクリックの記録と集計（2026-11-12、clicks.ts）
+  if (path === "/api/click") return recordClick(request, env, LIVE_IPS, isPreviewHost(url.hostname));
+  if (path === "/api/clicks") return clickSummary(request, env);
 
   // 404 ページそのものの URL も 404 で返す（検索結果に載らないように）
   if (path === "/404" || path === "/404.html") return notFound(request, url, env, new Response("not found", { status: 404 }));

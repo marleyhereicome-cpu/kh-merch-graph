@@ -15,10 +15,14 @@
     "CANONICAL_HOST": "merchgraph.app",
     "CONTACT_FROM": "contact-form@merchgraph.app"
   },
-  // 問い合わせフォームの送信回数の上限（IPごとに60秒で3回）。
+  // 問い合わせフォームの送信回数の上限（IPごとに60秒で3回）。外部リンクのクリックの記録（IPごとに60秒で20回）。
   "ratelimits": [
-    { "name": "CONTACT_LIMITER", "namespace_id": "1002", "simple": { "limit": 3, "period": 60 } }
+    { "name": "CONTACT_LIMITER", "namespace_id": "1002", "simple": { "limit": 3, "period": 60 } },
+    { "name": "CLICK_LIMITER", "namespace_id": "1003", "simple": { "limit": 20, "period": 60 } }
   ],
+  // 外部リンクのクリックの記録（web-worker/clicks.ts、2026-11-12）。MCP サーバーの利用ログと同じ KV（wrangler.toml の KH_KV）を、
+  // キーの頭（click:）で分けて使う。
+  "kv_namespaces": [{ "binding": "MG_KV", "id": "fda1f8f2d57a491fa516d8a6e4826d59" }],
   // 問い合わせメールの送信（Email Routing は 2026-10-23 に有効化済み）。送り先は Email Routing で確認済みのアドレスに限られる。
   "send_email": [{ "name": "CONTACT_EMAIL" }]
 }

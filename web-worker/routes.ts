@@ -14,6 +14,8 @@ export const ROOT_PAGE: string | null = null;
 export const LEGACY_FALLBACK: string | null = "/kingdomhearts";
 // IP ごとのパス（data/ips.csv の path。hidden 以外）。ここに並べたパスの下は、そのまま静的ファイルとして返す。
 export const IP_PREFIXES = IPS.map((r) => noSlash(r.path));
+// 公開中の作品の ip（外部リンクのクリックの記録で、送られてきた作品名を確かめるのに使う）
+export const LIVE_IPS = IPS.filter((r) => r.status === "live").map((r) => r.ip);
 
 // 作品のパスの別名（data/ips.csv の path_aliases。例: /kimetsu-no-yaiba/ → /demon-slayer/）。
 // 別名の下のパスも、そのまま正式なパスの下へ 301 転送する（/kingdom-hearts/item/x → /kingdomhearts/item/x）。

@@ -130,8 +130,10 @@ export function pageVars(x, cfg) {
   return { strings, vars, files: { ...DEFAULT_FILES, ...cfg.files } };
 }
 
-export function renderIpPage(template, x, cfg, { file = "page" } = {}) {
-  const { strings, vars, files } = pageVars(x, cfg);
+export function renderIpPage(template, x, cfg, { file = "page", extra = {} } = {}) {
+  const { strings, vars: base, files } = pageVars(x, cfg);
+  // extra: ビルド時にデータから作る差し込み（例: static_items＝JavaScript が動かないとき用の商品の一覧）
+  const vars = { static_items: "", ...base, ...extra };
   const partial = x.coverage === "partial";
   const coverageNote = partial
     ? `    <p class="coverage-note" data-i18n="coverageNote" style="font-size:13px;color:var(--ink-soft);margin:0 0 10px">${strings.en.coverageNote}</p>\n`
