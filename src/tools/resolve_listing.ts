@@ -147,11 +147,12 @@ export function registerResolveListingTool(server: McpServer, onUsage?: UsageLog
   server.registerTool(
     "resolve_listing",
     {
-      title: "Resolve listing",
+      title: "Identify a marketplace listing",
+      annotations: { title: "Identify a marketplace listing", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
       description:
         `Identify a ${liveSeriesNames()} item from a marketplace listing (Mercari, Yahoo! Auctions, Suruga-ya, Mandarake, eBay…). ` +
         "Paste the listing title as-is (Japanese or English), e.g. {title: \"一番くじ キングダムハーツ A賞 ソラ フィギュア 箱なし\", " +
-        "price_jpy: 4500}. Returns candidates[] (sku_id, name_en, confidence 0-1, why, source_url; several when the title " +
+        "price_jpy: 4500}. Returns candidates[] (sku_id, name_en, confidence 0-1, why, source_url, page_url = the item's page on merchgraph.app; several when the title " +
         "is ambiguous), weak_matches[] when unsure, conditions[] (Japanese condition words such as 未使用/箱なし explained), " +
         "flags[] (bootleg caution notes, not a verdict), price (original price and listing-to-original ratio when " +
         "price_jpy is given), shipping (whether a shipping-forwarding service is needed from abroad; set platform for a " +

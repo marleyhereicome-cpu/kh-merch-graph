@@ -25,3 +25,13 @@ jobs:
 
       - name: Publish server to MCP Registry
         run: ./mcp-publisher publish
+
+      # 2026-11-12：名前を io.github.marleyhereicome-cpu/merchgraph に変えた（レジストリの名前は後から変えられないため、新しい名前で登録し直す）。
+      # 旧名の登録は「deprecated（非推奨）」にして、新しい名前へ案内する。すでに deprecated なら何も変わらない。
+      # レジストリ側の混雑で失敗（504 など）しても、新しい名前の登録は済んでいるので、このジョブは失敗扱いにしない。
+      - name: Mark the old name (kh-merch-graph) as deprecated
+        continue-on-error: true
+        run: >-
+          ./mcp-publisher status --status deprecated --all-versions
+          --message "Renamed to io.github.marleyhereicome-cpu/merchgraph"
+          io.github.marleyhereicome-cpu/kh-merch-graph

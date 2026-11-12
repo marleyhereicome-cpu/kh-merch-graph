@@ -25,6 +25,10 @@ describe("server.json（公式 MCP レジストリ）", () => {
   it("version は package.json と揃えておく", () => {
     expect(server.version).toBe(pkg.version);
   });
+  it("名前は Merchgraph に統一（2026-11-12〜。旧名 kh-merch-graph は publish-mcp.yml で deprecated にする）", () => {
+    expect(server.name).toBe("io.github.marleyhereicome-cpu/merchgraph");
+    expect(server.title).toBe("Merchgraph");
+  });
 });
 
 describe("glama.json", () => {

@@ -92,7 +92,8 @@ export function registerResolveListingsBatchTool(
   server.registerTool(
     BATCH_TOOL_NAME,
     {
-      title: "Resolve listings (batch)",
+      title: "Identify several marketplace listings",
+      annotations: { title: "Identify several marketplace listings", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
       description:
         `Run resolve_listing on up to ${maxListings} listings in one call, e.g. when comparing search results from a marketplace. ` +
         "Example: {listings: [{title: \"…\", price_jpy: 3000}, {title: \"…\"}]}. Returns an array in the same order; each " +

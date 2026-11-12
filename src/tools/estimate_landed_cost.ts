@@ -9,7 +9,8 @@ export function registerEstimateLandedCostTool(server: McpServer, onUsage?: Usag
   server.registerTool(
     "estimate_landed_cost",
     {
-      title: "Estimate landed cost",
+      title: "Estimate cost to ship from Japan",
+      annotations: { title: "Estimate cost to ship from Japan", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
       description:
         "Estimate the total cost of buying an item in Japan and having it forwarded abroad. Example: " +
         "{price_jpy: 4500, sku_id: \"ichiban-kuji-kh-2018-a\", dest_country: \"US\"}. Returns routes[] (forwarding service × " +

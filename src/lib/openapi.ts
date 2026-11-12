@@ -4,6 +4,8 @@
 // 注意：実際の通信はREST APIではなくMCP（/mcp への JSON-RPC 2.0）である。
 // ここでの各パスは「/mcp に何を投げればどのツールが呼べるか」を説明するための参考資料であり、
 // 権威ある入出力定義は各ツールのzodスキーマ（src/tools/*.ts）と、サーバー自身への `tools/list` 呼び出し。
+import { SERVER_VERSION } from "./server-info.js";
+
 export function buildOpenApiDocument(baseUrl: string, maxBatchListings: number): object {
   const toolArgSchemas = {
     resolve_listing: {
@@ -52,9 +54,8 @@ export function buildOpenApiDocument(baseUrl: string, maxBatchListings: number):
     },
     discover: {
       type: "object",
-      required: ["ip"],
       properties: {
-        ip: { type: "string", description: "作品ID（例: kingdom-hearts）" },
+        ip: { type: "string", description: "作品ID（例: kingdom-hearts）。省略すると公開中の全作品" },
         character: { type: "string" },
         budget_jpy: { type: "number" },
         purpose: { type: "string", enum: ["display", "wear", "read", "play", "any"] },
@@ -108,10 +109,11 @@ export function buildOpenApiDocument(baseUrl: string, maxBatchListings: number):
   return {
     openapi: "3.1.0",
     info: {
-      title: "KH Merch Graph MCP Server",
-      version: "1.0.0",
+      title: "Merchgraph MCP Server",
+      version: SERVER_VERSION,
       description:
-        "Reference documentation for an MCP (Model Context Protocol) server. The real transport is JSON-RPC 2.0 " +
+        "Merchgraph (https://merchgraph.app) is a sourced catalog of anime and game merchandise. " +
+        "Reference documentation for its MCP (Model Context Protocol) server. The real transport is JSON-RPC 2.0 " +
         "over a single Streamable HTTP endpoint (POST /mcp), not a REST API — this document exists so that " +
         "OpenAPI-only tooling can still discover the shape of each tool. For live, authoritative schemas, " +
         "call the `tools/list` method on /mcp.",
