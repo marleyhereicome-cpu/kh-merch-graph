@@ -65,7 +65,8 @@ CHANNEL_FIX = {"hottopic": "hot_topic", "yahoo": "yahoo_auctions"}
 BAD_VARIANT = re.compile(r"^(pre-?order|preorder|予約|予約受付中|sold ?out|in ?stock|tbd|n/?a|none|-)$", re.I)
 # 画像の配信元として表示できないことが分かっているもの（claude/フォールバック対象sku_idリスト.md ほか）
 BAD_IMAGE_HOSTS = ("media.entertainmentearth.com", "nintendowire.com", "monogramdirect.com",
-                   "toyhypeusa.com/wp-content/uploads", "sweetsandgeeks.com")
+                   "toyhypeusa.com/wp-content/uploads", "sweetsandgeeks.com",
+                   "image.gamer.ne.jp")  # 4Gamer の記事画像。直リンクを断る（2026-11-12）
 # 例外として承認済みの行（Minimates Series 3、2026-10-21 Marley 承認）
 BAD_IMAGE_EXCEPT = {"dst-minimates-kh-s3-mickey-maleficent-2019", "dst-minimates-kh-s3-toybox-sora-ralph-2019",
                     "dst-minimates-kh-s3-jacksparrow-piratedonald-2019"}
