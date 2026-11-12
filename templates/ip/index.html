@@ -20,6 +20,7 @@
 <script type="application/ld+json" id="ld-faq">{{faqLd}}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+{{design_fonts}}
 <style>
   :root {
     color-scheme: light;
@@ -282,6 +283,85 @@
   .sh-hero .sh-more:hover { color: var(--sh-ink); }
   .sh-more i { display: block; width: 9px; height: 9px; border-right: 1.4px solid currentColor; border-bottom: 1.4px solid currentColor; transform: translateY(-3px) rotate(45deg); animation: sh-nudge 1.8s ease-in-out infinite; }
   @keyframes sh-nudge { 0%, 100% { transform: translateY(-3px) rotate(45deg); } 50% { transform: translateY(1px) rotate(45deg); } }
+  /* ---------- 作品ごとのファーストビュー「並んだ札・張り紙」（web/rail-hero.js、2026-11-12〜） ----------
+     skin=kifuda（鬼滅の刃）：夜の梁から下がる木札。skin=wanted（ONE PIECE）：板壁に釘で留めた手配書。 */
+  .rh-hero { --cw: min(26vw, 300px, calc((100svh - 64px) * .36)); position: relative; overflow: hidden; isolation: isolate;
+    height: max(540px, calc(100svh - var(--hdr, 64px))); user-select: none; -webkit-user-select: none; color: #F4EEE2; }
+  .rh-hero[hidden] { display: none; }
+  .rh-hero button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+  .rh-bg { position: absolute; inset: 0; z-index: -1; }
+  .rh-rail { position: absolute; left: 0; right: 0; top: 7%; height: 64%; touch-action: pan-y; cursor: grab; outline: none; }
+  .rh-rail:focus-visible { box-shadow: inset 0 0 0 2px rgba(244,238,226,.5); }
+  .rh-stage { position: absolute; left: 50%; top: 0; width: 0; height: 100%; }
+  .rh-card { position: absolute; left: 0; top: 0; width: var(--cw); transform-origin: 50% 0; will-change: transform; }
+  .rh-card::after { content: ''; position: absolute; inset: 0; background: rgba(8,6,16,var(--dim, 0)); pointer-events: none; border-radius: 4px; }
+  .rh-card.on:focus-visible { outline: 2px solid #F4EEE2; outline-offset: 6px; }
+  .rh-win { background: #FBF7EE; display: flex; align-items: center; justify-content: center; aspect-ratio: 1 / 1; overflow: hidden; }
+  .rh-win img { width: 88%; height: 88%; object-fit: contain; mix-blend-mode: multiply; pointer-events: none; }
+  .rh-cap { position: absolute; left: 50%; top: 73%; transform: translateX(-50%); width: min(84vw, 620px); text-align: center; display: grid; gap: 6px; justify-items: center; z-index: 5; }
+  .rh-title { font-family: 'Shippori Mincho', serif; font-weight: 700; font-size: clamp(16px, 1.8vw, 22px); line-height: 1.4;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.8em; }
+  .rh-meta, .rh-price { font-size: 12.5px; letter-spacing: .06em; opacity: .85; }
+  .rh-price:empty { display: none; }
+  .rh-open { margin-top: 4px; font-size: 12px !important; letter-spacing: .12em; padding: 8px 18px !important; border: 1px solid currentColor !important; border-radius: 99px; opacity: .9; }
+  .rh-open:hover { opacity: 1; }
+  .rh-arrow { position: absolute; top: calc(73% + 6px); z-index: 6; width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(244,238,226,.4) !important; display: grid; place-items: center; }
+  .rh-arrow svg { width: 22px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.3; }
+  .rh-arrow.prev { left: calc(50% - min(40vw, 380px)); } .rh-arrow.next { right: calc(50% - min(40vw, 380px)); }
+  .rh-arrow[disabled] { opacity: .25; cursor: default; }
+  .rh-more { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 6; display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; letter-spacing: .12em; color: inherit; opacity: .8; padding: 6px 12px; text-decoration: none; }
+  .rh-more .short { display: none; }
+  .rh-more i { display: block; width: 9px; height: 9px; border-right: 1.4px solid currentColor; border-bottom: 1.4px solid currentColor; transform: translateY(-3px) rotate(45deg); animation: sh-nudge 1.8s ease-in-out infinite; }
+
+  /* 鬼滅の刃：木札 */
+  .rh-hero[data-skin="kifuda"] .rh-bg { background:
+      linear-gradient(180deg, #3B2716 0 calc(7% - 2px), #24170C calc(7% - 2px) 7%, transparent 7%),
+      repeating-linear-gradient(90deg, rgba(255,220,170,.05) 0 2px, transparent 2px 14px) 0 0 / 100% 7% no-repeat,
+      radial-gradient(90% 70% at 50% 40%, #252B49 0%, #161A30 55%, #0B0D1A 100%); }
+  .rh-hero[data-skin="kifuda"] .rh-bg::after { content: ''; position: absolute; left: 0; right: 0; top: 7%; height: 18px; background: linear-gradient(rgba(0,0,0,.45), transparent); }
+  .rh-hero[data-skin="kifuda"] .rh-cord { width: 2px; height: calc(var(--cw) * .2); margin: 0 auto; background: #A8352E; box-shadow: 0 0 0 .5px rgba(0,0,0,.3); }
+  .rh-hero[data-skin="kifuda"] .rh-tag { position: relative; padding: calc(var(--cw) * .16) calc(var(--cw) * .07) calc(var(--cw) * .12);
+    clip-path: polygon(14% 0, 86% 0, 100% 9%, 100% 100%, 0 100%, 0 9%);
+    background-color: #DDBF8C;
+    background-image:
+      radial-gradient(circle at 50% calc(var(--cw) * .075), #1D130A 0 calc(var(--cw) * .03), #6E4A26 calc(var(--cw) * .032) calc(var(--cw) * .04), transparent calc(var(--cw) * .042)),
+      repeating-linear-gradient(90deg, rgba(110,70,30,.10) 0 1px, transparent 1px 7px, rgba(110,70,30,.06) 7px 9px, transparent 9px 16px),
+      linear-gradient(90deg, rgba(255,240,210,.35), rgba(255,240,210,0) 22%, rgba(90,55,20,.10) 60%, rgba(255,240,210,.18) 85%, rgba(90,55,20,.14));
+    filter: drop-shadow(0 18px 18px rgba(0,0,0,.45)); }
+  .rh-hero[data-skin="kifuda"] .rh-win { border: 1px solid rgba(90,55,20,.3); aspect-ratio: 4 / 5; }
+  .rh-hero[data-skin="kifuda"] .rh-card::after { top: calc(var(--cw) * .2); }
+
+  /* ONE PIECE：手配書 */
+  .rh-hero[data-skin="wanted"] .rh-bg { background:
+      linear-gradient(180deg, rgba(20,12,6,.15) 0%, rgba(20,12,6,0) 30%, rgba(20,12,6,.55) 68%, rgba(14,8,4,.85) 100%),
+      radial-gradient(80% 70% at 50% 35%, rgba(255,200,130,.12), transparent 70%),
+      repeating-linear-gradient(90deg, #6E4B2E 0 118px, #4B321D 118px 121px, #765233 121px 236px, #4B321D 236px 239px),
+      #6A482C; }
+  .rh-hero[data-skin="wanted"] .rh-bg::after { content: ''; position: absolute; inset: 0;
+    background: repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 1px, transparent 1px 5px), repeating-linear-gradient(0deg, rgba(255,255,255,.02) 0 2px, transparent 2px 9px); }
+  .rh-hero[data-skin="wanted"] .rh-card { top: 4%; transform-origin: 50% 3%; }
+  .rh-hero[data-skin="wanted"] .rh-poster { position: relative; padding: calc(var(--cw) * .06) calc(var(--cw) * .07) calc(var(--cw) * .05); color: #2E1F10; text-align: center;
+    background-color: #EAD9B4;
+    background-image: radial-gradient(120% 90% at 50% 45%, rgba(255,250,235,.55) 0 40%, rgba(150,100,40,.18) 85%, rgba(110,70,25,.34) 100%);
+    box-shadow: 0 18px 26px rgba(0,0,0,.45), inset 0 0 0 5px #EAD9B4, inset 0 0 0 6.5px #5A3E22, inset 0 0 0 9px #EAD9B4, inset 0 0 0 10px #5A3E22; }
+  .rh-hero[data-skin="wanted"] .rh-nail { position: absolute; left: 50%; top: 7px; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #D8D2C6, #6B655C 60%, #3A352E); box-shadow: 0 2px 2px rgba(0,0,0,.45); z-index: 2; }
+  .rh-hero[data-skin="wanted"] .rh-wanted { font-family: 'Rye', 'Shippori Mincho', serif; font-size: calc(var(--cw) * .16); line-height: 1; letter-spacing: .05em; margin: calc(var(--cw) * .05) 0 calc(var(--cw) * .04); color: #3E2A16; }
+  .rh-hero[data-skin="wanted"] .rh-win { width: 86%; margin: 0 auto; border: 2px solid #3E2A16; background: #F3E7CC; }
+  .rh-hero[data-skin="wanted"] .rh-bounty { margin-top: calc(var(--cw) * .04); border-top: 1px solid #5A3E22; border-bottom: 1px solid #5A3E22; padding: 3px 0 4px; }
+  .rh-hero[data-skin="wanted"] .rh-bounty b { display: block; font-family: 'Shippori Mincho', serif; font-weight: 700; font-size: calc(var(--cw) * .12); line-height: 1.15; }
+  .rh-hero[data-skin="wanted"] .rh-bounty small { display: block; font-size: calc(var(--cw) * .045); letter-spacing: .14em; color: #6B5232; }
+
+  @media (max-width: 767px) {
+    .rh-hero { --cw: min(50vw, 220px, calc((100svh - 56px) * .34)); }
+    .rh-cap { top: 71%; width: calc(100vw - 120px); }
+    .rh-arrow { top: calc(71% + 4px); }
+    .rh-arrow.prev { left: 12px; } .rh-arrow.next { right: 12px; }
+    .rh-open { display: none; }
+    .rh-more .long { display: none; } .rh-more .short { display: inline; }
+  }
+  @media (prefers-reduced-motion: reduce) { .rh-more i { animation: none; } }
   /* 詳細シート：正面のカードから紙が広がる */
   .sh-detail { position: fixed; inset: 0; z-index: 60; background: #F5F1E8; color: #1C1B29; display: none; overflow: auto; user-select: text; }
   .sh-detail.open { display: block; }
@@ -438,6 +518,55 @@
   .card.plain .card-rect { margin-top: 0; border-top: 3px solid var(--accent); border-radius: 8px; }
   .card.plain .card-art { margin-top: 16px; }
 
+  /* ---------- 鬼滅の刃：木札（kifuda、2026-11-12 Marley 承認のA案） ----------
+     縦長の木の札。上の角を落とし、ひもを通す穴をあける。写真は和紙色の窓に無加工で収める。
+     飾りの文字は入れない（読める大きさの文字は本物の日本語＝商品名・価格だけ）。 */
+  .card.kifuda { position: relative; padding-top: 16px; filter: drop-shadow(0 6px 10px rgba(60,35,10,0.22)); }
+  .card.kifuda::before { /* ひも（穴から上へ輪になって出る） */
+    content: ''; position: absolute; top: 0; left: 50%; width: 24px; height: 34px; margin-left: -12px; z-index: 2;
+    border: 2.5px solid var(--accent); border-bottom: none; border-radius: 13px 13px 0 0; }
+  .card.kifuda .card-rect {
+    margin-top: 0; border: 0; border-radius: 0 0 5px 5px; padding: 30px 10px 6px;
+    clip-path: polygon(16px 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%, 0 16px);
+    background-color: #DDBF8C;
+    background-image:
+      radial-gradient(circle at 50% 22px, #2A1C10 0 7px, #6E4A26 7.5px 9px, transparent 9.5px),
+      repeating-linear-gradient(90deg, rgba(110,70,30,0.10) 0 1px, transparent 1px 7px, rgba(110,70,30,0.06) 7px 9px, transparent 9px 16px),
+      linear-gradient(90deg, rgba(255,240,210,0.35), rgba(255,240,210,0) 22%, rgba(90,55,20,0.10) 60%, rgba(255,240,210,0.18) 85%, rgba(90,55,20,0.14)),
+      linear-gradient(180deg, rgba(255,255,255,0.10), rgba(60,35,10,0.10));
+    box-shadow: inset 0 0 0 1px rgba(90,55,20,0.35); }
+  .card.kifuda .card-art { overflow: hidden; width: 100%; margin: 0; padding: 8%; background: #FBF7EE; border: 1px solid rgba(90,55,20,0.28); box-sizing: border-box; }
+  .card.kifuda .photo-credit { color: #6B5232; }
+  .card.kifuda .card-body { padding: 10px 4px 8px; }
+  .card.kifuda .card-title { color: #2B1D10; }
+  .card.kifuda .card-price, .card.kifuda .card-eyebrow { color: #3B2A18; }
+  .card.kifuda .tag { background: rgba(251,247,238,0.75); border-color: rgba(90,55,20,0.25); }
+  .card.kifuda:hover .card-title { color: #7A2A22; }
+
+  /* ---------- ONE PIECE：手配書（wanted、2026-11-12 Marley 承認のA案） ----------
+     古い紙の手配書。見出しは英語の WANTED、発売時の定価を懸賞金のように大きく見せる。
+     作中の手配書の配置（海軍のマーク・DEAD OR ALIVE など）は写さない。 */
+  .card.wanted .card-rect {
+    margin-top: 0; border: 0; border-radius: 2px; padding: 12px 12px 4px;
+    background-color: #EAD9B4;
+    background-image:
+      radial-gradient(120% 90% at 50% 45%, rgba(255,250,235,0.55) 0 40%, rgba(150,100,40,0.18) 85%, rgba(110,70,25,0.32) 100%),
+      repeating-linear-gradient(0deg, rgba(120,80,30,0.03) 0 2px, transparent 2px 5px);
+    box-shadow: 0 6px 14px rgba(60,40,15,0.22), inset 0 0 0 5px #EAD9B4, inset 0 0 0 6.5px #5A3E22, inset 0 0 0 9px #EAD9B4, inset 0 0 0 10px #5A3E22; }
+  .card.wanted .wanted-head { font-family: 'Rye', 'Shippori Mincho', serif; font-size: 28px; line-height: 1; letter-spacing: 0.06em; color: #3E2A16; text-align: center; margin: 10px 0 8px; }
+  .card.wanted .card-art { overflow: hidden; width: 82%; margin: 0 auto; border: 2px solid #3E2A16; background: #F3E7CC; padding: 6%; box-sizing: border-box; }
+  .card.wanted .photo-credit { color: #6B5232; }
+  .card.wanted .card-body { padding: 8px 6px 10px; text-align: center; }
+  .card.wanted .card-tags { justify-content: center; }
+  .card.wanted .card-price { order: -1; font-family: 'Shippori Mincho', serif; font-weight: 700; font-size: 22px; line-height: 1.2; color: #2E1F10;
+    border-top: 1px solid #5A3E22; border-bottom: 1px solid #5A3E22; padding: 4px 0 5px; margin-bottom: 4px; }
+  .card.wanted .card-price .basis, .card.wanted .card-price .approx { display: block; font-family: 'Zen Kaku Gothic New', sans-serif; font-weight: 500; font-size: 10px; letter-spacing: 0.14em; color: #6B5232; }
+  .card.wanted .card-title { color: #2E1F10; font-size: 14px; }
+  .card.wanted .card-eyebrow { color: #6B5232; }
+  .card.wanted .tag { background: rgba(255,250,235,0.6); border-color: rgba(90,62,34,0.3); }
+  .card.wanted .badge-row { justify-content: center; }
+  .card.wanted:hover .card-title { color: #8A2F1D; }
+
   /* スマホでは一度にたくさん見られるよう、横3列の小さなカードにする（2026-11-12〜）。
      カードには写真・名前・定価だけを残し、種類・入手方法などは開いたパネルで見せる。 */
   @media (max-width: 640px) {
@@ -451,6 +580,20 @@
     .card-tags, .card-eyebrow, .badge-row, .card-more { display: none; }
     .card-title { font-size: 11.5px; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
     .card-price { font-size: 10.5px; line-height: 1.4; }
+    .card.kifuda { padding-top: 10px; }
+    .card.kifuda::before { width: 14px; height: 20px; margin-left: -7px; border-width: 2px; }
+    .card.kifuda .card-rect { padding: 18px 5px 4px; clip-path: polygon(9px 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 0 100%, 0 9px);
+      background-image: radial-gradient(circle at 50% 12px, #2A1C10 0 4px, #6E4A26 4.5px 5.5px, transparent 6px),
+        repeating-linear-gradient(90deg, rgba(110,70,30,0.10) 0 1px, transparent 1px 6px),
+        linear-gradient(90deg, rgba(255,240,210,0.35), rgba(255,240,210,0) 22%, rgba(90,55,20,0.10) 60%, rgba(90,55,20,0.14)); }
+    .card.kifuda .card-art, .card.wanted .card-art { width: 100%; margin: 0; padding: 6%; }
+    .card.kifuda .card-body { padding: 5px 1px 4px; }
+    .card.wanted .card-rect { padding: 7px 6px 2px; box-shadow: 0 3px 8px rgba(60,40,15,0.2), inset 0 0 0 3px #EAD9B4, inset 0 0 0 4px #5A3E22; }
+    .card.wanted .wanted-head { font-size: 15px; margin: 5px 0 5px; }
+    .card.wanted .card-body { padding: 4px 1px 4px; }
+    .card.wanted .card-price { font-size: 13px; padding: 2px 0 3px; }
+    .card.wanted .card-price .basis, .card.wanted .card-price .approx { font-size: 8px; letter-spacing: 0.06em; }
+    .card.wanted .card-title { font-size: 11px; }
   }
 
   .state-msg { grid-column: 1 / -1; text-align: center; padding: 48px 16px; color: var(--muted); font-size: 14px; }
@@ -1410,6 +1553,7 @@ function renderCard(item, detail, imageMap) {
     <div class="card ${CARD_STYLE}" style="--accent:${borderColorFor(item.sku_id)}" data-sku="${escapeHtml(item.sku_id)}" tabindex="0" role="button" aria-label="${escapeHtml(displayName(item, detail))}">
       ${CARD_STYLE === 'crown' ? '<div class="card-crown"><div class="card-crown-fill"></div></div>' : ''}
       <div class="card-rect">
+        ${CARD_STYLE === 'wanted' ? '<div class="wanted-head" aria-hidden="true">WANTED</div>' : ''}
         <div class="card-art">${a.art}</div>
         <div class="photo-credit">${escapeHtml(a.credit)}</div>
         <div class="card-body">
