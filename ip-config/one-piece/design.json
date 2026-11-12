@@ -1,12 +1,15 @@
 {
   "status": "draft",
-  "cardStyle": "plain",
-  "motif": "未決定。案：手配書（WANTED ポスター風）・海図（docs/IP_DESIGN.md の作品別メモ）",
-  "hero": "none",
+  "cardStyle": "wanted",
+  "motif": "手配書（A案、2026-11-12 Marley 選定）。古い紙・二重の枠・英語の WANTED・発売時の定価を懸賞金のように大きく",
+  "hero": "rail-hero (wanted)",
   "palette": {},
   "texture": "",
   "watermark": "",
   "music": "",
   "legal_notes": "作中の手配書のレイアウト（海軍のマーク・DEAD OR ALIVE の配置など）を写さない。一般的な西部劇の手配書の様式にとどめる",
-  "docs": []
+  "docs": [],
+  "fonts": [
+    "family=Rye&text=WANTED"
+  ]
 }

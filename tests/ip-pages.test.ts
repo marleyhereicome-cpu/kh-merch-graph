@@ -162,8 +162,16 @@ describe("the design sheet (ip-config/<ip>/design.json, 2026-11-12)", () => {
     const { pages } = buildIpPages({ write: false }) as { pages: Page[] };
     const index = (ip: string) => pages.find((p) => p.ip === ip && p.file.endsWith("index.html"))!.html;
     expect(index("kingdom-hearts")).toContain('const CARD_STYLE = "crown";');
-    expect(index("kimetsu-no-yaiba")).toContain('const CARD_STYLE = "plain";');
-    expect(index("one-piece")).toContain('const CARD_STYLE = "plain";');
+    expect(index("kimetsu-no-yaiba")).toContain('const CARD_STYLE = "kifuda";');
+    expect(index("one-piece")).toContain('const CARD_STYLE = "wanted";');
+    // 手配書の見出しのフォント（Rye）は ONE PIECE のページだけで読む
+    expect(index("one-piece")).toContain("family=Rye&text=WANTED");
+    expect(index("kimetsu-no-yaiba")).not.toContain("family=Rye");
+    // ファーストビュー：KH はカードの棚、鬼滅は木札、ONE PIECE は手配書
+    expect(index("kingdom-hearts")).toContain('id="shelfHero"');
+    expect(index("kimetsu-no-yaiba")).toContain('data-skin="kifuda"');
+    expect(index("one-piece")).toContain('data-skin="wanted"');
+    expect(index("one-piece")).toContain('<script src="/rail-hero.js" defer></script>');
   });
   it("a series launched after 2026-11-12 can't go live until its design is approved", () => {
     const later = normalizeIp({ ...fakeRow, ip: "test-series-2", path: "/test-series-2/", path_aliases: "", launched: "2026-12-01" });
@@ -173,6 +181,8 @@ describe("the design sheet (ip-config/<ip>/design.json, 2026-11-12)", () => {
       expect(() => buildIpPages({ write: false, ips: [...realIps, later] })).toThrow(/未承認/);
       writeFileSync("ip-config/test-series-2/design.json", JSON.stringify({ status: "approved", cardStyle: "crown" }));
       expect(() => buildIpPages({ write: false, ips: [...realIps, later] })).toThrow(/Kingdom Hearts 専用/);
+      writeFileSync("ip-config/test-series-2/design.json", JSON.stringify({ status: "approved", cardStyle: "wanted" }));
+      expect(() => buildIpPages({ write: false, ips: [...realIps, later] })).toThrow(/one-piece 専用/);
       rmSync("ip-config/test-series-2/design.json");
       expect(() => buildIpPages({ write: false, ips: [...realIps, later] })).toThrow(/design\.json がありません/);
     } finally {

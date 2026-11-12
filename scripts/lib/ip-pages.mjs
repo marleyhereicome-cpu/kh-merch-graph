@@ -123,6 +123,8 @@ export function pageVars(x, cfg) {
     name_ja: x.name.ja,
     fallback_image: cfg.page?.fallbackImage || DEFAULT_FALLBACK_IMAGE,
     card_style: cfg.design?.cardStyle || "plain",
+    // デザインシートで足すフォント（Google Fonts の css2 の指定。例 "family=Rye&text=WANTED"）。使う作品のページだけ読み込む
+    design_fonts: (cfg.design?.fonts || []).map((f) => `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?${f}&display=swap">`).join("\n"),
   };
   vars.fallback_re = vars.fallback_image.split("/").pop().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return { strings, vars, files: { ...DEFAULT_FILES, ...cfg.files } };
@@ -162,12 +164,16 @@ export function validateIpConfig(x, cfg) {
     if (/<script/i.test(v)) errs.push(`ip-config/${x.ip}/strings.json: en.${k} に <script があります`);
   }
   // デザインシート（docs/IP_DESIGN.md）。公開中の作品は必須。王冠型は KH 専用
-  const CARD_STYLES = ["plain", "crown"];
+  // カードの形と、その形を使ってよい作品（作品ごとに作った形は、ほかの作品に流用しない）
+  const CARD_STYLE_OWNER = { plain: null, crown: "kingdom-hearts", kifuda: "kimetsu-no-yaiba", wanted: "one-piece" };
+  const CARD_STYLES = Object.keys(CARD_STYLE_OWNER);
   if (x.status === "live" && !cfg.design) errs.push(`ip-config/${x.ip}/design.json がありません（公開する作品はデザインシートが必要です。docs/IP_DESIGN.md）`);
   if (cfg.design) {
     const d = cfg.design;
     if (!CARD_STYLES.includes(d.cardStyle)) errs.push(`ip-config/${x.ip}/design.json: cardStyle は ${CARD_STYLES.join(" / ")} のどれかにしてください（いま: ${d.cardStyle}）`);
-    if (d.cardStyle === "crown" && x.ip !== "kingdom-hearts") errs.push(`ip-config/${x.ip}/design.json: cardStyle "crown" は Kingdom Hearts 専用です`);
+    const owner = CARD_STYLE_OWNER[d.cardStyle];
+    if (owner && owner !== x.ip) errs.push(`ip-config/${x.ip}/design.json: cardStyle "${d.cardStyle}" は ${owner} 専用です${d.cardStyle === "crown" ? "（Kingdom Hearts 専用）" : ""}`);
+    for (const f of d.fonts || []) if (!/^family=[A-Za-z0-9+:;@,.&=]+$/.test(f)) errs.push(`ip-config/${x.ip}/design.json: fonts の指定が読めません: ${f}`);
     if (!["draft", "approved"].includes(d.status)) errs.push(`ip-config/${x.ip}/design.json: status は draft か approved にしてください`);
     // 2026-11-12 より後に公開する作品は、デザインが決まって（approved）から status=live にする。
     // それ以前に公開済みの作品（鬼滅の刃・ONE PIECE）は、決まるまで draft のまま（既定の plain カード）で出しておける。
