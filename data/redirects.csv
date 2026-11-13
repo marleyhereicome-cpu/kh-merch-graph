@@ -8,3 +8,9 @@ from_path,to_path,note
 /kingdomhearts/item/gamestop-kh-oathkeeper-keychain-monogram,/kingdomhearts/item/gamestop-kh-oathkeeper-keychain,統合（2026-11-11 データ整備 依頼3）
 /kingdomhearts/item/gamestop-kh-sora-keyblade-keychain-monogram,/kingdomhearts/item/gamestop-kh-sora-keyblade-keychain,統合（2026-11-11 データ整備 依頼3）
 /kingdomhearts/item/gamestop-kh-sleeping-lion-keychain-monogram,/kingdomhearts/item/gamestop-kh-sleeping-lion-keyblade-keychain,統合（2026-11-11 データ整備 依頼3）
+/kingdomhearts/item/kh-estore-quilting-tote-bag-2026,/kingdomhearts/item/kh-quilted-tote-bag,統合（2026-11-13 重複の整理）
+/kingdomhearts/item/kh-estore-quilting-boston-bag-2026,/kingdomhearts/item/kh-quilted-mini-boston-bag,統合（2026-11-13 重複の整理）
+/kingdomhearts/item/kh-estore-quilting-backpack-2026,/kingdomhearts/item/kh-quilted-backpack-2026,統合（2026-11-13 重複の整理）
+/kingdomhearts/item/kh-estore-quilting-wallet-2026,/kingdomhearts/item/kh-quilted-wallet,統合（2026-11-13 重複の整理）
+/kingdomhearts/item/funko-pocketpop-kh3-sora-monstersinc-keychain-2019,/kingdomhearts/item/funko-pocketpop-kh3-sora-monstersinc-2019,統合（2026-11-13 重複の整理）
+/kingdomhearts/series/kh-estore-quilting-2026,/kingdomhearts/series/kh-quilted-2025,統合（2026-11-13 重複の整理。ライン名の同じシリーズ）
