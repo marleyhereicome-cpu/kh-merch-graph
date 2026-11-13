@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Merchgraph | {{name_en}}</title>
+<title>{{en.pageTitle}}</title>
 <meta name="description" content="{{en.description}}" />
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Merchgraph | {{name_en}}" />
+<meta property="og:title" content="{{en.pageTitle}}" />
 <meta property="og:site_name" content="Merchgraph" />
 <meta property="og:description" content="{{en.ogDescription}}" />
 <meta name="twitter:card" content="summary" />
@@ -883,7 +883,8 @@
   <div class="hero-text">
     <p class="stats" id="stats" aria-live="polite"></p>
 {{coverageNote}}    <h1 data-i18n-html="heroTitle">{{en.heroTitle}}</h1>
-    <p class="lede" data-i18n="heroLede">From Japanese lottery prizes and arcade plush to overseas-only figures and brand collabs. See what each one originally cost, and where fans actually get it today.</p>
+    <p class="lede" data-i18n="heroLede">{{en.heroLede}}</p>
+    <p class="early-note" id="earlyCatalog" hidden style="font-size:13px;color:var(--ink-soft);margin:0 0 10px"></p>
   <form class="search-form" id="searchForm">
     <input id="character" type="text" data-i18n-placeholder="searchPlaceholder" placeholder="{{en.searchPlaceholder}}" aria-label="Search a character or item" autocomplete="off" />
     <select id="budget" aria-label="Original price">
@@ -895,7 +896,7 @@
     </select>
     <button type="submit" data-i18n="searchBtn">Search</button>
   </form>
-    <ul class="facts"><li data-i18n="fact1">Original price</li><li data-i18n="fact2">Where to get it now</li><li data-i18n="fact3">Every source linked</li><li data-i18n="fact4">Nothing is sold here</li></ul>
+    <ul class="facts"><li data-i18n="fact1">{{en.fact1}}</li><li data-i18n="fact2">{{en.fact2}}</li><li data-i18n="fact3">{{en.fact3}}</li><li data-i18n="fact4">{{en.fact4}}</li><li data-i18n="fact5">{{en.fact5}}</li></ul>
   </div>
 </section>
 
@@ -949,18 +950,23 @@
 <section class="about" id="about">
   <h2 data-i18n="aboutTitle">What this is</h2>
   <p data-i18n="aboutP1">{{en.aboutP1}}</p>
-  <p data-i18n="aboutP2">Most fans only ever see what their local online shops show them. Plenty of great merch never crosses a border or a language barrier: Japanese prize plush and lottery figures, overseas-only collabs, fan-made apparel. This is a place to run into it.</p>
-  <details>
-    <summary data-i18n="aboutKhQ">{{en.aboutKhQ}}</summary>
-    <p data-i18n-html="aboutKhA">{{en.aboutKhA}}</p>
-  </details>
+  <p data-i18n="aboutP2">{{en.aboutP2}}</p>
+  <!-- よくある質問の順番：知りたい順に（日本から買う方法 → くじの値段 → 定価とは → 作品の紹介。2026-11-12〜） -->
   <details id="shipping-proxy-faq">
     <summary data-i18n="aboutProxyQ">What's a shipping proxy?</summary>
     <p data-i18n-html="aboutProxyA">{{en.aboutProxyA}}</p>
   </details>
+  <details id="kuji-price-faq">
+    <summary data-i18n="aboutKujiQ">Why does a lottery prize show a price like ¥850?</summary>
+    <p data-i18n="aboutKujiA">That's the price of one Ichiban Kuji draw, not the price of the prize. You paid per ticket and won whichever prize you drew. Popular prizes normally resell for more than the draw price, so a higher listing isn't automatically a rip-off.</p>
+  </details>
   <details>
     <summary data-i18n="aboutPriceQ">What does "original price" mean?</summary>
     <p data-i18n="aboutPriceA">It's the price an item had when it was first released, in the currency of the country it was released in (approximate conversions are shown in brackets, using a fixed rate, not a live one). Lottery prizes show the price of one draw, since the prize itself was never sold. Resale prices today can be far above or below the original; the original price is there so you have something to compare against.</p>
+  </details>
+  <details>
+    <summary data-i18n="aboutKhQ">{{en.aboutKhQ}}</summary>
+    <p data-i18n-html="aboutKhA">{{en.aboutKhA}}</p>
   </details>
   <details id="verified-faq">
     <summary data-i18n="aboutVerifyQ">How is the information on this site checked?</summary>
@@ -1010,8 +1016,11 @@ const STRINGS = {
     navDiscover: 'Discover', navCheck: 'Check a listing', navAbout: 'About',
     kicker: 'Not a store',
     heroTitle: '{{en.heroTitle}}',
-    heroLede: 'From Japanese lottery prizes and arcade plush to overseas-only figures and brand collabs. See what each one originally cost, and where fans actually get it today.',
-    fact1: 'Original price', fact2: 'Where to get it now', fact3: 'Every source linked', fact4: 'Nothing is sold here',
+    heroLede: '{{en.heroLede}}',
+    fact1: '{{en.fact1}}', fact2: '{{en.fact2}}', fact3: '{{en.fact3}}', fact4: '{{en.fact4}}', fact5: '{{en.fact5}}',
+    earlyCatalog: 'Early catalog: {n} items so far. Missing something? <a href="/contact">Tell us</a>.',
+    aboutKujiQ: 'Why does a lottery prize show a price like ¥850?',
+    aboutKujiA: 'That’s the price of one Ichiban Kuji draw, not the price of the prize. You paid per ticket and won whichever prize you drew. Popular prizes normally resell for more than the draw price, so a higher listing isn’t automatically a rip-off.',
     gacha: 'Show me a random item',
     p1Name: 'Discover', p1Text: "Things that never reached your country's shops, and things you didn't know were made at all.",
     p2Name: 'Know', p2Text: 'Official or fan-made, and what it cost when it first came out, so you can tell a fair price from a markup.',
@@ -1112,8 +1121,11 @@ const STRINGS = {
     navDiscover: 'さがす', navCheck: '出品チェック', navAbout: 'このサイトについて',
     kicker: '販売サイトではありません',
     heroTitle: '{{ja.heroTitle}}',
-    heroLede: '日本のくじ景品やプライズから、海外限定のフィギュア、ブランドコラボまで。気になるグッズの発売時の定価と、いまどこで手に入るかがわかります。',
-    fact1: '発売時の定価', fact2: 'いまの入手方法', fact3: '情報の出典つき', fact4: '販売はしていません',
+    heroLede: '{{ja.heroLede}}',
+    fact1: '{{ja.fact1}}', fact2: '{{ja.fact2}}', fact3: '{{ja.fact3}}', fact4: '{{ja.fact4}}', fact5: '{{ja.fact5}}',
+    earlyCatalog: '掲載はまだ一部です（現在{n}件）。足りない商品があれば<a href="/contact">お知らせください</a>。',
+    aboutKujiQ: 'くじ景品に「850円」のような価格が出ているのはなぜですか？',
+    aboutKujiA: '一番くじを1回引くときの価格で、景品そのものの値段ではありません。人気の賞は、この価格より高く取引されるのが普通です。',
     gacha: 'ランダムに1つ見る',
     p1Name: '出会う', p1Text: '日本未発売の海外グッズや、存在すら知らなかったレアものまで。',
     p2Name: '値段を知る', p2Text: '公式かファンメイドか、発売時の定価はいくらか。出品価格が妥当かを見極める目安になります。',
@@ -1136,7 +1148,7 @@ const STRINGS = {
     toTop: '上へ戻る',
     aboutTitle: 'このサイトについて',
     aboutP1: '{{ja.aboutP1}}',
-    aboutP2: 'ふだん目にするのは、身近な通販サイトに並ぶ商品がほとんどです。でも世界には、言葉や国の違いのせいで知られていないグッズがたくさんあります。日本のプライズやくじ景品、海外限定のコラボ商品、ファンが作ったアパレル。そんなグッズに出会うための場所です。',
+    aboutP2: '{{ja.aboutP2}}',
     aboutKhQ: '{{ja.aboutKhQ}}',
     aboutKhA: '{{ja.aboutKhA}}',
     aboutProxyQ: '代行サービスとは？',
@@ -1251,7 +1263,8 @@ function applyStaticStrings() {
   document.getElementById('character').setAttribute('aria-label', t('searchLabel'));
   if (!JA) return; // markup already carries the English text
   document.documentElement.lang = 'ja';
-  document.title = 'Merchgraph | {{name_en}}';
+  document.title = '{{ja.pageTitle}}';
+  document.querySelector('meta[name="description"]')?.setAttribute('content', '{{ja.description}}');
   document.querySelectorAll('[data-i18n]').forEach((el) => { if (STRINGS.ja[el.dataset.i18n] !== undefined) el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-html]').forEach((el) => { if (STRINGS.ja[el.dataset.i18nHtml] !== undefined) el.innerHTML = t(el.dataset.i18nHtml); });
   document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => { el.placeholder = t(el.dataset.i18nPlaceholder); });
@@ -2072,6 +2085,7 @@ async function renderMore(imageMap) {
   }
 }
 
+const EARLY_CATALOG_MAX = 200;
 async function renderStats() {
   try {
     const { ordered } = await loadCatalog();
@@ -2083,6 +2097,9 @@ async function renderStats() {
       t('statsJp', { n: b(jp) }),
       t('statsOverseas', { n: b(ordered.length - jp) }),
     ].map((x) => `<span class="st">${x}</span>`).join(sep);
+    // 掲載がまだ少ない作品だけ、件数つきの1行を出す（EARLY_CATALOG_MAX 件未満。2026-11-12〜）
+    const early = document.getElementById('earlyCatalog');
+    if (early && ordered.length < EARLY_CATALOG_MAX) { early.innerHTML = t('earlyCatalog', { n: ordered.length.toLocaleString('en-US') }); early.hidden = false; }
   } catch { /* the grid already shows the connection error */ }
 }
 

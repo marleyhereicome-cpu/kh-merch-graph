@@ -1,8 +1,14 @@
 {
   "en": {
-    "aboutKhA": "One Piece is a manga by Eiichiro Oda, running in Weekly Shōnen Jump since 1997. Monkey D. Luffy, a boy whose body stretches like rubber, gathers a crew of misfits, the Straw Hat Pirates, and sets sail to find the legendary treasure and become King of the Pirates. Toei Animation's TV anime has been running since 1999, joined by the films and Netflix's live-action series (2023). With more than 500 million copies in print, it holds the Guinness World Record for the most copies published of a single-author comic series. Every member of the crew has their own devoted fans, so the range of figures, lottery prizes and shop-exclusive goods is in a league of its own. <a href=\"https://en.wikipedia.org/wiki/One_Piece\" target=\"_blank\" rel=\"noopener\">More on Wikipedia ↗</a>"
+    "aboutKhA": "One Piece is a manga by Eiichiro Oda, running in Weekly Shōnen Jump since 1997. Monkey D. Luffy, a boy whose body stretches like rubber, gathers a crew of misfits, the Straw Hat Pirates, and sets sail to find the legendary treasure and become King of the Pirates. Toei Animation's TV anime has been running since 1999, joined by the films and Netflix's live-action series (2023). With more than 500 million copies in print, it holds the Guinness World Record for the most copies published of a single-author comic series. Every member of the crew has their own devoted fans, so the range of figures, lottery prizes and shop-exclusive goods is in a league of its own. <a href=\"https://en.wikipedia.org/wiki/One_Piece\" target=\"_blank\" rel=\"noopener\">More on Wikipedia ↗</a>",
+    "heroLede": "Ichiban Kuji prizes, World Collectable Figures, apparel collabs and Funko. See what each one cost at release and how to get it from outside Japan.",
+    "aboutP2": "Most One Piece prize figures are sold in Japan only, through lottery draws and limited shops, and have no English product page. This catalog gives each one a page, with its Japanese name so you can search for it.",
+    "searchPlaceholder": "e.g. Luffy Gear 5"
   },
   "ja": {
-    "aboutKhA": "尾田栄一郎による漫画で、1997年から『週刊少年ジャンプ』で連載が続いています。体がゴムのように伸びる少年モンキー・D・ルフィが、個性豊かな仲間を集めて「麦わらの一味」として海へ出て、伝説の秘宝を探し海賊王を目指す冒険の物語です。1999年から続く東映アニメーションのテレビアニメに加え、劇場版や、2023年にはNetflixの実写ドラマも作られました。コミックスの累計発行部数は5億部を超え、「最も多く発行された単一作者によるコミックシリーズ」としてギネス世界記録にも認定されています。一味の誰を推すかでファンが分かれるぶん、フィギュアやくじ景品、ショップ限定品まで、グッズの数と種類は群を抜いています。<a href=\"https://ja.wikipedia.org/wiki/ONE_PIECE\" target=\"_blank\" rel=\"noopener\">Wikipediaで詳しく見る ↗</a>"
+    "aboutKhA": "尾田栄一郎による漫画で、1997年から『週刊少年ジャンプ』で連載が続いています。体がゴムのように伸びる少年モンキー・D・ルフィが、個性豊かな仲間を集めて「麦わらの一味」として海へ出て、伝説の秘宝を探し海賊王を目指す冒険の物語です。1999年から続く東映アニメーションのテレビアニメに加え、劇場版や、2023年にはNetflixの実写ドラマも作られました。コミックスの累計発行部数は5億部を超え、「最も多く発行された単一作者によるコミックシリーズ」としてギネス世界記録にも認定されています。一味の誰を推すかでファンが分かれるぶん、フィギュアやくじ景品、ショップ限定品まで、グッズの数と種類は群を抜いています。<a href=\"https://ja.wikipedia.org/wiki/ONE_PIECE\" target=\"_blank\" rel=\"noopener\">Wikipediaで詳しく見る ↗</a>",
+    "heroLede": "一番くじの景品、ワールドコレクタブルフィギュア、コラボの衣料品、海外のFunkoなどを掲載しています。発売時の定価と、いまの入手方法が分かります。",
+    "aboutP2": "ONE PIECEのくじ景品や店舗限定品の多くは、日本でしか手に入りません。海外の公式グッズもあわせて、1点ずつ掲載しています。",
+    "searchPlaceholder": "例：ゾロ フィギュア"
   }
 }

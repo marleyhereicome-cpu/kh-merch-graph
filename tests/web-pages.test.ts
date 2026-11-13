@@ -123,8 +123,8 @@ describe("hub banners and the KH search box", () => {
   });
   it("the search placeholder is short enough not to be cut off (examples only)", () => {
     const kh = readFileSync("web/kingdomhearts/index.html", "utf8");
-    expect(kh).toContain("searchPlaceholder: 'e.g. Sora, plush'");
-    expect(kh).toContain("searchPlaceholder: '例：ソラ、ぬいぐるみ'");
+    expect(kh).toContain("searchPlaceholder: 'e.g. Sora plush'");
+    expect(kh).toContain("searchPlaceholder: '例：一番くじ A賞'");
   });
 });
 
@@ -207,4 +207,38 @@ describe("series logo watermark (2026-11-12): Demon Slayer and One Piece follow 
       expect(existsSync(`web/${dir}/${file}`)).toBe(true);
     });
   }
+});
+
+// 文面の書き直し「発見を主軸に」（2026-11-12）。数字は手で書かず、データから差し込む。相場を約束する言い方はしない。
+describe("copy: discovery first (2026-11-12)", () => {
+  const hub = readFileSync("web/index.html", "utf8");
+  const page = (dir: string) => readFileSync(`web/${dir}/index.html`, "utf8");
+  it("the hub leads with discovery and no longer promises a 'fair' price", () => {
+    expect(hub).toContain("<title>Merchgraph: anime &amp; game merch you never knew existed, and how to get it</title>");
+    expect(hub).toContain("never told you about.");
+    expect(hub).toContain("heroTitle: '<span class=\"nw\">好きな作品の、</span><span class=\"nw\">まだ知らないグッズへ。</span>'");
+    expect(hub).not.toContain("いくらが妥当");
+    expect(hub).not.toMatch(/相場を|妥当な値段/);
+  });
+  it("series pages put the item count in from the data, and only mention fan-made where there is some", () => {
+    const kh = page("kingdomhearts"), op = page("one-piece"), ds = page("demon-slayer");
+    expect(kh).toMatch(/<meta name="description" content="[\d,]+ Kingdom Hearts items, each with its maker/);
+    expect(kh).toContain(">Official and fan-made</li>");
+    expect(op).toContain(">Official items</li>");
+    expect(ds).toContain(">Official items</li>");
+    for (const html of [op, ds]) {
+      const lede = html.match(/<p class="lede" data-i18n="heroLede">([^<]*)<\/p>/)![1];
+      expect(lede).not.toMatch(/fan-made/i);
+      expect(html).not.toContain("{count}");
+    }
+    expect(kh).not.toContain("{count}");
+    expect(kh).toContain("const EARLY_CATALOG_MAX = 200;");
+  });
+  it("the ✓ row keeps 'Nothing is sold here' as a fifth item (Marley, 2026-11-13)", () => {
+    for (const dir of ["kingdomhearts", "one-piece", "demon-slayer"]) {
+      const html = page(dir);
+      expect(html).toContain('<li data-i18n="fact4">Every source linked</li><li data-i18n="fact5">Nothing is sold here</li></ul>');
+      expect(html).toContain("fact5: '販売はしていません'");
+    }
+  });
 });

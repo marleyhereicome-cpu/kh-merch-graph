@@ -46,7 +46,7 @@ describe("a new series added to ips.csv gets the whole set of pages", () => {
   it("catalog and listing-check pages, at the series path", () => {
     expect(index.file).toBe("web/test-series/index.html");
     expect(check.file).toBe("web/test-series/check.html");
-    expect(index.html).toContain("<title>Merchgraph | Test Series</title>");
+    expect(index.html).toContain("<title>Test Series merch catalog: official items, release prices, how to buy | Merchgraph</title>");
     expect(index.html).toContain('<link rel="canonical" href="https://merchgraph.app/test-series/" />');
     expect(index.html).toContain('const IP = "test-series";');
     expect(index.html).toContain('<a class="series-link" href="/test-series/">Test Series</a>');
@@ -70,7 +70,11 @@ describe("a new series added to ips.csv gets the whole set of pages", () => {
   });
   it("the FAQ structured data follows the page text", () => {
     const ld = JSON.parse(index.html.match(/<script type="application\/ld\+json" id="ld-faq">(.*?)<\/script>/)![1]);
-    expect(ld.mainEntity[0]).toEqual({ "@type": "Question", name: "What is Test Series?", acceptedAnswer: { "@type": "Answer", text: "A made-up series for tests." } });
+    // 順番は知りたい順（日本から買う方法 → くじの値段 → 定価とは → 作品の紹介。2026-11-12〜）
+    expect(ld.mainEntity.slice(0, 4).map((q: any) => q.name)).toEqual([
+      "What's a shipping proxy?", "Why does a lottery prize show a price like ¥850?", 'What does "original price" mean?', "What is Test Series?",
+    ]);
+    expect(ld.mainEntity[3]).toEqual({ "@type": "Question", name: "What is Test Series?", acceptedAnswer: { "@type": "Answer", text: "A made-up series for tests." } });
   });
   it("partial coverage shows a one-line note (en/ja)", () => {
     expect(index.html).toContain("Only some Test Series items are listed so far: the ones we could confirm from official sources.");
