@@ -59,9 +59,10 @@ export function staticMetaText(ips, rows) {
   const live = ips.filter((x) => x.status === "live");
   const total = live.reduce((a, x) => a + itemsOf(rows, x.ip).length, 0);
   if (!total) return "";
+  // templates/hub.html の STRINGS.en.meta・metaOne と同じ文（2026-11-12〜「発見を主軸に」の文面）
   return live.length > 1
-    ? `${fmt(total)} items across ${live.length} series · every entry linked to its source`
-    : `${fmt(total)} items · every entry linked to its source`;
+    ? `${live.length} series · ${fmt(total)} items · every one sourced`
+    : `${fmt(total)} items · every one sourced`;
 }
 
 /** 404 ページの作品ごとのリンクと出品チェック（英語の文と、日本語の文を data-ja に） */

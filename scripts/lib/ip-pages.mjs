@@ -7,9 +7,13 @@
 //   {{file:NAME}}           ip-config/<ip>/NAME の中身。無ければ DEFAULT_FILES の既定（多くは空＝その機能は出ない）
 //   {{faqLd}}               「このサイトについて」の FAQ から作る構造化データ（ip-config に faq-ld.json があればそれ）
 //   {{coverageNote}}        coverage=partial の作品だけ、冒頭に出す1行
+//   文言の中の {count} は、その作品の掲載件数（src/data/catalog.json、build:data の出力）に置き換える（2026-11-12〜）。
+//   「公式もファンメイドも」のように、ファンメイドがある作品だけで言える文は、件数を見て切り替える（fact1）。
 // 差し込む値はそのまま入れる（エスケープしない）。strings.json の ja の値は JS の '...' の中に入るので、
 // ' と改行を含めないこと（validateIpConfig が確かめる）。
-import { DEFAULT_FALLBACK_IMAGE, joinList } from "./ips.mjs";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { DEFAULT_FALLBACK_IMAGE, ROOT, joinList } from "./ips.mjs";
 
 export const ORIGIN = "https://merchgraph.app";
 
@@ -23,11 +27,16 @@ export function defaultStrings(x) {
   const rightsJaSlash = joinList(x.rights.ja, "ja", "slash") || `${nj}の権利者`;
   return {
     en: {
-      description: `${n} merch from Japan and overseas that your local shops never showed you. Not a store: what each item is, whether it's official, what it originally cost, and where fans actually find it.`,
-      ogDescription: `${n} merch from Japan and overseas that your local shops never showed you. Not a store: what it is, whether it's official, what it originally cost, and where fans find it.`,
-      heroTitle: `${n} merch your local shops never showed you.`,
+      // 文面は「発見」を主軸に（2026-11-12、claude/文面の書き直し_発見を主軸に_UIUX依頼_2026-11-12.md）。
+      // en の値は JS の '...' の中にも入るので、アポストロフィは ’ を使う。
+      pageTitle: `${n} merch catalog: official items, release prices, how to buy | Merchgraph`,
+      description: `{count} ${n} items, each with its maker, release price, official status and where to get it now. Sourced and independent. Not a store.`,
+      ogDescription: `{count} ${n} items, each with its maker, release price, official status and where to get it now. Sourced and independent. Not a store.`,
+      heroTitle: `${n} merch you’ve never seen.`,
+      heroLede: `Official ${n} merch from Japan and overseas. See what each one cost at release and how to get it today.`,
       searchPlaceholder: "e.g. plush, figure",
-      aboutP1: `A fan-run catalog of ${n} merchandise from around the world. It isn't a store and doesn't sell anything. Each item tells you what it is, whether it's officially licensed or fan-made, what it cost when it first came out, and where people actually find it now, with a link to where every detail was checked.`,
+      aboutP1: `An independent catalog of ${n} merchandise. It isn’t a store. Each item page says what the item is, whether it’s officially licensed, what it cost at release, and where people find it now, with a link to the source of every fact.`,
+      aboutP2: `${n} merch comes out in Japan and overseas, and much of it is sold in one country only. This catalog gives each item a page, with its Japanese name so you can search for it.`,
       aboutKhQ: `What is ${n}?`,
       aboutKhA: x.tagline.en,
       aboutProxyA: `Most Japanese shops and marketplaces (Mercari, Yahoo Auctions, many official stores) only ship inside Japan. A shipping proxy is a paid service (<a href="https://buyee.jp/" target="_blank" rel="noopener">Buyee</a> and <a href="https://zenmarket.jp/en/" target="_blank" rel="noopener">ZenMarket</a> are two well-known ones) that buys the item on your behalf with a Japanese address, then forwards it to you. They add a service fee plus international shipping on top of the item's price. We're NOT affiliated with either. This isn't something we do ourselves; we just point you to where an item shows up and let you take it from there.`,
@@ -48,9 +57,13 @@ export function defaultStrings(x) {
       checkLegal2: `${n} and all related names, characters, logos and artwork belong to their respective owners. Results are for reference only and are not a guarantee of authenticity; always check with the seller before buying.`,
     },
     ja: {
-      heroTitle: `<span class="nw">まだ知らない</span><span class="nw">${nj}の</span><span class="nw">グッズが、</span><span class="nw">世界には</span><span class="nw">こんなにある。</span>`,
+      pageTitle: `${nj}のグッズ一覧：定価と入手方法｜Merchgraph`,
+      description: `${nj}のグッズ{count}件を掲載。メーカー、発売時の定価、公式品かどうか、いまの入手方法が分かります。出典つき。販売サイトではありません。`,
+      heroTitle: `<span class="nw">まだ見たことのない</span><span class="nw">${nj}の</span><span class="nw">グッズを。</span>`,
+      heroLede: `日本と海外の${nj}の公式グッズを掲載しています。発売時の定価と、いまの入手方法が分かります。`,
       searchPlaceholder: "例：ぬいぐるみ、フィギュア",
-      aboutP1: `世界中の${nj}のグッズを集めた、ファン運営のカタログです。販売を目的としたサイトではありません。商品ごとに、公式ライセンス品かファンメイドか、発売時の定価、いまの入手方法を、情報の出典と一緒にまとめています。`,
+      aboutP1: `${nj}のグッズを集めた、独立運営のカタログです。販売はしていません。商品ごとに、何の商品か、公式品かどうか、発売時の定価、いまの入手方法を、出典のリンクつきで掲載しています。`,
+      aboutP2: `${nj}のグッズは日本と海外で発売されていて、片方の国でしか売られないものも多くあります。1点ずつ、発売時の情報と出典を掲載しています。`,
       aboutKhQ: `${nj}とは？`,
       aboutKhA: x.tagline.ja,
       aboutProxyA: `メルカリやヤフオク!、公式ショップなど、日本のショップやフリマの多くは海外へ発送していません。そこで海外のファンがよく使うのが、日本の住所で代わりに購入し、海外へ転送してくれる有料の代行サービスです（<a href="https://buyee.jp/" target="_blank" rel="noopener">Buyee</a>や<a href="https://zenmarket.jp/en/" target="_blank" rel="noopener">ZenMarket</a>など）。商品代金のほかに、代行手数料と国際送料がかかります。当サイトはこれらのサービスと提携しておらず、購入や代行も行っていません。商品が出品されている場所をご案内しているだけです。`,
@@ -108,12 +121,38 @@ export function faqLdFrom(html) {
     .replace(/\\u([0-9a-f]{4})/g, (m, h) => String.fromCharCode(parseInt(h, 16)));
 }
 
-export function pageVars(x, cfg) {
+// 作品ごとの掲載件数と、ファンメイド（official=false）の件数。build:data の出力から数える。無ければ null
+let catalogCache;
+export function catalogCounts(ip) {
+  if (catalogCache === undefined) {
+    const p = join(ROOT, "src/data/catalog.json");
+    catalogCache = existsSync(p) ? JSON.parse(readFileSync(p, "utf8")) : null;
+  }
+  if (!catalogCache) return { total: null, fanMade: null };
+  const rows = catalogCache.filter((r) => r.ip === ip);
+  return { total: rows.length, fanMade: rows.filter((r) => String(r.official) === "false").length };
+}
+
+export function pageVars(x, cfg, counts = catalogCounts(x.ip)) {
   const def = defaultStrings(x);
   const strings = {
     en: { ...def.en, ...cfg.strings.en },
     ja: { ...def.ja, ...cfg.strings.ja },
   };
+  // 作品ページの「✓」の5つ（2026-11-12〜）。ファンメイドが載っていない作品では「ファンメイド」と書かない。
+  // 5つ目の「販売はしていません」は、11/5 に Marley が ✓ の行に足すと決めたもの（2026-11-13 の文面の書き直しでも残すと決定）
+  const fan = counts.fanMade > 0;
+  Object.assign(strings.en, { fact1: fan ? "Official and fan-made" : "Official items", fact2: "Release price", fact3: "How to get it", fact4: "Every source linked", fact5: "Nothing is sold here" }, cfg.strings.en.fact1 ? { fact1: cfg.strings.en.fact1 } : {});
+  Object.assign(strings.ja, { fact1: fan ? "公式もファンメイドも" : "公式グッズ", fact2: "発売時の定価", fact3: "入手方法", fact4: "すべて出典つき", fact5: "販売はしていません" }, cfg.strings.ja.fact1 ? { fact1: cfg.strings.ja.fact1 } : {});
+  // {count}：件数（数字は手で書かず、データから差し込む）。件数が分からないときは数字を出さない文にする
+  for (const lang of ["en", "ja"]) {
+    for (const [k, v] of Object.entries(strings[lang])) {
+      if (typeof v !== "string" || !v.includes("{count}")) continue;
+      strings[lang][k] = counts.total != null
+        ? v.replaceAll("{count}", counts.total.toLocaleString("en-US"))
+        : v.replace(/\{count\} ?/g, "").replace(/グッズ件を/g, "グッズを").replace(/、件を/g, "、");
+    }
+  }
   const vars = {
     ip: x.ip,
     path: x.path,
