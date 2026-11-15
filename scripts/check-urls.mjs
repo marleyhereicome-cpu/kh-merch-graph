@@ -9,9 +9,15 @@
 //   npm run check-urls -- --only magazine 「magazine」を含むURLだけ
 //   npm run check-urls -- --match         書籍（ISBN）・CD（品番）の行は、ページ本文にそのISBN・品番があるかも確認（GETで本文を読む）
 //   npm run check-urls -- --markdown      GitHub Issue に貼れる Markdown で出力
+//   npm run check-urls -- --report FILE   「リンク切れ一覧」の報告（Markdown）を FILE に書く（.github/workflows/link-check.yml、週1回）
 //
-// 終了コード: NG / REDIRECT / MISMATCH / ERR が1件でもあれば 1（週次ジョブの合否判定に使う）。
-// BLOCKED（アクセス制限で未確認）は一覧には出すが、終了コードには含めない。
+// 接続しないサイト（SKIP_HOSTS）：jumpichiban.com・Hot Topic（2026-11-15、claude/第4回を受けた依頼_2026-11-15.md）。
+// 一覧には「対象外」として件数だけ出す。
+// 「消えたページ」（GONE）：404・410、またはサイトのトップページへの転送（商品ページが消えたときによく起きる）。
+// このスクリプトは確認して報告するだけで、data/*.csv の行を消したり直したりはしない。
+//
+// 終了コード: GONE / NG / REDIRECT / MISMATCH / ERR が1件でもあれば 1（週次ジョブの合否判定に使う）。
+// BLOCKED（アクセス制限で未確認）・SKIPPED（対象外）は一覧には出すが、終了コードには含めない。--report のときは常に 0。
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadCsv } from "./lib/csv.mjs";
@@ -29,11 +35,18 @@ const MAX_REDIRECTS = 5;
 const PER_HOST_CONCURRENCY = 1;
 const PER_HOST_DELAY_MS = 1500;
 const BLOCK_LIMIT = 3;
+// 接続しないサイト（ホスト名がこれ自身か、これで終わるもの）
+export const SKIP_HOSTS = ["jumpichiban.com", "hottopic.com"];
+export const isSkippedHost = (url) => {
+  const h = new URL(url).hostname.toLowerCase();
+  return SKIP_HOSTS.some((s) => h === s || h.endsWith(`.${s}`));
+};
 
 function parseArgs(argv) {
-  const opt = { only: "", match: false, markdown: false };
+  const opt = { only: "", match: false, markdown: false, report: "" };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === "--only") opt.only = argv[++i] ?? "";
+    else if (argv[i] === "--report") opt.report = argv[++i] ?? "";
     else if (argv[i] === "--match") opt.match = true;
     else if (argv[i] === "--markdown") opt.markdown = true;
   }
@@ -101,7 +114,7 @@ function matchEvidence(body, owner) {
   return null;
 }
 
-function collectTargets(only) {
+export function collectTargets(only) {
   const targets = new Map(); // url -> { url, owners: [{kind,id,...}] }
   // source_url に複数のURLがあるときは「 ; 」区切り（SPEC.md 2章）。1つずつ確認する。
   const add = (value, owner) => {
@@ -120,12 +133,22 @@ function collectTargets(only) {
   return [...targets.values()];
 }
 
+// サイトのトップページ（パスが / か、/ja/ /en/ のような言語のパスだけ）か
+export function isTopPage(u) {
+  const x = new URL(u);
+  return /^\/(?:[a-z]{2}(?:[-_][a-z]{2})?\/?)?$/i.test(x.pathname) && !x.search;
+}
+
 async function checkOne(target, opt) {
   try {
     const r = await probe(target.url, opt.match);
     const sameSpot = canonical(r.finalUrl) === canonical(target.url);
     if (r.error) return { ...target, status: "ERR", detail: r.error };
+    if (r.status === 404 || r.status === 410) return { ...target, status: "GONE", detail: `HTTP ${r.status}（ページが見つからない）`, finalUrl: r.finalUrl };
     if (r.status !== 200) return { ...target, status: "NG", detail: `HTTP ${r.status}`, finalUrl: r.finalUrl };
+    if (!sameSpot && isTopPage(r.finalUrl) && !isTopPage(target.url)) {
+      return { ...target, status: "GONE", detail: `トップページに転送（ページが消えた可能性）: ${r.finalUrl}`, finalUrl: r.finalUrl };
+    }
     if (!sameSpot) return { ...target, status: "REDIRECT", detail: `200 だが別ページに転送: ${r.finalUrl}`, finalUrl: r.finalUrl };
     if (opt.match) {
       const evidence = target.owners.map((o) => matchEvidence(r.body, o));
@@ -175,13 +198,48 @@ async function runAll(targets, opt) {
   return results;
 }
 
+// 「リンク切れ一覧」の報告（Markdown）。行は消さない・直さない、という前提も書いておく
+export function reportMarkdown(results, skipped, date) {
+  const by = (s) => results.filter((r) => r.status === s);
+  const ownerLabel = (r) => r.owners.map((o) => `\`${o.id}\``).join(", ");
+  const section = (title, list, note) => {
+    if (list.length === 0) return [];
+    return [`## ${title}（${list.length} 件）`, ...(note ? [note, ""] : []), ...list.map((r) => `- ${r.url}\n  - 行: ${ownerLabel(r)}\n  - ${r.detail}`), ""];
+  };
+  const ok = by("OK").length;
+  return [
+    `# リンク切れ一覧 ${date}`,
+    "",
+    "data/catalog.csv と data/product_lines.csv の source_url（出典）を、1件ずつ間をあけて確認した結果です（scripts/check-urls.mjs）。",
+    "**行は自動で消したり直したりしていません。** 直すかどうかは、データマージ専用セッションが公式ページで確かめてから決めます。",
+    "",
+    `- 確認したURL: ${results.length} 件（OK ${ok} 件 / 消えた ${by("GONE").length} 件 / そのほかの問題 ${results.length - ok - by("GONE").length} 件）`,
+    `- 対象外（接続しないサイト: ${SKIP_HOSTS.join("、")}）: ${skipped.length} 件`,
+    "",
+    ...section("消えたページ（404・410、またはトップページへの転送）", by("GONE")),
+    ...section("そのほかのエラー（HTTP 200 以外）", by("NG")),
+    ...section("別のページに転送", by("REDIRECT"), "ページが移動しただけのこともあります。転送先が同じ商品なら、source_url を新しい URL に直す候補です。"),
+    ...section("接続できなかった", by("ERR"), "一時的な不調のこともあります。次の週も続くかを見てください。"),
+    ...section("未確認（アクセス制限）", by("BLOCKED"), "相手サイトが 403/429 を返し続けたため、途中でやめました。無理に確認しません。"),
+    ...(results.length === ok ? ["すべて 200 で、別ページへの転送もありませんでした。", ""] : []),
+  ].join("\n");
+}
+
 async function main() {
   const opt = parseArgs(process.argv.slice(2));
   let targets = collectTargets(opt.only);
+  const skipped = targets.filter((t) => isSkippedHost(t.url));
+  targets = targets.filter((t) => !isSkippedHost(t.url));
   // --match は書籍・CDの行のURLだけ確認する（それ以外は本文照合の対象外）。
   if (opt.match) targets = targets.filter((t) => t.owners.some((o) => matchEvidence("", o) !== null));
-  console.error(`確認するURL: ${targets.length} 件${opt.match ? "（本文照合あり）" : ""}`);
+  console.error(`確認するURL: ${targets.length} 件${opt.match ? "（本文照合あり）" : ""}（対象外 ${skipped.length} 件）`);
   const results = await runAll(targets, opt);
+  if (opt.report) {
+    const { writeFileSync } = await import("node:fs");
+    writeFileSync(opt.report, reportMarkdown(results, skipped, new Date().toISOString().slice(0, 10)) + "\n");
+    console.error(`報告を書きました: ${opt.report}`);
+    process.exit(0);
+  }
 
   const problems = results.filter((r) => r.status !== "OK");
   const ownerLabel = (r) => r.owners.map((o) => `${o.id}`).join(", ");
@@ -192,7 +250,7 @@ async function main() {
     for (const r of problems) console.log(`- **${r.status}** ${r.url}\n  - 行: ${ownerLabel(r)}\n  - ${r.detail}`);
   } else {
     if (problems.length === 0) console.log("すべて 200 です（別ページへのリダイレクトなし）。");
-    for (const status of ["NG", "REDIRECT", "MISMATCH", "ERR", "BLOCKED"]) {
+    for (const status of ["GONE", "NG", "REDIRECT", "MISMATCH", "ERR", "BLOCKED"]) {
       const list = problems.filter((r) => r.status === status);
       if (list.length === 0) continue;
       console.log(`\n## ${status}（${list.length} 件）`);
@@ -203,4 +261,5 @@ async function main() {
   process.exit(problems.some((r) => r.status !== "BLOCKED") ? 1 : 0);
 }
 
-main();
+// テストから読み込んだときは動かさない
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) main();

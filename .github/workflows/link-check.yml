@@ -1,0 +1,39 @@
+# 出典リンクの自動点検（2026-11-15、claude/第4回を受けた依頼_2026-11-15.md の A-2）。
+# 毎週日曜 20:00 UTC（日本時間 月曜 5:00）に、data/*.csv の source_url を1件ずつ間をあけて確認し、
+# 「リンク切れ一覧」を GitHub Issue（ラベル link-check）として投稿する。
+# - 接続しないサイト：jumpichiban.com・Hot Topic（scripts/check-urls.mjs の SKIP_HOSTS）。
+# - 行を消したり直したりはしない（報告だけ）。直すのはデータマージ専用セッションが公式ページで確かめてから。
+# - 手動で動かすときは、Actions → Link check → Run workflow。
+name: Link check
+
+on:
+  schedule:
+    - cron: "0 20 * * 0"
+  workflow_dispatch:
+
+jobs:
+  link-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Check source URLs (report only)
+        run: node scripts/check-urls.mjs --report link-report.md
+      - name: Post the report as an Issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create link-check --color C5DEF5 --description "出典リンクの週次点検（scripts/check-urls.mjs）" --force
+          gh issue create --title "リンク切れ一覧 $(date -u +%F)" --label link-check --body-file link-report.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: link-report
+          path: link-report.md
