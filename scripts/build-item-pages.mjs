@@ -68,6 +68,7 @@ const AVAILABILITY = {
   jp_secondhand_only: "Secondhand only (Japan)",
   western_official: "In official shops outside Japan",
   event_only: "Event-exclusive, hard to find",
+  discontinued: "Discontinued", // 販売終了（2026-11-15〜）
   unknown: "Availability unconfirmed",
 };
 const REGION = { JP: "Japan", NA: "North America", EU: "Europe", GLOBAL: "Worldwide" };

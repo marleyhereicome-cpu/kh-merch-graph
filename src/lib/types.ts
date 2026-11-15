@@ -42,7 +42,8 @@ export interface CatalogSku {
   set_components: string;
   // 特典・封入特典の場合、本体となる商品の sku_id または line_id（非該当なら空欄）
   bonus_of: string;
-  // jp_retail_new/jp_secondhand_only/western_official/event_only/unknown
+  // jp_retail_new/jp_secondhand_only/western_official/event_only/discontinued/unknown
+  // discontinued＝販売終了（メーカー・ブランドの販売ページが消えた、販売を終えた。2026-11-15〜）
   availability_hint: string;
   // availability_hint の確からしさ: confirmed（出典で確認）/ estimated（推定）/ 空欄（未評価）
   availability_confidence: string;

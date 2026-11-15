@@ -189,6 +189,9 @@ export function buildAvailabilityInfo(sku: CatalogSku): AvailabilityInfo | null 
     note = "Sold new at Japanese retail (stock may vary)";
   } else if (hint === "western_official") {
     note = "Available new through official Western retailers";
+  } else if (hint === "discontinued") {
+    // 販売終了（2026-11-15〜）。メーカー・ブランドの販売ページが消えた、または販売を終えた商品
+    note = "Discontinued: no longer sold new by the maker or brand; look for it secondhand";
   } else {
     note = "Sold only at events or special venues";
   }

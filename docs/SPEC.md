@@ -40,7 +40,7 @@ AIエージェントが持ち込んだ「日本語の出品テキスト」を、
 | design_count | ブラインド・ガチャ等で中身が選べない場合の全種類数（数値）。個別デザインが判明していて選べる場合や非該当の場合は空欄 |
 | set_components | セット商品（`acquisition_type=set` 等）の内訳（`|` 区切り）。限定版ゲーム機本体などでは同梱ソフトの `sku_id`（`npm run validate` が存在を検査する）。非該当なら空欄 |
 | bonus_of | `acquisition_type=bonus`／`furoku`／`novelty` の場合、本体となる商品の `sku_id` または `line_id`（例: サイン入り抽選版CDの本体は無印版CD）。非該当なら空欄 |
-| availability_hint | 現在の入手しやすさの目安。`jp_retail_new`（日本国内で新品小売中）／`jp_secondhand_only`（日本の中古市場のみ）／`western_official`（海外正規代理店で購入可）／`event_only`（イベント会場限定）／`unknown`（不明） |
+| availability_hint | 現在の入手しやすさの目安。`jp_retail_new`（日本国内で新品小売中）／`jp_secondhand_only`（日本の中古市場のみ）／`western_official`（海外正規代理店で購入可）／`event_only`（イベント会場限定）／`discontinued`（販売終了。メーカー・ブランドの販売ページが消えた、または販売を終えた。2026-11-15〜。表示は「販売終了」／"Discontinued"）／`unknown`（不明） |
 | availability_confidence | `availability_hint` の確からしさ。`confirmed`（出典で確認済み）／`estimated`（推定。例: 公式ストアに取扱ページが無い・刊行から10年以上経過、という理由での絶版推定）／空欄（未評価）。`estimated` の `jp_secondhand_only` は `resolve_listing` が「Likely out of print (no current listing on the publisher's store); verify before assuming」と返す |
 | typical_channels | 主な入手チャネル（`|` 区切り）。`data/channels.csv` の `channel_name` と対応させる（無い値は `npm run validate` が警告する） |
 | region | 発売地域。`JP`／`NA`／`EU`／`ASIA`／`GLOBAL`（既定 `JP`）。ゲームの海外版・書籍の英語版・海外公式品はこの列で表す。`resolve_listing` は「Region: JP release」の形で返す |
