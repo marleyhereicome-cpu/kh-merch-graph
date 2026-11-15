@@ -10,7 +10,8 @@ import { IP_COVERAGES, IP_STATUSES, loadIpConfig, loadIps } from "./lib/ips.mjs"
 import { validateIpConfig } from "./lib/ip-pages.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = join(__dirname, "..", "data");
+// VALIDATE_DATA_DIR で別のフォルダを検証できる（テスト用。2026-11-15）
+const DATA_DIR = process.env.VALIDATE_DATA_DIR || join(__dirname, "..", "data");
 
 // docs/SPEC.md 2章で定義されている必須列
 const SCHEMAS = {
