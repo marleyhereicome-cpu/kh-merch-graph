@@ -78,7 +78,7 @@ const ENUMS = {
     ],
     availability_hint: [
       "jp_retail_new", "jp_secondhand_only", "western_official",
-      "event_only", "unknown", "",
+      "event_only", "discontinued", "unknown", "",
     ],
     availability_confidence: ["confirmed", "estimated", ""],
     region: ["JP", "NA", "EU", "ASIA", "GLOBAL"],

@@ -1087,7 +1087,7 @@ const STRINGS = {
     // availability
     av_ww_checkout: 'In shops · ships worldwide', av_jp_retail_new: 'In shops · Japan-only checkout',
     av_jp_secondhand_only: 'Secondhand only (Japan)', av_western_official: 'In shops · ships worldwide',
-    av_event_only: 'Event-exclusive · hard to find', av_unknown: 'Availability unconfirmed',
+    av_event_only: 'Event-exclusive · hard to find', av_discontinued: 'Discontinued', av_unknown: 'Availability unconfirmed',
     // panel
     panelEyebrow: 'Item', surpriseEyebrow: 'Surprise pick',
     secPrice: 'Original price', secHow: 'How it came out', secWhere: 'Where to find it today', secFacts: 'Details',
@@ -1200,7 +1200,7 @@ const STRINGS = {
     acqx_fan: '{{ja.acqx_fan}}',
     av_ww_checkout: '販売中・海外発送あり', av_jp_retail_new: '新品で購入可（国内）',
     av_jp_secondhand_only: '中古のみ（国内）', av_western_official: '海外の公式ショップで販売中',
-    av_event_only: 'イベント限定（入手困難）', av_unknown: '入手状況は未確認',
+    av_event_only: 'イベント限定（入手困難）', av_discontinued: '販売終了', av_unknown: '入手状況は未確認',
     panelEyebrow: 'グッズ詳細', surpriseEyebrow: 'おまかせ表示',
     secPrice: '定価', secHow: 'どんなグッズ？', secWhere: 'いまどこで手に入る？', secFacts: '商品情報',
     secShare: 'シェア', secSource: '情報の出典',
@@ -1425,8 +1425,8 @@ function suitColorFor(item) { return SUIT_COLORS[lineTypeOf(item)] || SUIT_COLOR
 function badgeFor(hint, worldwideCheckout) {
   if (hint === 'jp_retail_new' && worldwideCheckout) return { cls: 'good', label: t('av_ww_checkout') };
   // For a Japanese visitor a Japan-only checkout is not a problem.
-  const cls = { jp_retail_new: JA ? 'good' : 'warn', jp_secondhand_only: 'warn', western_official: 'good', event_only: 'warn' }[hint] || 'unknown';
-  const key = ['jp_retail_new', 'jp_secondhand_only', 'western_official', 'event_only'].includes(hint) ? `av_${hint}` : 'av_unknown';
+  const cls = { jp_retail_new: JA ? 'good' : 'warn', jp_secondhand_only: 'warn', western_official: 'good', event_only: 'warn', discontinued: 'warn' }[hint] || 'unknown';
+  const key = ['jp_retail_new', 'jp_secondhand_only', 'western_official', 'event_only', 'discontinued'].includes(hint) ? `av_${hint}` : 'av_unknown';
   return { cls, label: t(key) };
 }
 
@@ -2189,7 +2189,7 @@ function panelHtml(item, detail, imageMap, catalog) {
   // shop that ships worldwide is also listed, or when the item is sold by official shops abroad.
   const needsProxy = chans.some((ch) => ch.proxy) && !chans.some((ch) => ch.worldwideCheckout) && hint !== 'western_official';
   // Point to the listing checker where people actually deal with marketplace listings.
-  const showCheck = hint === 'jp_secondhand_only' || hint === 'event_only' || chans.some((ch) => ch.marketplace);
+  const showCheck = hint === 'jp_secondhand_only' || hint === 'event_only' || hint === 'discontinued' || chans.some((ch) => ch.marketplace);
   const price = priceParts(item, detail);
   const title = displayName(item, detail);
   // The "other" name: the one that searches best where the item was released.
