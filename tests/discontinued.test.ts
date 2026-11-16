@@ -16,7 +16,7 @@ describe("availability_hint = discontinued (販売終了)", () => {
   it("the MCP says it is no longer sold new", () => {
     expect(buildAvailabilityInfo(sku("sugoi-kh-heartless-ushanka"))).toEqual({
       hint: "discontinued",
-      confidence: "",
+      confidence: "confirmed",
       note_en: "Discontinued: no longer sold new by the maker or brand; look for it secondhand",
     });
   });
