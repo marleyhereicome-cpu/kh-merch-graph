@@ -12,6 +12,7 @@
 // 使い方: npm run build:data のあとに npm run build:pages（デプロイの workflow でも同じ順に実行する）。
 // 入力: src/data/catalog.json・product_lines.json（build:data の出力）と、各作品の images.json。
 
+import { itemLastmodResolver, maxDate } from "./lib/lastmod.mjs";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { FALLBACK_IMAGE_RE, loadIps, seriesFromIps } from "./lib/ips.mjs";
 import { dirname, join } from "node:path";
@@ -346,6 +347,7 @@ function renderItem(s, line, images, series, titleSuffix = "", related = "") {
 <meta property="og:url" content="${esc(url)}" />
 ${img ? `<meta property="og:image" content="${esc(img.url)}" />\n<meta name="twitter:card" content="summary_large_image" />` : `<meta name="twitter:card" content="summary" />`}
 <link rel="icon" href="/favicon.ico" sizes="any" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 <script type="application/ld+json">${ldText}</script>
 <style>
@@ -543,6 +545,7 @@ function pageShell({ series, title, description, url, ld, crumbs, body }) {
 <meta property="og:url" content="${esc(url)}" />
 <meta name="twitter:card" content="summary" />
 <link rel="icon" href="/favicon.ico" sizes="any" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 <script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}</script>
 <style>
@@ -691,14 +694,18 @@ export function relatedFor(s, ctx) {
 }
 
 // ---- 実行 ----
-export function buildItemPages({ write = true, series = SERIES, catalog = readJson("src/data/catalog.json") } = {}) {
+export function buildItemPages({ write = true, series = SERIES, catalog = readJson("src/data/catalog.json"), lastmodOf } = {}) {
   const lines = new Map(readJson("src/data/product_lines.json").map((l) => [l.line_id, l]));
   const live = series.filter((x) => x.publish);
+  // サイトマップの lastmod：そのページの中身（データの行）が最後に変わった日（scripts/lib/lastmod.mjs。取れなければ出さない）
+  const itemLastmod = lastmodOf ?? itemLastmodResolver(ROOT, catalog, live);
+  const newest = (items) => maxDate(items.map((s) => itemLastmod(s)));
 
   const pages = [];
   const collections = [];
-  // ルート（/）は作品を選ぶハブページ（2026-11-02〜）。
-  const urls = [`${ORIGIN}/`];
+  // ルート（/）は作品を選ぶハブページ（2026-11-02〜）。{ loc, lastmod }。ハブの日付は最後に全作品の商品から決める
+  const urls = [{ loc: `${ORIGIN}/`, lastmod: null }];
+  const allLive = [];
   for (const x of live) {
     const images = readJsonOr(x.images, {});
     const items = catalog.filter((s) => s.ip === x.ip);
@@ -726,16 +733,21 @@ export function buildItemPages({ write = true, series = SERIES, catalog = readJs
     }
     const collectionPages = [...cols.seriesPages, ...cols.characterPages].map((p) => ({ ...p, series: x, html: renderCollection(p, x, lines) }));
     collections.push(...collectionPages, { kind: "browse", id: "browse", path: browsePath(x), series: x, html: renderBrowse(x, items, lines, cols) });
+    allLive.push(...items);
+    const seriesDate = newest(items);
     urls.push(
-      `${ORIGIN}${x.path}`, `${ORIGIN}${x.path}check`, ORIGIN + browsePath(x),
-      ...collectionPages.map((p) => ORIGIN + p.path),
-      ...items.map((s) => ORIGIN + itemPathIn(x, s.sku_id)),
+      { loc: `${ORIGIN}${x.path}`, lastmod: seriesDate },
+      // 出品チェックのページは、データで中身が変わらないので日付を出さない
+      { loc: `${ORIGIN}${x.path}check`, lastmod: null },
+      { loc: ORIGIN + browsePath(x), lastmod: seriesDate },
+      ...collectionPages.map((p) => ({ loc: ORIGIN + p.path, lastmod: newest(p.items ?? []) })),
+      ...items.map((s) => ({ loc: ORIGIN + itemPathIn(x, s.sku_id), lastmod: itemLastmod(s) })),
     );
   }
-  const today = new Date().toISOString().slice(0, 10);
+  urls[0].lastmod = newest(allLive);
   const sitemap =
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
-    urls.map((u) => `  <url><loc>${esc(u)}</loc><lastmod>${today}</lastmod></url>`).join("\n") +
+    urls.map((u) => `  <url><loc>${esc(u.loc)}</loc>${u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : ""}</url>`).join("\n") +
     `\n</urlset>\n`;
 
   if (write) {
