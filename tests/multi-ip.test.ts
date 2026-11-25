@@ -46,16 +46,16 @@ describe("other_ip_keywords: カタログに入った作品の語は自動で外
     for (const k of withIp) {
       expect({ keyword: k.keyword, kept: active.has(k.keyword) }).toEqual({ keyword: k.keyword, kept: !inCatalog.has(k.ip!) });
     }
-    // 鬼滅の刃（2026-11-03〜カタログにある）は外れ、カタログに入る予定のない作品は残る
+    // 鬼滅の刃（2026-11-03〜カタログにある）は外れ、カタログに商品の無い作品は残る（ドラゴンボールは 2026-11-25 にカタログ入り）
     expect(active).not.toContain("鬼滅の刃");
-    expect(active).toContain("ドラゴンボール");
+    expect(active).toContain("進撃の巨人");
   });
 
   it("ONE PIECE の商品が入ると、ip 列が one-piece の語（ワンピース・ONE PIECE）も外れる", () => {
     const active = activeOtherIpKeywords(otherIpKeywordsAll, testCatalog, ipTerms).map((k) => k.keyword);
     expect(active).not.toContain("ワンピース");
     expect(active).not.toContain("ONE PIECE");
-    expect(active).toContain("ドラゴンボール");
+    expect(active).toContain("進撃の巨人");
   });
 
   it("ip 列が空でも、カタログの作品のアンカー語と同じ表記なら外れる", () => {

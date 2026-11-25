@@ -27,3 +27,18 @@ kingdom-hearts,グーフィー,,Goofy,character,
 kingdom-hearts,シャドウ,,Shadow,character,ハートレスの一種（catalog.csvのcharacter列由来）
 kimetsu-no-yaiba,鬼滅の刃,鬼滅|きめつのやいば|Kimetsu no Yaiba|KIMETSU NO YAIBA,Demon Slayer,other,作品名。IPアンカー語（出品文にこれがあれば鬼滅の刃関連とみなす）。2026-11-03 第1便のマージ時に追加
 one-piece,ワンピース,ONE PIECE|One Piece|ONEPIECE|ワンピ,One Piece,other,作品名。IPアンカー語（出品文にこれがあればONE PIECE関連とみなす）。2026-11-08 第1便のマージ時に追加
+dragon-ball,ドラゴンボール,ドラゴンボールZ|ドラゴンボール超|ドラゴンボールGT|ドラゴンボールDAIMA|DRAGON BALL|Dragon Ball|DragonBall|DBZ|DB,Dragon Ball,other,作品名。IPアンカー語（出品文にこれがあればドラゴンボール関連とみなす）。2026-11-25 第1・2便のマージ時に追加
+dragon-ball,孫悟空,悟空|Goku|Son Goku,Son Goku,character,主人公。2026-11-25 ドラゴンボール立ち上げ時に追加（Tier 1）
+dragon-ball,ベジータ,,Vegeta,character,2026-11-25 ドラゴンボール立ち上げ時に追加（Tier 1）
+dragon-ball,孫悟飯,悟飯|Gohan,Son Gohan,character,2026-11-25 ドラゴンボール立ち上げ時に追加（Tier 1）
+dragon-ball,ピッコロ,,Piccolo,character,2026-11-25 ドラゴンボール立ち上げ時に追加（Tier 1）
+dragon-ball,トランクス,,Trunks,character,2026-11-25 ドラゴンボール立ち上げ時に追加（Tier 1）
+dragon-ball,孫悟天,悟天|Goten,Son Goten,character,2026-11-25 ドラゴンボール立ち上げ時に追加（Tier 1）
+dragon-ball,ブルマ,,Bulma,character,2026-11-25 ドラゴンボール立ち上げ時に追加（Tier 1）
+dragon-ball,クリリン,,Krillin,character,2026-11-25 ドラゴンボール立ち上げ時に追加（Tier 1）
+dragon-ball,亀仙人,武天老師|Roshi,Master Roshi,character,2026-11-25 ドラゴンボール立ち上げ時に追加（Tier 1）
+dragon-ball,フリーザ,Freeza,Frieza,character,2026-11-25 ドラゴンボール立ち上げ時に追加（Tier 1）
+dragon-ball,セル,,Cell,character,2026-11-25 ドラゴンボール立ち上げ時に追加（Tier 1）
+dragon-ball,魔人ブウ,Majin Buu|Buu,Majin Buu,character,2026-11-25 ドラゴンボール立ち上げ時に追加（Tier 1）
+dragon-ball,ブロリー,,Broly,character,2026-11-25 ドラゴンボール立ち上げ時に追加（Tier 1）
+dragon-ball,ビルス,,Beerus,character,2026-11-25 ドラゴンボール立ち上げ時に追加（Tier 1）
