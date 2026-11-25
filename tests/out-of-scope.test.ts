@@ -15,7 +15,7 @@ describe("detectOutOfScope", () => {
   });
 
   it("他作品名はnon_khとして検出する", () => {
-    const matches = detectOutOfScope("ドラゴンボール 一番くじ A賞", outOfScopeKeywords, otherIpKeywords);
+    const matches = detectOutOfScope("進撃の巨人 一番くじ A賞", outOfScopeKeywords, otherIpKeywords);
     expect(matches.some((m) => m.reason === "non_kh")).toBe(true);
   });
 

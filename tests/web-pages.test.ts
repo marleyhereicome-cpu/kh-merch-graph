@@ -225,8 +225,9 @@ describe("copy: discovery first (2026-11-12)", () => {
     expect(kh).toMatch(/<meta name="description" content="[\d,]+ Kingdom Hearts items, each with its maker/);
     expect(kh).toContain(">Official and fan-made</li>");
     expect(op).toContain(">Official items</li>");
-    expect(ds).toContain(">Official items</li>");
-    for (const html of [op, ds]) {
+    // 鬼滅の刃は 2026-11-25 にファンメイド（SwordSlice・Darkside Apparel）が入った
+    expect(ds).toContain(">Official and fan-made</li>");
+    for (const html of [op]) {
       const lede = html.match(/<p class="lede" data-i18n="heroLede">([^<]*)<\/p>/)![1];
       expect(lede).not.toMatch(/fan-made/i);
       expect(html).not.toContain("{count}");
