@@ -14,7 +14,7 @@ describe("availability_hint = discontinued (販売終了)", () => {
     expect(readFileSync("docs/SPEC.md", "utf8")).toContain("`discontinued`（販売終了。");
   });
   it("the MCP says it is no longer sold new", () => {
-    expect(buildAvailabilityInfo(sku("sugoi-kh-heartless-ushanka"))).toEqual({
+    expect(buildAvailabilityInfo(sku("sugoi-kh-x-socks"))).toEqual({
       hint: "discontinued",
       confidence: "confirmed",
       note_en: "Discontinued: no longer sold new by the maker or brand; look for it secondhand",
@@ -26,12 +26,15 @@ describe("availability_hint = discontinued (販売終了)", () => {
     expect(tpl).toContain("av_discontinued: '販売終了'");
     expect(tpl).toContain("'event_only', 'discontinued'].includes(hint)");
     const { pages } = buildItemPages({ write: false }) as { pages: { sku: string; html: string }[] };
-    const page = pages.find((p) => p.sku === "sugoi-kh-heartless-ushanka")!;
+    const page = pages.find((p) => p.sku === "sugoi-kh-x-socks")!;
     expect(page.html).toContain("<p>Discontinued</p>");
   });
-  it("the 50 Sugoi rows whose brand pages were removed are switched to discontinued, notes kept", () => {
-    const gone = catalog.filter((s) => s.notes.includes("ブランドの販売ページは2026-11-15時点で削除済み"));
-    expect(gone).toHaveLength(50);
+  it("the Sugoi rows whose brand pages were removed are discontinued, notes kept (renamed ones excepted)", () => {
+    const flagged = catalog.filter((s) => s.notes.includes("ブランドの販売ページは2026-11-15時点で削除済み"));
+    expect(flagged).toHaveLength(50);
+    // 2026-11-26：うち6行は改名・URL 変更で今も販売中と分かり、unknown に戻した（notes に「[2026-11-26 Sugoi 修正]」）
+    const gone = flagged.filter((s) => !s.notes.includes("[2026-11-26 Sugoi 修正]"));
+    expect(gone).toHaveLength(44);
     for (const s of gone) {
       expect(s.sku_id.startsWith("sugoi-kh-")).toBe(true);
       expect(s.availability_hint).toBe("discontinued");
