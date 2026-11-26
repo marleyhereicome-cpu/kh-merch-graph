@@ -57,6 +57,7 @@
 - `web/demon-slayer/kny-logo.png`・`web/one-piece/op-logo.png` は、Marley の指示で KH と同じ使い方（カタログページの背景に薄く固定表示）で掲載する公式ロゴ。設定は `ip-config/<ip>/watermark.css`。
 - 使う条件は KH と同じ：フッターの非提携の表記（legal1）を必ず残す。色・形を加工しない（余白の切り詰め・縮小・圧縮だけ）。
 - ほかの場所（ハブ・ヘッダー・ファーストビュー・SNS 画像など）には出さない。セッションが自分の判断で別の公式ロゴ・画像を足してはいけない。
+- ドラゴンボール（2026-11-26 決定）：`web/dragon-ball/db-logo.png` も、Marley の指示で同じ条件・同じ使い方で掲載する（Marley から受け取った「DRAGON BALL Z」のロゴ）。
 
 ## リポジトリ構成（Step 4 以降で作られる）
 ```

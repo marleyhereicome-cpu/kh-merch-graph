@@ -168,6 +168,12 @@ describe("the design sheet (ip-config/<ip>/design.json, 2026-11-12)", () => {
     expect(index("kingdom-hearts")).toContain('const CARD_STYLE = "crown";');
     expect(index("kimetsu-no-yaiba")).toContain('const CARD_STYLE = "kifuda";');
     expect(index("one-piece")).toContain('const CARD_STYLE = "wanted";');
+    // ドラゴンボールは「星の玉」（2026-11-26 承認）
+    expect(index("dragon-ball")).toContain('const CARD_STYLE = "orb";');
+    expect(index("dragon-ball")).toContain("function orbStars(n)");
+    // ファーストビュー：夕方の空に浮かぶ星の玉のカード（2026-11-26）
+    expect(index("dragon-ball")).toContain('data-skin="orb"');
+    expect(index("dragon-ball")).toContain('<script src="/rail-hero.js" defer></script>');
     // 手配書の見出しのフォント（Rye）は ONE PIECE のページだけで読む
     expect(index("one-piece")).toContain("family=Rye&text=WANTED");
     expect(index("kimetsu-no-yaiba")).not.toContain("family=Rye");

@@ -15,14 +15,39 @@ import { buildItemPages } from "../scripts/build-item-pages.mjs";
 import { liveIps } from "../src/lib/ips.js";
 import { serverInstructions, supportedSeries } from "../src/lib/server-info.js";
 
+// ドラゴンボールは 2026-11-26 にデザイン（星の玉）が承認され、公開（live）に移った。下の「公開した作品」で確かめる。
 const NEW = [
-  { ip: "dragon-ball", path: "/dragon-ball/", en: "Dragon Ball", ja: "ドラゴンボール" },
   { ip: "jujutsu-kaisen", path: "/jujutsu-kaisen/", en: "Jujutsu Kaisen", ja: "呪術廻戦" },
+];
+const LAUNCHED = [
+  { ip: "dragon-ball", path: "/dragon-ball/", en: "Dragon Ball", ja: "ドラゴンボール", launched: "2026-11-26", cardStyle: "orb" },
 ];
 type Ip = { ip: string; path: string; status: string; name: { en: string; ja: string } };
 const ips = loadIps() as Ip[];
 
-describe("Dragon Ball and Jujutsu Kaisen are registered as 'in preparation'", () => {
+describe("Dragon Ball went live with an approved design (2026-11-26)", () => {
+  it("is live in data/ips.csv, with its design sheet approved", () => {
+    for (const n of LAUNCHED) {
+      const x = ips.find((r) => r.ip === n.ip)! as Ip & { launched: string };
+      expect(x).toMatchObject({ path: n.path, status: "live", name: { en: n.en, ja: n.ja }, launched: n.launched });
+      const design = JSON.parse(readFileSync(`ip-config/${n.ip}/design.json`, "utf8"));
+      expect(design).toMatchObject({ status: "approved", cardStyle: n.cardStyle });
+    }
+  });
+  it("gets a series page, a sitemap entry and a place in the MCP's supported series", () => {
+    const { pages } = buildIpPages({ write: false }) as { pages: { ip: string }[] };
+    const { sitemap } = buildItemPages({ write: false }) as { sitemap: string };
+    const ids = supportedSeries().map((s) => s.ip);
+    for (const n of LAUNCHED) {
+      expect(pages.some((p) => p.ip === n.ip)).toBe(true);
+      expect(sitemap).toContain(`https://merchgraph.app${n.path}`);
+      expect(ids).toContain(n.ip);
+      expect(serverInstructions()).toContain(n.en);
+    }
+  });
+});
+
+describe("Jujutsu Kaisen is registered as 'in preparation'", () => {
   it("are in data/ips.csv with the agreed ip, names and status soon", () => {
     for (const n of NEW) {
       const x = ips.find((r) => r.ip === n.ip)!;
