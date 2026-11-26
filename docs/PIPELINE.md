@@ -166,3 +166,11 @@ Claude は「承認の指示」がない限り `verified=true` を付けませ�
 - 手元で確かめる：`node scripts/check-data-removal.mjs origin/main`
 
 **注意**：GitHub の画面から main に直接コミットした場合、PR のチェックは走りません（デプロイ時のチェックで本番は守られますが、main には残ります）。main への直接コミットそのものを止めたい場合は、GitHub の設定（Branches → Branch protection rules）で「PR を必須にする」＋「Data guard を必須チェックにする」を有効にします（画面からの編集は自動でPRになります）。
+
+## 作業用ブランチの整理（2026-11-26〜）
+- ワークフロー：`.github/workflows/cleanup-branches.yml`（「Clean up merged branches」）。手動でだけ動く。
+- 使い方：GitHub の Actions → 「Clean up merged branches」→ 「Run workflow」。
+  - `dry_run` に印が付いたまま（既定）なら、main に取り込み済みのブランチの一覧を出すだけ。何も消さない。
+  - 印を外して動かすと、その一覧のブランチを削除する。
+- 消さないもの：`main`、まだ開いている PR のブランチ、main に取り込まれていない変更が残っているブランチ。
+- 結果は、その実行の画面の「Summary」に一覧で出る。

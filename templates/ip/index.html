@@ -531,6 +531,9 @@
   .badge.warn .dot { background: #B4562B; }
   .badge.unknown { background: #EFEAE0; color: #6B6350; }
   .badge.unknown .dot { background: #A79A7B; }
+  /* ファンメイドの固定の一文（2026-11-26〜）：長いので折り返す */
+  .badge.fan { border-radius: 10px; align-items: flex-start; line-height: 1.4; }
+  .badge.fan .dot { flex: none; margin-top: 5px; }
   .badge-row { display: flex; flex-wrap: wrap; gap: 6px; }
   .card-more { font-size: 12px; color: var(--navy); margin-top: 4px; }
 
@@ -1129,6 +1132,7 @@ const STRINGS = {
     av_ww_checkout: 'In shops · ships worldwide', av_jp_retail_new: 'In shops · Japan-only checkout',
     av_jp_secondhand_only: 'Secondhand only (Japan)', av_western_official: 'In shops · ships worldwide',
     av_event_only: 'Event-exclusive · hard to find', av_discontinued: 'Discontinued', av_unknown: 'Availability unconfirmed',
+    av_fan: "Fan-made items rotate by season. Check the brand's shop for current stock.",
     // panel
     panelEyebrow: 'Item', surpriseEyebrow: 'Surprise pick',
     secPrice: 'Original price', secHow: 'How it came out', secWhere: 'Where to find it today', secFacts: 'Details',
@@ -1242,6 +1246,7 @@ const STRINGS = {
     av_ww_checkout: '販売中・海外発送あり', av_jp_retail_new: '新品で購入可（国内）',
     av_jp_secondhand_only: '中古のみ（国内）', av_western_official: '海外の公式ショップで販売中',
     av_event_only: 'イベント限定（入手困難）', av_discontinued: '販売終了', av_unknown: '入手状況は未確認',
+    av_fan: 'ファンメイドの品はシーズンごとに入れ替わります。最新の在庫はブランドのショップで確かめてください。',
     panelEyebrow: 'グッズ詳細', surpriseEyebrow: 'おまかせ表示',
     secPrice: '定価', secHow: 'どんなグッズ？', secWhere: 'いまどこで手に入る？', secFacts: '商品情報',
     secShare: 'シェア', secSource: '情報の出典',
@@ -1463,7 +1468,9 @@ const SUIT_COLORS = {
 };
 function suitColorFor(item) { return SUIT_COLORS[lineTypeOf(item)] || SUIT_COLORS.other; }
 
-function badgeFor(hint, worldwideCheckout) {
+function badgeFor(hint, worldwideCheckout, unofficial) {
+  // ファンメイドの在庫は追わない（掲載ルール§4、2026-11-26〜）：「販売終了」などは出さず、いつも同じ一文
+  if (unofficial) return { cls: 'unknown fan', label: t('av_fan') };
   if (hint === 'jp_retail_new' && worldwideCheckout) return { cls: 'good', label: t('av_ww_checkout') };
   // For a Japanese visitor a Japan-only checkout is not a problem.
   const cls = { jp_retail_new: JA ? 'good' : 'warn', jp_secondhand_only: 'warn', western_official: 'good', event_only: 'warn', discontinued: 'warn' }[hint] || 'unknown';
@@ -1663,9 +1670,9 @@ function orbStars(n) {
 function renderCard(item, detail, imageMap) {
   const hint = detail?.availability?.hint || 'unknown';
   const worldwideCheckout = channelsFor(detail).some((ch) => ch.worldwideCheckout);
-  const badge = badgeFor(hint, worldwideCheckout);
-  const character = displayCharacters(item, detail);
   const isUnofficial = detail && detail.official === false;
+  const badge = badgeFor(hint, worldwideCheckout, isUnofficial);
+  const character = displayCharacters(item, detail);
   const a = artHtml(item, imageMap);
   return `
     <div class="card ${CARD_STYLE}" style="--accent:${borderColorFor(item.sku_id)};--suit:${suitColorFor(item)}" data-sku="${escapeHtml(item.sku_id)}" tabindex="0" role="button" aria-label="${escapeHtml(displayName(item, detail))}">
@@ -2248,12 +2255,12 @@ function panelHtml(item, detail, imageMap, catalog) {
   const howKey = isUnofficial ? 'acqx_fan' : (acq && STRINGS.en[`acqx_${acq}`] ? `acqx_${acq}` : '');
   const hint = detail?.availability?.hint || 'unknown';
   const { known: chans, other: otherChans } = splitChannels(detail);
-  const badge = badgeFor(hint, chans.some((ch) => ch.worldwideCheckout));
+  const badge = badgeFor(hint, chans.some((ch) => ch.worldwideCheckout), isUnofficial);
   // Japan-only shops (proxy: true) need a forwarding service from abroad. Skip the note when a
   // shop that ships worldwide is also listed, or when the item is sold by official shops abroad.
   const needsProxy = chans.some((ch) => ch.proxy) && !chans.some((ch) => ch.worldwideCheckout) && hint !== 'western_official';
   // Point to the listing checker where people actually deal with marketplace listings.
-  const showCheck = hint === 'jp_secondhand_only' || hint === 'event_only' || hint === 'discontinued' || chans.some((ch) => ch.marketplace);
+  const showCheck = (!isUnofficial && (hint === 'jp_secondhand_only' || hint === 'event_only' || hint === 'discontinued')) || chans.some((ch) => ch.marketplace);
   const price = priceParts(item, detail);
   const title = displayName(item, detail);
   // The "other" name: the one that searches best where the item was released.

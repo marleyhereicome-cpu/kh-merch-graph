@@ -1,0 +1,55 @@
+# 作業用ブランチの整理（2026-11-26〜、claude/在庫を追わない方針_依頼_2026-11-26.md の B-2）。
+# 手動で動かす：Actions → 「Clean up merged branches」→ Run workflow。
+#   dry_run = true（既定）… main に完全に取り込み済みのブランチを一覧にするだけ。何も消さない。
+#   dry_run = false       … その一覧のブランチを削除する。
+# 消さないもの：main と、まだ開いている PR のブランチ。main に取り込まれていない変更が1つでもあるブランチも消さない。
+name: Clean up merged branches
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "true なら一覧を出すだけ。false で削除する"
+        type: boolean
+        default: true
+permissions:
+  contents: write
+  pull-requests: read
+concurrency: cleanup-branches
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: List (and delete) branches fully merged into main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          git fetch --prune origin '+refs/heads/*:refs/remotes/origin/*'
+          open=$(gh api "repos/$REPO/pulls?state=open&per_page=100" --paginate --jq '.[] | select(.head.repo.full_name == env.REPO) | .head.ref')
+          merged=(); kept_open=(); kept_unmerged=()
+          while read -r b; do
+            [ -z "$b" ] && continue
+            [ "$b" = "main" ] && continue
+            if printf '%s\n' "$open" | grep -qxF -- "$b"; then kept_open+=("$b"); continue; fi
+            if git merge-base --is-ancestor "origin/$b" origin/main; then merged+=("$b"); else kept_unmerged+=("$b"); fi
+          done < <(git for-each-ref --format='%(refname:lstrip=3)' refs/remotes/origin | grep -vx HEAD | sort)
+          {
+            echo "## main に取り込み済みのブランチ（${#merged[@]} 本）"
+            if [ "$DRY_RUN" = "true" ]; then echo "dry_run=true：一覧だけ。何も消していません。"; else echo "dry_run=false：下のブランチを削除しました。"; fi
+            echo; for b in "${merged[@]}"; do echo "- $b"; done
+            echo; echo "### 残したもの"
+            echo "- 開いている PR のブランチ：${#kept_open[@]} 本 ${kept_open[*]:-}"
+            echo "- main に取り込まれていない変更があるブランチ：${#kept_unmerged[@]} 本 ${kept_unmerged[*]:-}"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+          if [ "$DRY_RUN" != "true" ]; then
+            failed=0
+            for b in "${merged[@]}"; do
+              if git push origin --delete "$b"; then echo "deleted $b"; else echo "::warning::could not delete $b"; failed=$((failed+1)); fi
+            done
+            echo "削除できなかったブランチ：$failed 本" | tee -a "$GITHUB_STEP_SUMMARY"
+          fi

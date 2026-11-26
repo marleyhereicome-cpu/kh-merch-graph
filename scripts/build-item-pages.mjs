@@ -72,6 +72,9 @@ const AVAILABILITY = {
   discontinued: "Discontinued", // 販売終了（2026-11-15〜）
   unknown: "Availability unconfirmed",
 };
+// ファンメイドの在庫は追わない（claude/ファンメイド掲載ルール.md §4、2026-11-26〜）。src/lib/acquisition.ts と同じ文
+const FAN_MADE_AVAILABILITY = "Fan-made items rotate by season. Check the brand's shop for current stock.";
+const availabilityText = (official, hint) => (official ? AVAILABILITY[hint] || AVAILABILITY.unknown : FAN_MADE_AVAILABILITY);
 const REGION = { JP: "Japan", NA: "North America", EU: "Europe", GLOBAL: "Worldwide" };
 const CURRENCY_SYMBOL = { JPY: "¥", USD: "$", GBP: "£", EUR: "€" };
 // Mercari 公式のグローバルアプリで代行なしに買える場合があるチャネル（2026-11-06。src/lib/acquisition.ts と同じ文）
@@ -251,7 +254,7 @@ function renderItem(s, line, images, series, titleSuffix = "", related = "") {
   const region = REGION[s.region] || s.region || "Japan";
   const acq = official ? ACQ_LABEL[s.acquisition_type] : "Unofficial · fan-made";
   const howText = official ? ACQ_EXPLAIN[s.acquisition_type] : fanExplain(series);
-  const hint = s.availability_hint || "unknown";
+  const hint = official ? s.availability_hint || "unknown" : "unknown";
   const channels = channelsOf(s);
   const japanOnly = channels.some((c) => JAPAN_ONLY.has(c.key)) && !channels.some((c) => c.key === "graniph") && hint !== "western_official";
   const sources = sourceUrlsOf(s.source_url);
@@ -265,7 +268,7 @@ function renderItem(s, line, images, series, titleSuffix = "", related = "") {
     official ? `official ${series.name} merchandise` : `unofficial, fan-made ${series.name} merchandise`,
     `released in ${region}${release ? ` (${release.slice(0, 7)})` : ""}.`,
     price.amount ? `Original price ${price.text}.` : `${price.text}.`,
-    `${AVAILABILITY[hint] || AVAILABILITY.unknown}.`,
+    official ? `${availabilityText(official, hint)}.` : availabilityText(official, hint),
   ].join(" ");
 
   const dims = [s.width_mm, s.height_mm, s.depth_mm].filter((x) => x !== "" && x != null);
@@ -379,7 +382,7 @@ ${PAGE_CSS}</style>
 
   <section>
     <h2>Where to find it today</h2>
-    <p>${esc(AVAILABILITY[hint] || AVAILABILITY.unknown)}</p>
+    <p>${esc(availabilityText(official, hint))}</p>
     ${channels.length ? `<p class="note">Typically found at: ${channels.map((c) => esc(c.label)).join(" · ")}</p>` : ""}
     ${japanOnly ? `<p class="note">Ships within Japan only — you'll need a shipping-forwarding service to receive this outside Japan. We're not affiliated with any of them.</p>` : ""}
     ${japanOnly && channels.some((c) => GLOBAL_APP_KEYS.has(c.key)) ? `<p class="note">${esc(GLOBAL_APP_NOTE)}</p>` : ""}
