@@ -58,7 +58,8 @@ function itemSummary(s: CatalogSku, matchedTermsBySku?: Map<string, string[]>, w
     // 以下はカード表示に必要な項目（explain_product と同じ形）。これで Web版はカードごとに explain_product を
     // 呼ばずに済み、explain_product の呼び出し回数が「詳細パネルを開いた」回数（Gate C の関心シグナル）になる。
     acquisition_type: s.acquisition_type || null,
-    availability_hint: s.availability_hint || "unknown",
+    // ファンメイドの在庫は追わない（2026-11-26〜）：いつも unknown で返す
+    availability_hint: isTrue(s.official) ? s.availability_hint || "unknown" : "unknown",
     official: isTrue(s.official),
     typical_channels: splitPipe(s.typical_channels),
     ...(matchedTermsBySku?.has(s.sku_id) ? { matched_terms: matchedTermsBySku.get(s.sku_id) } : {}),

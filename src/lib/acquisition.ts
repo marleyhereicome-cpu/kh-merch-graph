@@ -174,7 +174,12 @@ export interface AvailabilityInfo {
 
 // availability_hint（入手しやすさの目安）と、その確からしさ（confirmed/estimated）を返す。
 // estimated の絶版は断定せず「たぶん絶版、確認してから」と返す。
+// ファンメイド（official=false）の在庫は追わない（claude/ファンメイド掲載ルール.md §4、2026-11-26〜）。
+// 「販売終了」などの状況は出さず、いつもこの一文を返す。Web版のカード・商品ページと同じ文。
+export const FAN_MADE_AVAILABILITY_NOTE = "Fan-made items rotate by season. Check the brand's shop for current stock.";
+
 export function buildAvailabilityInfo(sku: CatalogSku): AvailabilityInfo | null {
+  if (!isTrue(sku.official)) return { hint: "unknown", confidence: "", note_en: FAN_MADE_AVAILABILITY_NOTE };
   const hint = sku.availability_hint;
   if (!hint || hint === "unknown") return null;
   const confidence = sku.availability_confidence || "";
