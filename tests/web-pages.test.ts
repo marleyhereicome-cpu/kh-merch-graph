@@ -200,7 +200,7 @@ describe("404 page", () => {
 });
 
 describe("series logo watermark (2026-11-12): Demon Slayer and One Piece follow Kingdom Hearts", () => {
-  for (const [dir, file] of [["demon-slayer", "kny-logo.png"], ["one-piece", "op-logo.png"]]) {
+  for (const [dir, file] of [["demon-slayer", "kny-logo.png"], ["one-piece", "op-logo.png"], ["dragon-ball", "db-logo.png"]]) {
     it(`${dir} shows its logo as a fixed, faint background behind the page`, () => {
       const html = readFileSync(`web/${dir}/index.html`, "utf8");
       expect(html).toMatch(new RegExp(`body::before \\{[^}]*position: fixed;[^}]*url\\('\\./${file.replace(".", "\\.")}'\\)[^}]*opacity: 0\\.1;`));

@@ -2,6 +2,7 @@
    作品ごとのファーストビュー「並んだ札・張り紙」（2026-11-12〜）
    - 鬼滅の刃（skin=kifuda）：梁から下がった木札が並び、正面の1枚が大きくなる。札はひもで揺れる。
    - ONE PIECE（skin=wanted）：板壁に釘で留めた手配書が並び、正面の1枚が大きくなる。
+   - ドラゴンボール（skin=orb、2026-11-26）：夕方の空に、星の玉を付けたカードが浮かんで並ぶ。下の7つの玉は、見たカードの星の数のぶん灯り、7つそろうと一度だけ光る。
    - KH の「カードの棚」（web/kingdomhearts/shelf-hero.js）とは別物。作品の見た目は docs/IP_DESIGN.md のデザインシートで決める。
    - 商品は ./shelf.json（scripts/build-shelf.mjs がデプロイ時に作る）。写真が読み込めない商品は外す。少なすぎるときは出さない。
    - index.html の後に読む（LANG・escapeHtml()・openItem() をそのまま使う）。
@@ -54,6 +55,25 @@
   }
   const priceLabel = (it) => (it.basis === 'draw_price' ? s_('drawPrice') : s_('origPrice'));
 
+  // 星の玉（skin=orb）：星 1〜7 個の配置。作品ページの一覧のカード（templates/ip/index.html の orbStars）と同じ形
+  const ORB_LAYOUT = {
+    1: [[20, 20, 8]], 2: [[14.5, 15.5, 6], [25.5, 24.5, 6]], 3: [[20, 12.5, 5.5], [13.5, 24.5, 5.5], [26.5, 24.5, 5.5]],
+    4: [[14, 14, 5], [26, 14, 5], [14, 26, 5], [26, 26, 5]], 5: [[20, 10.5, 4.6], [11.5, 18, 4.6], [28.5, 18, 4.6], [14.5, 28, 4.6], [25.5, 28, 4.6]],
+    6: [[14, 11.5, 4.2], [26, 11.5, 4.2], [10, 20, 4.2], [30, 20, 4.2], [14, 28.5, 4.2], [26, 28.5, 4.2]],
+    7: [[20, 20, 4], [20, 10.5, 4], [20, 29.5, 4], [11.8, 15.2, 4], [28.2, 15.2, 4], [11.8, 24.8, 4], [28.2, 24.8, 4]],
+  };
+  function orbStars(n) {
+    const star = (cx, cy, r) => {
+      const pts = [];
+      for (let k = 0; k < 10; k++) {
+        const a = -Math.PI / 2 + k * Math.PI / 5, rr = k % 2 ? r * 0.45 : r;
+        pts.push(`${(cx + rr * Math.cos(a)).toFixed(2)},${(cy + rr * Math.sin(a)).toFixed(2)}`);
+      }
+      return `<polygon points="${pts.join(' ')}"/>`;
+    };
+    return `<svg viewBox="0 0 40 40" aria-hidden="true"><g fill="#D7262B">${ORB_LAYOUT[n].map(([x, y, r]) => star(x, y, r)).join('')}</g></svg>`;
+  }
+
   function cardHtml(it, i) {
     const img = `<img src="${esc(safeUrl(it.img))}" alt="" loading="${i < 6 ? 'eager' : 'lazy'}" decoding="async">`;
     if (SKIN === 'wanted') {
@@ -62,6 +82,9 @@
         <div class="rh-wanted" aria-hidden="true">WANTED</div>
         <div class="rh-win">${img}</div>
         <div class="rh-bounty"><small>${esc(priceLabel(it))}</small><b>${esc(p.main)}</b>${p.sub ? `<small>${esc(p.sub)}</small>` : ''}</div></div>`;
+    }
+    if (SKIN === 'orb') {
+      return `<div class="rh-orbcard"><i class="rh-orb" aria-hidden="true">${orbStars((i % 7) + 1)}</i><div class="rh-win">${img}</div></div>`;
     }
     return `<div class="rh-cord" aria-hidden="true"></div><div class="rh-tag"><div class="rh-win">${img}</div></div>`;
   }
@@ -87,6 +110,7 @@
       <button type="button" class="rh-arrow next" aria-label="${esc(s_('next'))}"><svg viewBox="0 0 24 12"><path d="M18 1l5 5-5 5M23 6H0"/></svg></button>
       <div class="rh-cap" aria-live="polite"><div class="rh-title"></div><div class="rh-meta"></div><div class="rh-price"></div>
         <button type="button" class="rh-open">${esc(s_('open'))}</button></div>
+      ${SKIN === 'orb' ? `<div class="rh-seven" aria-hidden="true">${[1, 2, 3, 4, 5, 6, 7].map((n) => `<i class="rh-orb">${orbStars(n)}</i>`).join('')}</div>` : ''}
       <a class="rh-more" href="#discover"><i aria-hidden="true"></i><span class="long">${esc(s_('more'))}</span><span class="short">${esc(s_('moreShort'))}</span></a>`;
     const stage = root.querySelector('.rh-stage'), rail = root.querySelector('.rh-rail');
     const cards = items.map((it, i) => {
@@ -114,8 +138,22 @@
       root.querySelector('.rh-meta').textContent = `${kindOf(it)} · ${s_('released', { d: fmtDate(it.date) })}`;
       root.querySelector('.rh-price').textContent = SKIN === 'wanted' ? '' : `${priceLabel(it)} ${p.main}${p.sub ? `（${p.sub}）` : ''}`;
       cards.forEach((c, k) => { c.el.classList.toggle('on', k === i); c.el.tabIndex = k === i ? 0 : -1; });
+      if (SKIN === 'orb') lightOrb(i % 7);
       root.querySelector('.rh-arrow.prev').disabled = i === 0;
       root.querySelector('.rh-arrow.next').disabled = i === N - 1;
+    }
+    // 7つの玉：見たカードの星の数の玉が灯る。7つそろったら一度だけ光らせる（動きを減らす設定では光らせない）
+    const seen = new Set();
+    let completed = false;
+    function lightOrb(k) {
+      const row = root.querySelector('.rh-seven');
+      if (!row) return;
+      seen.add(k);
+      row.querySelectorAll('.rh-orb').forEach((o, n) => { o.classList.toggle('lit', seen.has(n)); o.classList.toggle('now', n === k); });
+      if (!completed && seen.size === 7) {
+        completed = true;
+        if (!calm) row.classList.add('done');
+      }
     }
     let last = performance.now();
     function frame(now) {
@@ -135,6 +173,9 @@
         if (SKIN === 'wanted') {
           rot = c.tilt * (1 - o * 0.85);
           y = Math.max(0, a - 1) * 6;
+        } else if (SKIN === 'orb') {
+          // 空に浮かんでいるので、上下にゆっくりただよう。正面の1枚はほぼ止まる
+          y = (calm ? 0 : Math.sin(t * 0.8 + c.seed) * CW * 0.025 * (0.3 + 0.7 * Math.min(1, a))) + Math.max(0, a - 1) * 4;
         } else if (!calm) {
           // 札：ひもで下がっているので、動いた向きと逆に振れて、ゆっくり戻る
           c.swing += (-vel * 6 - c.swing) * (1 - Math.exp(-4 * dt));

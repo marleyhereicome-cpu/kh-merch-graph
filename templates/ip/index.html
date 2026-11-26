@@ -355,6 +355,34 @@
   .rh-hero[data-skin="wanted"] .rh-bounty b { display: block; font-family: 'Shippori Mincho', serif; font-weight: 700; font-size: calc(var(--cw) * .12); line-height: 1.15; }
   .rh-hero[data-skin="wanted"] .rh-bounty small { display: block; font-size: calc(var(--cw) * .045); letter-spacing: .14em; color: #6B5232; }
 
+  /* ドラゴンボール：夕方の空に浮かぶ「星の玉」のカード（2026-11-26） */
+  .rh-hero[data-skin="orb"] { color: #FFF8EE; }
+  .rh-hero[data-skin="orb"] .rh-bg { background:
+      radial-gradient(60% 18% at 22% 30%, rgba(255,255,255,.22), transparent 70%),
+      radial-gradient(50% 14% at 80% 22%, rgba(255,255,255,.18), transparent 70%),
+      radial-gradient(70% 16% at 60% 62%, rgba(255,235,210,.16), transparent 70%),
+      linear-gradient(180deg, #1D3266 0%, #3D5BA0 38%, #E59A57 78%, #F3B672 100%); }
+  .rh-hero[data-skin="orb"] .rh-bg::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 34%;
+    background: linear-gradient(180deg, transparent, rgba(40,20,10,.55)); }
+  .rh-hero[data-skin="orb"] .rh-card { top: 5%; transform-origin: 50% 50%; }
+  .rh-hero[data-skin="orb"] .rh-card::after { border-radius: 10px; }
+  .rh-hero[data-skin="orb"] .rh-orbcard { position: relative; background: #FFFFFF; border-radius: 10px; padding: calc(var(--cw) * .07);
+    box-shadow: 0 22px 36px rgba(20,20,60,.35), 0 0 0 1px rgba(255,255,255,.6); }
+  .rh-hero[data-skin="orb"] .rh-orbcard .rh-win { border-radius: 6px; aspect-ratio: 4 / 5; }
+  .rh-hero[data-skin="orb"] .rh-orb { display: block; border-radius: 50%;
+    background: radial-gradient(circle at 34% 30%, #FFF3C4 0 7%, #FFC25A 20%, #F28A1C 58%, #C35A0B 100%);
+    box-shadow: 0 2px 5px rgba(120,55,0,.35), inset 0 -2px 4px rgba(120,40,0,.25); }
+  .rh-hero[data-skin="orb"] .rh-orb svg { display: block; width: 100%; height: 100%; }
+  .rh-hero[data-skin="orb"] .rh-orbcard .rh-orb { position: absolute; top: calc(var(--cw) * -.06); right: calc(var(--cw) * -.06); width: calc(var(--cw) * .2); height: calc(var(--cw) * .2); z-index: 2; }
+  .rh-seven { position: absolute; left: 50%; top: calc(73% - 38px); transform: translateX(-50%); display: flex; gap: 8px; z-index: 6; }
+  .rh-seven .rh-orb { width: 20px; height: 20px; opacity: .3; filter: grayscale(.7); transition: opacity .4s, filter .4s, transform .4s; }
+  .rh-seven .rh-orb.lit { opacity: 1; filter: none; }
+  .rh-seven .rh-orb.now { transform: scale(1.25); }
+  .rh-seven.done .rh-orb { animation: rh-seven-glow 1.6s ease-out 1; }
+  @keyframes rh-seven-glow { 0% { box-shadow: 0 0 0 rgba(255,200,90,0); } 40% { box-shadow: 0 0 18px 6px rgba(255,200,90,.85); } 100% { box-shadow: 0 2px 5px rgba(120,55,0,.35); } }
+  @media (max-width: 767px) { .rh-seven { top: calc(71% - 30px); gap: 6px; } .rh-seven .rh-orb { width: 16px; height: 16px; } }
+  @media (prefers-reduced-motion: reduce) { .rh-seven .rh-orb { transition: none; } }
+
   @media (max-width: 767px) {
     .rh-hero { --cw: min(50vw, 220px, calc((100svh - 56px) * .34)); }
     .rh-cap { top: 71%; width: calc(100vw - 120px); }
@@ -512,6 +540,17 @@
   .card.plain .card-rect { margin-top: 0; border-top: 3px solid var(--accent); border-radius: 8px; }
   .card.plain .card-art { margin-top: 16px; }
 
+  /* ---------- ドラゴンボール「星の玉」（orb、2026-11-26 Marley 承認） ----------
+     ふつうの角丸カードの右上に、星の入った小さな玉を1つだけ置く。星の数は一覧の並び順で 1→7 を繰り返す（7枚で1そろい）。
+     玉の色と星は CSS と自前の SVG で描く。文字は入れない。 */
+  .card.orb .card-rect { position: relative; margin-top: 0; border-top: 3px solid var(--accent); border-radius: 8px; }
+  .card.orb .card-art { margin-top: 16px; }
+  .card.orb .orb-mark { position: absolute; top: 9px; right: 9px; width: 30px; height: 30px; border-radius: 50%; z-index: 2;
+    background: radial-gradient(circle at 34% 30%, #FFF3C4 0 7%, #FFC25A 20%, #F28A1C 58%, #C35A0B 100%);
+    box-shadow: 0 2px 5px rgba(120,55,0,0.35), inset 0 -2px 4px rgba(120,40,0,0.25); }
+  .card.orb .orb-mark svg { width: 100%; height: 100%; display: block; }
+
+
   /* ---------- KH：カードの棚と同じ枠（crown、2026-11-12〜） ----------
      web/kingdomhearts/shelf-hero.js の frontSVG と同じ形：種類ごとの色の王冠型の札・2つの穴・紺の縁の紙の窓。
      形は SVG のマスク（上辺の山形と穴）＋長方形のマスクで切り抜く。寸法はカードの幅（cqw）に比例させるので、スマホの3列でも同じ形になる。
@@ -588,7 +627,8 @@
     .card.crown .card-body { padding: 5px 6px 8px; }
     .card.crown .card-art { margin-top: 5cqw; }
     .card-rect { border-width: 2px; border-radius: 0 0 6px 6px; }
-    .card.plain .card-rect { border-top-width: 3px; border-radius: 6px; }
+    .card.plain .card-rect, .card.orb .card-rect { border-top-width: 3px; border-radius: 6px; }
+    .card.orb .orb-mark { width: 18px; height: 18px; top: 5px; right: 5px; }
     .card-art, .card.plain .card-art { width: 86%; margin: 7px auto 0; }
     .photo-credit { font-size: 8px; margin-top: 3px; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .card-body { padding: 5px 6px 8px; gap: 3px; }
@@ -1600,6 +1640,26 @@ function artHtml(item, imageMap) {
   };
 }
 
+// ドラゴンボール「星の玉」：玉の中の星（1〜7個）。一覧の並び順で数が増え、7枚で1そろいになる。
+let orbSeq = 0;
+const ORB_LAYOUT = {
+  1: [[20, 20, 8]], 2: [[14.5, 15.5, 6], [25.5, 24.5, 6]], 3: [[20, 12.5, 5.5], [13.5, 24.5, 5.5], [26.5, 24.5, 5.5]],
+  4: [[14, 14, 5], [26, 14, 5], [14, 26, 5], [26, 26, 5]], 5: [[20, 10.5, 4.6], [11.5, 18, 4.6], [28.5, 18, 4.6], [14.5, 28, 4.6], [25.5, 28, 4.6]],
+  6: [[14, 11.5, 4.2], [26, 11.5, 4.2], [10, 20, 4.2], [30, 20, 4.2], [14, 28.5, 4.2], [26, 28.5, 4.2]],
+  7: [[20, 20, 4], [20, 10.5, 4], [20, 29.5, 4], [11.8, 15.2, 4], [28.2, 15.2, 4], [11.8, 24.8, 4], [28.2, 24.8, 4]],
+};
+function orbStars(n) {
+  const star = (cx, cy, r) => {
+    const pts = [];
+    for (let i = 0; i < 10; i++) {
+      const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r;
+      pts.push(`${(cx + rr * Math.cos(a)).toFixed(2)},${(cy + rr * Math.sin(a)).toFixed(2)}`);
+    }
+    return `<polygon points="${pts.join(' ')}"/>`;
+  };
+  return `<svg viewBox="0 0 40 40"><g fill="#D7262B">${ORB_LAYOUT[n].map(([x, y, r]) => star(x, y, r)).join('')}</g></svg>`;
+}
+
 function renderCard(item, detail, imageMap) {
   const hint = detail?.availability?.hint || 'unknown';
   const worldwideCheckout = channelsFor(detail).some((ch) => ch.worldwideCheckout);
@@ -1611,6 +1671,7 @@ function renderCard(item, detail, imageMap) {
     <div class="card ${CARD_STYLE}" style="--accent:${borderColorFor(item.sku_id)};--suit:${suitColorFor(item)}" data-sku="${escapeHtml(item.sku_id)}" tabindex="0" role="button" aria-label="${escapeHtml(displayName(item, detail))}">
       <div class="card-rect"><div class="card-win">
         ${CARD_STYLE === 'wanted' ? '<div class="wanted-head" aria-hidden="true">WANTED</div>' : ''}
+        ${CARD_STYLE === 'orb' ? `<i class="orb-mark" aria-hidden="true">${orbStars((orbSeq++ % 7) + 1)}</i>` : ''}
         <div class="card-art">${a.art}</div>
         <div class="photo-credit">${escapeHtml(a.credit)}</div>
         <div class="card-body">
@@ -2063,6 +2124,7 @@ async function applyFilters() {
       return;
     }
     els.grid.innerHTML = '';
+    orbSeq = 0;
     await renderMore(imageMap);
   } catch (err) {
     els.grid.innerHTML = `<div class="state-msg">${escapeHtml(t('connError', { e: err.message }))}</div>`;
@@ -2100,7 +2162,8 @@ async function renderStats() {
     ].map((x) => `<span class="st">${x}</span>`).join(sep);
     // 掲載がまだ少ない作品だけ、件数つきの1行を出す（EARLY_CATALOG_MAX 件未満。2026-11-12〜）
     const early = document.getElementById('earlyCatalog');
-    if (early && ordered.length < EARLY_CATALOG_MAX) { early.innerHTML = t('earlyCatalog', { n: ordered.length.toLocaleString('en-US') }); early.hidden = false; }
+    // coverage=partial の作品は、すでに「一部のみ収録」の1行（coverageNote）があるので重ねて出さない（2026-11-26）
+    if (early && !document.querySelector('[data-i18n="coverageNote"]') && ordered.length < EARLY_CATALOG_MAX) { early.innerHTML = t('earlyCatalog', { n: ordered.length.toLocaleString('en-US') }); early.hidden = false; }
   } catch { /* the grid already shows the connection error */ }
 }
 

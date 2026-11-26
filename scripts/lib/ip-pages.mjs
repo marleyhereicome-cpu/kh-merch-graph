@@ -206,7 +206,7 @@ export function validateIpConfig(x, cfg) {
   }
   // デザインシート（docs/IP_DESIGN.md）。公開中の作品は必須。王冠型は KH 専用
   // カードの形と、その形を使ってよい作品（作品ごとに作った形は、ほかの作品に流用しない）
-  const CARD_STYLE_OWNER = { plain: null, crown: "kingdom-hearts", kifuda: "kimetsu-no-yaiba", wanted: "one-piece" };
+  const CARD_STYLE_OWNER = { plain: null, crown: "kingdom-hearts", kifuda: "kimetsu-no-yaiba", wanted: "one-piece", orb: "dragon-ball" };
   const CARD_STYLES = Object.keys(CARD_STYLE_OWNER);
   if (x.status === "live" && !cfg.design) errs.push(`ip-config/${x.ip}/design.json がありません（公開する作品はデザインシートが必要です。docs/IP_DESIGN.md）`);
   if (cfg.design) {

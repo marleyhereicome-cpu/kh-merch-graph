@@ -1,12 +1,20 @@
 {
-  "status": "draft",
-  "cardStyle": "plain",
-  "motif": "未決定（2026-11-15 登録。商品が入り、公開を決めるまでに docs/IP_DESIGN.md の流れで案を出す）",
-  "hero": "none",
-  "palette": {},
+  "status": "approved",
+  "approved_on": "2026-11-26",
+  "cardStyle": "orb",
+  "motif": "星の入った小さな玉（ドラゴンボールに着想を得た自前の図形）。カード右上に1つだけ。星の数は一覧の並び順で1→7を繰り返す（7枚で1そろい）。文字は入れない",
+  "hero": "rail-hero (orb)：夕方の空に、星の玉を付けたカードが浮かんで並ぶ。下の7つの玉が、見たカードの星の数のぶん灯る（2026-11-26 Marley 指示で追加）",
+  "palette": {
+    "orb": "#F28A1C",
+    "star": "#D7262B",
+    "sky_top": "#1D3266",
+    "sky_bottom": "#F3B672"
+  },
   "texture": "",
-  "watermark": "",
+  "watermark": "db-logo.png をページ背景に薄く固定表示（KH・鬼滅・ONE PIECE と同じ。2026-11-26 Marley 指示）",
   "music": "",
-  "legal_notes": "公式ロゴ・キービジュアル・キャラクターの絵を部品に使わない（docs/IP_DESIGN.md の「守ること」）",
-  "docs": []
+  "legal_notes": "公式ロゴ・キービジュアル・キャラクターの絵を部品に使わない。玉は自前の描画（CSS のグラデーション＋自前の SVG の星）で、作中の画像は使わない。案B「カプセル」は不採用（値段の文字に継ぎ目がかかるため）",
+  "docs": [
+    "claude/ドラゴンボールのデザイン_結果_2026-11-26.md"
+  ]
 }
