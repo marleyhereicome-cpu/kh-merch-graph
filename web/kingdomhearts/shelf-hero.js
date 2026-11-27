@@ -30,7 +30,7 @@
       kRow: 'Kind', mRow: 'Maker', dRow: 'Released', pRow: 'Original price', aRow: 'Where to get it now',
       noteDraw: 'This was a lottery prize, so it was never sold on its own. The price is what one draw cost.',
       noteEst: 'The official price couldn’t be confirmed, so this is an estimate.',
-      source: 'See the source ↗', catalog: 'Open in the catalog', credit: 'photo: {s}' },
+      source: 'See the source ↗', catalog: 'Open in the catalog', credit: 'Image: ' },
     ja: { title: 'カードの棚：発売年でめくるグッズ', open: 'このカードを開く', close: '閉じる', tlLabel: '発売年',
       shelfAria: '発売年順のグッズのカード。ドラッグ、スワイプ、矢印キーで切り替えられます。', prev: '前のカード', next: '次のカード',
       more: '下に続く（検索とカタログ全体）', moreShort: '下に続く', released: '{d}発売', perDraw: '1回', approx: '約',
@@ -38,7 +38,7 @@
       kRow: '種類', mRow: 'メーカー', dRow: '発売日', pRow: '発売時の定価', aRow: 'いまの入手方法',
       noteDraw: 'くじの景品なので、単体では売られていません。表示しているのはくじ1回の値段です。',
       noteEst: '公式の定価が確かめられなかったため、推定の参考価格です。',
-      source: '出典を見る ↗', catalog: 'カタログで開く', credit: '写真：{s}' },
+      source: '出典を見る ↗', catalog: 'カタログで開く', credit: '画像：' },
   };
   const s_ = (k, v = {}) => (STR[JA ? 'ja' : 'en'][k] ?? STR.en[k] ?? k).replace(/\{(\w+)\}/g, (_, x) => v[x] ?? '');
   const esc = (x) => escapeHtml(String(x ?? ''));
@@ -68,6 +68,15 @@
     return v && v !== k ? v : t('av_unknown');
   };
   function hostOf(u) { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; } }
+  // 画像の出典（2026-11-27〜）：「Image: <サイト名>」をリンクで出す。templates/ip/index.html の imageCredit と同じ考え方
+  const IMAGE_CDN_RE = /(^|\.)(shopify\.com|shopifycdn\.(com|net)|squarespace-cdn\.com|wixstatic\.com|cloudfront\.net|akamaized\.net|imgix\.net|wp\.com|googleusercontent\.com|bigcommerce\.com|ctfassets\.net|cloudinary\.com|amplience\.net|digitaloceanspaces\.com|kgl-systems\.io)$|(^|\.)cdn\d*\./;
+  const siteOf = (h) => { const p = h.split('.'); return p.length > 2 && p[p.length - 1].length === 2 && /^(co|ne|or|ac|go|com|net|org)$/.test(p[p.length - 2]) ? p.slice(-3).join('.') : p.slice(-2).join('.'); };
+  function creditHtml(it) {
+    const ih = hostOf(it.img), sh = hostOf(it.src);
+    if (!ih) return '';
+    const c = sh && (siteOf(sh) === siteOf(ih) || IMAGE_CDN_RE.test(ih)) ? { name: sh, href: safeUrl(it.src) } : { name: ih, href: `https://${ih}/` };
+    return `${esc(s_('credit'))}<a href="${esc(c.href)}" target="_blank" rel="noopener nofollow">${esc(c.name)}</a>`;
+  }
   function dateFrac(d) { const [y, m, dd] = d.split('-'); return +y + ((+m || 7) - 1) / 12 + ((+dd || 15) - 1) / 365; }
   const safeUrl = (u) => (/^https?:\/\//.test(u || '') ? u : '');
 
@@ -132,6 +141,7 @@
       <div class="sh-cap" aria-live="polite">
         <div class="sh-mask sh-title"></div>
         <div class="sh-mask sh-meta"></div>
+        <div class="sh-mask sh-credit"></div>
         <div class="sh-row"><div class="sh-mask sh-avail"></div><button type="button" class="sh-open">${esc(s_('open'))}</button></div>
       </div>
       <div class="sh-tl" aria-hidden="true"><div class="lab">${esc(s_('tlLabel'))}</div><div class="line"></div></div>
@@ -232,6 +242,7 @@
       swap(q('.sh-title'), esc(nameOf(it)), dir);
       swap(q('.sh-meta'), `<span class="sh-suit"><i style="background:${su.c}"></i>${esc(su[JA ? 'ja' : 'en'])}</span><span>${esc(s_('released', { d: fmtDate(it.date) }))}</span>`, dir);
       swap(q('.sh-avail'), esc(s_('avail', { a: availText(it) })), dir);
+      swap(q('.sh-credit'), creditHtml(it), dir);
       if (shownYear !== it.year) { swap(q('.sh-yearbg'), String(it.year), dir); shownYear = it.year; }
       cards.forEach((c, k) => { c.el.classList.toggle('on', k === i); c.hit.tabIndex = k === i ? 0 : -1; c.hit.setAttribute('aria-label', nameOf(c.it)); });
       const c = cards[i]; c.tag.innerHTML = priceTag(it);
@@ -365,7 +376,7 @@
       const src = safeUrl(it.src);
       dq('.sh-d-links').innerHTML = `<a class="primary" href="#item=${encodeURIComponent(it.sku)}" data-sku="${esc(it.sku)}">${esc(s_('catalog'))}</a>`
         + (src ? `<a href="${esc(src)}" target="_blank" rel="noopener">${esc(s_('source'))}</a>` : '');
-      dq('.sh-d-credit').textContent = s_('credit', { s: hostOf(it.img) });
+      dq('.sh-d-credit').innerHTML = creditHtml(it);
       detail.classList.add('open'); detail.scrollTop = 0;
       document.body.classList.add('sh-locked');
       start();

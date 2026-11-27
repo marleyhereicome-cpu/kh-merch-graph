@@ -253,6 +253,8 @@
   .sh-title { font-size: clamp(18px, 1.9vw, 25px); font-weight: 700; line-height: 1.35; height: 2.7em; display: flex; align-items: center; justify-content: center; }
   .sh-title > span { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .sh-meta > span { font-size: 12px; letter-spacing: .08em; color: var(--sh-soft); display: flex !important; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; }
+  .sh-credit > span { font-size: 11px; color: var(--sh-soft); opacity: .8; }
+  .sh-credit a, .sh-d-credit a { color: inherit; }
   .sh-suit { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px 3px 7px; border-radius: 99px; background: rgba(243,239,230,.08); border: 1px solid rgba(243,239,230,.16); color: var(--sh-ink); }
   .sh-suit i { width: 8px; height: 8px; border-radius: 2px; display: block; }
   .sh-row { display: flex; gap: 14px; align-items: center; justify-content: center; flex-wrap: wrap; }
@@ -304,6 +306,8 @@
   .rh-title { font-family: 'Shippori Mincho', serif; font-weight: 700; font-size: clamp(16px, 1.8vw, 22px); line-height: 1.4;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.8em; }
   .rh-meta, .rh-price { font-size: 12.5px; letter-spacing: .06em; opacity: .85; }
+  .rh-credit { font-size: 11px; opacity: .75; }
+  .rh-credit a { color: inherit; }
   .rh-price:empty { display: none; }
   .rh-open { margin-top: 4px; font-size: 12px !important; letter-spacing: .12em; padding: 8px 18px !important; border: 1px solid currentColor !important; border-radius: 99px; opacity: .9; }
   .rh-open:hover { opacity: 1; }
@@ -502,6 +506,7 @@
   }
   .card-art .photo, .panel-art .photo { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
   .photo-credit { text-align: center; font-size: 10px; color: var(--muted); margin-top: 6px; }
+  .photo-credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
   .card-body { padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 6px; flex-grow: 1; }
   .card-tags, .panel-tags { display: flex; flex-wrap: wrap; gap: 6px; }
   .tag {
@@ -1020,11 +1025,11 @@
 
 <footer>
   <!-- 商品ページへ JS なしでも辿れる道（2026-11-10）。一覧ページは scripts/build-item-pages.mjs がデプロイ時に作る。 -->
-  <nav class="browse-links" aria-label="Browse"><span data-i18n="browseLabel">Browse every item:</span> <a href="{{path}}browse#series" data-i18n="browseSeries">by series</a> · <a href="{{path}}browse#characters" data-i18n="browseCharacters">by character</a> · <a href="{{path}}browse#items" data-i18n="browseAll">full list</a></nav>
+  <nav class="browse-links" aria-label="Browse"><span data-i18n="browseLabel">Browse every item:</span> <a href="{{path}}browse#series" data-i18n="browseSeries">by series</a> · <a href="{{path}}browse#characters" data-i18n="browseCharacters">by character</a> · <a href="{{path}}browse#items" data-i18n="browseAll">full list</a> · <a href="/brands" data-i18n="browseBrands">Fan-made brands</a></nav>
   <div class="legal">
     <p data-i18n="legal1">{{en.legal1}}</p>
     <p data-i18n-html="legal2">{{en.legal2}}</p>
-    <p data-i18n-html="legal3">Spotted a mistake? Use the report form in the item’s details, or <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">open an issue on GitHub</a>. Press, partnerships and other enquiries: <a href="/contact">contact form</a>. Rights holders: please write to legal@merchgraph.app (image removals can also be requested with <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues/new?template=image-takedown.yml" target="_blank" rel="noopener">this form</a>); requests are handled promptly.</p>
+    <p data-i18n-html="legal3">Spotted a mistake? Use the report form in the item’s details, or <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">open an issue on GitHub</a>. Press, partnerships and other enquiries: <a href="/contact">contact form</a>. Rights holders: please write to legal@merchgraph.app or see <a href="/takedown">how to request a takedown</a>. Requests are, as a rule, handled promptly.</p>
   </div>
 </footer>
 
@@ -1088,7 +1093,7 @@ const STRINGS = {
     toTop: 'Top',
     aboutTitle: 'What this is',
     aboutKhQ: '{{en.aboutKhQ}}', aboutProxyQ: "What's a shipping proxy?", aboutPriceQ: 'What does "original price" mean?',
-    photoCredit: 'photo: {src}',
+    photoCredit: 'Image: {src}',
     gamePackageCredit: '{{en.gamePackageCredit}}',
     findIt: 'Find it',
     proxyNote: "Ships within Japan only — you'll need a shipping-forwarding service to receive this outside Japan.",
@@ -1128,6 +1133,7 @@ const STRINGS = {
     acqx_bonus: 'A bonus given with the purchase of another product.',
     acqx_furoku: 'An extra that came with a magazine.',
     acqx_fan: '{{en.acqx_fan}}',
+    brandMore: 'All items from {b} ›',
     // availability
     av_ww_checkout: 'In shops · ships worldwide', av_jp_retail_new: 'In shops · Japan-only checkout',
     av_jp_secondhand_only: 'Secondhand only (Japan)', av_western_official: 'In shops · ships worldwide',
@@ -1202,11 +1208,11 @@ const STRINGS = {
     aboutVerifyA: '「確認済み（verified）」の商品は、メーカーの公式サイト、正規販売店、または信頼できるゲームメディア（ファミ通、4Gamerなど）で、価格・発売日・型番を直接確かめています。公式の情報が古い場合や、間接的にしか確かめられない場合は「推定（estimated）」として参考価格を載せ、根拠になった情報源を記しています。メルカリやeBayなど、フリマやオークションの出品写真・価格は根拠にしていません。',
     aboutPriceQ: '「定価」とは？',
     aboutPriceA: '発売時の価格を、発売された国の通貨で表示しています（カッコ内は固定レートで換算した参考値で、最新の為替ではありません）。くじ景品のように単品で売られていないものは、くじ1回分の価格を載せています。いまの中古相場は定価から大きく上下していることが多いので、出品価格が妥当かを判断する目安としてお使いください。',
-    browseLabel: 'すべての商品を見る：', browseSeries: 'シリーズ別', browseCharacters: 'キャラクター別', browseAll: '一覧（英語）',
+    browseLabel: 'すべての商品を見る：', browseSeries: 'シリーズ別', browseCharacters: 'キャラクター別', browseAll: '一覧（英語）', browseBrands: 'ファンメイドのブランド一覧（英語）',
     legal1: '{{ja.legal1}}',
     legal2: '{{ja.legal2}}',
-    legal3: '掲載内容の誤りは、各商品の詳細にある報告フォーム、または <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">GitHubのIssue</a> からお知らせください。取材や提携のご相談は <a href="/contact">お問い合わせフォーム</a> から、権利者の方は legal@merchgraph.app までご連絡ください（画像の削除は <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues/new?template=image-takedown.yml" target="_blank" rel="noopener">削除依頼フォーム</a> からも受け付けています）。いずれも速やかに対応します。',
-    photoCredit: '写真：{src}',
+    legal3: '掲載内容の誤りは、各商品の詳細にある報告フォーム、または <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">GitHubのIssue</a> からお知らせください。取材や提携のご相談は <a href="/contact">お問い合わせフォーム</a> から、権利者の方は legal@merchgraph.app までご連絡ください（<a href="/takedown">削除のご依頼について</a>）。受領後、原則として速やかに対応します。',
+    photoCredit: '画像：{src}',
     gamePackageCredit: '{{ja.gamePackageCredit}}',
     findIt: '探す',
     proxyNote: '国内発送のみの商品です。海外へ届けるには代行サービスが必要です。',
@@ -1243,6 +1249,7 @@ const STRINGS = {
     acqx_bonus: '別の商品を買ったときにもらえる特典です。',
     acqx_furoku: '雑誌の付録です。',
     acqx_fan: '{{ja.acqx_fan}}',
+    brandMore: '{b} のほかの品（英語） ›',
     av_ww_checkout: '販売中・海外発送あり', av_jp_retail_new: '新品で購入可（国内）',
     av_jp_secondhand_only: '中古のみ（国内）', av_western_official: '海外の公式ショップで販売中',
     av_event_only: 'イベント限定（入手困難）', av_discontinued: '販売終了', av_unknown: '入手状況は未確認',
@@ -1439,12 +1446,37 @@ function updateListLd(imageMap) {
 }
 
 function isFallbackLogo(url) { return /(^|\/){{fallback_re}}$/.test(String(url || '').split(/[?#]/)[0]); }
-function photoCreditFor(url) {
-  if (isFallbackLogo(url)) return '';
-  return isRepoGameImage(url) ? t('gamePackageCredit') : t('photoCredit', { src: creditFor(url) });
+// 画像の出典（2026-11-27〜、法務を受けた改修 2）：画像の直下に「Image: <出典のサイト名>」をリンクで出す。
+// 画像が配信用のサーバー（Shopify の CDN など）や出典と同じサイトにあるときは、出典のページ（source_url）のサイト名とリンク。
+// それ以外は、画像のあるサイトの名前と、そのサイトのトップへのリンク。scripts/build-item-pages.mjs・web/rail-hero.js と同じ考え方。
+const IMAGE_CDN_RE = /(^|\.)(shopify\.com|shopifycdn\.(com|net)|squarespace-cdn\.com|wixstatic\.com|cloudfront\.net|akamaized\.net|imgix\.net|wp\.com|googleusercontent\.com|bigcommerce\.com|ctfassets\.net|cloudinary\.com|amplience\.net|digitaloceanspaces\.com|kgl-systems\.io)$|(^|\.)cdn\d*\./;
+function siteOf(host) {
+  const p = host.split('.');
+  return p.length > 2 && p[p.length - 1].length === 2 && /^(co|ne|or|ac|go|com|net|org)$/.test(p[p.length - 2]) ? p.slice(-3).join('.') : p.slice(-2).join('.');
 }
+function imageCredit(imgUrl, sourceUrl) {
+  let ih = '';
+  try { ih = new URL(imgUrl).hostname.replace(/^www\./, ''); } catch { return null; }
+  let sh = '';
+  try { sh = new URL(sourceUrl).hostname.replace(/^www\./, ''); } catch { /* no source */ }
+  if (sh && (siteOf(sh) === siteOf(ih) || IMAGE_CDN_RE.test(ih))) return { name: sh, href: sourceUrl };
+  return { name: ih, href: `https://${ih}/` };
+}
+// ファンメイドのブランドのページ（/brands/<slug>、scripts/build-item-pages.mjs の slugOf と同じ作り方）
+const brandSlug = (v) => String(v).normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 function creditFor(url) {
   try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return 'source'; }
+}
+function photoCreditHtml(url, sourceUrl) {
+  if (!url || isFallbackLogo(url)) return '';
+  if (isRepoGameImage(url)) {
+    const src = sourceUrlsOf(sourceUrl)[0];
+    return src ? `<a href="${escapeHtml(src)}" target="_blank" rel="noopener nofollow">${escapeHtml(t('gamePackageCredit'))}</a>` : escapeHtml(t('gamePackageCredit'));
+  }
+  const c = imageCredit(url, sourceUrlsOf(sourceUrl)[0] || '');
+  if (!c) return '';
+  const [pre, post] = t('photoCredit', { src: '\u0000' }).split('\u0000');
+  return `${escapeHtml(pre)}<a href="${escapeHtml(c.href)}" target="_blank" rel="noopener nofollow">${escapeHtml(c.name)}</a>${escapeHtml(post || '')}`;
 }
 
 // 画像が無い・読み込めないときは、常にサイトの代わりのロゴを出す（棒人間などの線画アイコンは使わない）。
@@ -1637,13 +1669,13 @@ function displayCharacters(item, detail) {
   const list = ja.length ? ja : (item.character_en || []);
   return list.join(' / ');
 }
-function artHtml(item, imageMap) {
+function artHtml(item, imageMap, detail) {
   const photoUrl = (imageMap || {})[item.sku_id] || '';
   // 読み込みに失敗したら代わりのロゴに差し替え、クレジットも消す（代わりのロゴにはクレジットを出さない）。
   const errorHandler = `${FALLBACK_ONERROR}const credit=this.parentNode.parentNode.querySelector('.photo-credit');if(credit)credit.textContent='';`;
   return {
     art: `<img class="photo" src="${escapeHtml(photoUrl || FALLBACK_LOGO)}" alt="${escapeHtml(item.name_en)}" loading="lazy" onerror="${escapeHtml(errorHandler)}">`,
-    credit: photoUrl ? photoCreditFor(photoUrl) : '',
+    credit: photoCreditHtml(photoUrl, detail?.source_url || item.source_url),
   };
 }
 
@@ -1673,14 +1705,14 @@ function renderCard(item, detail, imageMap) {
   const isUnofficial = detail && detail.official === false;
   const badge = badgeFor(hint, worldwideCheckout, isUnofficial);
   const character = displayCharacters(item, detail);
-  const a = artHtml(item, imageMap);
+  const a = artHtml(item, imageMap, detail);
   return `
     <div class="card ${CARD_STYLE}" style="--accent:${borderColorFor(item.sku_id)};--suit:${suitColorFor(item)}" data-sku="${escapeHtml(item.sku_id)}" tabindex="0" role="button" aria-label="${escapeHtml(displayName(item, detail))}">
       <div class="card-rect"><div class="card-win">
         ${CARD_STYLE === 'wanted' ? '<div class="wanted-head" aria-hidden="true">WANTED</div>' : ''}
         ${CARD_STYLE === 'orb' ? `<i class="orb-mark" aria-hidden="true">${orbStars((orbSeq++ % 7) + 1)}</i>` : ''}
         <div class="card-art">${a.art}</div>
-        <div class="photo-credit">${escapeHtml(a.credit)}</div>
+        <div class="photo-credit">${a.credit}</div>
         <div class="card-body">
           <div class="card-tags">
             ${isUnofficial ? `<span class="tag fan">${escapeHtml(t('fanMade'))}</span>` : acquisitionTag(detail, item)}
@@ -1889,14 +1921,21 @@ async function renderSeasonShelf() {
       </div>
       <div class="season-row">${items.map((item) => {
         const photo = (imageMap || {})[item.sku_id] || '';
-        return `<button type="button" class="mini" data-sku="${escapeHtml(item.sku_id)}">
+        // 写真の下に出典のリンクを置くので、カードは button ではなく role="button" の div（ボタンの中にリンクは置けない。2026-11-27）
+        return `<div class="mini" role="button" tabindex="0" data-sku="${escapeHtml(item.sku_id)}">
           <div class="m-art"><img src="${escapeHtml(photo || FALLBACK_LOGO)}" alt="" loading="lazy" onerror="${FALLBACK_ONERROR}"></div>
+          <div class="photo-credit">${photoCreditHtml(photo, item.source_url)}</div>
           ${originTag(item)}
           <div class="m-name">${escapeHtml(displayName(item, null))}</div>
-        </button>`;
+        </div>`;
       }).join('')}</div>`;
     shelf.hidden = false;
+    shelf.addEventListener('keydown', (e) => {
+      const mini = (e.key === 'Enter' || e.key === ' ') && e.target.closest('.mini[data-sku]');
+      if (mini) { e.preventDefault(); openItem(mini.dataset.sku); }
+    });
     shelf.addEventListener('click', (e) => {
+      if (e.target.closest('a')) return; // 出典のリンクはそのまま開く
       const mini = e.target.closest('.mini[data-sku]');
       if (mini) { openItem(mini.dataset.sku); return; }
       if (e.target.closest('#seasonAll')) {
@@ -2249,7 +2288,7 @@ function proxyNoteHtml(chans = []) {
       </div>`;
 }
 function panelHtml(item, detail, imageMap, catalog) {
-  const a = artHtml(item, imageMap);
+  const a = artHtml(item, imageMap, detail);
   const isUnofficial = detail && detail.official === false;
   const acq = detail?.acquisition_type;
   const howKey = isUnofficial ? 'acqx_fan' : (acq && STRINGS.en[`acqx_${acq}`] ? `acqx_${acq}` : '');
@@ -2274,7 +2313,7 @@ function panelHtml(item, detail, imageMap, catalog) {
 
   return `
     <div class="panel-art">${a.art}</div>
-    <div class="photo-credit">${escapeHtml(a.credit)}</div>
+    <div class="photo-credit">${a.credit}</div>
     <div class="panel-tags" style="margin-top:12px">
       ${isUnofficial ? `<span class="tag fan">${escapeHtml(t('fanMade'))}</span>` : acquisitionTag(detail, item)}
       ${originTag(item)}
@@ -2296,7 +2335,7 @@ function panelHtml(item, detail, imageMap, catalog) {
       ${price.money && !isDrawPrice(item, detail) && !NOT_SOLD_TYPES.includes(detail?.acquisition_type) ? `<p class="sub">${escapeHtml(t('priceExplain'))}</p>` : ''}
     </div>
 
-    ${howKey ? `<div class="panel-section"><h3>${escapeHtml(t('secHow'))}</h3><p>${escapeHtml(t(howKey))}</p></div>` : ''}
+    ${howKey ? `<div class="panel-section"><h3>${escapeHtml(t('secHow'))}</h3><p>${escapeHtml(t(howKey))}</p>${isUnofficial && detail?.line?.maker ? `<p class="sub"><a href="/brands/${encodeURIComponent(brandSlug(detail.line.maker))}">${escapeHtml(t('brandMore', { b: detail.line.maker }))}</a></p>` : ''}</div>` : ''}
 
     <div class="panel-section">
       <h3>${escapeHtml(t('secWhere'))}</h3>

@@ -11,7 +11,7 @@
     "sky_bottom": "#F3B672"
   },
   "texture": "",
-  "watermark": "db-logo.png をページ背景に薄く固定表示（KH・鬼滅・ONE PIECE と同じ。2026-11-26 Marley 指示）",
+  "watermark": "",
   "music": "",
   "legal_notes": "公式ロゴ・キービジュアル・キャラクターの絵を部品に使わない。玉は自前の描画（CSS のグラデーション＋自前の SVG の星）で、作中の画像は使わない。案B「カプセル」は不採用（値段の文字に継ぎ目がかかるため）",
   "docs": [

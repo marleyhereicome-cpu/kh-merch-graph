@@ -25,10 +25,10 @@
   const STR = {
     en: { aria: 'Featured merch. Drag, swipe or use the arrow keys.', prev: 'Previous', next: 'Next', open: 'See this item',
       released: 'Released {d}', perDraw: 'per draw', origPrice: 'Original price', drawPrice: 'One draw',
-      more: 'Scroll down to search the full catalog', moreShort: 'Full catalog below' },
+      more: 'Scroll down to search the full catalog', moreShort: 'Full catalog below', credit: 'Image: ' },
     ja: { aria: 'おすすめのグッズ。ドラッグ、スワイプ、矢印キーで切り替えられます。', prev: '前へ', next: '次へ', open: 'このグッズを見る',
       released: '{d}発売', perDraw: '1回', origPrice: '発売時の定価', drawPrice: 'くじ1回',
-      more: '下に続く（検索とカタログ全体）', moreShort: '下に続く' },
+      more: '下に続く（検索とカタログ全体）', moreShort: '下に続く', credit: '画像：' },
   };
   const s_ = (k, v = {}) => (STR[JA ? 'ja' : 'en'][k] ?? k).replace(/\{(\w+)\}/g, (_, x) => v[x] ?? '');
   const esc = (x) => escapeHtml(String(x ?? ''));
@@ -54,6 +54,16 @@
     return { main: approx + (JA ? `${jpy.toLocaleString('ja-JP')}円` : `¥${jpy.toLocaleString('en-US')}`), sub: '' };
   }
   const priceLabel = (it) => (it.basis === 'draw_price' ? s_('drawPrice') : s_('origPrice'));
+  // 画像の出典（2026-11-27〜）：正面のカードの画像の出典を「Image: <サイト名>」のリンクで出す。templates/ip/index.html の imageCredit と同じ考え方
+  const IMAGE_CDN_RE = /(^|\.)(shopify\.com|shopifycdn\.(com|net)|squarespace-cdn\.com|wixstatic\.com|cloudfront\.net|akamaized\.net|imgix\.net|wp\.com|googleusercontent\.com|bigcommerce\.com|ctfassets\.net|cloudinary\.com|amplience\.net|digitaloceanspaces\.com|kgl-systems\.io)$|(^|\.)cdn\d*\./;
+  const siteOf = (h) => { const p = h.split('.'); return p.length > 2 && p[p.length - 1].length === 2 && /^(co|ne|or|ac|go|com|net|org)$/.test(p[p.length - 2]) ? p.slice(-3).join('.') : p.slice(-2).join('.'); };
+  function creditOf(it) {
+    let ih = '', sh = '';
+    try { ih = new URL(it.img).hostname.replace(/^www\./, ''); } catch { return null; }
+    try { sh = new URL(it.src).hostname.replace(/^www\./, ''); } catch { /* no source */ }
+    if (sh && (siteOf(sh) === siteOf(ih) || IMAGE_CDN_RE.test(ih))) return { name: sh, href: safeUrl(it.src) };
+    return { name: ih, href: `https://${ih}/` };
+  }
 
   // 星の玉（skin=orb）：星 1〜7 個の配置。作品ページの一覧のカード（templates/ip/index.html の orbStars）と同じ形
   const ORB_LAYOUT = {
@@ -108,7 +118,7 @@
       <div class="rh-rail" role="group" aria-roledescription="carousel" aria-label="${esc(s_('aria'))}" tabindex="0"><div class="rh-stage"></div></div>
       <button type="button" class="rh-arrow prev" aria-label="${esc(s_('prev'))}"><svg viewBox="0 0 24 12"><path d="M6 1L1 6l5 5M1 6h23"/></svg></button>
       <button type="button" class="rh-arrow next" aria-label="${esc(s_('next'))}"><svg viewBox="0 0 24 12"><path d="M18 1l5 5-5 5M23 6H0"/></svg></button>
-      <div class="rh-cap" aria-live="polite"><div class="rh-title"></div><div class="rh-meta"></div><div class="rh-price"></div>
+      <div class="rh-cap" aria-live="polite"><div class="rh-title"></div><div class="rh-meta"></div><div class="rh-price"></div><div class="rh-credit"></div>
         <button type="button" class="rh-open">${esc(s_('open'))}</button></div>
       ${SKIN === 'orb' ? `<div class="rh-seven" aria-hidden="true">${[1, 2, 3, 4, 5, 6, 7].map((n) => `<i class="rh-orb">${orbStars(n)}</i>`).join('')}</div>` : ''}
       <a class="rh-more" href="#discover"><i aria-hidden="true"></i><span class="long">${esc(s_('more'))}</span><span class="short">${esc(s_('moreShort'))}</span></a>`;
@@ -137,6 +147,8 @@
       root.querySelector('.rh-title').textContent = nameOf(it);
       root.querySelector('.rh-meta').textContent = `${kindOf(it)} · ${s_('released', { d: fmtDate(it.date) })}`;
       root.querySelector('.rh-price').textContent = SKIN === 'wanted' ? '' : `${priceLabel(it)} ${p.main}${p.sub ? `（${p.sub}）` : ''}`;
+      const cr = creditOf(it);
+      root.querySelector('.rh-credit').innerHTML = cr ? `${esc(s_('credit'))}<a href="${esc(cr.href)}" target="_blank" rel="noopener nofollow">${esc(cr.name)}</a>` : '';
       cards.forEach((c, k) => { c.el.classList.toggle('on', k === i); c.el.tabIndex = k === i ? 0 : -1; });
       if (SKIN === 'orb') lightOrb(i % 7);
       root.querySelector('.rh-arrow.prev').disabled = i === 0;
