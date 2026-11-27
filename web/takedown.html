@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Takedown requests | Merchgraph</title>
+<meta name="description" content="How rights holders and brands can ask Merchgraph to remove an item, an image or a brand." />
+<link rel="canonical" href="https://merchgraph.app/takedown" />
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<!--
+  削除依頼のページ（2026-11-27〜、claude/法務を受けた改修_依頼_2026-11-27.md の 3）。
+  - 対応の期限の数字は書かない（「受領後、原則として速やかに対応します」）。内部の目標は claude/ファンメイド掲載ルール.md §1。
+  - DMCA の指定代理人：米国著作権局に登録したら、下の <script> の DMCA_AGENT に登録内容を入れる（name・address・phone・email・registration）。
+    null の間は「登録の手続き中。それまでは legal@ へ」と出る。
+-->
+<style>
+  :root {
+    color-scheme: light;
+    --paper: #F7F3EC; --ink: #1C1B29; --ink-soft: #5A5646; --muted: #8A806B;
+    --line: #E4DCC8; --line-2: #C9BBA0; --navy: #3D4A73; --gold: #C9A227;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Zen Kaku Gothic New', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--paper); color: var(--ink); }
+  a { color: var(--navy); }
+  a:hover { color: var(--gold); }
+  h1 { font-family: 'Shippori Mincho', serif; font-weight: 500; margin: 0 0 8px; font-size: 28px; }
+  h2 { font-family: 'Shippori Mincho', serif; font-weight: 700; font-size: 18px; margin: 28px 0 8px; }
+  .site-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 24px; border-bottom: 1px solid var(--line); }
+  .brand { font-family: 'Shippori Mincho', serif; font-size: 20px; text-decoration: none; color: var(--ink); }
+  .lang-switch { font-size: 13px; text-decoration: none; color: var(--ink); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-2); }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 24px 24px 64px; line-height: 1.8; font-size: 15px; }
+  .back { display: inline-block; font-size: 13px; text-decoration: none; margin-bottom: 18px; }
+  .lead { color: var(--ink-soft); }
+  .box { background: #FFFFFF; border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; margin: 12px 0; }
+  .mail { font-size: 18px; font-weight: 700; }
+  ol, ul { padding-left: 1.3em; margin: 6px 0; }
+  li { margin: 4px 0; }
+  .small { font-size: 13px; color: var(--ink-soft); }
+  [hidden] { display: none !important; }
+  @media (max-width: 600px) { .site-header, .wrap { padding-left: 16px; padding-right: 16px; } }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="/">Merchgraph</a>
+  <a class="lang-switch" id="langSwitch" href="?lang=ja" lang="ja">日本語</a>
+</header>
+<main class="wrap">
+  <a class="back" href="/" data-i18n="back">‹ Back</a>
+  <h1 data-i18n="title">Takedown requests</h1>
+  <p class="lead" data-i18n="lead">Merchgraph is a reference catalog of official and fan-made merchandise. We don’t sell anything. If you own the rights to something shown here, or you run a brand listed here, and you want an item, an image or your brand removed, please write to us. We will, as a rule, act promptly once we receive your request.</p>
+
+  <div class="box">
+    <div data-i18n="sendTo">Send requests to</div>
+    <div class="mail"><a href="mailto:legal@merchgraph.app">legal@merchgraph.app</a></div>
+  </div>
+
+  <h2 data-i18n="h2what">What to include</h2>
+  <ol>
+    <li data-i18n="w1">Your name, the organisation you act for, and how we can reach you (email address).</li>
+    <li data-i18n="w2">What you own or represent: the work, trademark or brand concerned.</li>
+    <li data-i18n="w3">The Merchgraph page(s) concerned (the URL of each item page, or the brand page), and whether you want the whole item, only the image, or the whole brand removed.</li>
+    <li data-i18n="w4">A statement that you believe in good faith that the use is not authorised by the rights holder, its agent or the law.</li>
+    <li data-i18n="w5">A statement that the information in your request is accurate and that you are the rights holder or are authorised to act for them.</li>
+    <li data-i18n="w6">Your physical or electronic signature (typing your full name is fine).</li>
+  </ol>
+  <p class="small" data-i18n="wNote">If something is missing we may write back to ask for it. Brands asking us to remove their own listings only need items 1, 3 and a short note that the request comes from the brand.</p>
+
+  <h2 data-i18n="h2how">What happens next</h2>
+  <ul>
+    <li data-i18n="n1">We confirm that we received your request, and, as a rule, act on it promptly.</li>
+    <li data-i18n="n2">We remove the item, the image or the brand as requested, and reply when it is done.</li>
+    <li data-i18n="n3">We keep a record of each request (date received, who sent it, the pages concerned, what we did and when).</li>
+  </ul>
+
+  <h2 data-i18n="h2repeat">Repeated requests</h2>
+  <p data-i18n="repeat">If we receive valid requests about the same brand’s items more than once, we stop listing that brand.</p>
+
+  <h2 data-i18n="h2dmca">DMCA designated agent</h2>
+  <div class="box" id="dmca">
+    <div id="dmcaPending" data-i18n="dmcaPending">Our registration of a designated agent with the U.S. Copyright Office is in progress. Until it is complete, please send DMCA notices to legal@merchgraph.app.</div>
+    <dl id="dmcaAgent" hidden></dl>
+  </div>
+
+  <h2 data-i18n="h2other">Other questions</h2>
+  <p data-i18n-html="other">A mistake in an item (wrong price, wrong name)? Use the report form in the item’s details. For anything else, use the <a href="/contact">contact form</a>.</p>
+</main>
+<script>
+// DMCA の指定代理人：登録後に、ここへ登録内容を入れる（例：{ name: '...', address: '...', phone: '...', email: 'legal@merchgraph.app', registration: 'DMCA-1234567' }）。
+const DMCA_AGENT = null;
+
+const STRINGS = {
+  ja: {
+    back: '‹ 戻る', title: '削除のご依頼',
+    lead: 'Merchgraph は、公式グッズとファンメイドのグッズを紹介する参照用のカタログです。販売はしていません。ここに載っているものの権利をお持ちの方、または掲載されているブランドの方で、商品・画像・ブランドの掲載を外してほしい場合は、下記までご連絡ください。受領後、原則として速やかに対応します。',
+    sendTo: '受付',
+    h2what: 'ご依頼に書いていただきたいこと',
+    w1: 'お名前、代理する団体の名前、連絡先（メールアドレス）。',
+    w2: '権利をお持ちの、または代理している対象（作品・商標・ブランド）。',
+    w3: '対象の Merchgraph のページ（商品ページまたはブランドのページの URL）と、商品ごと外すか、画像だけ外すか、ブランドごと外すか。',
+    w4: 'その利用が、権利者・その代理人・法律のいずれによっても許されていないと誠実に信じている旨。',
+    w5: 'ご依頼の内容が正確であり、ご自身が権利者または権利者から代理を認められた方である旨。',
+    w6: '署名（電子署名、またはフルネームの記入で構いません）。',
+    wNote: '足りない点があれば、こちらからお尋ねすることがあります。ブランドの方がご自身の品の掲載を外すよう依頼される場合は、1・3と、ブランドご本人からの依頼である旨だけで構いません。',
+    h2how: 'その後の流れ',
+    n1: 'ご依頼を受け取ったことをお知らせし、原則として速やかに対応します。',
+    n2: 'ご依頼に沿って、商品・画像・ブランドの掲載を外し、完了したらお知らせします。',
+    n3: 'ご依頼ごとに記録を残します（受領の日時、ご依頼の方、対象のページ、対応の内容と完了の日時）。',
+    h2repeat: '依頼が重なったブランドの扱い',
+    repeat: '同じブランドの品について、正当なご依頼を繰り返し受けた場合は、そのブランドの掲載をやめます。',
+    h2dmca: 'DMCA の指定代理人',
+    dmcaPending: '米国著作権局への指定代理人の登録を手続き中です。登録が済むまでは、DMCA に基づく通知も legal@merchgraph.app にお送りください。',
+    h2other: 'そのほかのお問い合わせ',
+    other: '商品の掲載内容の誤り（値段・名前など）は、各商品の詳細にある報告フォームからお知らせください。そのほかは<a href="/contact">お問い合わせフォーム</a>からどうぞ。',
+  },
+  agent: {
+    en: { name: 'Name', address: 'Address', phone: 'Phone', email: 'Email', registration: 'Registration number' },
+    ja: { name: '名前', address: '住所', phone: '電話', email: 'メール', registration: '登録番号' },
+  },
+};
+const LANG_KEY = 'khmerch-lang';
+function getLang() {
+  const q = new URLSearchParams(location.search).get('lang');
+  if (q === 'ja' || q === 'en') { try { localStorage.setItem(LANG_KEY, q); } catch {} return q; }
+  try { const s = localStorage.getItem(LANG_KEY); if (s === 'ja' || s === 'en') return s; } catch {}
+  return (navigator.language || '').startsWith('ja') ? 'ja' : 'en';
+}
+const LANG = getLang();
+if (LANG === 'ja') {
+  document.documentElement.lang = 'ja';
+  document.title = '削除のご依頼 | Merchgraph';
+  document.querySelectorAll('[data-i18n]').forEach((el) => { const v = STRINGS.ja[el.dataset.i18n]; if (v !== undefined) el.textContent = v; });
+  document.querySelectorAll('[data-i18n-html]').forEach((el) => { const v = STRINGS.ja[el.dataset.i18nHtml]; if (v !== undefined) el.innerHTML = v; });
+  const sw = document.getElementById('langSwitch'); sw.textContent = 'English'; sw.href = '?lang=en'; sw.lang = 'en';
+}
+if (DMCA_AGENT) {
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const L = STRINGS.agent[LANG];
+  const dl = document.getElementById('dmcaAgent');
+  dl.innerHTML = Object.keys(L).filter((k) => DMCA_AGENT[k]).map((k) => `<dt>${esc(L[k])}</dt><dd>${esc(DMCA_AGENT[k])}</dd>`).join('');
+  dl.hidden = false;
+  document.getElementById('dmcaPending').hidden = true;
+}
+</script>
+</body>
+</html>

@@ -92,8 +92,14 @@ if (location.hash.startsWith('#item=')) location.replace('/kingdomhearts/' + loc
     transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
   .series-card::before { content: ''; display: block; height: 6px; background: var(--accent); }
-  a.series-card:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(28,27,41,0.10); color: var(--ink); }
-  a.series-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+  a.series-card:hover, .series-card.live:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(28,27,41,0.10); color: var(--ink); }
+  a.series-card:focus-visible, .series-card.live:has(.series-link:focus-visible) { outline: 2px solid var(--gold); outline-offset: 3px; }
+  /* 公開中の作品のカード：カード全体を作品ページへのリンクにしつつ（作品名のリンクを広げる）、写真の出典のリンクは別に押せるようにする（2026-11-27） */
+  .series-link { color: inherit; text-decoration: none; outline: none; }
+  .series-link::after { content: ''; position: absolute; inset: 0; z-index: 1; }
+  .strip-credit { font-size: 10.5px; color: var(--muted); padding: 5px 12px 0; line-height: 1.5; position: relative; z-index: 2; }
+  .strip-credit:empty { display: none; }
+  .strip-credit a { color: inherit; }
   .strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); height: 112px; }
   .strip div { background: #FFFFFF; display: flex; align-items: center; justify-content: center; overflow: hidden; }
   .strip img { width: 100%; height: 100%; object-fit: contain; padding: 8px; mix-blend-mode: multiply; }
@@ -186,6 +192,7 @@ if (location.hash.startsWith('#item=')) location.replace('/kingdomhearts/' + loc
       <input id="seriesSearch" type="search" autocomplete="off" data-i18n-placeholder="searchPh" placeholder="Find a series" aria-label="Find a series" />
     </div>
     <div class="series-grid" id="seriesGrid">{{static_series}}</div>
+    <p class="suggest brands-link" data-i18n-html="brandsLink">Looking for fan-made merch? See the <a href="/brands">fan-made brands</a>: independent brands that design their own items.</p>
     <p class="suggest" data-i18n-html="suggest">Is there a series we should add next? <a href="/contact?topic=series">Tell us</a>.</p>
   </section>
 
@@ -214,7 +221,7 @@ if (location.hash.startsWith('#item=')) location.replace('/kingdomhearts/' + loc
   <div class="legal">
     <p data-i18n="legal1">An independent project. Not affiliated with, endorsed or sponsored by the rights holders of any series listed here, or by any maker, shop, marketplace or shipping service mentioned on this site. Nothing is sold on this site.</p>
     <p data-i18n="legal2">All series titles, characters, names, logos and artwork belong to their respective owners; each series page names them. Product photos are shown only to identify items, with their source credited.</p>
-    <p data-i18n-html="legal3"><a href="/contact">Contact</a> · Rights holders: <a href="mailto:legal@merchgraph.app">legal@merchgraph.app</a> · <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">Report an error on GitHub</a></p>
+    <p data-i18n-html="legal3"><a href="/contact">Contact</a> · Rights holders: <a href="mailto:legal@merchgraph.app">legal@merchgraph.app</a> (<a href="/takedown">takedown requests</a>) · <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">Report an error on GitHub</a></p>
   </div>
 </footer>
 
@@ -243,7 +250,7 @@ const SEARCH_FROM = 8; // the series filter appears once there are this many ser
 const STRINGS = {
   en: {
     count: '{n} items', soonBadge: 'In preparation', soonNote: 'Catalog in preparation',
-    browse: 'Browse ›', meta: '{s} series · {n} items · every one sourced', metaOne: '{n} items · every one sourced',
+    browse: 'Browse ›', imagesCredit: 'Images:', meta: '{s} series · {n} items · every one sourced', metaOne: '{n} items · every one sourced',
     noSeries: 'No series matches that yet.',
   },
   ja: {
@@ -257,6 +264,7 @@ const STRINGS = {
     p2: '知る', p2t: '何の商品か、メーカー、発売日、発売時の定価が分かります。くじ景品は1回あたりの価格です。',
     p3: '手に入れる', p3t: 'いま見つかる場所と、海外から買うときに代行サービスが要るかが分かります。',
     seriesTitle: '作品から探す', searchPh: '作品名で絞り込む',
+    brandsLink: 'ファンメイドのグッズは <a href="/brands">ファンメイドのブランド一覧（英語）</a> から探せます。ファンが自分でデザインしている独立したブランドです。',
     suggest: '取り上げてほしい作品があれば、<a href="/contact?topic=series">お気軽にお知らせください</a>。',
     agentsTitle: 'AIアシスタントに聞く',
     agentsText: 'MerchgraphのMCPサーバーをつなぐと、AIアシスタントが出品タイトルから商品を特定し、定価や代行サービスの要否を答えられるようになります。無料で、登録は要りません。',
@@ -269,9 +277,9 @@ const STRINGS = {
     aboutP2: 'Merchgraphは商品を販売していません。売りたい在庫がないので、どこで見つかるか、発売時にいくらだったかを、お店を選ばずそのままお伝えできます。',
     legal1: '当サイトは独立したプロジェクトです。掲載作品の権利者や、サイト内で紹介しているメーカー・ショップ・フリマサイト・代行サービスとは一切関係がなく、提携・公認・協賛を受けていません。当サイトでは商品を販売していません。',
     legal2: '作品タイトル、キャラクター、名称、ロゴ、イラスト等の権利は各権利者に帰属します（権利者名は各作品のページに記載しています）。商品写真は商品を識別する目的に限り、出典を明記して掲載しています。',
-    legal3: '<a href="/contact">お問い合わせ</a> ・ 権利者の方：<a href="mailto:legal@merchgraph.app">legal@merchgraph.app</a> ・ <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">GitHubで誤りを報告</a>',
+    legal3: '<a href="/contact">お問い合わせ</a> ・ 権利者の方：<a href="mailto:legal@merchgraph.app">legal@merchgraph.app</a>（<a href="/takedown">削除のご依頼</a>） ・ <a href="https://github.com/marleyhereicome-cpu/kh-merch-graph/issues" target="_blank" rel="noopener">GitHubで誤りを報告</a>',
     count: '{n}件', soonBadge: '準備中', soonNote: 'カタログを準備しています',
-    browse: '一覧を見る ›', meta: '{s}作品・{n}件を掲載（すべて出典つき）', metaOne: '{n}件を掲載（すべて出典つき）',
+    browse: '一覧を見る ›', imagesCredit: '画像：', meta: '{s}作品・{n}件を掲載（すべて出典つき）', metaOne: '{n}件を掲載（すべて出典つき）',
     noSeries: 'その名前の作品はまだありません。',
   },
 };
@@ -318,13 +326,22 @@ async function itemCount(ip) {
     return JSON.parse(body.result.content[0].text).total_matches ?? null;
   } catch { return null; }
 }
-const FALLBACK_IMG = /fallback-logo|kh-logo|no-photo/;
-async function stripPhotos(url) {
+// カードの4枚の写真は、作品ページのファーストビューと同じ商品の一覧（<作品>/shelf.json：画像と出典のURLつき）から選ぶ。
+// 写真の下に、出典のサイト名をリンクで出す（2026-11-27〜、法務を受けた改修 2。作品ページの imageCredit と同じ考え方）。
+const IMAGE_CDN_RE = /(^|\.)(shopify\.com|shopifycdn\.(com|net)|squarespace-cdn\.com|wixstatic\.com|cloudfront\.net|akamaized\.net|imgix\.net|wp\.com|googleusercontent\.com|bigcommerce\.com|ctfassets\.net|cloudinary\.com)$/;
+const hostOf = (u) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; } };
+const siteOf = (h) => { const p = h.split('.'); return p.length > 2 && p[p.length - 1].length === 2 && /^(co|ne|or|ac|go|com|net|org)$/.test(p[p.length - 2]) ? p.slice(-3).join('.') : p.slice(-2).join('.'); };
+function creditOf(img, src) {
+  const ih = hostOf(img), sh = hostOf(src);
+  if (!ih) return null;
+  return sh && (siteOf(sh) === siteOf(ih) || IMAGE_CDN_RE.test(ih)) ? { name: sh, href: src } : { name: ih, href: `https://${ih}/` };
+}
+async function stripPhotos(s) {
   try {
-    const map = await (await fetch(url)).json();
-    const photos = Object.values(map).filter((u) => typeof u === 'string' && u && !FALLBACK_IMG.test(u));
-    for (let i = photos.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [photos[i], photos[j]] = [photos[j], photos[i]]; }
-    return photos.slice(0, 4);
+    const data = await (await fetch(`${s.path}shelf.json`)).json();
+    const items = (data.items || []).filter((it) => /^https:\/\//.test(it.img || ''));
+    for (let i = items.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [items[i], items[j]] = [items[j], items[i]]; }
+    return items.slice(0, 4).map((it) => ({ img: it.img, credit: creditOf(it.img, /^https?:\/\//.test(it.src || '') ? it.src : '') }));
   } catch { return []; }
 }
 
@@ -346,15 +363,16 @@ function cardHtml(s, i) {
     </div>`;
   }
   const href = s.path + (JA ? '?lang=ja' : '');
-  return `<a class="series-card" href="${esc(href)}" style="--accent:${s.accent}" data-i="${i}">
+  return `<div class="series-card live" style="--accent:${s.accent}" data-i="${i}">
     <div class="strip" aria-hidden="true"><div></div><div></div><div></div><div></div></div>
+    <div class="strip-credit"></div>
     <div class="series-body">
-      <div class="series-name">${esc(name)}</div>
+      <a class="series-link" href="${esc(href)}"><div class="series-name">${esc(name)}</div></a>
       ${alt ? `<div class="series-alt">${esc(alt)}</div>` : ''}
       <div class="series-tag">${esc(tag)}</div>
       <div class="series-foot"><span class="count" data-count></span><span class="go">${esc(t('browse'))}</span></div>
     </div>
-  </a>`;
+  </div>`;
 }
 
 function render(filter = '') {
@@ -372,13 +390,13 @@ function render(filter = '') {
 const counts = {};
 const photoCache = {};
 async function fillLiveCards() {
-  for (const card of document.querySelectorAll('a.series-card')) {
+  for (const card of document.querySelectorAll('.series-card.live')) {
     const s = SERIES[Number(card.dataset.i)];
     const countEl = card.querySelector('[data-count]');
     if (counts[s.ip] === undefined) counts[s.ip] = itemCount(s.ip);
     counts[s.ip].then((n) => { if (n) countEl.innerHTML = t('count', { n: `<b>${n.toLocaleString('en-US')}</b>` }); });
     if (s.images) {
-      if (!photoCache[s.ip]) photoCache[s.ip] = stripPhotos(s.images);
+      if (!photoCache[s.ip]) photoCache[s.ip] = stripPhotos(s);
       photoCache[s.ip].then((photos) => {
         // 公開したばかりで写真の対応表がまだ無い作品は、準備中のときと同じカード画像（banner）を出す（2026-11-11）
         if (!photos.length && s.banner) {
@@ -387,13 +405,18 @@ async function fillLiveCards() {
           return;
         }
         const cells = card.querySelectorAll('.strip div');
-        photos.forEach((u, k) => {
+        photos.forEach((p, k) => {
           if (!cells[k]) return;
           const img = new Image();
-          img.alt = ''; img.loading = 'lazy'; img.src = u;
+          img.alt = ''; img.loading = 'lazy'; img.src = p.img;
           img.onerror = () => img.remove();
           cells[k].appendChild(img);
         });
+        // 写真の出典（同じサイトはまとめて1回）
+        const seen = new Set();
+        const credits = photos.map((p) => p.credit).filter((c) => c && !seen.has(c.name) && seen.add(c.name));
+        const box = card.querySelector('.strip-credit');
+        if (box && credits.length) box.innerHTML = `${esc(t('imagesCredit'))} ${credits.map((c) => `<a href="${esc(c.href)}" target="_blank" rel="noopener nofollow">${esc(c.name)}</a>`).join(' · ')}`;
       });
     }
   }

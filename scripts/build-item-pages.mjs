@@ -112,6 +112,7 @@ const PAGE_CSS = `  :root { color-scheme: light; --paper: #F7F3EC; --ink: #1C1B2
   .photo { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px; max-width: 320px; margin: 16px 0 4px; }
   .photo img { width: 100%; height: auto; display: block; }
   .credit { font-size: 11px; color: var(--muted); }
+  .credit a { color: inherit; }
   section { border-top: 1px solid var(--line); margin-top: 18px; padding-top: 12px; }
   h2 { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
   p { margin: 0 0 6px; }
@@ -198,12 +199,35 @@ function channelsOf(s) {
   return names;
 }
 
-function imageFor(sku, images, series) {
+// 画像の出典（2026-11-27〜、法務を受けた改修 2）：画像の直下に「Image: <出典のサイト名>」をリンクで出す。
+// templates/ip/index.html の imageCredit と同じ考え方：画像が配信用のサーバー（Shopify の CDN など）か出典と同じサイトにあれば、
+// 出典のページのサイト名とリンク。それ以外は画像のあるサイトの名前と、そのトップへのリンク。
+export const IMAGE_CDN_RE = /(^|\.)(shopify\.com|shopifycdn\.(com|net)|squarespace-cdn\.com|wixstatic\.com|cloudfront\.net|akamaized\.net|imgix\.net|wp\.com|googleusercontent\.com|bigcommerce\.com|ctfassets\.net|cloudinary\.com)$/;
+const siteOf = (host) => {
+  const p = host.split(".");
+  return p.length > 2 && p[p.length - 1].length === 2 && /^(co|ne|or|ac|go|com|net|org)$/.test(p[p.length - 2]) ? p.slice(-3).join(".") : p.slice(-2).join(".");
+};
+export function imageCredit(imgUrl, sourceUrl) {
+  let ih = "";
+  try { ih = new URL(imgUrl).hostname.replace(/^www\./, ""); } catch { return null; }
+  let sh = "";
+  try { sh = new URL(sourceUrl).hostname.replace(/^www\./, ""); } catch { /* no source */ }
+  if (sh && (siteOf(sh) === siteOf(ih) || IMAGE_CDN_RE.test(ih))) return { name: sh, href: sourceUrl };
+  return { name: ih, href: `https://${ih}/` };
+}
+
+function imageFor(sku, images, series, sourceUrl) {
   const v = images[sku];
   if (!v || FALLBACK_IMAGE_RE.test(v.split(/[?#]/)[0])) return null;
-  if (/^https?:\/\//.test(v)) return { url: v, credit: `photo: ${hostOf(v)}` };
+  if (/^https?:\/\//.test(v)) {
+    const c = imageCredit(v, sourceUrl);
+    return { url: v, credit: c ? `Image: <a href="${esc(c.href)}" rel="noopener nofollow">${esc(c.name)}</a>` : "" };
+  }
   // リポジトリに置いたゲームのパッケージ画像（images/games/…）。CLAUDE.md の例外。
-  return { url: `${ORIGIN}${series.path}${v.replace(/^\.?\//, "")}`, credit: series.packageCredit };
+  return {
+    url: `${ORIGIN}${series.path}${v.replace(/^\.?\//, "")}`,
+    credit: sourceUrl ? `Image: <a href="${esc(sourceUrl)}" rel="noopener nofollow">${esc(series.packageCredit)}</a>` : `Image: ${esc(series.packageCredit)}`,
+  };
 }
 
 // ---- 同じ名前の商品の見分け（2026-11-10） ----
@@ -250,7 +274,7 @@ function renderItem(s, line, images, series, titleSuffix = "", related = "") {
   const nameJa = s.name_ja && s.name_ja !== name ? s.name_ja : "";
   const characters = splitPipe(s.character_en).join(" / ");
   const price = priceInfo(s);
-  const img = imageFor(s.sku_id, images, series);
+  const img = imageFor(s.sku_id, images, series, sourceUrlsOf(s.source_url)[0] || "");
   const region = REGION[s.region] || s.region || "Japan";
   const acq = official ? ACQ_LABEL[s.acquisition_type] : "Unofficial · fan-made";
   const howText = official ? ACQ_EXPLAIN[s.acquisition_type] : fanExplain(series);
@@ -370,7 +394,7 @@ ${PAGE_CSS}</style>
     <span class="tag">${esc(region)} release</span>
     ${characters ? `<span class="tag">${esc(characters)}</span>` : ""}
   </div>
-  ${img ? `<div class="photo"><img src="${esc(img.url)}" alt="${esc(name)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${esc(series.fallbackImage)}';var c=document.getElementById('credit');if(c)c.textContent='';" /></div><div class="credit" id="credit">${esc(img.credit)}</div>` : ""}
+  ${img ? `<div class="photo"><img src="${esc(img.url)}" alt="${esc(name)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${esc(series.fallbackImage)}';var c=document.getElementById('credit');if(c)c.textContent='';" /></div><div class="credit" id="credit">${img.credit}</div>` : ""}
 
   <section>
     <h2>Original price</h2>
@@ -402,7 +426,7 @@ ${PAGE_CSS}</style>
 </main>
 <footer>
   <p>An independent fan project. Not affiliated with, endorsed or sponsored by ${esc(series.rights)}, or any maker, shop, marketplace or shipping service mentioned here. Nothing is sold on this site.</p>
-  <p>${esc(series.name)} and all related names, characters, logos and artwork belong to their respective owners. Prices and availability are for reference and may be out of date. Rights holders: legal@merchgraph.app</p>
+  <p>${esc(series.name)} and all related names, characters, logos and artwork belong to their respective owners. Prices and availability are for reference and may be out of date. Rights holders: legal@merchgraph.app (<a href="/takedown">takedown requests</a>)</p>
 </footer>
 ${outboundClickScript(series.ip)}
 </body>
@@ -565,7 +589,7 @@ ${body}
 </main>
 <footer>
   <p>An independent fan project. Not affiliated with, endorsed or sponsored by ${esc(series.rights)}, or any maker, shop, marketplace or shipping service mentioned here. Nothing is sold on this site.</p>
-  <p>${esc(series.name)} and all related names, characters, logos and artwork belong to their respective owners. Prices and availability are for reference and may be out of date. Rights holders: legal@merchgraph.app</p>
+  <p>${esc(series.name)} and all related names, characters, logos and artwork belong to their respective owners. Prices and availability are for reference and may be out of date. Rights holders: legal@merchgraph.app (<a href="/takedown">takedown requests</a>)</p>
 </footer>
 </body>
 </html>
@@ -696,6 +720,161 @@ export function relatedFor(s, ctx) {
   return groups.map((g) => `<section class="related"><h2>${esc(g.title)}</h2><ul>${g.items.map((x) => `<li><a href="${esc(itemPathIn(series, x.sku_id))}">${esc(nameOf(x))}</a></li>`).join("")}</ul>${g.all ? `<p class="more"><a href="${esc(g.all.path)}">See all ${g.total} ›</a></p>` : ""}</section>`).join("\n  ");
 }
 
+// ---- ファンメイドのブランドのページ（2026-11-27〜、claude/法務を受けた改修_依頼_2026-11-27.md の 5、掲載ルール §2） ----
+//   /brands              ファンメイドのブランドの一覧
+//   /brands/<slug>       ブランドごと：ブランド名・ショップへのリンク・そのブランドの品の一覧（作品ごと）
+// ブランドは product_lines.csv の maker（ファンメイドの行は maker にブランド名、掲載ルール §3-5）。
+// 作品のページには、今までどおり ip の付いた品が出る（ブランドが作品を示している品）。作品の分からない品（ip が無い・公開前の作品）は
+// ブランドのページにだけ出る（商品ページが無いので名前だけ）。
+export const BRANDS_PATH = "/brands";
+export const brandPathOf = (maker) => `${BRANDS_PATH}/${encodeURIComponent(slugOf(maker))}`;
+export function fanBrands(catalog, lines) {
+  const by = new Map();
+  for (const s of catalog) {
+    if (isTrue(s.official)) continue;
+    const maker = String(lines.get(s.line_id)?.maker || "").trim();
+    if (!maker || !slugOf(maker)) continue;
+    if (!by.has(maker)) by.set(maker, { name: maker, slug: slugOf(maker), path: brandPathOf(maker), items: [] });
+    by.get(maker).items.push(s);
+  }
+  for (const b of by.values()) {
+    // ショップ：品の出典（ブランドのショップの商品ページ、掲載ルール §3-1）のうち、いちばん多いサイトのトップ
+    const count = new Map();
+    for (const s of b.items) {
+      const u = sourceUrlsOf(s.source_url)[0];
+      if (!u) continue;
+      try { const o = new URL(u).origin; count.set(o, (count.get(o) || 0) + 1); } catch { /* skip */ }
+    }
+    const top = [...count.entries()].sort((a, c) => c[1] - a[1] || a[0].localeCompare(c[0]))[0];
+    b.shop = top ? `${top[0]}/` : "";
+    b.items.sort((a, c) => nameOf(a).localeCompare(nameOf(c)));
+  }
+  return [...by.values()].sort((a, c) => a.name.localeCompare(c.name));
+}
+
+function genericShell({ title, description, url, ld, crumbs, body }) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>${esc(title)}</title>
+<meta name="description" content="${esc(description)}" />
+<link rel="canonical" href="${esc(url)}" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Merchgraph" />
+<meta property="og:title" content="${esc(title)}" />
+<meta property="og:description" content="${esc(description)}" />
+<meta property="og:url" content="${esc(url)}" />
+<meta name="twitter:card" content="summary" />
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}</script>
+<style>
+${PAGE_CSS}</style>
+</head>
+<body>
+<header>
+  <a class="brand" href="/">Merchgraph</a>
+  <nav><a href="/">All series</a><a href="${BRANDS_PATH}">Fan-made brands</a></nav>
+</header>
+<main>
+  <div class="crumbs">${crumbs.map(([n, h]) => (h ? `<a href="${esc(h)}">${esc(n)}</a>` : esc(n))).join(" › ")}</div>
+${body}
+</main>
+<footer>
+  <p>An independent fan project. Not affiliated with, endorsed or sponsored by the rights holders of any series listed here, or by any brand, maker, shop, marketplace or shipping service mentioned here. Nothing is sold on this site.</p>
+  <p>All series titles, characters, names, logos and artwork belong to their respective owners. Fan-made items are labelled separately from official merchandise. Rights holders and brands: legal@merchgraph.app (<a href="/takedown">takedown requests</a>)</p>
+</footer>
+</body>
+</html>
+`;
+}
+
+function brandItemLi(s, seriesByIp, lines) {
+  const x = seriesByIp.get(s.ip);
+  if (x && x.publish) return itemListLi(s, x, lines);
+  return `<li>${esc(nameOf(s))}</li>`;
+}
+
+function renderBrand(b, seriesByIp, lines) {
+  const url = ORIGIN + b.path;
+  const groups = new Map();
+  for (const s of b.items) {
+    const x = seriesByIp.get(s.ip);
+    const key = x && x.publish ? x.ip : "";
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(s);
+  }
+  const keys = [...groups.keys()].sort((a, c) => (a === "" ? 1 : c === "" ? -1 : seriesByIp.get(a).name.localeCompare(seriesByIp.get(c).name)));
+  const n = b.items.length;
+  const intro = `${n} fan-made ${n === 1 ? "item" : "items"} by ${b.name}, an independent brand. These are not official merchandise. Each item page links to the brand's own shop page for it.`;
+  const shopHost = b.shop ? hostOf(b.shop) : "";
+  const ld = {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@type": "Brand", "@id": `${url}#brand`, name: b.name, ...(b.shop ? { url: b.shop } : {}) },
+      {
+        "@type": "ItemList", "@id": `${url}#list`, name: `${b.name} items`, url, numberOfItems: n,
+        itemListElement: b.items.map((s, i) => {
+          const x = seriesByIp.get(s.ip);
+          return { "@type": "ListItem", position: i + 1, name: nameOf(s), ...(x && x.publish ? { url: ORIGIN + itemPathIn(x, s.sku_id) } : {}) };
+        }),
+      },
+      breadcrumbLd([["Merchgraph", `${ORIGIN}/`], ["Fan-made brands", ORIGIN + BRANDS_PATH], [b.name, url]]),
+    ],
+  };
+  const body = `  <h1>${esc(b.name)}</h1>
+  <p class="tags"><span class="tag fan">Unofficial · fan-made</span></p>
+  <p class="lead">${esc(intro)}</p>
+  ${b.shop ? `<p><a href="${esc(b.shop)}" rel="noopener nofollow" data-out="brand">${esc(b.name)}'s shop (${esc(shopHost)}) ↗</a></p>` : ""}
+  ${keys.map((k) => `<section class="list">
+    <h2>${k ? `${esc(seriesByIp.get(k).name)}` : "Other items"} (${groups.get(k).length})</h2>
+    ${k ? "" : `<p class="note">Items where the brand does not name a series.</p>`}
+    <ul>${groups.get(k).map((s) => brandItemLi(s, seriesByIp, lines)).join("")}</ul>
+  </section>`).join("\n  ")}
+  <p class="note"><a href="${BRANDS_PATH}">All fan-made brands ›</a></p>`;
+  return genericShell({
+    title: `${b.name}: fan-made items | Merchgraph`, description: intro, url, ld, body,
+    crumbs: [["Merchgraph", "/"], ["Fan-made brands", BRANDS_PATH], [b.name, ""]],
+  });
+}
+
+function renderBrandIndex(brands, seriesByIp) {
+  const url = ORIGIN + BRANDS_PATH;
+  const total = brands.reduce((a, b) => a + b.items.length, 0);
+  const intro = `Independent brands that design their own merchandise for fans. ${brands.length} ${brands.length === 1 ? "brand" : "brands"} and ${total} items so far. Their items are labelled fan-made and are not official merchandise.`;
+  const ld = {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@type": "ItemList", "@id": `${url}#list`, name: "Fan-made brands", url, numberOfItems: brands.length,
+        itemListElement: brands.map((b, i) => ({ "@type": "ListItem", position: i + 1, name: b.name, url: ORIGIN + b.path })) },
+      breadcrumbLd([["Merchgraph", `${ORIGIN}/`], ["Fan-made brands", url]]),
+    ],
+  };
+  const seriesNames = (b) => [...new Set(b.items.map((s) => seriesByIp.get(s.ip)).filter((x) => x && x.publish).map((x) => x.name))].sort();
+  const body = `  <h1>Fan-made brands</h1>
+  <p class="lead">${esc(intro)}</p>
+  <section class="list">
+    <h2>Brands (${brands.length})</h2>
+    <ul>${brands.map((b) => `<li><a href="${esc(b.path)}">${esc(b.name)}</a> <span class="meta">· ${b.items.length} ${b.items.length === 1 ? "item" : "items"}${seriesNames(b).length ? ` · ${esc(seriesNames(b).join(", "))}` : ""}</span></li>`).join("")}</ul>
+  </section>
+  <p class="note"><a href="/">All series ›</a></p>`;
+  return genericShell({ title: "Fan-made brands | Merchgraph", description: intro, url, ld, body, crumbs: [["Merchgraph", "/"], ["Fan-made brands", ""]] });
+}
+
+// 商品ページの「このブランドのほかの品」（ファンメイドの品だけ）
+function brandRelated(s, brand, seriesByIp) {
+  if (!brand) return "";
+  const others = neighbors(brand.items, s, RELATED_PER_GROUP).filter((x) => x.sku_id !== s.sku_id);
+  const li = others.map((x) => {
+    const xs = seriesByIp.get(x.ip);
+    return xs && xs.publish ? `<li><a href="${esc(itemPathIn(xs, x.sku_id))}">${esc(nameOf(x))}</a></li>` : `<li>${esc(nameOf(x))}</li>`;
+  });
+  return `<section class="related brand-more"><h2>More from ${esc(brand.name)}</h2>${li.length ? `<ul>${li.join("")}</ul>` : ""}<p class="more"><a href="${esc(brand.path)}">All ${brand.items.length} ${brand.items.length === 1 ? "item" : "items"} from ${esc(brand.name)} ›</a></p></section>`;
+}
+
 // ---- 実行 ----
 export function buildItemPages({ write = true, series = SERIES, catalog = readJson("src/data/catalog.json"), lastmodOf } = {}) {
   const lines = new Map(readJson("src/data/product_lines.json").map((l) => [l.line_id, l]));
@@ -706,6 +885,9 @@ export function buildItemPages({ write = true, series = SERIES, catalog = readJs
 
   const pages = [];
   const collections = [];
+  const seriesByIp = new Map(series.map((x) => [x.ip, x]));
+  const brands = fanBrands(catalog, lines);
+  const brandOf = new Map(brands.flatMap((b) => b.items.map((s) => [s.sku_id, b])));
   // ルート（/）は作品を選ぶハブページ（2026-11-02〜）。{ loc, lastmod }。ハブの日付は最後に全作品の商品から決める
   const urls = [{ loc: `${ORIGIN}/`, lastmod: null }];
   const allLive = [];
@@ -732,7 +914,8 @@ export function buildItemPages({ write = true, series = SERIES, catalog = readJs
       pageByChar: new Map(cols.characterPages.map((p) => [p.id, p])),
     };
     for (const s of items) {
-      pages.push({ sku: s.sku_id, series: x, html: renderItem(s, lines.get(s.line_id), images, x, suffixes.get(s.sku_id), relatedFor(s, ctx)) });
+      const related = [brandRelated(s, brandOf.get(s.sku_id), seriesByIp), relatedFor(s, ctx)].filter(Boolean).join("\n  ");
+      pages.push({ sku: s.sku_id, series: x, html: renderItem(s, lines.get(s.line_id), images, x, suffixes.get(s.sku_id), related) });
     }
     const collectionPages = [...cols.seriesPages, ...cols.characterPages].map((p) => ({ ...p, series: x, html: renderCollection(p, x, lines) }));
     collections.push(...collectionPages, { kind: "browse", id: "browse", path: browsePath(x), series: x, html: renderBrowse(x, items, lines, cols) });
@@ -748,6 +931,12 @@ export function buildItemPages({ write = true, series = SERIES, catalog = readJs
     );
   }
   urls[0].lastmod = newest(allLive);
+  // ファンメイドのブランドのページ
+  const brandPages = brands.length
+    ? [{ kind: "brands", id: "brands", path: BRANDS_PATH, html: renderBrandIndex(brands, seriesByIp), items: brands.flatMap((b) => b.items) },
+       ...brands.map((b) => ({ kind: "brand", id: b.slug, path: b.path, html: renderBrand(b, seriesByIp, lines), items: b.items }))]
+    : [];
+  urls.push(...brandPages.map((p) => ({ loc: ORIGIN + p.path, lastmod: newest(p.items) })));
   const sitemap =
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
     urls.map((u) => `  <url><loc>${esc(u.loc)}</loc>${u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : ""}</url>`).join("\n") +
@@ -768,19 +957,28 @@ export function buildItemPages({ write = true, series = SERIES, catalog = readJs
       mkdirSync(dirname(file), { recursive: true });
       writeFileSync(file, c.html);
     }
+    rmSync(join(ROOT, "web", "brands"), { recursive: true, force: true });
+    rmSync(join(ROOT, "web", "brands.html"), { force: true });
+    for (const p of brandPages) {
+      const file = join(ROOT, "web", `${decodeURIComponent(p.path)}.html`);
+      mkdirSync(dirname(file), { recursive: true });
+      writeFileSync(file, p.html);
+    }
     writeFileSync(join(ROOT, "web/sitemap.xml"), sitemap);
   }
   return {
     pages: pages.map(({ sku, series: x, html }) => ({ sku, ip: x.ip, html })),
     collections: collections.map(({ kind, id, path, series: x, html, items }) => ({ kind, id, path, ip: x.ip, html, count: items?.length ?? 0 })),
+    brands: brandPages.map(({ kind, id, path, html, items }) => ({ kind, id, path, html, count: items.length })),
     sitemap,
   };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const { pages, collections } = buildItemPages();
+  const { pages, collections, brands } = buildItemPages();
   const dirs = SERIES.filter((x) => x.publish).map((x) => `web${x.path}item/`).join(", ");
   const n = (k) => collections.filter((c) => c.kind === k).length;
   console.log(`✓ ${pages.length} item pages → ${dirs}, sitemap → web/sitemap.xml`);
   console.log(`✓ collection pages: ${n("series")} series, ${n("character")} characters, ${n("browse")} browse`);
+  console.log(`✓ fan-made brand pages: ${brands.filter((b) => b.kind === "brand").length} brands → web/brands/`);
 }

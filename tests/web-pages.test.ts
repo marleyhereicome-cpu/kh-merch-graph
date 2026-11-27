@@ -10,9 +10,9 @@ describe("catalog pages", () => {
     expect(html).not.toContain("'@type': 'Offer'");
     expect(html).toContain("name: 'original_price_jpy'");
   });
-  it("the catalog shows the Kingdom Hearts logo as a fixed background, not in the header", () => {
+  it("the catalog shows no Kingdom Hearts logo, neither as a background nor in the header (2026-11-27)", () => {
     const html = readFileSync("web/kingdomhearts/index.html", "utf8");
-    expect(html).toMatch(/body::before \{[^}]*position: fixed;[^}]*url\('\.\/kh-logo-mark\.png'\)/);
+    expect(html).not.toMatch(/kh-logo(-mark)?\.png/);
     expect(html).not.toContain('<img class="wordmark-img"');
   });
   for (const page of PAGES) {
@@ -199,12 +199,17 @@ describe("404 page", () => {
   });
 });
 
-describe("series logo watermark (2026-11-12): Demon Slayer and One Piece follow Kingdom Hearts", () => {
-  for (const [dir, file] of [["demon-slayer", "kny-logo.png"], ["one-piece", "op-logo.png"], ["dragon-ball", "db-logo.png"]]) {
-    it(`${dir} shows its logo as a fixed, faint background behind the page`, () => {
+// 作品の公式ロゴの透かしは全作品で外した（2026-11-27、claude/法務を受けた改修_依頼_2026-11-27.md の 1）。
+// 作品名はサイトの通常のフォントの文字（見出し）で出す。
+describe("no series logo watermark on any series page (2026-11-27)", () => {
+  for (const [dir, file, name] of [["kingdomhearts", "kh-logo-mark.png", "Kingdom Hearts"], ["demon-slayer", "kny-logo.png", "Demon Slayer"], ["one-piece", "op-logo.png", "One Piece"], ["dragon-ball", "db-logo.png", "Dragon Ball"]]) {
+    it(`${dir} has no logo file, no watermark and shows the series name as text`, () => {
       const html = readFileSync(`web/${dir}/index.html`, "utf8");
-      expect(html).toMatch(new RegExp(`body::before \\{[^}]*position: fixed;[^}]*url\\('\\./${file.replace(".", "\\.")}'\\)[^}]*opacity: 0\\.1;`));
-      expect(existsSync(`web/${dir}/${file}`)).toBe(true);
+      expect(html).not.toMatch(/body::before \{[^}]*url\(/);
+      expect(html).not.toMatch(/(kh-logo|kh-logo-mark|kny-logo|op-logo|db-logo)\.png/);
+      expect(existsSync(`web/${dir}/${file}`)).toBe(false);
+      expect(existsSync(`ip-config/${dir === "kingdomhearts" ? "kingdom-hearts" : dir === "demon-slayer" ? "kimetsu-no-yaiba" : dir}/watermark.css`)).toBe(false);
+      expect(html).toMatch(new RegExp(`<h1[^>]*>${name} merch`));
     });
   }
 });
