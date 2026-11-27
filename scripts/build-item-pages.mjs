@@ -202,7 +202,7 @@ function channelsOf(s) {
 // 画像の出典（2026-11-27〜、法務を受けた改修 2）：画像の直下に「Image: <出典のサイト名>」をリンクで出す。
 // templates/ip/index.html の imageCredit と同じ考え方：画像が配信用のサーバー（Shopify の CDN など）か出典と同じサイトにあれば、
 // 出典のページのサイト名とリンク。それ以外は画像のあるサイトの名前と、そのトップへのリンク。
-export const IMAGE_CDN_RE = /(^|\.)(shopify\.com|shopifycdn\.(com|net)|squarespace-cdn\.com|wixstatic\.com|cloudfront\.net|akamaized\.net|imgix\.net|wp\.com|googleusercontent\.com|bigcommerce\.com|ctfassets\.net|cloudinary\.com)$/;
+export const IMAGE_CDN_RE = /(^|\.)(shopify\.com|shopifycdn\.(com|net)|squarespace-cdn\.com|wixstatic\.com|cloudfront\.net|akamaized\.net|imgix\.net|wp\.com|googleusercontent\.com|bigcommerce\.com|ctfassets\.net|cloudinary\.com|amplience\.net|digitaloceanspaces\.com|kgl-systems\.io)$|(^|\.)cdn\d*\./;
 const siteOf = (host) => {
   const p = host.split(".");
   return p.length > 2 && p[p.length - 1].length === 2 && /^(co|ne|or|ac|go|com|net|org)$/.test(p[p.length - 2]) ? p.slice(-3).join(".") : p.slice(-2).join(".");

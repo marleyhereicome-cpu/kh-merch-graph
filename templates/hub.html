@@ -328,7 +328,7 @@ async function itemCount(ip) {
 }
 // カードの4枚の写真は、作品ページのファーストビューと同じ商品の一覧（<作品>/shelf.json：画像と出典のURLつき）から選ぶ。
 // 写真の下に、出典のサイト名をリンクで出す（2026-11-27〜、法務を受けた改修 2。作品ページの imageCredit と同じ考え方）。
-const IMAGE_CDN_RE = /(^|\.)(shopify\.com|shopifycdn\.(com|net)|squarespace-cdn\.com|wixstatic\.com|cloudfront\.net|akamaized\.net|imgix\.net|wp\.com|googleusercontent\.com|bigcommerce\.com|ctfassets\.net|cloudinary\.com)$/;
+const IMAGE_CDN_RE = /(^|\.)(shopify\.com|shopifycdn\.(com|net)|squarespace-cdn\.com|wixstatic\.com|cloudfront\.net|akamaized\.net|imgix\.net|wp\.com|googleusercontent\.com|bigcommerce\.com|ctfassets\.net|cloudinary\.com|amplience\.net|digitaloceanspaces\.com|kgl-systems\.io)$|(^|\.)cdn\d*\./;
 const hostOf = (u) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; } };
 const siteOf = (h) => { const p = h.split('.'); return p.length > 2 && p[p.length - 1].length === 2 && /^(co|ne|or|ac|go|com|net|org)$/.test(p[p.length - 2]) ? p.slice(-3).join('.') : p.slice(-2).join('.'); };
 function creditOf(img, src) {
